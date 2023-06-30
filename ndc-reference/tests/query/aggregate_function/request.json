@@ -1,0 +1,20 @@
+{
+    "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
+    "table": "articles",
+    "arguments": {},
+    "query": {
+        "aggregates": {
+            "min_id": {
+                "type": "single_column",
+                "column": "id",
+                "function": "min"
+            },
+            "max_id": {
+                "type": "single_column",
+                "column": "id",
+                "function": "max"
+            }
+        }
+    },
+    "table_relationships": {}
+}

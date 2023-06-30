@@ -1,0 +1,49 @@
+{
+    "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
+    "table": "articles",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id",
+                "arguments": {}
+            },
+            "title": {
+                "type": "column",
+                "column": "title",
+                "arguments": {}
+            },
+            "author": {
+                "type": "relationship",
+                "arguments": {},
+                "relationship": "article_author",
+                "query": {
+                    "fields": {
+                        "first_name": {
+                            "type": "column",
+                            "column": "first_name",
+                            "arguments": {}
+                        },
+                        "last_name": {
+                            "type": "column",
+                            "column": "last_name",
+                            "arguments": {}
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "table_relationships": {
+        "article_author": {
+            "arguments": {},
+            "column_mapping": {
+                "author_id": "id"
+            },
+            "relationship_type": "object",
+            "source_table_or_type": "article",
+            "target_table": "authors"
+        }
+    }
+}

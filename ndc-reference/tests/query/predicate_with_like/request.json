@@ -1,0 +1,36 @@
+{
+    "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
+    "table": "articles",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id",
+                "arguments": {}
+            },
+            "title": {
+                "type": "column",
+                "column": "title",
+                "arguments": {}
+            }
+        },
+        "where": {
+            "type": "binary_comparison_operator",
+            "column": {
+                "type": "column",
+                "name": "title",
+                "path": []
+            },
+            "operator": {
+                "type": "other",
+                "name": "like"
+            },
+            "value": {
+                "type": "scalar",
+                "value": "Functional"
+            }
+        }
+    },
+    "table_relationships": {}
+}

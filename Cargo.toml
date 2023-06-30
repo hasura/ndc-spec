@@ -1,0 +1,5 @@
+[workspace]
+members = [
+  "ndc-client",
+  "ndc-reference",
+]

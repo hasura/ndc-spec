@@ -1,0 +1,19 @@
+{
+    "table": "articles",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id",
+                "arguments": {}
+            },
+            "title": {
+                "type": "column",
+                "column": "title",
+                "arguments": {}
+            }
+        }
+    },
+    "table_relationships": {}
+}

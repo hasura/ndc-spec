@@ -1,0 +1,32 @@
+{
+    "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
+    "table": "articles",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id",
+                "arguments": {}
+            },
+            "title": {
+                "type": "column",
+                "column": "title",
+                "arguments": {}
+            }
+        },
+        "order_by": {
+            "elements": [
+                {
+                    "target": {
+                        "type": "column",
+                        "name": "title",
+                        "path": []
+                    },
+                    "order_direction": "desc"
+                }
+            ]
+        }
+    },
+    "table_relationships": {}
+}

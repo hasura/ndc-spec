@@ -1,0 +1,27 @@
+[package]
+name = "ndc-reference"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "ndc-reference"
+path = "bin/reference/main.rs"
+
+[dependencies]
+ndc-client = { path = "../ndc-client" }
+indexmap = "1"
+serde = "1.0.152"
+serde_json = "1.0.92"
+tokio = { version = "1.26.0", features = [
+    "macros",
+    "rt-multi-thread",
+    "parking_lot",
+] }
+axum = "0.6.9"
+regex = "1.7.3"
+csv = "1.2.2"
+prometheus = "0.13.3"
+
+[dev-dependencies]
+goldenfile = "1.4.5"
+tokio-test = "0.4.2"
