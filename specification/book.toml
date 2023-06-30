@@ -1,6 +1,0 @@
-[book]
-authors = ["Phil Freeman"]
-language = "en"
-multilingual = false
-src = "src"
-title = "Hasura Data Connectors  Developer's Guide"
