@@ -1,0 +1,14 @@
+agents:
+  queue: "v3-experiments"
+steps:
+  - label: "Build"
+    command: |
+      cargo build
+
+  - label: "Test"
+    command: |
+      cargo test
+
+  - label: "Bench"
+    command: |
+      cargo bench
