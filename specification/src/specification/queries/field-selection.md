@@ -12,25 +12,7 @@ The requested fields are specified as a collection of [`Field`](../../reference/
 Here is an example of a query which selects some columns from the `articles` table of the reference data connector:
 
 ```json
-{
-    "table": "articles",
-    "query": {
-        "fields": {
-            "id": {
-                "type": "column",
-                "column": "id",
-                "arguments": {}
-            },
-            "title": {
-                "type": "column",
-                "column": "title",
-                "arguments": {}
-            }
-        }
-    },
-    "arguments": {},
-    "table_relationships": []
-}
+{{#include ../../../../ndc-reference/tests/query/get_all_articles/request.json}}
 ```
 
 ## Requirements

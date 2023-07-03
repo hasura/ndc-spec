@@ -15,22 +15,7 @@ See [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 ### Example
 
 ```json
-{
-  "versions": "^1.0.0",
-  "capabilities": {
-    "query": {
-        "foreach": {},
-        "relation_comparisons": {},
-        "order_by_aggregate": {}
-    },
-    "mutations": {
-        "nested_inserts": {},
-        "returning": {}
-    },
-    "explain": {},
-    "relationships": {},
-  }
-}
+{{#include ../../../ndc-reference/tests/capabilities/expected.json}}
 ```
 
 ## Response Fields

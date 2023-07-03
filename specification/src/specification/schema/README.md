@@ -2,6 +2,8 @@
 
 The schema endpoint defines any types used by the data connector, and describes the tables and their columns, and any commands.
 
+The schema endpoint is used to specify the behavior of a data connector, so that it can be tested, verified, and used by tools such as code generators. It is primarily provided by data connector implementors as a development and specification tool, and it is not expected to be used at "runtime", in the same sense that the `/query` and `/mutation` endpoints would be.
+
 ## Request
 
 ```
@@ -15,108 +17,7 @@ See [`SchemaResponse`](../../reference/types.md#schemaresponse)
 ### Example
 
 ```json
-{
-  "scalar_types": {
-    "String": {
-      "aggregate_functions": {},
-      "comparison_operators": {},
-      "update_operators": {}
-    }
-  },
-  "object_types": {
-    "author": {
-      "description": "An author",
-      "fields": {
-        "last_name": {
-          "description": "The author's last name",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "String"
-          }
-        },
-        "id": {
-          "description": "The author's primary key",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "String"
-          }
-        },
-        "first_name": {
-          "description": "The author's first name",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "String"
-          }
-        }
-      }
-    },
-    "article": {
-      "description": "An article",
-      "fields": {
-        "author_id": {
-          "description": "The article's author ID",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "String"
-          }
-        },
-        "id": {
-          "description": "The article's primary key",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "String"
-          }
-        },
-        "title": {
-          "description": "The article's title",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "String"
-          }
-        }
-      }
-    }
-  },
-  "tables": [
-    {
-      "name": "articles",
-      "description": "A collection of articles",
-      "arguments": {},
-      "type": "article",
-      "deletable": false,
-      "uniqueness_constraints": {
-        "ArticleByID": {
-          "unique_columns": [
-            "id"
-          ]
-        }
-      },
-      "foreign_keys": {}
-    },
-    {
-      "name": "authors",
-      "description": "A collection of authors",
-      "arguments": {},
-      "type": "author",
-      "deletable": false,
-      "uniqueness_constraints": {
-        "AuthorByID": {
-          "unique_columns": [
-            "id"
-          ]
-        }
-      },
-      "foreign_keys": {}
-    }
-  ],
-  "commands": []
-}
+{{#include ../../../../ndc-reference/tests/schema/expected.json}}
 ```
 
 ## Response Fields

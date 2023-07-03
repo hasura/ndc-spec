@@ -141,7 +141,7 @@ async fn get_metrics(State(state): State<Arc<AppState>>) -> Result<String, Statu
 
 // ANCHOR: capabilities
 async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
-    let empty = serde_json::to_value(()).unwrap();
+    let empty = serde_json::to_value(HashMap::<String, ()>::new()).unwrap();
     Json(models::CapabilitiesResponse {
         versions: "^1.0.0".into(),
         capabilities: models::Capabilities {
@@ -1206,14 +1206,84 @@ fn eval_column_mapping(
 #[cfg(test)]
 mod tests {
     use axum::{extract::State, Json};
-    use ndc_client::models;
     use goldenfile::{differs::text_diff, Mint};
+    use ndc_client::models;
     use std::{
         fs::{self, File},
         io::Write,
         path::PathBuf,
         sync::Arc,
     };
+
+    #[test]
+    fn test_capabilities() {
+        tokio_test::block_on(async {
+            let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+
+            let mut mint = Mint::new(&test_dir);
+
+            let expected_path = PathBuf::from_iter(["capabilities", "expected.json"]);
+
+            let response = crate::get_capabilities().await;
+
+            let mut expected = mint
+                .new_goldenfile_with_differ(
+                    expected_path,
+                    Box::new(|file1, file2| {
+                        let json1: serde_json::Value =
+                            serde_json::from_reader(File::open(file1).unwrap()).unwrap();
+                        let json2: serde_json::Value =
+                            serde_json::from_reader(File::open(file2).unwrap()).unwrap();
+                        if json1 != json2 {
+                            text_diff(file1, file2)
+                        }
+                    }),
+                )
+                .unwrap();
+
+            write!(
+                expected,
+                "{}",
+                serde_json::to_string_pretty(&response.0).unwrap()
+            )
+            .unwrap();
+        });
+    }
+
+    #[test]
+    fn test_schema() {
+        tokio_test::block_on(async {
+            let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+
+            let mut mint = Mint::new(&test_dir);
+
+            let expected_path = PathBuf::from_iter(["schema", "expected.json"]);
+
+            let response = crate::get_schema().await;
+
+            let mut expected = mint
+                .new_goldenfile_with_differ(
+                    expected_path,
+                    Box::new(|file1, file2| {
+                        let json1: serde_json::Value =
+                            serde_json::from_reader(File::open(file1).unwrap()).unwrap();
+                        let json2: serde_json::Value =
+                            serde_json::from_reader(File::open(file2).unwrap()).unwrap();
+                        if json1 != json2 {
+                            text_diff(file1, file2)
+                        }
+                    }),
+                )
+                .unwrap();
+
+            write!(
+                expected,
+                "{}",
+                serde_json::to_string_pretty(&response.0).unwrap()
+            )
+            .unwrap();
+        });
+    }
 
     #[test]
     fn test_query() {
