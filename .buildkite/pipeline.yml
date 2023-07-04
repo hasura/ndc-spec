@@ -1,5 +1,5 @@
 agents:
-  queue: "aws-on-demand-amd64-ubuntu-medium-ami-067a634095fdec102"
+  queue: "aws-on-demand-amd64-ubuntu-medium-ami-0e00a840cbcfcdd0d"
 steps:
   - label: "Build"
     command: |
