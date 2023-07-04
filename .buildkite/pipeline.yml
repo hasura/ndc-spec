@@ -1,8 +1,5 @@
 agents:
   queue: "aws-on-demand-amd64-ubuntu-medium-ami-0e00a840cbcfcdd0d"
-notify:
-  - github_commit_status:
-      context: "buildkite"
 steps:
   - label: "Build"
     command: |
