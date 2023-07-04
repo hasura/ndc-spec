@@ -1,5 +1,5 @@
 agents:
-  queue: "v3-experiments"
+  queue: "aws-on-demand-amd64-ubuntu-medium-ami-067a634095fdec102"
 steps:
   - label: "Build"
     command: |
