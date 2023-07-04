@@ -4,11 +4,44 @@ steps:
   - label: "Build"
     command: |
       cargo build
+    plugins:
+      - hasura/smooth-secrets#v1.2.1:
+          secrets:
+            - strategy: aws-secrets-manager
+              key: github-deploy-keys/ndc-spec
+              type: ssh
+              region: us-east-2
+      - hasura/smooth-checkout#v4.2.1:
+          repos:
+            - config:
+                - url: git@github.com:hasura/ndc-spec.git
 
   - label: "Test"
     command: |
       cargo test
+    plugins:
+      - hasura/smooth-secrets#v1.2.1:
+          secrets:
+            - strategy: aws-secrets-manager
+              key: github-deploy-keys/ndc-spec
+              type: ssh
+              region: us-east-2
+      - hasura/smooth-checkout#v4.2.1:
+          repos:
+            - config:
+                - url: git@github.com:hasura/ndc-spec.git
 
   - label: "Bench"
     command: |
       cargo bench
+    plugins:
+      - hasura/smooth-secrets#v1.2.1:
+          secrets:
+            - strategy: aws-secrets-manager
+              key: github-deploy-keys/ndc-spec
+              type: ssh
+              region: us-east-2
+      - hasura/smooth-checkout#v4.2.1:
+          repos:
+            - config:
+                - url: git@github.com:hasura/ndc-spec.git
