@@ -1,8 +1,5 @@
 agents:
   queue: "aws-on-demand-amd64-ubuntu-medium-ami-0e00a840cbcfcdd0d"
-notify:
-  - github_commit_status:
-      context: "my-custom-status"
 steps:
   - label: "Build"
     command: |
@@ -48,3 +45,6 @@ steps:
           repos:
             - config:
                 - url: git@github.com:hasura/ndc-spec.git
+notify:
+  - github_commit_status:
+      context: "my-custom-status"
