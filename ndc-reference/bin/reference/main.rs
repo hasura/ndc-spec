@@ -322,8 +322,27 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         )]),
     };
     // ANCHOR_END: schema_table_author
+    // ANCHOR: schema_table_articles_by_author
+    let articles_by_author_table = models::TableInfo {
+        name: "articles_by_author".into(),
+        description: Some("Articles parameterized by author".into()),
+        table_type: "article".into(),
+        arguments: HashMap::from_iter([(
+            "author_id".into(),
+            models::ArgumentInfo {
+                argument_type: models::Type::Named { name: "Int".into() },
+                description: None,
+            },
+        )]),
+        deletable: false,
+        insertable_columns: None,
+        updatable_columns: None,
+        foreign_keys: HashMap::new(),
+        uniqueness_constraints: HashMap::new(),
+    };
+    // ANCHOR_END: schema_table_articles_by_author
     // ANCHOR: schema_tables
-    let tables = vec![articles_table, authors_table];
+    let tables = vec![articles_table, authors_table, articles_by_author_table];
     // ANCHOR_END: schema_tables
     // ANCHOR: schema_command_upsert_article
     let upsert_article = models::CommandInfo {
@@ -371,6 +390,7 @@ pub async fn post_query(
             &request.table_relationships,
             variables,
             request.table.as_str(),
+            &request.arguments,
             None,
             &request.query,
             state.as_ref(),
@@ -386,11 +406,23 @@ fn execute_query_by_table_name(
     table_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     table_name: &str,
+    arguments: &HashMap<String, models::Argument>,
     root: Option<&Row>,
     query: &models::Query,
     state: &AppState,
 ) -> Result<models::RowSet, StatusLine> {
-    let collection = get_table_by_name(table_name, state)?;
+    let mut argument_values = HashMap::new();
+
+    for (argument_name, argument_value) in arguments.iter() {
+        if let Some(_) = argument_values.insert(
+            argument_name.clone(),
+            eval_argument(variables, argument_value)?,
+        ) {
+            return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
+        }
+    }
+
+    let collection = get_table_by_name(table_name, &argument_values, state)?;
     execute_query(
         table_relationships,
         variables,
@@ -401,10 +433,30 @@ fn execute_query_by_table_name(
     )
 }
 
-fn get_table_by_name(table_name: &str, state: &AppState) -> Result<Vec<Row>, StatusLine> {
+fn get_table_by_name(
+    table_name: &str,
+    arguments: &HashMap<String, serde_json::Value>,
+    state: &AppState,
+) -> Result<Vec<Row>, StatusLine> {
     match table_name {
         "articles" => Ok(state.articles.clone()),
         "authors" => Ok(state.authors.clone()),
+        "articles_by_author" => {
+            let author_id = arguments.get("author_id".into()).ok_or((StatusCode::BAD_REQUEST, "missing argument author_id"))?;
+            let author_id_int = author_id.as_i64().ok_or((StatusCode::BAD_REQUEST, "author_id must be a string"))?;
+            
+            let mut articles_by_author = vec![];
+            
+            for article in state.articles.iter() {
+                let article_author_id = article.get("author_id").ok_or((StatusCode::INTERNAL_SERVER_ERROR, "author_id not found"))?;
+                let article_author_id_int = article_author_id.as_i64().ok_or((StatusCode::INTERNAL_SERVER_ERROR, "author_id must be a string"))?;
+                if article_author_id_int == author_id_int {
+                    articles_by_author.push(article.clone())
+                }
+            }
+
+            Ok(articles_by_author)
+        }
         _ => Err((StatusCode::BAD_REQUEST, "invalid table name")),
     }
 }
@@ -756,6 +808,7 @@ fn eval_path_with_predicates(
             variables,
             state,
             relationship,
+            &path_element.arguments,
             root,
             &result,
             &path_element.predicate,
@@ -770,16 +823,37 @@ fn eval_path_element_with_predicate(
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     relationship: &models::Relationship,
+    arguments: &HashMap<String, models::Argument>,
     root: &Row,
     source: &Vec<Row>,
     predicate: &models::Expression,
 ) -> Result<Vec<Row>, StatusLine> {
-    let target = get_table_by_name(relationship.target_table.as_str(), state)?;
-
     let mut matching_rows: Vec<Row> = vec![];
 
-    'tgt: for tgt_row in target.iter() {
-        for src_row in source.iter() {
+    for src_row in source.iter() {
+        let mut all_arguments = HashMap::new();
+
+        for (argument_name, argument_value) in relationship.arguments.iter() {
+            if let Some(_) = all_arguments.insert(
+                argument_name.clone(),
+                eval_relationship_argument(variables, src_row, argument_value)?,
+            ) {
+                return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
+            }
+        }
+
+        for (argument_name, argument_value) in arguments.iter() {
+            if let Some(_) = all_arguments.insert(
+                argument_name.clone(),
+                eval_argument(variables, argument_value)?,
+            ) {
+                return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
+            }
+        }
+
+        let target = get_table_by_name(relationship.target_table.as_str(), &all_arguments, state)?;
+
+        for tgt_row in target.iter() {
             if eval_column_mapping(relationship, src_row, tgt_row)? {
                 if eval_expression(
                     table_relationships,
@@ -791,12 +865,45 @@ fn eval_path_element_with_predicate(
                 )? {
                     matching_rows.push(tgt_row.clone());
                 }
-                continue 'tgt;
             }
         }
     }
 
     Ok(matching_rows)
+}
+
+fn eval_argument(
+    variables: &HashMap<String, serde_json::Value>,
+    argument: &models::Argument,
+) -> Result<serde_json::Value, StatusLine> {
+    match argument {
+        models::Argument::Variable { name } => {
+            let value = variables
+                .get(name.as_str())
+                .ok_or((StatusCode::BAD_REQUEST, "invalid variable name"))
+                .cloned()?;
+            Ok(value)
+        }
+        models::Argument::Literal { value } => Ok(value.clone()),
+    }
+}
+
+fn eval_relationship_argument(
+    variables: &HashMap<String, serde_json::Value>,
+    row: &Row,
+    argument: &models::RelationshipArgument,
+) -> Result<serde_json::Value, StatusLine> {
+    match argument {
+        models::RelationshipArgument::Variable { name } => {
+            let value = variables
+                .get(name.as_str())
+                .ok_or((StatusCode::BAD_REQUEST, "invalid variable name"))
+                .cloned()?;
+            Ok(value)
+        }
+        models::RelationshipArgument::Literal { value } => Ok(value.clone()),
+        models::RelationshipArgument::Column { name } => eval_column(row, name),
+    }
 }
 
 fn eval_expression(
@@ -969,7 +1076,7 @@ fn eval_expression(
             let row_set = match &**in_table {
                 models::ExistsInTable::Related {
                     relationship,
-                    arguments: _,
+                    arguments,
                 } => {
                     let relationship = table_relationships.get(relationship.as_str()).ok_or((
                         StatusCode::BAD_REQUEST,
@@ -981,6 +1088,7 @@ fn eval_expression(
                         variables,
                         state,
                         relationship,
+                        arguments,
                         root,
                         &source,
                         &models::Expression::And {
@@ -998,11 +1106,12 @@ fn eval_expression(
                 }
                 models::ExistsInTable::Unrelated {
                     table,
-                    arguments: _,
+                    arguments,
                 } => execute_query_by_table_name(
                     table_relationships,
                     variables,
                     table.as_str(),
+                    arguments,
                     Some(root),
                     &query,
                     state,
@@ -1085,7 +1194,7 @@ fn eval_field(
         }),
         models::Field::Relationship {
             relationship,
-            arguments: _,
+            arguments,
             query,
         } => {
             let relationship = table_relationships.get(relationship.as_str()).ok_or((
@@ -1098,6 +1207,7 @@ fn eval_field(
                 variables,
                 state,
                 relationship,
+                arguments,
                 root,
                 &source,
                 &models::Expression::And {

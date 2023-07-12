@@ -674,9 +674,23 @@ pub struct Relationship {
     /// The name of a table
     pub target_table: String,
     /// Values to be provided to any table arguments
-    pub arguments: HashMap<String, ComparisonValue>,
+    pub arguments: HashMap<String, RelationshipArgument>,
 }
 // ANCHOR_END: Relationship
+
+// ANCHOR: RelationshipArgument
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum RelationshipArgument {
+    /// The argument is provided by reference to a variable
+    Variable { name: String },
+    /// The argument is provided as a literal value
+    Literal { value: serde_json::Value },
+    // The argument is provided based on a column of the source table
+    Column{ name: String },
+}
+// ANCHOR_END: RelationshipArgument
 
 // ANCHOR: RelationshipType
 #[derive(

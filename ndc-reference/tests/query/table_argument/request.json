@@ -1,0 +1,25 @@
+{
+    "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
+    "table": "articles_by_author",
+    "arguments": {
+        "author_id": {
+            "type": "literal",
+            "value": 1
+        }
+    },
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id",
+                "arguments": {}
+            },
+            "title": {
+                "type": "column",
+                "column": "title",
+                "arguments": {}
+            }
+        }
+    },
+    "table_relationships": {}
+}
