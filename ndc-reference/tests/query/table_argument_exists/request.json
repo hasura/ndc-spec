@@ -4,41 +4,22 @@
     "arguments": {},
     "query": {
         "fields": {
-            "first_name": {
+            "id": {
                 "type": "column",
-                "column": "first_name",
+                "column": "id",
                 "arguments": {}
-            },
-            "last_name": {
-                "type": "column",
-                "column": "last_name",
-                "arguments": {}
-            },
-            "articles": {
-                "type": "relationship",
-                "arguments": {},
-                "relationship": "author_articles",
-                "query": {
-                    "fields": {
-                        "id": {
-                            "type": "column",
-                            "column": "id",
-                            "arguments": {}
-                        },
-                        "title": {
-                            "type": "column",
-                            "column": "title",
-                            "arguments": {}
-                        }
-                    }
-                }
             }
         },
         "where": {
             "type": "exists",
             "in_table": {
                 "type": "related",
-                "arguments": {},
+                "arguments": {
+                    "author_id": {
+                        "type": "column",
+                        "name": "id"
+                    }
+                },
                 "relationship": "author_articles"
             },
             "where": {
@@ -62,12 +43,10 @@
     "table_relationships": {
         "author_articles": {
             "arguments": {},
-            "column_mapping": {
-                "id": "author_id"
-            },
+            "column_mapping": {},
             "relationship_type": "array",
             "source_table_or_type": "author",
-            "target_table": "articles"
+            "target_table": "articles_by_author"
         }
     }
 }

@@ -386,11 +386,22 @@ pub async fn post_query(
 
     let mut row_sets = vec![];
     for variables in variable_sets.iter() {
+        let mut arguments = HashMap::new();
+
+        for (argument_name, argument_value) in request.arguments.iter() {
+            if let Some(_) = arguments.insert(
+                argument_name.clone(),
+                eval_argument(variables, argument_value)?,
+            ) {
+                return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
+            }
+        }
+
         let row_set = execute_query_by_table_name(
             &request.table_relationships,
             variables,
             request.table.as_str(),
-            &request.arguments,
+            &arguments,
             None,
             &request.query,
             state.as_ref(),
@@ -406,23 +417,12 @@ fn execute_query_by_table_name(
     table_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     table_name: &str,
-    arguments: &HashMap<String, models::Argument>,
+    arguments: &HashMap<String, serde_json::Value>,
     root: Option<&Row>,
     query: &models::Query,
     state: &AppState,
 ) -> Result<models::RowSet, StatusLine> {
-    let mut argument_values = HashMap::new();
-
-    for (argument_name, argument_value) in arguments.iter() {
-        if let Some(_) = argument_values.insert(
-            argument_name.clone(),
-            eval_argument(variables, argument_value)?,
-        ) {
-            return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
-        }
-    }
-
-    let collection = get_table_by_name(table_name, &argument_values, state)?;
+    let collection = get_table_by_name(table_name, arguments, state)?;
     execute_query(
         table_relationships,
         variables,
@@ -442,14 +442,23 @@ fn get_table_by_name(
         "articles" => Ok(state.articles.clone()),
         "authors" => Ok(state.authors.clone()),
         "articles_by_author" => {
-            let author_id = arguments.get("author_id".into()).ok_or((StatusCode::BAD_REQUEST, "missing argument author_id"))?;
-            let author_id_int = author_id.as_i64().ok_or((StatusCode::BAD_REQUEST, "author_id must be a string"))?;
-            
+            let author_id = arguments
+                .get("author_id".into())
+                .ok_or((StatusCode::BAD_REQUEST, "missing argument author_id"))?;
+            let author_id_int = author_id
+                .as_i64()
+                .ok_or((StatusCode::BAD_REQUEST, "author_id must be a string"))?;
+
             let mut articles_by_author = vec![];
-            
+
             for article in state.articles.iter() {
-                let article_author_id = article.get("author_id").ok_or((StatusCode::INTERNAL_SERVER_ERROR, "author_id not found"))?;
-                let article_author_id_int = article_author_id.as_i64().ok_or((StatusCode::INTERNAL_SERVER_ERROR, "author_id must be a string"))?;
+                let article_author_id = article
+                    .get("author_id")
+                    .ok_or((StatusCode::INTERNAL_SERVER_ERROR, "author_id not found"))?;
+                let article_author_id_int = article_author_id.as_i64().ok_or((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "author_id must be a string",
+                ))?;
                 if article_author_id_int == author_id_int {
                     articles_by_author.push(article.clone())
                 }
@@ -823,7 +832,7 @@ fn eval_path_element_with_predicate(
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     relationship: &models::Relationship,
-    arguments: &HashMap<String, models::Argument>,
+    arguments: &HashMap<String, models::RelationshipArgument>,
     root: &Row,
     source: &Vec<Row>,
     predicate: &models::Expression,
@@ -845,7 +854,7 @@ fn eval_path_element_with_predicate(
         for (argument_name, argument_value) in arguments.iter() {
             if let Some(_) = all_arguments.insert(
                 argument_name.clone(),
-                eval_argument(variables, argument_value)?,
+                eval_relationship_argument(variables, src_row, argument_value)?,
             ) {
                 return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
             }
@@ -1104,18 +1113,23 @@ fn eval_expression(
                         collection,
                     )
                 }
-                models::ExistsInTable::Unrelated {
-                    table,
-                    arguments,
-                } => execute_query_by_table_name(
-                    table_relationships,
-                    variables,
-                    table.as_str(),
-                    arguments,
-                    Some(root),
-                    &query,
-                    state,
-                ),
+                models::ExistsInTable::Unrelated { table, arguments } => {
+                    let arguments = arguments
+                        .iter()
+                        .map(|(k, v)| {
+                            Ok((k.clone(), eval_relationship_argument(variables, item, v)?))
+                        })
+                        .collect::<Result<HashMap<_, _>, _>>()?;
+                    execute_query_by_table_name(
+                        table_relationships,
+                        variables,
+                        table.as_str(),
+                        &arguments,
+                        Some(root),
+                        &query,
+                        state,
+                    )
+                }
             }?;
             let rows: Vec<HashMap<_, _>> = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,

@@ -313,7 +313,7 @@ pub enum Field {
         /// The name of the relationship to follow for the subquery
         relationship: String,
         /// Values to be provided to any table arguments
-        arguments: HashMap<String, Argument>,
+        arguments: HashMap<String, RelationshipArgument>,
     },
 }
 // ANCHOR_END: Field
@@ -367,7 +367,7 @@ pub struct PathElementWithPredicate {
     /// The name of the relationship to follow
     pub relationship: String,
     /// Values to be provided to any table arguments
-    pub arguments: HashMap<String, Argument>,
+    pub arguments: HashMap<String, RelationshipArgument>,
     /// A predicate expression to apply to the target table
     pub predicate: Box<Expression>,
 }
@@ -476,7 +476,7 @@ pub struct PathElement {
     /// The name of the relationship to follow
     pub relationship: String,
     /// Values to be provided to any table arguments
-    pub arguments: HashMap<String, Argument>,
+    pub arguments: HashMap<String, RelationshipArgument>,
 }
 // ANCHOR_END: PathElement
 
@@ -497,13 +497,13 @@ pub enum ExistsInTable {
     Related {
         relationship: String,
         /// Values to be provided to any table arguments
-        arguments: HashMap<String, Argument>,
+        arguments: HashMap<String, RelationshipArgument>,
     },
     Unrelated {
         /// The name of a table
         table: String,
         /// Values to be provided to any table arguments
-        arguments: HashMap<String, Argument>,
+        arguments: HashMap<String, RelationshipArgument>,
     },
 }
 // ANCHOR_END: ExistsInTable

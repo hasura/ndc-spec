@@ -1,0 +1,48 @@
+{
+    "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
+    "table": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id",
+                "arguments": {}
+            }
+        },
+        "order_by": {
+            "elements": [
+                {
+                    "order_direction": "desc",
+                    "target": {
+                        "type": "star_count_aggregate",
+                        "path": [
+                            {
+                                "arguments": {
+                                    "author_id": {
+                                        "type": "column",
+                                        "name": "id"
+                                    }
+                                },
+                                "relationship": "author_articles",
+                                "predicate": {
+                                    "type": "and",
+                                    "expressions": []
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "table_relationships": {
+        "author_articles": {
+            "arguments": {},
+            "column_mapping": {},
+            "relationship_type": "array",
+            "source_table_or_type": "author",
+            "target_table": "articles_by_author"
+        }
+    }
+}

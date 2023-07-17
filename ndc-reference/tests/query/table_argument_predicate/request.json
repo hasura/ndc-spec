@@ -1,0 +1,49 @@
+{
+    "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
+    "table": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id",
+                "arguments": {}
+            }
+        },
+        "where": {
+            "type": "binary_comparison_operator",
+            "column": {
+                "type": "column",
+                "name": "title",
+                "path": [
+                    {
+                        "arguments": {
+                            "author_id": {
+                                "type": "column",
+                                "name": "id"
+                            }
+                        },
+                        "relationship": "author_articles"
+                    }
+                ]
+            },
+            "operator": {
+                "type": "other",
+                "name": "like"
+            },
+            "value": {
+                "type": "scalar",
+                "value": "Functional"
+            }
+        }
+    },
+    "table_relationships": {
+        "author_articles": {
+            "arguments": {},
+            "column_mapping": {},
+            "relationship_type": "array",
+            "source_table_or_type": "author",
+            "target_table": "articles_by_author"
+        }
+    }
+}
