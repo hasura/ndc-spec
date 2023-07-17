@@ -839,6 +839,24 @@ fn eval_path_element_with_predicate(
 ) -> Result<Vec<Row>, StatusLine> {
     let mut matching_rows: Vec<Row> = vec![];
 
+    // Note: Join strategy
+    //
+    // Rows can be related in two ways: 1) via a column mapping, and
+    // 2) via table arguments. Because table arguments can be computed
+    // using the columns on the source side of a relationship, in general
+    // we need to compute the target table once for each source row.
+    // This join strategy can result in some target rows appearing in the
+    // resulting row set more than once, if two source rows are both related
+    // to the same target row.
+    //
+    // In practice, this is not an issue, either because a) the relationship
+    // is computed in the course of evaluating a predicate, and all predicates are
+    // implicitly or explicitly existentially quantified, or b) if the
+    // relationship is computed in the course of evaluating an ordering, the path
+    // should consist of all object relationships, and possibly terminated by a
+    // single array relationship, so there should be no double counting.
+
+
     for src_row in source.iter() {
         let mut all_arguments = HashMap::new();
 
