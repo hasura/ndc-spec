@@ -1,47 +1,59 @@
 agents:
-  queue: "aws-on-demand-amd64-ubuntu-medium-ami-0e00a840cbcfcdd0d"
+  queue: "aws-v3-build-node-ami-0386a14a5b63702a4"
 steps:
   - label: "Build"
     command: |
-      cargo build
+      echo "--- build"
+      just ci-build
     plugins:
-      - hasura/smooth-secrets#v1.2.1:
+      - hasura/smooth-secrets#v1.3.2:
           secrets:
             - strategy: aws-secrets-manager
-              key: github-deploy-keys/ndc-spec
+              key: github-user-keys/hasura-ci
               type: ssh
               region: us-east-2
-      - hasura/smooth-checkout#v4.2.1:
+      - hasura/smooth-checkout#v4.3.2:
           repos:
             - config:
                 - url: git@github.com:hasura/ndc-spec.git
+          delete_checkout: true
+          # The following option makes sure that we get a unique folder to perform our CI build everytime
+          interpolate_checkout_path: "$BUILDKITE_BUILD_CHECKOUT_PATH/$BUILDKITE_BUILD_ID/$BUILDKITE_JOB_ID"
 
   - label: "Test"
     command: |
-      cargo test
+      echo "--- test"
+      just ci-test
     plugins:
-      - hasura/smooth-secrets#v1.2.1:
+      - hasura/smooth-secrets#v1.3.2:
           secrets:
             - strategy: aws-secrets-manager
-              key: github-deploy-keys/ndc-spec
+              key: github-user-keys/hasura-ci
               type: ssh
               region: us-east-2
-      - hasura/smooth-checkout#v4.2.1:
+      - hasura/smooth-checkout#v4.3.2:
           repos:
             - config:
                 - url: git@github.com:hasura/ndc-spec.git
+          delete_checkout: true
+          # The following option makes sure that we get a unique folder to perform our CI build everytime
+          interpolate_checkout_path: "$BUILDKITE_BUILD_CHECKOUT_PATH/$BUILDKITE_BUILD_ID/$BUILDKITE_JOB_ID"
 
   - label: "Bench"
     command: |
-      cargo bench
+      echo "--- bench"
+      just ci-bench
     plugins:
-      - hasura/smooth-secrets#v1.2.1:
+      - hasura/smooth-secrets#v1.3.2:
           secrets:
             - strategy: aws-secrets-manager
-              key: github-deploy-keys/ndc-spec
+              key: github-user-keys/hasura-ci
               type: ssh
               region: us-east-2
-      - hasura/smooth-checkout#v4.2.1:
+      - hasura/smooth-checkout#v4.3.2:
           repos:
             - config:
                 - url: git@github.com:hasura/ndc-spec.git
+          delete_checkout: true
+          # The following option makes sure that we get a unique folder to perform our CI build everytime
+          interpolate_checkout_path: "$BUILDKITE_BUILD_CHECKOUT_PATH/$BUILDKITE_BUILD_ID/$BUILDKITE_JOB_ID"
