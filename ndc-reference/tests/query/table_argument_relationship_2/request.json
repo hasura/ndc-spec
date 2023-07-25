@@ -16,7 +16,12 @@
             },
             "articles": {
                 "type": "relationship",
-                "arguments": {},
+                "arguments": {
+                    "author_id": {
+                        "type": "column",
+                        "name": "id"
+                    }
+                },
                 "relationship": "author_articles",
                 "query": {
                     "fields": {
@@ -33,41 +38,15 @@
                     }
                 }
             }
-        },
-        "where": {
-            "type": "exists",
-            "in_table": {
-                "type": "related",
-                "arguments": {},
-                "relationship": "author_articles"
-            },
-            "where": {
-                "type": "binary_comparison_operator",
-                "column": {
-                    "type": "column",
-                    "name": "title",
-                    "path": []
-                },
-                "operator": {
-                    "type": "other",
-                    "name": "like"
-                },
-                "value": {
-                    "type": "scalar",
-                    "value": "Functional"
-                }
-            }
         }
     },
     "table_relationships": {
         "author_articles": {
             "arguments": {},
-            "column_mapping": {
-                "id": "author_id"
-            },
+            "column_mapping": {},
             "relationship_type": "array",
             "source_table_or_type": "author",
-            "target_table": "articles"
+            "target_table": "articles_by_author"
         }
     }
 }

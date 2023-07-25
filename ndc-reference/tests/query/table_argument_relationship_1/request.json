@@ -1,33 +1,33 @@
 {
     "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
-    "table": "articles",
+    "table": "authors",
     "arguments": {},
     "query": {
         "fields": {
-            "id": {
+            "first_name": {
                 "type": "column",
-                "column": "id",
+                "column": "first_name",
                 "arguments": {}
             },
-            "title": {
+            "last_name": {
                 "type": "column",
-                "column": "title",
+                "column": "last_name",
                 "arguments": {}
             },
-            "author": {
+            "articles": {
                 "type": "relationship",
                 "arguments": {},
-                "relationship": "article_author",
+                "relationship": "author_articles",
                 "query": {
                     "fields": {
-                        "first_name": {
+                        "id": {
                             "type": "column",
-                            "column": "first_name",
+                            "column": "id",
                             "arguments": {}
                         },
-                        "last_name": {
+                        "title": {
                             "type": "column",
-                            "column": "last_name",
+                            "column": "title",
                             "arguments": {}
                         }
                     }
@@ -36,14 +36,18 @@
         }
     },
     "table_relationships": {
-        "article_author": {
-            "arguments": {},
-            "column_mapping": {
-                "author_id": "id"
+        "author_articles": {
+            "arguments": {
+                "author_id": {
+                    "type": "column",
+                    "name": "id"
+                }
             },
-            "relationship_type": "object",
-            "source_table_or_type": "article",
-            "target_table": "authors"
+            "column_mapping": {
+            },
+            "relationship_type": "array",
+            "source_table_or_type": "author",
+            "target_table": "articles_by_author"
         }
     }
 }

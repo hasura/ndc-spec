@@ -127,6 +127,22 @@
         }
       },
       "foreign_keys": {}
+    },
+    {
+      "name": "articles_by_author",
+      "description": "Articles parameterized by author",
+      "arguments": {
+        "author_id": {
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        }
+      },
+      "type": "article",
+      "deletable": false,
+      "uniqueness_constraints": {},
+      "foreign_keys": {}
     }
   ],
   "commands": [
