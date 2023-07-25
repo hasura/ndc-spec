@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  source:
+    build:
+      context: .
+      dockerfile: dev.dockerfile
+      ssh:
+        - default
