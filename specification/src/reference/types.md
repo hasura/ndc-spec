@@ -108,6 +108,12 @@
 {{#include ../../../ndc-client/src/models.rs:ForeignKeyConstraint}}
 ```
 
+## `FunctionInfo`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:FunctionInfo}}
+```
+
 ## `InsertFieldSchema`
 
 ```rust,no_run,noplayground

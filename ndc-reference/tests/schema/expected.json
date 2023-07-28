@@ -145,6 +145,20 @@
       "foreign_keys": {}
     }
   ],
+  "functions": [
+    {
+      "name": "latest_article_id",
+      "description": "Get the ID of the most recent article",
+      "arguments": {},
+      "result_type": {
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "Int"
+        }
+      }
+    }
+  ],
   "commands": [
     {
       "name": "upsert_article",

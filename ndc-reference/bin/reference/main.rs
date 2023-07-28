@@ -367,11 +367,25 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR: schema_commands
     let commands = vec![upsert_article];
     // ANCHOR_END: schema_commands
+    // ANCHOR: schema_function_latest_article_id
+    let latest_article_id_function = models::FunctionInfo {
+        name: "latest_article_id".into(),
+        description: Some("Get the ID of the most recent article".into()),
+        result_type: models::Type::Nullable {
+            underlying_type: Box::new(models::Type::Named { name: "Int".into() }),
+        },
+        arguments: HashMap::new(),
+    };
+    // ANCHOR_END: schema_function_latest_article_id
+    // ANCHOR: schema_functions
+    let functions: Vec<models::FunctionInfo> = vec![latest_article_id_function];
+    // ANCHOR_END: schema_functions
     // ANCHOR: schema2
     Json(models::SchemaResponse {
         scalar_types,
         object_types,
         tables,
+        functions,
         commands,
     })
 }
@@ -465,6 +479,23 @@ fn get_table_by_name(
             }
 
             Ok(articles_by_author)
+        }
+        "latest_article_id" => {
+            let latest_id = state
+                .articles
+                .iter()
+                .filter_map(|a| a.get("id").and_then(|v| v.as_i64()))
+                .max();
+            let latest_id_value = serde_json::to_value(latest_id).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "cannot encode article id",
+                )
+            })?;
+            Ok(vec![HashMap::from_iter([(
+                "__value".into(),
+                latest_id_value,
+            )])])
         }
         _ => Err((StatusCode::BAD_REQUEST, "invalid table name")),
     }
@@ -855,7 +886,6 @@ fn eval_path_element_with_predicate(
     // relationship is computed in the course of evaluating an ordering, the path
     // should consist of all object relationships, and possibly terminated by a
     // single array relationship, so there should be no double counting.
-
 
     for src_row in source.iter() {
         let mut all_arguments = HashMap::new();

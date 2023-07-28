@@ -59,6 +59,8 @@ pub struct SchemaResponse {
     pub object_types: HashMap<String, ObjectType>,
     /// Tables which are available for queries and/or mutations
     pub tables: Vec<TableInfo>,
+    /// Functions (i.e. tables which return a single column and row)
+    pub functions: Vec<FunctionInfo>,
     /// Commands which are available for execution as part of mutations
     pub commands: Vec<CommandInfo>,
 }
@@ -184,6 +186,21 @@ pub struct TableInfo {
     pub foreign_keys: HashMap<String, ForeignKeyConstraint>,
 }
 // ANCHOR_END: TableInfo
+
+// ANCHOR: FunctionInfo
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct FunctionInfo {
+    /// The name of the function
+    pub name: String,
+    /// Description of the function
+    pub description: Option<String>,
+    /// Any arguments that this table requires
+    pub arguments: HashMap<String, ArgumentInfo>,
+    /// The name of the function's result type
+    pub result_type: Type,
+}
+// ANCHOR_END: FunctionInfo
 
 // ANCHOR: ArgumentInfo
 #[skip_serializing_none]

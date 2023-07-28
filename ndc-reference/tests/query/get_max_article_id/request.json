@@ -1,0 +1,14 @@
+{
+    "table": "latest_article_id",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "__value": {
+                "type": "column",
+                "column": "__value",
+                "arguments": {}
+            }
+        }
+    },
+    "table_relationships": {}
+}
