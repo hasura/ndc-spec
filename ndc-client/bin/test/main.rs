@@ -99,6 +99,16 @@ fn validate_schema(schema: &models::SchemaResponse) {
         };
     }
 
+    println!("Validating functions");
+    for function_info in schema.functions.iter() {
+        println!("Validating function {}", function_info.name);
+        validate_type(schema, &function_info.result_type);
+
+        for (_arg_name, arg_info) in function_info.arguments.iter() {
+            validate_type(schema, &arg_info.argument_type);
+        }
+    }
+
     println!("Validating commands");
     for command_info in schema.commands.iter() {
         println!("Validating command {}", command_info.name);
