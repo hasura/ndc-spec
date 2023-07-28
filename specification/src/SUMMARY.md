@@ -18,6 +18,7 @@
   - [Scalar Types](specification/schema/scalar-types.md)
   - [Object Types](specification/schema/object-types.md)
   - [Tables](specification/schema/tables.md)
+  - [Functions](specification/schema/functions.md)
   - [Commands](specification/schema/commands.md)
 - [Queries](specification/queries/README.md)
   - [Field Selection](specification/queries/field-selection.md)
