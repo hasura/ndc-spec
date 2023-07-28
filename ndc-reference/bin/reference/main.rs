@@ -143,7 +143,7 @@ async fn get_metrics(State(state): State<Arc<AppState>>) -> Result<String, Statu
 async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
     let empty = serde_json::to_value(HashMap::<String, ()>::new()).unwrap();
     Json(models::CapabilitiesResponse {
-        versions: "^1.0.0".into(),
+        versions: "^0.1.0".into(),
         capabilities: models::Capabilities {
             explain: None,
             query: Some(models::QueryCapabilities {
