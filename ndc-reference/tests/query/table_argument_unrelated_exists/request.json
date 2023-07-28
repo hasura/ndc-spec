@@ -1,6 +1,6 @@
 {
-    "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
-    "table": "authors",
+    "$schema": "../../../../ndc-client/tests/json_schema/query_request.jsonschema",
+    "collection": "authors",
     "arguments": {},
     "query": {
         "fields": {
@@ -12,7 +12,7 @@
         },
         "where": {
             "type": "exists",
-            "in_table": {
+            "in_collection": {
                 "type": "unrelated",
                 "arguments": {
                     "author_id": {
@@ -20,7 +20,7 @@
                         "name": "id"
                     }
                 },
-                "table": "articles_by_author"
+                "collection": "articles_by_author"
             },
             "where": {
                 "type": "and",
@@ -45,5 +45,5 @@
             }
         }
     },
-    "table_relationships": {}
+    "collection_relationships": {}
 }

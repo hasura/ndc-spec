@@ -1,10 +1,10 @@
-# Tables
+# Collections
 
-The schema should define the metadata for any _tables_ which can be queried using the query endpoint, or mutated using the mutation endpoint.
+The schema should define the metadata for any _collections_ which can be queried using the query endpoint, or mutated using the mutation endpoint.
 
-Each table is defined by its name, any table [arguments](../queries/arguments.md), the [object type](./object-types.md) of its rows, and some additional metadata related to permissions and constraints.
+Each collection is defined by its name, any collection [arguments](../queries/arguments.md), the [object type](./object-types.md) of its rows, and some additional metadata related to permissions and constraints.
 
-To describe a table, add a [`TableInfo`](../../reference/types.md#tableinfo) structure to the `tables` field of the schema response.
+To describe a collection, add a [`TableInfo`](../../reference/types.md#tableinfo) structure to the `tables` field of the schema response.
 
 ## Requirements
 

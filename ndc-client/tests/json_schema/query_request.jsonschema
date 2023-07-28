@@ -5,16 +5,27 @@
   "type": "object",
   "required": [
     "arguments",
-    "query",
-    "table",
-    "table_relationships"
+    "collection",
+    "collection_relationships",
+    "query"
   ],
   "properties": {
     "arguments": {
-      "description": "Values to be provided to any table arguments",
+      "description": "Values to be provided to any collection arguments",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/Argument"
+      }
+    },
+    "collection": {
+      "description": "The name of a collection",
+      "type": "string"
+    },
+    "collection_relationships": {
+      "description": "Any relationships between collections involved in the query request",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Relationship"
       }
     },
     "query": {
@@ -24,17 +35,6 @@
           "$ref": "#/definitions/Query"
         }
       ]
-    },
-    "table": {
-      "description": "The name of a table",
-      "type": "string"
-    },
-    "table_relationships": {
-      "description": "Any relationships between tables involved in the query request",
-      "type": "object",
-      "additionalProperties": {
-        "$ref": "#/definitions/Relationship"
-      }
     },
     "variables": {
       "description": "One set of named variables for each rowset to fetch. Each variable set should be subtituted in turn, and a fresh set of rows returned.",
@@ -240,7 +240,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "root_table_column"
+                "root_collection_column"
               ]
             }
           }
@@ -303,7 +303,7 @@
         }
       ]
     },
-    "ExistsInTable": {
+    "ExistsInCollection": {
       "oneOf": [
         {
           "type": "object",
@@ -314,7 +314,7 @@
           ],
           "properties": {
             "arguments": {
-              "description": "Values to be provided to any table arguments",
+              "description": "Values to be provided to any collection arguments",
               "type": "object",
               "additionalProperties": {
                 "$ref": "#/definitions/RelationshipArgument"
@@ -335,19 +335,19 @@
           "type": "object",
           "required": [
             "arguments",
-            "table",
+            "collection",
             "type"
           ],
           "properties": {
             "arguments": {
-              "description": "Values to be provided to any table arguments",
+              "description": "Values to be provided to any collection arguments",
               "type": "object",
               "additionalProperties": {
                 "$ref": "#/definitions/RelationshipArgument"
               }
             },
-            "table": {
-              "description": "The name of a table",
+            "collection": {
+              "description": "The name of a collection",
               "type": "string"
             },
             "type": {
@@ -502,13 +502,13 @@
         {
           "type": "object",
           "required": [
-            "in_table",
+            "in_collection",
             "type",
             "where"
           ],
           "properties": {
-            "in_table": {
-              "$ref": "#/definitions/ExistsInTable"
+            "in_collection": {
+              "$ref": "#/definitions/ExistsInCollection"
             },
             "type": {
               "type": "string",
@@ -561,7 +561,7 @@
           ],
           "properties": {
             "arguments": {
-              "description": "Values to be provided to any table arguments",
+              "description": "Values to be provided to any collection arguments",
               "type": "object",
               "additionalProperties": {
                 "$ref": "#/definitions/RelationshipArgument"
@@ -714,7 +714,7 @@
       ],
       "properties": {
         "arguments": {
-          "description": "Values to be provided to any table arguments",
+          "description": "Values to be provided to any collection arguments",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/RelationshipArgument"
@@ -735,14 +735,14 @@
       ],
       "properties": {
         "arguments": {
-          "description": "Values to be provided to any table arguments",
+          "description": "Values to be provided to any collection arguments",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/RelationshipArgument"
           }
         },
         "predicate": {
-          "description": "A predicate expression to apply to the target table",
+          "description": "A predicate expression to apply to the target collection",
           "allOf": [
             {
               "$ref": "#/definitions/Expression"
@@ -824,19 +824,19 @@
         "arguments",
         "column_mapping",
         "relationship_type",
-        "source_table_or_type",
-        "target_table"
+        "source_collection_or_type",
+        "target_collection"
       ],
       "properties": {
         "arguments": {
-          "description": "Values to be provided to any table arguments",
+          "description": "Values to be provided to any collection arguments",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/RelationshipArgument"
           }
         },
         "column_mapping": {
-          "description": "A mapping between columns on the source table to columns on the target table",
+          "description": "A mapping between columns on the source collection to columns on the target collection",
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -845,12 +845,12 @@
         "relationship_type": {
           "$ref": "#/definitions/RelationshipType"
         },
-        "source_table_or_type": {
-          "description": "The name of the table or object type which is the source of this relationship",
+        "source_collection_or_type": {
+          "description": "The name of the collection or object type which is the source of this relationship",
           "type": "string"
         },
-        "target_table": {
-          "description": "The name of a table",
+        "target_collection": {
+          "description": "The name of a collection",
           "type": "string"
         }
       }

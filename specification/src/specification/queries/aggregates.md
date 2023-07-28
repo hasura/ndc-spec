@@ -16,8 +16,8 @@ The following query object requests the aggregated sum of all order totals, alon
 
 ```json
 {
-  "table": ["orders"],
-  "table_relationships": [],
+  "collection": ["orders"],
+  "collection_relationships": [],
   "query": {
     "aggregates": {
       "orders_total": {

@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExplainResponse",
+  "type": "object",
+  "required": [
+    "lines",
+    "query"
+  ],
+  "properties": {
+    "lines": {
+      "description": "Lines of the formatted explain plan response",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "query": {
+      "description": "The generated query - i.e. SQL for a relational DB",
+      "type": "string"
+    }
+  }
+}

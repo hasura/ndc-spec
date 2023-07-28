@@ -286,11 +286,11 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         ("author".into(), author_type),
     ]);
     // ANCHOR_END: schema_object_types
-    // ANCHOR: schema_table_article
-    let articles_table = models::TableInfo {
+    // ANCHOR: schema_collection_article
+    let articles_collection = models::CollectionInfo {
         name: "articles".into(),
         description: Some("A collection of articles".into()),
-        table_type: "article".into(),
+        collection_type: "article".into(),
         arguments: HashMap::new(),
         deletable: false,
         insertable_columns: None,
@@ -303,12 +303,12 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             },
         )]),
     };
-    // ANCHOR_END: schema_table_article
-    // ANCHOR: schema_table_author
-    let authors_table = models::TableInfo {
+    // ANCHOR_END: schema_collection_article
+    // ANCHOR: schema_collection_author
+    let authors_collection = models::CollectionInfo {
         name: "authors".into(),
         description: Some("A collection of authors".into()),
-        table_type: "author".into(),
+        collection_type: "author".into(),
         arguments: HashMap::new(),
         deletable: false,
         insertable_columns: None,
@@ -321,12 +321,12 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             },
         )]),
     };
-    // ANCHOR_END: schema_table_author
-    // ANCHOR: schema_table_articles_by_author
-    let articles_by_author_table = models::TableInfo {
+    // ANCHOR_END: schema_collection_author
+    // ANCHOR: schema_collection_articles_by_author
+    let articles_by_author_collection = models::CollectionInfo {
         name: "articles_by_author".into(),
         description: Some("Articles parameterized by author".into()),
-        table_type: "article".into(),
+        collection_type: "article".into(),
         arguments: HashMap::from_iter([(
             "author_id".into(),
             models::ArgumentInfo {
@@ -340,12 +340,12 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         foreign_keys: HashMap::new(),
         uniqueness_constraints: HashMap::new(),
     };
-    // ANCHOR_END: schema_table_articles_by_author
-    // ANCHOR: schema_tables
-    let tables = vec![articles_table, authors_table, articles_by_author_table];
-    // ANCHOR_END: schema_tables
-    // ANCHOR: schema_command_upsert_article
-    let upsert_article = models::CommandInfo {
+    // ANCHOR_END: schema_collection_articles_by_author
+    // ANCHOR: schema_collections
+    let collections = vec![articles_collection, authors_collection, articles_by_author_collection];
+    // ANCHOR_END: schema_collections
+    // ANCHOR: schema_procedure_upsert_article
+    let upsert_article = models::ProcedureInfo {
         name: "upsert_article".into(),
         description: Some("Insert or update an article".into()),
         arguments: HashMap::from_iter([(
@@ -363,10 +363,10 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             name: "article".into(),
         },
     };
-    // ANCHOR_END: schema_command_upsert_article
-    // ANCHOR: schema_commands
-    let commands = vec![upsert_article];
-    // ANCHOR_END: schema_commands
+    // ANCHOR_END: schema_procedure_upsert_article
+    // ANCHOR: schema_procedures
+    let procedures = vec![upsert_article];
+    // ANCHOR_END: schema_procedures
     // ANCHOR: schema_function_latest_article_id
     let latest_article_id_function = models::FunctionInfo {
         name: "latest_article_id".into(),
@@ -384,9 +384,9 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     Json(models::SchemaResponse {
         scalar_types,
         object_types,
-        tables,
+        collections,
         functions,
-        commands,
+        procedures,
     })
 }
 // ANCHOR_END: schema2
@@ -411,10 +411,10 @@ pub async fn post_query(
             }
         }
 
-        let row_set = execute_query_by_table_name(
-            &request.table_relationships,
+        let row_set = execute_query_by_collection_name(
+            &request.collection_relationships,
             variables,
-            request.table.as_str(),
+            request.collection.as_str(),
             &arguments,
             None,
             &request.query,
@@ -427,18 +427,18 @@ pub async fn post_query(
     Ok(Json(response))
 }
 
-fn execute_query_by_table_name(
-    table_relationships: &HashMap<String, models::Relationship>,
+fn execute_query_by_collection_name(
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
-    table_name: &str,
+    collection_name: &str,
     arguments: &HashMap<String, serde_json::Value>,
     root: Option<&Row>,
     query: &models::Query,
     state: &AppState,
 ) -> Result<models::RowSet, StatusLine> {
-    let collection = get_table_by_name(table_name, arguments, state)?;
+    let collection = get_collection_by_name(collection_name, arguments, state)?;
     execute_query(
-        table_relationships,
+        collection_relationships,
         variables,
         state,
         query,
@@ -447,12 +447,12 @@ fn execute_query_by_table_name(
     )
 }
 
-fn get_table_by_name(
-    table_name: &str,
+fn get_collection_by_name(
+    collection_name: &str,
     arguments: &HashMap<String, serde_json::Value>,
     state: &AppState,
 ) -> Result<Vec<Row>, StatusLine> {
-    match table_name {
+    match collection_name {
         "articles" => Ok(state.articles.clone()),
         "authors" => Ok(state.authors.clone()),
         "articles_by_author" => {
@@ -497,12 +497,12 @@ fn get_table_by_name(
                 latest_id_value,
             )])])
         }
-        _ => Err((StatusCode::BAD_REQUEST, "invalid table name")),
+        _ => Err((StatusCode::BAD_REQUEST, "invalid collection name")),
     }
 }
 
 fn execute_query(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     query: &models::Query,
@@ -510,7 +510,7 @@ fn execute_query(
     collection: Vec<Row>,
 ) -> Result<models::RowSet, StatusLine> {
     let sorted = sort(
-        table_relationships,
+        collection_relationships,
         variables,
         state,
         collection,
@@ -523,7 +523,7 @@ fn execute_query(
             let mut filtered: Vec<Row> = vec![];
             for item in sorted.into_iter() {
                 let root = root.unwrap_or(&item);
-                if eval_expression(table_relationships, variables, state, &expr, root, &item)? {
+                if eval_expression(collection_relationships, variables, state, &expr, root, &item)? {
                     filtered.push(item);
                 }
             }
@@ -606,7 +606,7 @@ fn execute_query(
                 for (field_name, field) in fields.iter() {
                     row.insert(
                         field_name.clone(),
-                        eval_field(table_relationships, variables, state, field, root, item)?,
+                        eval_field(collection_relationships, variables, state, field, root, item)?,
                     );
                 }
                 rows.push(row)
@@ -644,7 +644,7 @@ fn eval_aggregate_function(
 // ANCHOR_END: query
 
 fn sort(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     collection: Vec<Row>,
@@ -659,7 +659,7 @@ fn sort(
                 let mut index = 0;
                 for other in copy.iter() {
                     if let Ordering::Greater = eval_order_by(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         order_by,
@@ -692,7 +692,7 @@ fn paginate<I: Iterator<Item = Row>>(
 }
 
 fn eval_order_by(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     order_by: &models::OrderBy,
@@ -704,7 +704,7 @@ fn eval_order_by(
 
     for element in order_by.elements.iter() {
         let v1 = eval_order_by_element(
-            table_relationships,
+            collection_relationships,
             variables,
             state,
             element,
@@ -712,7 +712,7 @@ fn eval_order_by(
             t1,
         )?;
         let v2 = eval_order_by_element(
-            table_relationships,
+            collection_relationships,
             variables,
             state,
             element,
@@ -749,7 +749,7 @@ fn compare(v1: serde_json::Value, v2: serde_json::Value) -> Result<Ordering, Sta
 }
 
 fn eval_order_by_element(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     element: &models::OrderByElement,
@@ -759,7 +759,7 @@ fn eval_order_by_element(
     match element.target.clone() {
         models::OrderByTarget::Column { name, path } => {
             let rows: Vec<Row> =
-                eval_path(table_relationships, variables, state, &path, root, item)?;
+                eval_path(collection_relationships, variables, state, &path, root, item)?;
             if rows.len() > 1 {
                 return Err((
                     StatusCode::BAD_REQUEST,
@@ -777,7 +777,7 @@ fn eval_order_by_element(
             path,
         } => {
             let rows: Vec<Row> = eval_path_with_predicates(
-                table_relationships,
+                collection_relationships,
                 variables,
                 state,
                 &path,
@@ -795,7 +795,7 @@ fn eval_order_by_element(
         }
         models::OrderByTarget::StarCountAggregate { path } => {
             let rows: Vec<Row> = eval_path_with_predicates(
-                table_relationships,
+                collection_relationships,
                 variables,
                 state,
                 &path,
@@ -808,7 +808,7 @@ fn eval_order_by_element(
 }
 
 fn eval_path(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     path: &Vec<models::PathElement>,
@@ -825,11 +825,11 @@ fn eval_path(
             }),
         })
         .collect();
-    eval_path_with_predicates(table_relationships, variables, state, &path, root, item)
+    eval_path_with_predicates(collection_relationships, variables, state, &path, root, item)
 }
 
 fn eval_path_with_predicates(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     path: &Vec<models::PathElementWithPredicate>,
@@ -840,11 +840,11 @@ fn eval_path_with_predicates(
 
     for path_element in path.iter() {
         let relationship_name = path_element.relationship.as_str();
-        let relationship = table_relationships
+        let relationship = collection_relationships
             .get(relationship_name)
             .ok_or((StatusCode::BAD_REQUEST, "invalid relationship name in path"))?;
         result = eval_path_element_with_predicate(
-            table_relationships,
+            collection_relationships,
             variables,
             state,
             relationship,
@@ -859,7 +859,7 @@ fn eval_path_with_predicates(
 }
 
 fn eval_path_element_with_predicate(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     relationship: &models::Relationship,
@@ -873,9 +873,9 @@ fn eval_path_element_with_predicate(
     // Note: Join strategy
     //
     // Rows can be related in two ways: 1) via a column mapping, and
-    // 2) via table arguments. Because table arguments can be computed
+    // 2) via collection arguments. Because collection arguments can be computed
     // using the columns on the source side of a relationship, in general
-    // we need to compute the target table once for each source row.
+    // we need to compute the target collection once for each source row.
     // This join strategy can result in some target rows appearing in the
     // resulting row set more than once, if two source rows are both related
     // to the same target row.
@@ -908,12 +908,12 @@ fn eval_path_element_with_predicate(
             }
         }
 
-        let target = get_table_by_name(relationship.target_table.as_str(), &all_arguments, state)?;
+        let target = get_collection_by_name(relationship.target_collection.as_str(), &all_arguments, state)?;
 
         for tgt_row in target.iter() {
             if eval_column_mapping(relationship, src_row, tgt_row)? {
                 if eval_expression(
-                    table_relationships,
+                    collection_relationships,
                     variables,
                     state,
                     &predicate,
@@ -964,7 +964,7 @@ fn eval_relationship_argument(
 }
 
 fn eval_expression(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     expr: &models::Expression,
@@ -974,7 +974,7 @@ fn eval_expression(
     match expr {
         models::Expression::And { expressions } => {
             for expr in expressions.iter() {
-                if !eval_expression(table_relationships, variables, state, expr, root, item)? {
+                if !eval_expression(collection_relationships, variables, state, expr, root, item)? {
                     return Ok(false);
                 }
             }
@@ -982,7 +982,7 @@ fn eval_expression(
         }
         models::Expression::Or { expressions } => {
             for expr in expressions.iter() {
-                if eval_expression(table_relationships, variables, state, expr, root, item)? {
+                if eval_expression(collection_relationships, variables, state, expr, root, item)? {
                     return Ok(true);
                 }
             }
@@ -990,7 +990,7 @@ fn eval_expression(
         }
         models::Expression::Not { expression } => {
             let b = eval_expression(
-                table_relationships,
+                collection_relationships,
                 variables,
                 state,
                 expression,
@@ -1002,7 +1002,7 @@ fn eval_expression(
         models::Expression::UnaryComparisonOperator { column, operator } => match &**operator {
             models::UnaryComparisonOperator::IsNull => {
                 let vals = eval_comparison_target(
-                    table_relationships,
+                    collection_relationships,
                     variables,
                     state,
                     &*column,
@@ -1019,7 +1019,7 @@ fn eval_expression(
         } => match &**operator {
             models::BinaryComparisonOperator::Equal => {
                 let left_vals = eval_comparison_target(
-                    table_relationships,
+                    collection_relationships,
                     variables,
                     state,
                     &*column,
@@ -1027,7 +1027,7 @@ fn eval_expression(
                     item,
                 )?;
                 let right_vals = eval_comparison_value(
-                    table_relationships,
+                    collection_relationships,
                     variables,
                     state,
                     value,
@@ -1047,7 +1047,7 @@ fn eval_expression(
             models::BinaryComparisonOperator::Other { name } => match name.as_str() {
                 "like" => {
                     let column_vals = eval_comparison_target(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         &*column,
@@ -1055,7 +1055,7 @@ fn eval_expression(
                         item,
                     )?;
                     let regex_vals = eval_comparison_value(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         value,
@@ -1094,7 +1094,7 @@ fn eval_expression(
         } => match &**operator {
             models::BinaryArrayComparisonOperator::In => {
                 let left_val = eval_comparison_target(
-                    table_relationships,
+                    collection_relationships,
                     variables,
                     state,
                     &*column,
@@ -1104,7 +1104,7 @@ fn eval_expression(
 
                 for v in values.iter() {
                     let right_val = eval_comparison_value(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         v,
@@ -1119,7 +1119,7 @@ fn eval_expression(
             }
         },
         models::Expression::Exists {
-            in_table,
+            in_collection,
             predicate,
         } => {
             let query = models::Query {
@@ -1130,18 +1130,18 @@ fn eval_expression(
                 order_by: None,
                 predicate: Some(*predicate.clone()),
             };
-            let row_set = match &**in_table {
-                models::ExistsInTable::Related {
+            let row_set = match &**in_collection {
+                models::ExistsInCollection::Related {
                     relationship,
                     arguments,
                 } => {
-                    let relationship = table_relationships.get(relationship.as_str()).ok_or((
+                    let relationship = collection_relationships.get(relationship.as_str()).ok_or((
                         StatusCode::BAD_REQUEST,
                         "invalid relationship name in exists predicate",
                     ))?;
                     let source = vec![item.clone()];
                     let collection = eval_path_element_with_predicate(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         relationship,
@@ -1153,7 +1153,7 @@ fn eval_expression(
                         },
                     )?;
                     execute_query(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         &query,
@@ -1161,17 +1161,17 @@ fn eval_expression(
                         collection,
                     )
                 }
-                models::ExistsInTable::Unrelated { table, arguments } => {
+                models::ExistsInCollection::Unrelated { collection, arguments } => {
                     let arguments = arguments
                         .iter()
                         .map(|(k, v)| {
                             Ok((k.clone(), eval_relationship_argument(variables, item, v)?))
                         })
                         .collect::<Result<HashMap<_, _>, _>>()?;
-                    execute_query_by_table_name(
-                        table_relationships,
+                    execute_query_by_collection_name(
+                        collection_relationships,
                         variables,
-                        table.as_str(),
+                        collection.as_str(),
                         &arguments,
                         Some(root),
                         &query,
@@ -1189,7 +1189,7 @@ fn eval_expression(
 }
 
 fn eval_comparison_target(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     target: &models::ComparisonTarget,
@@ -1198,7 +1198,7 @@ fn eval_comparison_target(
 ) -> Result<Vec<serde_json::Value>, StatusLine> {
     match target {
         models::ComparisonTarget::Column { name, path } => {
-            let rows = eval_path(table_relationships, variables, state, path, root, item)?;
+            let rows = eval_path(collection_relationships, variables, state, path, root, item)?;
             let mut values = vec![];
             for row in rows.iter() {
                 let value = eval_column(row, name.as_str())?;
@@ -1206,7 +1206,7 @@ fn eval_comparison_target(
             }
             Ok(values)
         }
-        models::ComparisonTarget::RootTableColumn { name } => {
+        models::ComparisonTarget::RootCollectionColumn { name } => {
             let value = eval_column(root, name.as_str())?;
             Ok(vec![value])
         }
@@ -1220,7 +1220,7 @@ fn eval_column(row: &Row, column_name: &str) -> Result<serde_json::Value, Status
 }
 
 fn eval_comparison_value(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     comparison_value: &models::ComparisonValue,
@@ -1229,7 +1229,7 @@ fn eval_comparison_value(
 ) -> Result<Vec<serde_json::Value>, StatusLine> {
     match comparison_value {
         models::ComparisonValue::Column { column } => {
-            eval_comparison_target(table_relationships, variables, state, &*column, root, item)
+            eval_comparison_target(collection_relationships, variables, state, &*column, root, item)
         }
         models::ComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
         models::ComparisonValue::Variable { name } => {
@@ -1243,7 +1243,7 @@ fn eval_comparison_value(
 }
 
 fn eval_field(
-    table_relationships: &HashMap<String, models::Relationship>,
+    collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
     field: &models::Field,
@@ -1259,13 +1259,13 @@ fn eval_field(
             arguments,
             query,
         } => {
-            let relationship = table_relationships.get(relationship.as_str()).ok_or((
+            let relationship = collection_relationships.get(relationship.as_str()).ok_or((
                 StatusCode::BAD_REQUEST,
                 "invalid relationship name in field",
             ))?;
             let source = vec![item.clone()];
             let collection = eval_path_element_with_predicate(
-                table_relationships,
+                collection_relationships,
                 variables,
                 state,
                 relationship,
@@ -1277,7 +1277,7 @@ fn eval_field(
                 },
             )?;
             let rows = execute_query(
-                table_relationships,
+                collection_relationships,
                 variables,
                 state,
                 query,
@@ -1308,7 +1308,7 @@ async fn post_mutation(
         let operation_result = execute_mutation_operation(
             &state,
             &request.insert_schema,
-            &request.table_relationships,
+            &request.collection_relationships,
             operation,
         )
         .await?;
@@ -1321,8 +1321,8 @@ async fn post_mutation(
 
 async fn execute_mutation_operation(
     _state: &Arc<AppState>,
-    _insert_schema: &Vec<models::TableInsertSchema>,
-    _table_relationships: &HashMap<String, models::Relationship>,
+    _insert_schema: &Vec<models::CollectionInsertSchema>,
+    _collection_relationships: &HashMap<String, models::Relationship>,
     operation: &models::MutationOperation,
 ) -> Result<models::MutationOperationResults, StatusLine> {
     match operation {
@@ -1330,13 +1330,13 @@ async fn execute_mutation_operation(
             post_insert_check: _,
             returning_fields: _,
             rows: _,
-            table: _,
+            collection: _,
         } => {
             todo!()
         }
         models::MutationOperation::Delete {
             returning_fields: _,
-            table: _,
+            collection: _,
             predicate: _,
         } => {
             todo!()
@@ -1344,13 +1344,13 @@ async fn execute_mutation_operation(
         models::MutationOperation::Update {
             post_update_check: _,
             returning_fields: _,
-            table: _,
+            collection: _,
             updates: _,
             r#where: _,
         } => {
             todo!()
         }
-        models::MutationOperation::Command {
+        models::MutationOperation::Procedure {
             name: _,
             arguments: _,
             fields: _,

@@ -17,9 +17,6 @@
         }
       },
       {
-        "first_name": {
-          "value": "John"
-        },
         "last_name": {
           "value": "Hughes"
         },
@@ -29,6 +26,9 @@
               "count": 2
             }
           }
+        },
+        "first_name": {
+          "value": "John"
         }
       }
     ]

@@ -6,19 +6,19 @@
           "rows": {
             "rows": [
               {
-                "id": {
-                  "value": 2
-                },
                 "title": {
                   "value": "Why Functional Programming Matters"
+                },
+                "id": {
+                  "value": 2
                 }
               },
               {
-                "id": {
-                  "value": 3
-                },
                 "title": {
                   "value": "The Design And Implementation Of Programming Languages"
+                },
+                "id": {
+                  "value": 3
                 }
               }
             ]

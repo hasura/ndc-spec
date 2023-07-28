@@ -2,9 +2,6 @@
   {
     "rows": [
       {
-        "first_name": {
-          "value": "Peter"
-        },
         "last_name": {
           "value": "Landin"
         },
@@ -14,12 +11,12 @@
               "max_id": 1
             }
           }
+        },
+        "first_name": {
+          "value": "Peter"
         }
       },
       {
-        "first_name": {
-          "value": "John"
-        },
         "last_name": {
           "value": "Hughes"
         },
@@ -29,6 +26,9 @@
               "max_id": 3
             }
           }
+        },
+        "first_name": {
+          "value": "John"
         }
       }
     ]

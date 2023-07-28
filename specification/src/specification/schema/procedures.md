@@ -1,16 +1,16 @@
-# Commands
+# Procedures
 
-The schema should define metadata for each _command_ which the data connector implements.
+The schema should define metadata for each _procedure_ which the data connector implements.
 
-Each command is defined by its name, any arguments types and a result type.
+Each procedure is defined by its name, any arguments types and a result type.
 
-To describe a command, add a [`CommandInfo`](../../reference/types.md#commandinfo) structure to the `command` field of the schema response.
+To describe a procedure, add a [`ProcedureInfo`](../../reference/types.md#procedureinfo) structure to the `procedure` field of the schema response.
 
 ## Example
 
 ```json
 {
-  "commands": [
+  "procedures": [
     {
       "name": "upsert_article",
       "description": "Insert or update an article",
@@ -35,4 +35,4 @@ To describe a command, add a [`CommandInfo`](../../reference/types.md#commandinf
 
 ## See also
 
-- Type [`CommandInfo`](../../reference/types.md#commandinfo)
+- Type [`ProcedureInfo`](../../reference/types.md#procedureinfo)

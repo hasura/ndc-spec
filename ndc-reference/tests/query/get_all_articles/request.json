@@ -1,5 +1,5 @@
 {
-    "table": "articles",
+    "collection": "articles",
     "arguments": {},
     "query": {
         "fields": {
@@ -15,5 +15,5 @@
             }
         }
     },
-    "table_relationships": {}
+    "collection_relationships": {}
 }

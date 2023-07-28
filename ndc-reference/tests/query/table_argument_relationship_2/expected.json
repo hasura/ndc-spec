@@ -12,11 +12,11 @@
           "rows": {
             "rows": [
               {
-                "title": {
-                  "value": "The Next 700 Programming Languages"
-                },
                 "id": {
                   "value": 1
+                },
+                "title": {
+                  "value": "The Next 700 Programming Languages"
                 }
               }
             ]
@@ -24,21 +24,15 @@
         }
       },
       {
-        "last_name": {
-          "value": "Hughes"
-        },
-        "first_name": {
-          "value": "John"
-        },
         "articles": {
           "rows": {
             "rows": [
               {
-                "title": {
-                  "value": "Why Functional Programming Matters"
-                },
                 "id": {
                   "value": 2
+                },
+                "title": {
+                  "value": "Why Functional Programming Matters"
                 }
               },
               {
@@ -51,6 +45,12 @@
               }
             ]
           }
+        },
+        "first_name": {
+          "value": "John"
+        },
+        "last_name": {
+          "value": "Hughes"
         }
       }
     ]
