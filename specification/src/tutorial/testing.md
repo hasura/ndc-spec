@@ -12,7 +12,7 @@ To test a connector, provide its endpoint to `ndc-test` on the command line:
 ndc-test --endpoint <ENDPOINT>
 ```
 
-For example, running the reference connector and passing its URL to `ndc-test`, we will see that it issues test queries against the `articles` and `authors` tables:
+For example, running the reference connector and passing its URL to `ndc-test`, we will see that it issues test queries against the `articles` and `authors` collections:
 
 ```text
 ndc-test --ent http://localhost:8100
@@ -26,8 +26,8 @@ Validating collection articles
 Validating columns
 Validating collection authors
 Validating columns
-Validating commands
-Validating command upsert_article
+Validating procedures
+Validating procedure upsert_article
 Testing /query
 Testing simple queries
 Querying collection articles

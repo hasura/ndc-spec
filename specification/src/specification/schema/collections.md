@@ -4,7 +4,7 @@ The schema should define the metadata for any _collections_ which can be queried
 
 Each collection is defined by its name, any collection [arguments](../queries/arguments.md), the [object type](./object-types.md) of its rows, and some additional metadata related to permissions and constraints.
 
-To describe a collection, add a [`TableInfo`](../../reference/types.md#tableinfo) structure to the `tables` field of the schema response.
+To describe a collection, add a [`CollectionInfo`](../../reference/types.md#collectioninfo) structure to the `collections` field of the schema response.
 
 ## Requirements
 
@@ -14,7 +14,7 @@ To describe a collection, add a [`TableInfo`](../../reference/types.md#tableinfo
 
 ```json
 {
-  "tables": [
+  "collections": [
     {
       "name": "articles",
       "description": "A collection of articles",
@@ -53,4 +53,4 @@ To describe a collection, add a [`TableInfo`](../../reference/types.md#tableinfo
 
 ## See also
 
-- Type [`TableInfo`](../../reference/types.md#tableinfo)
+- Type [`CollectionInfo`](../../reference/types.md#collectioninfo)

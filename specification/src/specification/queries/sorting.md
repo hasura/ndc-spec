@@ -11,7 +11,7 @@ To compute the ordering from the `order_by` field, data connectors should implem
 - Consider each element of the `order_by.elements` array in turn.
 - For each [`OrderByElement`](../../reference/types.md#orderbyelement):
   - If `element.target.type` is `column`, then to compare two rows, compare the value in the selected column. See type `column` below.
-  - If `element.target.type` is `star_count_aggregate`, compare two rows by comparing the row count of a related table. See type `star_count_aggregate` below.
+  - If `element.target.type` is `star_count_aggregate`, compare two rows by comparing the row count of a related collection. See type `star_count_aggregate` below.
   - If `element.target.type` is `single_count_aggregate`, compare two rows by comparing a single column aggregate. See type `single_count_aggregate` below.
 
 ### Type `column`
@@ -33,7 +33,7 @@ For example, the following `query` requests that a collection of articles be ord
 {{#include ../../../../ndc-reference/tests/query/order_by_column/request.json:3: }}
 ```
 
-The selected column can be chosen from a related table by specifying the `path` property. `path` consists of a list of named [relationships](./relationships.md).
+The selected column can be chosen from a related collection by specifying the `path` property. `path` consists of a list of named [relationships](./relationships.md).
 
 For example, this query sorts articles by their author's last names, and then by their first names, by traversing the relationship from articles to authors:
 
@@ -44,7 +44,7 @@ For example, this query sorts articles by their author's last names, and then by
 
 ### Type `star_count_aggregate`
 
-An ordering of type `star_count_aggregate` orders rows by a count of rows in some [related table](./relationships.md). If the respective counts are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
+An ordering of type `star_count_aggregate` orders rows by a count of rows in some [related collection](./relationships.md). If the respective counts are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
 
 For example, this query sorts article authors by their total article count:
 
@@ -55,7 +55,7 @@ For example, this query sorts article authors by their total article count:
 
 ### Type `single_count_aggregate`
 
-An ordering of type `single_count_aggregate` orders rows by an aggregate computed over rows in some [related table](./relationships.md). If the respective aggregates are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
+An ordering of type `single_count_aggregate` orders rows by an aggregate computed over rows in some [related collection](./relationships.md). If the respective aggregates are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
 
 For example, this query sorts article authors by their maximum article ID:
 

@@ -48,10 +48,10 @@
 {{#include ../../../ndc-client/src/models.rs:CapabilitiesResponse}}
 ```
 
-## `CommandInfo`
+## `ProcedureInfo`
 
 ```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:CommandInfo}}
+{{#include ../../../ndc-client/src/models.rs:ProcedureInfo}}
 ```
 
 ## `ComparisonColumn`
@@ -78,10 +78,10 @@
 {{#include ../../../ndc-client/src/models.rs:ComparisonValue}}
 ```
 
-## `ExistsInTable`
+## `ExistsInCollection`
 
 ```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:ExistsInTable}}
+{{#include ../../../ndc-client/src/models.rs:ExistsInCollection}}
 ```
 
 ## `ExplainResponse`
@@ -276,22 +276,22 @@
 {{#include ../../../ndc-client/src/models.rs:SchemaResponse}}
 ```
 
-## `TableInfo`
+## `CollectionInfo`
 
 ```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:TableInfo}}
+{{#include ../../../ndc-client/src/models.rs:CollectionInfo}}
 ```
 
-## `TableInsertSchema`
+## `CollectionInsertSchema`
 
 ```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:TableInsertSchema}}
+{{#include ../../../ndc-client/src/models.rs:CollectionInsertSchema}}
 ```
 
-## `TableRelationships`
+## `CollectionRelationships`
 
 ```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:TableRelationships}}
+{{#include ../../../ndc-client/src/models.rs:CollectionRelationships}}
 ```
 
 ## `Type`

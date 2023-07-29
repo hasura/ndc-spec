@@ -2,14 +2,14 @@
 
 A [`Query`](../../reference/types.md#query) can specify which fields to fetch. The available fields are either
 
-- the columns on the selected table (i.e. those advertised in the corresponding [`TableInfo`](../../reference/types.md#tableinfo) structure in the [schema response](../schema/tables.md)), or
-- fields from [related tables](./relationships.md)
+- the columns on the selected collection (i.e. those advertised in the corresponding [`CollectionInfo`](../../reference/types.md#collectioninfo) structure in the [schema response](../schema/collections.md)), or
+- fields from [related collections](./relationships.md)
 
 The requested fields are specified as a collection of [`Field`](../../reference/types.md#field) structures in the `field` property on the [`Query`](../../reference/types.md#query).
 
 ## Example
 
-Here is an example of a query which selects some columns from the `articles` table of the reference data connector:
+Here is an example of a query which selects some columns from the `articles` collection of the reference data connector:
 
 ```json
 {{#include ../../../../ndc-reference/tests/query/get_all_articles/request.json}}
