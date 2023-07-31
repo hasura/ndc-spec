@@ -537,8 +537,8 @@ pub struct RowSet {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(untagged)]
 pub enum RowFieldValue {
-    Relationship { rows: RowSet },
-    Column { value: serde_json::Value },
+    Relationship(RowSet),
+    Column(serde_json::Value),
 }
 // ANCHOR_END: RowFieldValue
 

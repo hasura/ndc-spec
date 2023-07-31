@@ -342,7 +342,11 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     };
     // ANCHOR_END: schema_collection_articles_by_author
     // ANCHOR: schema_collections
-    let collections = vec![articles_collection, authors_collection, articles_by_author_collection];
+    let collections = vec![
+        articles_collection,
+        authors_collection,
+        articles_by_author_collection,
+    ];
     // ANCHOR_END: schema_collections
     // ANCHOR: schema_procedure_upsert_article
     let upsert_article = models::ProcedureInfo {
@@ -523,7 +527,14 @@ fn execute_query(
             let mut filtered: Vec<Row> = vec![];
             for item in sorted.into_iter() {
                 let root = root.unwrap_or(&item);
-                if eval_expression(collection_relationships, variables, state, &expr, root, &item)? {
+                if eval_expression(
+                    collection_relationships,
+                    variables,
+                    state,
+                    &expr,
+                    root,
+                    &item,
+                )? {
                     filtered.push(item);
                 }
             }
@@ -606,7 +617,14 @@ fn execute_query(
                 for (field_name, field) in fields.iter() {
                     row.insert(
                         field_name.clone(),
-                        eval_field(collection_relationships, variables, state, field, root, item)?,
+                        eval_field(
+                            collection_relationships,
+                            variables,
+                            state,
+                            field,
+                            root,
+                            item,
+                        )?,
                     );
                 }
                 rows.push(row)
@@ -758,8 +776,14 @@ fn eval_order_by_element(
 ) -> Result<serde_json::Value, StatusLine> {
     match element.target.clone() {
         models::OrderByTarget::Column { name, path } => {
-            let rows: Vec<Row> =
-                eval_path(collection_relationships, variables, state, &path, root, item)?;
+            let rows: Vec<Row> = eval_path(
+                collection_relationships,
+                variables,
+                state,
+                &path,
+                root,
+                item,
+            )?;
             if rows.len() > 1 {
                 return Err((
                     StatusCode::BAD_REQUEST,
@@ -887,7 +911,11 @@ fn eval_path_element(
             }
         }
 
-        let target = get_collection_by_name(relationship.target_collection.as_str(), &all_arguments, state)?;
+        let target = get_collection_by_name(
+            relationship.target_collection.as_str(),
+            &all_arguments,
+            state,
+        )?;
 
         for tgt_row in target.iter() {
             if eval_column_mapping(relationship, src_row, tgt_row)? {
@@ -1114,10 +1142,11 @@ fn eval_expression(
                     relationship,
                     arguments,
                 } => {
-                    let relationship = collection_relationships.get(relationship.as_str()).ok_or((
-                        StatusCode::BAD_REQUEST,
-                        "invalid relationship name in exists predicate",
-                    ))?;
+                    let relationship =
+                        collection_relationships.get(relationship.as_str()).ok_or((
+                            StatusCode::BAD_REQUEST,
+                            "invalid relationship name in exists predicate",
+                        ))?;
                     let source = vec![item.clone()];
                     let collection = eval_path_element(
                         collection_relationships,
@@ -1140,7 +1169,10 @@ fn eval_expression(
                         collection,
                     )
                 }
-                models::ExistsInCollection::Unrelated { collection, arguments } => {
+                models::ExistsInCollection::Unrelated {
+                    collection,
+                    arguments,
+                } => {
                     let arguments = arguments
                         .iter()
                         .map(|(k, v)| {
@@ -1207,9 +1239,14 @@ fn eval_comparison_value(
     item: &Row,
 ) -> Result<Vec<serde_json::Value>, StatusLine> {
     match comparison_value {
-        models::ComparisonValue::Column { column } => {
-            eval_comparison_target(collection_relationships, variables, state, &*column, root, item)
-        }
+        models::ComparisonValue::Column { column } => eval_comparison_target(
+            collection_relationships,
+            variables,
+            state,
+            &*column,
+            root,
+            item,
+        ),
         models::ComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
         models::ComparisonValue::Variable { name } => {
             let value = variables
@@ -1230,9 +1267,10 @@ fn eval_field(
     item: &Row,
 ) -> Result<models::RowFieldValue, StatusLine> {
     match field {
-        models::Field::Column { column, .. } => Ok(models::RowFieldValue::Column {
-            value: eval_column(item, column.as_str())?,
-        }),
+        models::Field::Column { column, .. } => Ok(models::RowFieldValue::Column(eval_column(
+            item,
+            column.as_str(),
+        )?)),
         models::Field::Relationship {
             relationship,
             arguments,
@@ -1263,7 +1301,7 @@ fn eval_field(
                 Some(root),
                 collection,
             )?;
-            Ok(models::RowFieldValue::Relationship { rows })
+            Ok(models::RowFieldValue::Relationship(rows))
         }
     }
 }

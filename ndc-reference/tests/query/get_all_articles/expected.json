@@ -2,28 +2,16 @@
   {
     "rows": [
       {
-        "title": {
-          "value": "The Next 700 Programming Languages"
-        },
-        "id": {
-          "value": 1
-        }
+        "id": 1,
+        "title": "The Next 700 Programming Languages"
       },
       {
-        "id": {
-          "value": 2
-        },
-        "title": {
-          "value": "Why Functional Programming Matters"
-        }
+        "id": 2,
+        "title": "Why Functional Programming Matters"
       },
       {
-        "id": {
-          "value": 3
-        },
-        "title": {
-          "value": "The Design And Implementation Of Programming Languages"
-        }
+        "id": 3,
+        "title": "The Design And Implementation Of Programming Languages"
       }
     ]
   }

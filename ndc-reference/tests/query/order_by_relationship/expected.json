@@ -2,70 +2,40 @@
   {
     "rows": [
       {
+        "title": "Why Functional Programming Matters",
+        "id": 2,
         "author": {
-          "rows": {
-            "rows": [
-              {
-                "first_name": {
-                  "value": "John"
-                },
-                "last_name": {
-                  "value": "Hughes"
-                }
-              }
-            ]
-          }
-        },
-        "id": {
-          "value": 2
-        },
-        "title": {
-          "value": "Why Functional Programming Matters"
+          "rows": [
+            {
+              "last_name": "Hughes",
+              "first_name": "John"
+            }
+          ]
         }
       },
       {
-        "id": {
-          "value": 3
-        },
+        "title": "The Design And Implementation Of Programming Languages",
         "author": {
-          "rows": {
-            "rows": [
-              {
-                "last_name": {
-                  "value": "Hughes"
-                },
-                "first_name": {
-                  "value": "John"
-                }
-              }
-            ]
-          }
+          "rows": [
+            {
+              "last_name": "Hughes",
+              "first_name": "John"
+            }
+          ]
         },
-        "title": {
-          "value": "The Design And Implementation Of Programming Languages"
-        }
+        "id": 3
       },
       {
+        "id": 1,
         "author": {
-          "rows": {
-            "rows": [
-              {
-                "first_name": {
-                  "value": "Peter"
-                },
-                "last_name": {
-                  "value": "Landin"
-                }
-              }
-            ]
-          }
+          "rows": [
+            {
+              "first_name": "Peter",
+              "last_name": "Landin"
+            }
+          ]
         },
-        "id": {
-          "value": 1
-        },
-        "title": {
-          "value": "The Next 700 Programming Languages"
-        }
+        "title": "The Next 700 Programming Languages"
       }
     ]
   }

@@ -2,34 +2,22 @@
   {
     "rows": [
       {
+        "first_name": "John",
         "articles_aggregate": {
-          "rows": {
-            "aggregates": {
-              "count": 2
-            }
+          "aggregates": {
+            "count": 2
           }
         },
-        "last_name": {
-          "value": "Hughes"
-        },
-        "first_name": {
-          "value": "John"
-        }
+        "last_name": "Hughes"
       },
       {
-        "first_name": {
-          "value": "Peter"
-        },
-        "last_name": {
-          "value": "Landin"
-        },
         "articles_aggregate": {
-          "rows": {
-            "aggregates": {
-              "count": 1
-            }
+          "aggregates": {
+            "count": 1
           }
-        }
+        },
+        "first_name": "Peter",
+        "last_name": "Landin"
       }
     ]
   }

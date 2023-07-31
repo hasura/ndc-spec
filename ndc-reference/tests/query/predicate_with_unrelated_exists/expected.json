@@ -2,34 +2,20 @@
   {
     "rows": [
       {
-        "last_name": {
-          "value": "Hughes"
-        },
         "articles": {
-          "rows": {
-            "rows": [
-              {
-                "title": {
-                  "value": "Why Functional Programming Matters"
-                },
-                "id": {
-                  "value": 2
-                }
-              },
-              {
-                "id": {
-                  "value": 3
-                },
-                "title": {
-                  "value": "The Design And Implementation Of Programming Languages"
-                }
-              }
-            ]
-          }
+          "rows": [
+            {
+              "title": "Why Functional Programming Matters",
+              "id": 2
+            },
+            {
+              "title": "The Design And Implementation Of Programming Languages",
+              "id": 3
+            }
+          ]
         },
-        "first_name": {
-          "value": "John"
-        }
+        "last_name": "Hughes",
+        "first_name": "John"
       }
     ]
   }

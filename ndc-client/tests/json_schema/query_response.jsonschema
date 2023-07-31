@@ -10,25 +10,9 @@
     "RowFieldValue": {
       "anyOf": [
         {
-          "type": "object",
-          "required": [
-            "rows"
-          ],
-          "properties": {
-            "rows": {
-              "$ref": "#/definitions/RowSet"
-            }
-          }
+          "$ref": "#/definitions/RowSet"
         },
-        {
-          "type": "object",
-          "required": [
-            "value"
-          ],
-          "properties": {
-            "value": true
-          }
-        }
+        true
       ]
     },
     "RowSet": {

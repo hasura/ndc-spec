@@ -1,17 +1,5 @@
 {
   "scalar_types": {
-    "String": {
-      "aggregate_functions": {},
-      "comparison_operators": {
-        "like": {
-          "argument_type": {
-            "type": "named",
-            "name": "String"
-          }
-        }
-      },
-      "update_operators": {}
-    },
     "Int": {
       "aggregate_functions": {
         "min": {
@@ -35,20 +23,24 @@
       },
       "comparison_operators": {},
       "update_operators": {}
+    },
+    "String": {
+      "aggregate_functions": {},
+      "comparison_operators": {
+        "like": {
+          "argument_type": {
+            "type": "named",
+            "name": "String"
+          }
+        }
+      },
+      "update_operators": {}
     }
   },
   "object_types": {
     "article": {
       "description": "An article",
       "fields": {
-        "author_id": {
-          "description": "The article's author ID",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "Int"
-          }
-        },
         "id": {
           "description": "The article's primary key",
           "arguments": {},
@@ -64,26 +56,34 @@
             "type": "named",
             "name": "String"
           }
+        },
+        "author_id": {
+          "description": "The article's author ID",
+          "arguments": {},
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
         }
       }
     },
     "author": {
       "description": "An author",
       "fields": {
-        "first_name": {
-          "description": "The author's first name",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "String"
-          }
-        },
         "id": {
           "description": "The author's primary key",
           "arguments": {},
           "type": {
             "type": "named",
             "name": "Int"
+          }
+        },
+        "first_name": {
+          "description": "The author's first name",
+          "arguments": {},
+          "type": {
+            "type": "named",
+            "name": "String"
           }
         },
         "last_name": {

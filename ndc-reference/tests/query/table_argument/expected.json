@@ -2,12 +2,8 @@
   {
     "rows": [
       {
-        "title": {
-          "value": "The Next 700 Programming Languages"
-        },
-        "id": {
-          "value": 1
-        }
+        "id": 1,
+        "title": "The Next 700 Programming Languages"
       }
     ]
   }
