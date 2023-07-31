@@ -41,7 +41,11 @@
                 "name": "title",
                 "path": [{
                     "arguments": {},
-                    "relationship": "author_articles"
+                    "relationship": "author_articles",
+                    "predicate": {
+                        "type": "and",
+                        "expressions": []
+                    }
                 }]
             },
             "operator": {

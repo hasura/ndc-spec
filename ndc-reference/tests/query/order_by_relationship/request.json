@@ -43,7 +43,11 @@
                         "path": [
                             {
                                 "arguments": {},
-                                "relationship": "article_author"
+                                "relationship": "article_author",
+                                "predicate": {
+                                    "type": "and",
+                                    "expressions": []
+                                }
                             }
                         ]
                     },
@@ -56,7 +60,11 @@
                         "path": [
                             {
                                 "arguments": {},
-                                "relationship": "article_author"
+                                "relationship": "article_author",
+                                "predicate": {
+                                    "type": "and",
+                                    "expressions": []
+                                }
                             }
                         ]
                     },

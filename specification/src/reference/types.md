@@ -54,12 +54,6 @@
 {{#include ../../../ndc-client/src/models.rs:ProcedureInfo}}
 ```
 
-## `ComparisonColumn`
-
-```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:ComparisonColumn}}
-```
-
 ## `ComparisonOperatorDefinition`
 
 ```rust,no_run,noplayground
@@ -180,12 +174,6 @@
 {{#include ../../../ndc-client/src/models.rs:OrderByElement}}
 ```
 
-## `OrderByRelation`
-
-```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:OrderByRelation}}
-```
-
 ## `OrderByTarget`
 
 ```rust,no_run,noplayground
@@ -202,12 +190,6 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-client/src/models.rs:PathElement}}
-```
-
-## `PathElementWithPredicate`
-
-```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:PathElementWithPredicate}}
 ```
 
 ## `Query`
@@ -286,12 +268,6 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-client/src/models.rs:CollectionInsertSchema}}
-```
-
-## `CollectionRelationships`
-
-```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:CollectionRelationships}}
 ```
 
 ## `Type`

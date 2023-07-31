@@ -9,11 +9,11 @@
             }
           }
         },
-        "first_name": {
-          "value": "Peter"
-        },
         "last_name": {
           "value": "Landin"
+        },
+        "first_name": {
+          "value": "Peter"
         }
       },
       {
@@ -24,11 +24,11 @@
             }
           }
         },
-        "first_name": {
-          "value": "John"
-        },
         "last_name": {
           "value": "Hughes"
+        },
+        "first_name": {
+          "value": "John"
         }
       }
     ]

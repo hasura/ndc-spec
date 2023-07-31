@@ -664,7 +664,7 @@
               "description": "Non-empty collection of relationships to traverse",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/PathElementWithPredicate"
+                "$ref": "#/definitions/PathElement"
               }
             },
             "type": {
@@ -686,7 +686,7 @@
               "description": "Non-empty collection of relationships to traverse",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/PathElementWithPredicate"
+                "$ref": "#/definitions/PathElement"
               }
             },
             "type": {
@@ -707,26 +707,6 @@
       ]
     },
     "PathElement": {
-      "type": "object",
-      "required": [
-        "arguments",
-        "relationship"
-      ],
-      "properties": {
-        "arguments": {
-          "description": "Values to be provided to any collection arguments",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/RelationshipArgument"
-          }
-        },
-        "relationship": {
-          "description": "The name of the relationship to follow",
-          "type": "string"
-        }
-      }
-    },
-    "PathElementWithPredicate": {
       "type": "object",
       "required": [
         "arguments",

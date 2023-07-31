@@ -1,5 +1,17 @@
 {
   "scalar_types": {
+    "String": {
+      "aggregate_functions": {},
+      "comparison_operators": {
+        "like": {
+          "argument_type": {
+            "type": "named",
+            "name": "String"
+          }
+        }
+      },
+      "update_operators": {}
+    },
     "Int": {
       "aggregate_functions": {
         "min": {
@@ -23,26 +35,43 @@
       },
       "comparison_operators": {},
       "update_operators": {}
-    },
-    "String": {
-      "aggregate_functions": {},
-      "comparison_operators": {
-        "like": {
-          "argument_type": {
+    }
+  },
+  "object_types": {
+    "article": {
+      "description": "An article",
+      "fields": {
+        "author_id": {
+          "description": "The article's author ID",
+          "arguments": {},
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "id": {
+          "description": "The article's primary key",
+          "arguments": {},
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "title": {
+          "description": "The article's title",
+          "arguments": {},
+          "type": {
             "type": "named",
             "name": "String"
           }
         }
-      },
-      "update_operators": {}
-    }
-  },
-  "object_types": {
+      }
+    },
     "author": {
       "description": "An author",
       "fields": {
-        "last_name": {
-          "description": "The author's last name",
+        "first_name": {
+          "description": "The author's first name",
           "arguments": {},
           "type": {
             "type": "named",
@@ -57,41 +86,12 @@
             "name": "Int"
           }
         },
-        "first_name": {
-          "description": "The author's first name",
+        "last_name": {
+          "description": "The author's last name",
           "arguments": {},
           "type": {
             "type": "named",
             "name": "String"
-          }
-        }
-      }
-    },
-    "article": {
-      "description": "An article",
-      "fields": {
-        "title": {
-          "description": "The article's title",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "String"
-          }
-        },
-        "id": {
-          "description": "The article's primary key",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "Int"
-          }
-        },
-        "author_id": {
-          "description": "The article's author ID",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "Int"
           }
         }
       }

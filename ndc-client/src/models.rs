@@ -368,27 +368,14 @@ pub enum OrderByTarget {
         /// Single column aggregate function name.
         function: String,
         /// Non-empty collection of relationships to traverse
-        path: Vec<PathElementWithPredicate>,
+        path: Vec<PathElement>,
     },
     StarCountAggregate {
         /// Non-empty collection of relationships to traverse
-        path: Vec<PathElementWithPredicate>,
+        path: Vec<PathElement>,
     },
 }
 // ANCHOR_END: OrderByTarget
-
-// ANCHOR: PathElementWithPredicate
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "snake_case")]
-pub struct PathElementWithPredicate {
-    /// The name of the relationship to follow
-    pub relationship: String,
-    /// Values to be provided to any collection arguments
-    pub arguments: HashMap<String, RelationshipArgument>,
-    /// A predicate expression to apply to the target collection
-    pub predicate: Box<Expression>,
-}
-// ANCHOR_END: PathElementWithPredicate
 
 // ANCHOR: OrderDirection
 #[derive(
@@ -494,6 +481,8 @@ pub struct PathElement {
     pub relationship: String,
     /// Values to be provided to any collection arguments
     pub arguments: HashMap<String, RelationshipArgument>,
+    /// A predicate expression to apply to the target collection
+    pub predicate: Box<Expression>,
 }
 // ANCHOR_END: PathElement
 

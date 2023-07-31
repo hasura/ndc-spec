@@ -776,7 +776,7 @@ fn eval_order_by_element(
             function,
             path,
         } => {
-            let rows: Vec<Row> = eval_path_with_predicates(
+            let rows: Vec<Row> = eval_path(
                 collection_relationships,
                 variables,
                 state,
@@ -794,7 +794,7 @@ fn eval_order_by_element(
             eval_aggregate_function(&function, values)
         }
         models::OrderByTarget::StarCountAggregate { path } => {
-            let rows: Vec<Row> = eval_path_with_predicates(
+            let rows: Vec<Row> = eval_path(
                 collection_relationships,
                 variables,
                 state,
@@ -815,27 +815,6 @@ fn eval_path(
     root: &Row,
     item: &Row,
 ) -> Result<Vec<Row>, StatusLine> {
-    let path = path
-        .iter()
-        .map(|path_element| models::PathElementWithPredicate {
-            relationship: path_element.relationship.clone(),
-            arguments: path_element.arguments.clone(),
-            predicate: Box::new(models::Expression::And {
-                expressions: vec![],
-            }),
-        })
-        .collect();
-    eval_path_with_predicates(collection_relationships, variables, state, &path, root, item)
-}
-
-fn eval_path_with_predicates(
-    collection_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
-    state: &AppState,
-    path: &Vec<models::PathElementWithPredicate>,
-    root: &Row,
-    item: &Row,
-) -> Result<Vec<Row>, StatusLine> {
     let mut result: Vec<Row> = vec![item.clone()];
 
     for path_element in path.iter() {
@@ -843,7 +822,7 @@ fn eval_path_with_predicates(
         let relationship = collection_relationships
             .get(relationship_name)
             .ok_or((StatusCode::BAD_REQUEST, "invalid relationship name in path"))?;
-        result = eval_path_element_with_predicate(
+        result = eval_path_element(
             collection_relationships,
             variables,
             state,
@@ -858,7 +837,7 @@ fn eval_path_with_predicates(
     Ok(result)
 }
 
-fn eval_path_element_with_predicate(
+fn eval_path_element(
     collection_relationships: &HashMap<String, models::Relationship>,
     variables: &HashMap<String, serde_json::Value>,
     state: &AppState,
@@ -1140,7 +1119,7 @@ fn eval_expression(
                         "invalid relationship name in exists predicate",
                     ))?;
                     let source = vec![item.clone()];
-                    let collection = eval_path_element_with_predicate(
+                    let collection = eval_path_element(
                         collection_relationships,
                         variables,
                         state,
@@ -1264,7 +1243,7 @@ fn eval_field(
                 "invalid relationship name in field",
             ))?;
             let source = vec![item.clone()];
-            let collection = eval_path_element_with_predicate(
+            let collection = eval_path_element(
                 collection_relationships,
                 variables,
                 state,

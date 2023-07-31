@@ -2,18 +2,18 @@
   {
     "rows": [
       {
-        "last_name": {
-          "value": "Hughes"
-        },
-        "first_name": {
-          "value": "John"
-        },
         "articles_aggregate": {
           "rows": {
             "aggregates": {
               "count": 2
             }
           }
+        },
+        "last_name": {
+          "value": "Hughes"
+        },
+        "first_name": {
+          "value": "John"
         }
       },
       {

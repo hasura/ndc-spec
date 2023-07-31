@@ -17,8 +17,8 @@
         }
       },
       {
-        "last_name": {
-          "value": "Hughes"
+        "first_name": {
+          "value": "John"
         },
         "articles_aggregate": {
           "rows": {
@@ -27,8 +27,8 @@
             }
           }
         },
-        "first_name": {
-          "value": "John"
+        "last_name": {
+          "value": "Hughes"
         }
       }
     ]

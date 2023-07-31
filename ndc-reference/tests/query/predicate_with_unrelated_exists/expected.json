@@ -2,6 +2,9 @@
   {
     "rows": [
       {
+        "last_name": {
+          "value": "Hughes"
+        },
         "articles": {
           "rows": {
             "rows": [
@@ -14,11 +17,11 @@
                 }
               },
               {
-                "title": {
-                  "value": "The Design And Implementation Of Programming Languages"
-                },
                 "id": {
                   "value": 3
+                },
+                "title": {
+                  "value": "The Design And Implementation Of Programming Languages"
                 }
               }
             ]
@@ -26,9 +29,6 @@
         },
         "first_name": {
           "value": "John"
-        },
-        "last_name": {
-          "value": "Hughes"
         }
       }
     ]

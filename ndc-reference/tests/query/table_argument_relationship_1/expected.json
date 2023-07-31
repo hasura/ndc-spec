@@ -5,31 +5,25 @@
         "first_name": {
           "value": "Peter"
         },
+        "last_name": {
+          "value": "Landin"
+        },
         "articles": {
           "rows": {
             "rows": [
               {
-                "id": {
-                  "value": 1
-                },
                 "title": {
                   "value": "The Next 700 Programming Languages"
+                },
+                "id": {
+                  "value": 1
                 }
               }
             ]
           }
-        },
-        "last_name": {
-          "value": "Landin"
         }
       },
       {
-        "last_name": {
-          "value": "Hughes"
-        },
-        "first_name": {
-          "value": "John"
-        },
         "articles": {
           "rows": {
             "rows": [
@@ -42,15 +36,21 @@
                 }
               },
               {
-                "id": {
-                  "value": 3
-                },
                 "title": {
                   "value": "The Design And Implementation Of Programming Languages"
+                },
+                "id": {
+                  "value": 3
                 }
               }
             ]
           }
+        },
+        "first_name": {
+          "value": "John"
+        },
+        "last_name": {
+          "value": "Hughes"
         }
       }
     ]
