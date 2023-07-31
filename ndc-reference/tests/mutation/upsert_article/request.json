@@ -1,0 +1,43 @@
+{
+    "$schema": "../../../../ndc-client/tests/json_schema/mutation_request.jsonschema",
+    "insert_schema": [],
+    "operations": [
+        {
+            "type": "procedure",
+            "name": "upsert_article",
+            "arguments": {
+                "article": {
+                    "id": 4,
+                    "title": "A Novel Representation of Lists and its Application to the Function \"Reverse\"",
+                    "author_id": 2
+                }
+            },
+            "fields": {
+                "id": {
+                    "type": "column",
+                    "column": "id",
+                    "arguments": {}
+                }
+            }
+        },
+        {
+            "type": "procedure",
+            "name": "upsert_article",
+            "arguments": {
+                "article": {
+                    "id": 2,
+                    "title": "QuickCheck: a lightweight tool for random testing of Haskell programs",
+                    "author_id": 2
+                }
+            },
+            "fields": {
+                "id": {
+                    "type": "column",
+                    "column": "id",
+                    "arguments": {}
+                }
+            }
+        }
+    ],
+    "collection_relationships": {}
+}

@@ -14,19 +14,18 @@
         }
       },
       {
-        "title": "The Design And Implementation Of Programming Languages",
         "author": {
           "rows": [
             {
-              "last_name": "Hughes",
-              "first_name": "John"
+              "first_name": "John",
+              "last_name": "Hughes"
             }
           ]
         },
-        "id": 3
+        "id": 3,
+        "title": "The Design And Implementation Of Programming Languages"
       },
       {
-        "id": 1,
         "author": {
           "rows": [
             {
@@ -35,6 +34,7 @@
             }
           ]
         },
+        "id": 1,
         "title": "The Next 700 Programming Languages"
       }
     ]

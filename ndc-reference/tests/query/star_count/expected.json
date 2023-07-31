@@ -11,13 +11,13 @@
         }
       },
       {
-        "last_name": "Hughes",
         "first_name": "John",
         "articles_aggregate": {
           "aggregates": {
             "count": 2
           }
-        }
+        },
+        "last_name": "Hughes"
       }
     ]
   }

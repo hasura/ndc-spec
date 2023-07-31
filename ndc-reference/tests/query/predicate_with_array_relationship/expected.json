@@ -2,13 +2,13 @@
   {
     "rows": [
       {
-        "last_name": "Hughes",
         "first_name": "John",
+        "last_name": "Hughes",
         "articles": {
           "rows": [
             {
-              "title": "Why Functional Programming Matters",
-              "id": 2
+              "id": 2,
+              "title": "Why Functional Programming Matters"
             },
             {
               "title": "The Design And Implementation Of Programming Languages",

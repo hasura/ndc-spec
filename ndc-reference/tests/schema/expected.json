@@ -1,5 +1,17 @@
 {
   "scalar_types": {
+    "String": {
+      "aggregate_functions": {},
+      "comparison_operators": {
+        "like": {
+          "argument_type": {
+            "type": "named",
+            "name": "String"
+          }
+        }
+      },
+      "update_operators": {}
+    },
     "Int": {
       "aggregate_functions": {
         "min": {
@@ -23,21 +35,38 @@
       },
       "comparison_operators": {},
       "update_operators": {}
-    },
-    "String": {
-      "aggregate_functions": {},
-      "comparison_operators": {
-        "like": {
-          "argument_type": {
+    }
+  },
+  "object_types": {
+    "author": {
+      "description": "An author",
+      "fields": {
+        "first_name": {
+          "description": "The author's first name",
+          "arguments": {},
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        },
+        "id": {
+          "description": "The author's primary key",
+          "arguments": {},
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "last_name": {
+          "description": "The author's last name",
+          "arguments": {},
+          "type": {
             "type": "named",
             "name": "String"
           }
         }
-      },
-      "update_operators": {}
-    }
-  },
-  "object_types": {
+      }
+    },
     "article": {
       "description": "An article",
       "fields": {
@@ -63,35 +92,6 @@
           "type": {
             "type": "named",
             "name": "Int"
-          }
-        }
-      }
-    },
-    "author": {
-      "description": "An author",
-      "fields": {
-        "id": {
-          "description": "The author's primary key",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "Int"
-          }
-        },
-        "first_name": {
-          "description": "The author's first name",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "String"
-          }
-        },
-        "last_name": {
-          "description": "The author's last name",
-          "arguments": {},
-          "type": {
-            "type": "named",
-            "name": "String"
           }
         }
       }
@@ -167,17 +167,17 @@
         "article": {
           "description": "The article to insert or update",
           "type": {
-            "type": "nullable",
-            "underlying_type": {
-              "type": "named",
-              "name": "article"
-            }
+            "type": "named",
+            "name": "article"
           }
         }
       },
       "result_type": {
-        "type": "named",
-        "name": "article"
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "article"
+        }
       }
     }
   ]

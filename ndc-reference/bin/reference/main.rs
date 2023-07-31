@@ -1,6 +1,7 @@
 use std::{
     cmp::Ordering,
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
+    error::Error,
     sync::Arc,
 };
 
@@ -14,6 +15,7 @@ use csv;
 use ndc_client::models;
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
+use tokio::sync::Mutex;
 
 // ANCHOR: csv-types
 type Row = HashMap<String, serde_json::Value>;
@@ -22,17 +24,23 @@ type Row = HashMap<String, serde_json::Value>;
 // ANCHOR: app-state
 #[derive(Debug, Clone)]
 pub struct AppState {
-    pub articles: Vec<Row>,
-    pub authors: Vec<Row>,
+    pub articles: BTreeMap<i64, Row>,
+    pub authors: BTreeMap<i64, Row>,
     pub metrics: Metrics,
 }
 // ANCHOR_END: app-state
 
-fn read_csv(path: &str) -> Result<Vec<Row>, csv::Error> {
+fn read_csv(path: &str) -> Result<BTreeMap<i64, Row>, Box<dyn Error>> {
     let mut rdr = csv::Reader::from_path(path)?;
-    let mut records: Vec<Row> = Vec::new();
+    let mut records: BTreeMap<i64, Row> = BTreeMap::new();
     for row in rdr.deserialize() {
-        records.push(row?)
+        let row: HashMap<String, serde_json::Value> = row?;
+        let id = row
+            .get("id")
+            .ok_or("'id' field not found in csv file")?
+            .as_i64()
+            .ok_or("'id' field was not an integer in csv file")?;
+        records.insert(id, row);
     }
     Ok(records)
 }
@@ -70,10 +78,11 @@ impl Metrics {
 }
 
 async fn metrics_middleware<T>(
-    state: State<Arc<AppState>>,
+    state: State<Arc<Mutex<AppState>>>,
     request: axum::http::Request<T>,
     next: axum::middleware::Next<T>,
 ) -> axum::response::Response {
+    let state = state.lock().await;
     state.metrics.total_requests.inc();
     state.metrics.active_requests.inc();
     let response = next.run(request).await;
@@ -100,7 +109,7 @@ type StatusLine = (StatusCode, &'static str);
 // ANCHOR: main
 #[tokio::main]
 async fn main() {
-    let app_state = Arc::new(init_app_state());
+    let app_state = Arc::new(Mutex::new(init_app_state()));
 
     let app = Router::new()
         .route("/healthz", get(get_healthz))
@@ -131,7 +140,8 @@ async fn get_healthz() -> StatusCode {
 // ANCHOR_END: health
 
 // ANCHOR: metrics
-async fn get_metrics(State(state): State<Arc<AppState>>) -> Result<String, StatusLine> {
+async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String, StatusLine> {
+    let state = state.lock().await;
     state
         .metrics
         .as_text()
@@ -356,15 +366,15 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             "article".into(),
             models::ArgumentInfo {
                 description: Some("The article to insert or update".into()),
-                argument_type: models::Type::Nullable {
-                    underlying_type: Box::new(models::Type::Named {
-                        name: "article".into(),
-                    }),
+                argument_type: models::Type::Named {
+                    name: "article".into(),
                 },
             },
         )]),
-        result_type: models::Type::Named {
-            name: "article".into(),
+        result_type: models::Type::Nullable {
+            underlying_type: Box::new(models::Type::Named {
+                name: "article".into(),
+            }),
         },
     };
     // ANCHOR_END: schema_procedure_upsert_article
@@ -397,9 +407,11 @@ async fn get_schema() -> Json<models::SchemaResponse> {
 
 // ANCHOR: query
 pub async fn post_query(
-    State(state): State<Arc<AppState>>,
+    State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<models::QueryRequest>,
 ) -> Result<Json<models::QueryResponse>, StatusLine> {
+    let state = state.lock().await;
+
     let variable_sets = request.variables.unwrap_or(vec![HashMap::new()]);
 
     let mut row_sets = vec![];
@@ -422,7 +434,7 @@ pub async fn post_query(
             &arguments,
             None,
             &request.query,
-            state.as_ref(),
+            &state,
         )?;
         row_sets.push(row_set);
     }
@@ -457,8 +469,8 @@ fn get_collection_by_name(
     state: &AppState,
 ) -> Result<Vec<Row>, StatusLine> {
     match collection_name {
-        "articles" => Ok(state.articles.clone()),
-        "authors" => Ok(state.authors.clone()),
+        "articles" => Ok(state.articles.values().cloned().collect()),
+        "authors" => Ok(state.authors.values().cloned().collect()),
         "articles_by_author" => {
             let author_id = arguments
                 .get("author_id".into())
@@ -469,7 +481,7 @@ fn get_collection_by_name(
 
             let mut articles_by_author = vec![];
 
-            for article in state.articles.iter() {
+            for (_id, article) in state.articles.iter() {
                 let article_author_id = article
                     .get("author_id")
                     .ok_or((StatusCode::INTERNAL_SERVER_ERROR, "author_id not found"))?;
@@ -488,7 +500,7 @@ fn get_collection_by_name(
             let latest_id = state
                 .articles
                 .iter()
-                .filter_map(|a| a.get("id").and_then(|v| v.as_i64()))
+                .filter_map(|(_id, a)| a.get("id").and_then(|v| v.as_i64()))
                 .max();
             let latest_id_value = serde_json::to_value(latest_id).map_err(|_| {
                 (
@@ -1316,14 +1328,16 @@ async fn post_explain(
 
 // ANCHOR: mutation
 async fn post_mutation(
-    State(state): State<Arc<AppState>>,
+    State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<models::MutationRequest>,
 ) -> Result<Json<models::MutationResponse>, StatusLine> {
+    let mut state = state.lock().await;
+
     let mut operation_results = vec![];
 
     for operation in request.operations.iter() {
         let operation_result = execute_mutation_operation(
-            &state,
+            &mut state,
             &request.insert_schema,
             &request.collection_relationships,
             operation,
@@ -1337,7 +1351,7 @@ async fn post_mutation(
 // ANCHOR_END: mutation
 
 async fn execute_mutation_operation(
-    _state: &Arc<AppState>,
+    state: &mut AppState,
     _insert_schema: &Vec<models::CollectionInsertSchema>,
     _collection_relationships: &HashMap<String, models::Relationship>,
     operation: &models::MutationOperation,
@@ -1368,12 +1382,38 @@ async fn execute_mutation_operation(
             todo!()
         }
         models::MutationOperation::Procedure {
-            name: _,
-            arguments: _,
+            name,
+            arguments,
             fields: _,
-        } => {
-            todo!()
-        }
+        } => match name.as_str() {
+            "upsert_article" => {
+                let article = arguments.get("article").ok_or((
+                    StatusCode::BAD_REQUEST,
+                    "argument 'article' is required in upsert_article",
+                ))?;
+                let article_obj = article.as_object().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    "argument 'article' is not an object",
+                ))?;
+                let id = article_obj.get("id").ok_or((
+                    StatusCode::BAD_REQUEST,
+                    "argument 'article' is missing required field 'id'",
+                ))?;
+                let id_int = id.as_i64().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    "argument 'article.id' is not an integer",
+                ))?;
+                let new_row =
+                    HashMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
+                let old_row = state.articles.insert(id_int, new_row);
+                let returning = old_row.map(|row| vec![row]);
+                Ok(models::MutationOperationResults {
+                    affected_rows: 1,
+                    returning,
+                })
+            }
+            _ => Err((StatusCode::BAD_REQUEST, "unknown procedure")),
+        },
     }
 }
 
@@ -1403,6 +1443,7 @@ mod tests {
         path::PathBuf,
         sync::Arc,
     };
+    use tokio::sync::Mutex;
 
     #[test]
     fn test_capabilities() {
@@ -1497,8 +1538,61 @@ mod tests {
                     PathBuf::from_iter(["query", test_name, "expected.json"])
                 };
 
-                let state = Arc::new(crate::init_app_state());
+                let state = Arc::new(Mutex::new(crate::init_app_state()));
                 let response = crate::post_query(State(state), Json(request))
+                    .await
+                    .unwrap();
+
+                let mut expected = mint
+                    .new_goldenfile_with_differ(
+                        expected_path,
+                        Box::new(|file1, file2| {
+                            let json1: serde_json::Value =
+                                serde_json::from_reader(File::open(file1).unwrap()).unwrap();
+                            let json2: serde_json::Value =
+                                serde_json::from_reader(File::open(file2).unwrap()).unwrap();
+                            if json1 != json2 {
+                                text_diff(file1, file2)
+                            }
+                        }),
+                    )
+                    .unwrap();
+
+                write!(
+                    expected,
+                    "{}",
+                    serde_json::to_string_pretty(&response.0).unwrap()
+                )
+                .unwrap();
+            }
+        });
+    }
+
+    #[test]
+    fn test_mutation() {
+        tokio_test::block_on(async {
+            let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+
+            let mut mint = Mint::new(&test_dir);
+
+            for input_file in fs::read_dir(test_dir.join("mutation")).unwrap() {
+                let entry = input_file.unwrap();
+                let request = {
+                    let path = entry.path();
+                    assert!(path.is_dir());
+                    let req_path = path.join("request.json");
+                    let req_file = File::open(req_path).unwrap();
+                    serde_json::from_reader::<_, models::MutationRequest>(req_file).unwrap()
+                };
+
+                let expected_path = {
+                    let path = entry.path();
+                    let test_name = path.file_name().unwrap().to_str().unwrap();
+                    PathBuf::from_iter(["mutation", test_name, "expected.json"])
+                };
+
+                let state = Arc::new(Mutex::new(crate::init_app_state()));
+                let response = crate::post_mutation(State(state), Json(request))
                     .await
                     .unwrap();
 

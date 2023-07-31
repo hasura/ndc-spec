@@ -2,6 +2,8 @@
   {
     "rows": [
       {
+        "first_name": "Peter",
+        "last_name": "Landin",
         "articles": {
           "rows": [
             {
@@ -9,25 +11,23 @@
               "id": 1
             }
           ]
-        },
-        "last_name": "Landin",
-        "first_name": "Peter"
+        }
       },
       {
+        "first_name": "John",
+        "last_name": "Hughes",
         "articles": {
           "rows": [
             {
-              "id": 2,
-              "title": "Why Functional Programming Matters"
+              "title": "Why Functional Programming Matters",
+              "id": 2
             },
             {
               "title": "The Design And Implementation Of Programming Languages",
               "id": 3
             }
           ]
-        },
-        "first_name": "John",
-        "last_name": "Hughes"
+        }
       }
     ]
   }
