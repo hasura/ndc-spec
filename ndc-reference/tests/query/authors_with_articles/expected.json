@@ -2,6 +2,7 @@
   {
     "rows": [
       {
+        "first_name": "Peter",
         "last_name": "Landin",
         "articles": {
           "rows": [
@@ -10,8 +11,7 @@
               "title": "The Next 700 Programming Languages"
             }
           ]
-        },
-        "first_name": "Peter"
+        }
       },
       {
         "first_name": "John",
@@ -19,8 +19,8 @@
         "articles": {
           "rows": [
             {
-              "title": "Why Functional Programming Matters",
-              "id": 2
+              "id": 2,
+              "title": "Why Functional Programming Matters"
             },
             {
               "id": 3,

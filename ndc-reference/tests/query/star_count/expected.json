@@ -2,8 +2,8 @@
   {
     "rows": [
       {
-        "last_name": "Landin",
         "first_name": "Peter",
+        "last_name": "Landin",
         "articles_aggregate": {
           "aggregates": {
             "count": 1
@@ -12,12 +12,12 @@
       },
       {
         "first_name": "John",
+        "last_name": "Hughes",
         "articles_aggregate": {
           "aggregates": {
             "count": 2
           }
-        },
-        "last_name": "Hughes"
+        }
       }
     ]
   }

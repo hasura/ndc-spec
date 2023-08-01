@@ -7,8 +7,6 @@
       "affected_rows": 1,
       "returning": [
         {
-          "author_id": 2,
-          "title": "Why Functional Programming Matters",
           "id": 2
         }
       ]
