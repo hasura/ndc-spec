@@ -1,0 +1,15 @@
+{
+  "operation_results": [
+    {
+      "affected_rows": 1
+    },
+    {
+      "affected_rows": 1,
+      "returning": [
+        {
+          "id": 2
+        }
+      ]
+    }
+  ]
+}

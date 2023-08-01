@@ -7,13 +7,15 @@
         "articles": {
           "rows": [
             {
-              "title": "The Next 700 Programming Languages",
-              "id": 1
+              "id": 1,
+              "title": "The Next 700 Programming Languages"
             }
           ]
         }
       },
       {
+        "first_name": "John",
+        "last_name": "Hughes",
         "articles": {
           "rows": [
             {
@@ -25,9 +27,7 @@
               "title": "The Design And Implementation Of Programming Languages"
             }
           ]
-        },
-        "last_name": "Hughes",
-        "first_name": "John"
+        }
       }
     ]
   }

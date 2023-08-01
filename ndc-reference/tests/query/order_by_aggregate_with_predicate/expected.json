@@ -2,22 +2,22 @@
   {
     "rows": [
       {
+        "first_name": "Peter",
         "last_name": "Landin",
         "articles_aggregate": {
           "aggregates": {
             "articles_with_numerals_count": 1
           }
-        },
-        "first_name": "Peter"
+        }
       },
       {
+        "first_name": "John",
         "last_name": "Hughes",
         "articles_aggregate": {
           "aggregates": {
             "articles_with_numerals_count": 0
           }
-        },
-        "first_name": "John"
+        }
       }
     ]
   }

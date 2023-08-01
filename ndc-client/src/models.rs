@@ -1,5 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
+use indexmap::IndexMap;
 use schemars::JsonSchema;
 use serde_with::skip_serializing_none;
 
@@ -53,10 +54,10 @@ pub struct MutationCapabilities {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct SchemaResponse {
     /// A list of scalar types which will be used as the types of collection columns
-    pub scalar_types: HashMap<String, ScalarType>,
+    pub scalar_types: BTreeMap<String, ScalarType>,
     /// A list of object types which can be used as the types of arguments, or return types of procedures.
     /// Names should not overlap with collection names or scalar type names.
-    pub object_types: HashMap<String, ObjectType>,
+    pub object_types: BTreeMap<String, ObjectType>,
     /// Collections which are available for queries and/or mutations
     pub collections: Vec<CollectionInfo>,
     /// Functions (i.e. collections which return a single column and row)
@@ -71,11 +72,11 @@ pub struct SchemaResponse {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct ScalarType {
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
-    pub aggregate_functions: HashMap<String, AggregateFunctionDefinition>,
+    pub aggregate_functions: BTreeMap<String, AggregateFunctionDefinition>,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
-    pub comparison_operators: HashMap<String, ComparisonOperatorDefinition>,
+    pub comparison_operators: BTreeMap<String, ComparisonOperatorDefinition>,
     /// A map from update operator names to their definitions.
-    pub update_operators: HashMap<String, UpdateOperatorDefinition>,
+    pub update_operators: BTreeMap<String, UpdateOperatorDefinition>,
 }
 // ANCHOR_END: ScalarType
 
@@ -87,7 +88,7 @@ pub struct ObjectType {
     /// Description of this type
     pub description: Option<String>,
     /// Fields defined on this object type
-    pub fields: HashMap<String, ObjectField>,
+    pub fields: BTreeMap<String, ObjectField>,
 }
 // ANCHOR_END: ObjectType
 
@@ -99,7 +100,7 @@ pub struct ObjectField {
     /// Description of this field
     pub description: Option<String>,
     /// Any arguments that this object field accepts
-    pub arguments: HashMap<String, ArgumentInfo>,
+    pub arguments: BTreeMap<String, ArgumentInfo>,
     /// The type of this field
     #[serde(rename = "type")]
     pub r#type: Type,
@@ -170,7 +171,7 @@ pub struct CollectionInfo {
     /// Description of the collection
     pub description: Option<String>,
     /// Any arguments that this collection requires
-    pub arguments: HashMap<String, ArgumentInfo>,
+    pub arguments: BTreeMap<String, ArgumentInfo>,
     /// The name of the collection's object type
     #[serde(rename = "type")]
     pub collection_type: String,
@@ -181,9 +182,9 @@ pub struct CollectionInfo {
     /// Whether or not existing rows can be deleted from the collection
     pub deletable: bool,
     /// Any uniqueness constraints enforced on this collection
-    pub uniqueness_constraints: HashMap<String, UniquenessConstraint>,
+    pub uniqueness_constraints: BTreeMap<String, UniquenessConstraint>,
     /// Any foreign key constraints enforced on this collection
-    pub foreign_keys: HashMap<String, ForeignKeyConstraint>,
+    pub foreign_keys: BTreeMap<String, ForeignKeyConstraint>,
 }
 // ANCHOR_END: CollectionInfo
 
@@ -196,7 +197,7 @@ pub struct FunctionInfo {
     /// Description of the function
     pub description: Option<String>,
     /// Any arguments that this collection requires
-    pub arguments: HashMap<String, ArgumentInfo>,
+    pub arguments: BTreeMap<String, ArgumentInfo>,
     /// The name of the function's result type
     pub result_type: Type,
 }
@@ -226,7 +227,7 @@ pub struct UniquenessConstraint {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct ForeignKeyConstraint {
     /// The columns on which you want want to define the foreign key.
-    pub column_mapping: HashMap<String, String>,
+    pub column_mapping: BTreeMap<String, String>,
     /// The name of a collection
     pub foreign_collection: String,
 }
@@ -241,7 +242,7 @@ pub struct ProcedureInfo {
     /// Column description
     pub description: Option<String>,
     /// Any arguments that this collection requires
-    pub arguments: HashMap<String, ArgumentInfo>,
+    pub arguments: BTreeMap<String, ArgumentInfo>,
     /// The name of the result type
     pub result_type: Type,
 }
@@ -257,12 +258,12 @@ pub struct QueryRequest {
     /// The query syntax tree
     pub query: Query,
     /// Values to be provided to any collection arguments
-    pub arguments: HashMap<String, Argument>,
+    pub arguments: BTreeMap<String, Argument>,
     /// Any relationships between collections involved in the query request
-    pub collection_relationships: HashMap<String, Relationship>,
+    pub collection_relationships: BTreeMap<String, Relationship>,
     /// One set of named variables for each rowset to fetch. Each variable set
     /// should be subtituted in turn, and a fresh set of rows returned.
-    pub variables: Option<Vec<HashMap<String, serde_json::Value>>>,
+    pub variables: Option<Vec<BTreeMap<String, serde_json::Value>>>,
 }
 // ANCHOR_END: QueryRequest
 
@@ -282,9 +283,9 @@ pub enum Argument {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct Query {
     /// Aggregate fields of the query
-    pub aggregates: Option<HashMap<String, Aggregate>>,
+    pub aggregates: Option<IndexMap<String, Aggregate>>,
     /// Fields of the query
-    pub fields: Option<HashMap<String, Field>>,
+    pub fields: Option<IndexMap<String, Field>>,
     /// Optionally limit to N results
     pub limit: Option<u32>,
     /// Optionally offset from the Nth result
@@ -323,14 +324,14 @@ pub enum Field {
     Column {
         column: String,
         /// Values to be provided to any field arguments
-        arguments: HashMap<String, Argument>,
+        arguments: BTreeMap<String, Argument>,
     },
     Relationship {
         query: Box<Query>,
         /// The name of the relationship to follow for the subquery
         relationship: String,
         /// Values to be provided to any collection arguments
-        arguments: HashMap<String, RelationshipArgument>,
+        arguments: BTreeMap<String, RelationshipArgument>,
     },
 }
 // ANCHOR_END: Field
@@ -480,7 +481,7 @@ pub struct PathElement {
     /// The name of the relationship to follow
     pub relationship: String,
     /// Values to be provided to any collection arguments
-    pub arguments: HashMap<String, RelationshipArgument>,
+    pub arguments: BTreeMap<String, RelationshipArgument>,
     /// A predicate expression to apply to the target collection
     pub predicate: Box<Expression>,
 }
@@ -503,13 +504,13 @@ pub enum ExistsInCollection {
     Related {
         relationship: String,
         /// Values to be provided to any collection arguments
-        arguments: HashMap<String, RelationshipArgument>,
+        arguments: BTreeMap<String, RelationshipArgument>,
     },
     Unrelated {
         /// The name of a collection
         collection: String,
         /// Values to be provided to any collection arguments
-        arguments: HashMap<String, RelationshipArgument>,
+        arguments: BTreeMap<String, RelationshipArgument>,
     },
 }
 // ANCHOR_END: ExistsInCollection
@@ -527,9 +528,9 @@ pub struct QueryResponse(pub Vec<RowSet>);
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct RowSet {
     /// The results of the aggregates returned by the query
-    pub aggregates: Option<HashMap<String, serde_json::Value>>,
+    pub aggregates: Option<IndexMap<String, serde_json::Value>>,
     /// The rows returned by the query, corresponding to the query's fields
-    pub rows: Option<Vec<HashMap<String, RowFieldValue>>>,
+    pub rows: Option<Vec<IndexMap<String, RowFieldValue>>>,
 }
 // ANCHOR_END: RowSet
 
@@ -560,7 +561,7 @@ pub struct MutationRequest {
     /// The mutation operations to perform
     pub operations: Vec<MutationOperation>,
     /// The relationships between collections involved in the entire mutation request
-    pub collection_relationships: HashMap<String, Relationship>,
+    pub collection_relationships: BTreeMap<String, Relationship>,
 }
 // ANCHOR_END: MutationRequest
 
@@ -568,7 +569,7 @@ pub struct MutationRequest {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct CollectionInsertSchema {
     /// The fields that will be found in the insert row data for the collection and the schema for each field
-    pub fields: HashMap<String, InsertFieldSchema>,
+    pub fields: BTreeMap<String, InsertFieldSchema>,
     /// The name of a collection
     pub collection: String,
 }
@@ -612,7 +613,7 @@ pub enum ObjectRelationInsertionOrder {
 pub enum MutationOperation {
     Delete {
         /// The fields to return for the rows affected by this delete operation
-        returning_fields: Option<HashMap<String, Field>>,
+        returning_fields: Option<IndexMap<String, Field>>,
         /// The name of a collection
         collection: String,
         #[serde(rename = "where")]
@@ -621,16 +622,16 @@ pub enum MutationOperation {
     Insert {
         post_insert_check: Option<Expression>,
         /// The fields to return for the rows affected by this insert operation
-        returning_fields: Option<HashMap<String, Field>>,
+        returning_fields: Option<IndexMap<String, Field>>,
         /// The rows to insert into the collection
-        rows: Vec<HashMap<String, serde_json::Value>>,
+        rows: Vec<BTreeMap<String, serde_json::Value>>,
         /// The name of a collection
         collection: String,
     },
     Update {
         post_update_check: Option<Expression>,
         /// The fields to return for the rows affected by this update operation
-        returning_fields: Option<HashMap<String, Field>>,
+        returning_fields: Option<IndexMap<String, Field>>,
         /// The name of a collection
         collection: String,
         /// The updates to make to the matched rows in the collection
@@ -642,9 +643,9 @@ pub enum MutationOperation {
         /// The name of a procedure
         name: String,
         /// Any named procedure arguments
-        arguments: HashMap<String, serde_json::Value>,
+        arguments: BTreeMap<String, serde_json::Value>,
         /// The fields to return
-        fields: Option<HashMap<String, Field>>,
+        fields: Option<IndexMap<String, Field>>,
     },
 }
 // ANCHOR_END: MutationOperation
@@ -673,14 +674,14 @@ pub enum RowUpdate {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct Relationship {
     /// A mapping between columns on the source collection to columns on the target collection
-    pub column_mapping: HashMap<String, String>,
+    pub column_mapping: BTreeMap<String, String>,
     pub relationship_type: RelationshipType,
     /// The name of the collection or object type which is the source of this relationship
     pub source_collection_or_type: String,
     /// The name of a collection
     pub target_collection: String,
     /// Values to be provided to any collection arguments
-    pub arguments: HashMap<String, RelationshipArgument>,
+    pub arguments: BTreeMap<String, RelationshipArgument>,
 }
 // ANCHOR_END: Relationship
 
@@ -730,16 +731,16 @@ pub struct MutationOperationResults {
     /// The number of rows affected by the mutation operation
     pub affected_rows: u32,
     /// The rows affected by the mutation operation
-    pub returning: Option<Vec<HashMap<String, serde_json::Value>>>,
+    pub returning: Option<Vec<IndexMap<String, RowFieldValue>>>,
 }
 // ANCHOR_END: MutationOperationResults
 
 #[cfg(test)]
 mod tests {
     use crate::models::{self};
-    use goldenfile::{differs::text_diff, Mint};
+    use goldenfile::Mint;
     use schemars::schema_for;
-    use std::{fs::File, io::Write, path::PathBuf};
+    use std::{io::Write, path::PathBuf};
 
     #[test]
     fn test_query_request_schema() {
@@ -791,20 +792,7 @@ mod tests {
     fn test_json_schema(mint: &mut Mint, schema: schemars::schema::RootSchema, filename: &str) {
         let expected_path = PathBuf::from_iter(["json_schema", filename]);
 
-        let mut expected = mint
-            .new_goldenfile_with_differ(
-                expected_path,
-                Box::new(|file1, file2| {
-                    let json1: serde_json::Value =
-                        serde_json::from_reader(File::open(file1).unwrap()).unwrap();
-                    let json2: serde_json::Value =
-                        serde_json::from_reader(File::open(file2).unwrap()).unwrap();
-                    if json1 != json2 {
-                        text_diff(file1, file2)
-                    }
-                }),
-            )
-            .unwrap();
+        let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
         write!(
             expected,
