@@ -35,7 +35,43 @@
           ],
           "items": {
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": {
+              "$ref": "#/definitions/RowFieldValue"
+            }
+          }
+        }
+      }
+    },
+    "RowFieldValue": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/RowSet"
+        },
+        true
+      ]
+    },
+    "RowSet": {
+      "type": "object",
+      "properties": {
+        "aggregates": {
+          "description": "The results of the aggregates returned by the query",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        },
+        "rows": {
+          "description": "The rows returned by the query, corresponding to the query's fields",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/RowFieldValue"
+            }
           }
         }
       }

@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use clap::Parser;
+use indexmap::IndexMap;
 use ndc_client::apis::configuration::Configuration;
 use ndc_client::apis::default_api as api;
 use ndc_client::models;
@@ -61,7 +62,9 @@ fn validate_schema(schema: &models::SchemaResponse) {
     println!("Validating collections");
     for collection_info in schema.collections.iter() {
         println!("Validating collection {}", collection_info.name);
-        let collection_type = schema.object_types.get(collection_info.collection_type.as_str());
+        let collection_type = schema
+            .object_types
+            .get(collection_info.collection_type.as_str());
 
         for (_arg_name, arg_info) in collection_info.arguments.iter() {
             validate_type(schema, &arg_info.argument_type);
@@ -80,7 +83,9 @@ fn validate_schema(schema: &models::SchemaResponse) {
                 if let Some(insertable_columns) = &collection_info.insertable_columns {
                     for insertable_column in insertable_columns.iter() {
                         assert!(
-                            collection_type.fields.contains_key(insertable_column.as_str()),
+                            collection_type
+                                .fields
+                                .contains_key(insertable_column.as_str()),
                             "insertable column {} is not defined on collection type",
                             insertable_column
                         );
@@ -89,7 +94,9 @@ fn validate_schema(schema: &models::SchemaResponse) {
                 if let Some(updatable_columns) = &collection_info.updatable_columns {
                     for updatable_column in updatable_columns.iter() {
                         assert!(
-                            collection_type.fields.contains_key(updatable_column.as_str()),
+                            collection_type
+                                .fields
+                                .contains_key(updatable_column.as_str()),
                             "updatable column {} is not defined on collection type",
                             updatable_column
                         );
@@ -175,11 +182,11 @@ async fn test_simple_queries(
                 f.0.clone(),
                 models::Field::Column {
                     column: f.0.clone(),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                 },
             )
         })
-        .collect::<HashMap<String, models::Field>>();
+        .collect::<IndexMap<String, models::Field>>();
     let query_request = models::QueryRequest {
         collection: collection_info.name.clone(),
         query: models::Query {
@@ -190,8 +197,8 @@ async fn test_simple_queries(
             order_by: None,
             predicate: None,
         },
-        arguments: HashMap::new(),
-        collection_relationships: HashMap::new(),
+        arguments: BTreeMap::new(),
+        collection_relationships: BTreeMap::new(),
         variables: None,
     };
     let _response = api::query_post(configuration, query_request).await;
@@ -204,7 +211,7 @@ async fn test_aggregate_queries(
     _schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
 ) {
-    let aggregates = HashMap::from([("count".into(), models::Aggregate::StarCount {})]);
+    let aggregates = IndexMap::from([("count".into(), models::Aggregate::StarCount {})]);
     let query_request = models::QueryRequest {
         collection: collection_info.name.clone(),
         query: models::Query {
@@ -215,20 +222,21 @@ async fn test_aggregate_queries(
             order_by: None,
             predicate: None,
         },
-        arguments: HashMap::new(),
-        collection_relationships: HashMap::new(),
+        arguments: BTreeMap::new(),
+        collection_relationships: BTreeMap::new(),
         variables: None,
     };
-    let response = api::query_post(configuration, query_request)
-        .await
-        .unwrap();
+    let response = api::query_post(configuration, query_request).await.unwrap();
     if let [row_set] = &*response.0.clone() {
         assert!(
             row_set.rows.is_none(),
             "aggregate-only query should not return rows"
         );
         if let Some(aggregates) = &row_set.aggregates {
-            assert!(aggregates.contains_key("count"), "aggregate query should return requested count aggregate");
+            assert!(
+                aggregates.contains_key("count"),
+                "aggregate query should return requested count aggregate"
+            );
         } else {
             panic!("aggregate query should return aggregates");
         }
