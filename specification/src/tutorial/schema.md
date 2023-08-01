@@ -1,6 +1,6 @@
 # Schema
 
-The [schema endpoint](../specification/schema/README.md) should return data describing the data connector's scalar and object types, along with any tables and commands which are exposed.
+The [schema endpoint](../specification/schema/README.md) should return data describing the data connector's scalar and object types, along with any collections, functions and procedures which are exposed.
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema1}}
@@ -16,7 +16,7 @@ The [schema endpoint](../specification/schema/README.md) should return data desc
 
 ## Object Types
 
-For each table, we define an object type for its rows:
+For each collection, we define an object type for its rows:
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_object_types}}
@@ -34,34 +34,42 @@ For each table, we define an object type for its rows:
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_object_type_article}}
 ```
 
-## Tables
+## Collections
 
-We define each table's schema using the type information defined above:
+We define each collection's schema using the type information defined above:
 
 ```rust,no_run,noplayground
-{{#include ../../../ndc-reference/bin/reference/main.rs:schema_tables}}
+{{#include ../../../ndc-reference/bin/reference/main.rs:schema_collections}}
 ```
 
 ### Author
 
 ```rust,no_run,noplayground
-{{#include ../../../ndc-reference/bin/reference/main.rs:schema_table_author}}
+{{#include ../../../ndc-reference/bin/reference/main.rs:schema_collection_author}}
 ```
 
 ### Article
 
 ```rust,no_run,noplayground
-{{#include ../../../ndc-reference/bin/reference/main.rs:schema_table_article}}
+{{#include ../../../ndc-reference/bin/reference/main.rs:schema_collection_article}}
 ```
 
-## Commands
+## Functions
 
-The schema defines a list of commands, each including its input and output [types](../specification/types.md).
+The schema defines a list of functions, each including its input and output [types](../specification/types.md).
 
-## Upsert Article
+### Get Latest Article
 
-As an example, we define an _upsert_ command for the article table defined above. The command will accept an input argument of type `article`, and returns a nullable `article`, representing the state of the article before the update, if it were already present.
+_TODO_
+
+## Procedures
+
+The schema defines a list of procedures, each including its input and output [types](../specification/types.md).
+
+### Upsert Article
+
+As an example, we define an _upsert_ procedure for the article collection defined above. The procedure will accept an input argument of type `article`, and returns a nulcollection `article`, representing the state of the article before the update, if it were already present.
 
 ```rust,no_run,noplayground
-{{#include ../../../ndc-reference/bin/reference/main.rs:schema_command_upsert_article}}
+{{#include ../../../ndc-reference/bin/reference/main.rs:schema_procedure_upsert_article}}
 ```

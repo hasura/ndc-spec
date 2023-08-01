@@ -17,9 +17,9 @@
 - [Schema](specification/schema/README.md)
   - [Scalar Types](specification/schema/scalar-types.md)
   - [Object Types](specification/schema/object-types.md)
-  - [Tables](specification/schema/tables.md)
+  - [Collections](specification/schema/collections.md)
   - [Functions](specification/schema/functions.md)
-  - [Commands](specification/schema/commands.md)
+  - [Procedures](specification/schema/procedures.md)
 - [Queries](specification/queries/README.md)
   - [Field Selection](specification/queries/field-selection.md)
   - [Filtering](specification/queries/filtering.md)
@@ -30,10 +30,6 @@
   - [Relationships](specification/queries/relationships.md)
   - [Variables](specification/queries/variables.md)
 - [Mutations](specification/mutations/README.md)
-  - [Insert](specification/mutations/insert.md)
-  - [Update](specification/mutations/update.md)
-  - [Delete](specification/mutations/delete.md)
-  - [Commands](specification/mutations/commands.md)
 - [Explain](specification/explain.md)
 
 # Tutorial
@@ -49,11 +45,6 @@
   - [Arguments](tutorial/queries/arguments.md)
   - [Variables](tutorial/queries/variables.md)
 - [Mutations](tutorial/mutations/README.md)
-  - [Insert](tutorial/mutations/insert/README.md)
-      - [Nested Inserts](tutorial/mutations/insert/nested-inserts.md)
-  - [Update](tutorial/mutations/update.md)
-  - [Delete](tutorial/mutations/delete.md)
-  - [Commands](tutorial/mutations/commands.md)
 
 # Reference
 

@@ -15,6 +15,13 @@ cargo test
 (cd ndc-reference; cargo run)
 ```
 
+Or run in Docker:
+
+```sh
+docker build -t reference_connector .
+docker run -it --rm -p 8100:8100 reference_connector
+```
+
 The reference agent runs on http://localhost:8100:
 
 ```sh

@@ -2,32 +2,20 @@
   {
     "rows": [
       {
+        "first_name": "Peter",
+        "last_name": "Landin",
         "articles_aggregate": {
-          "rows": {
-            "aggregates": {
-              "articles_with_numerals_count": 1
-            }
+          "aggregates": {
+            "articles_with_numerals_count": 1
           }
-        },
-        "first_name": {
-          "value": "Peter"
-        },
-        "last_name": {
-          "value": "Landin"
         }
       },
       {
-        "last_name": {
-          "value": "Hughes"
-        },
-        "first_name": {
-          "value": "John"
-        },
+        "first_name": "John",
+        "last_name": "Hughes",
         "articles_aggregate": {
-          "rows": {
-            "aggregates": {
-              "articles_with_numerals_count": 0
-            }
+          "aggregates": {
+            "articles_with_numerals_count": 0
           }
         }
       }

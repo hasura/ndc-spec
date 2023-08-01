@@ -1,0 +1,20 @@
+{
+  "operation_results": [
+    {
+      "affected_rows": 1,
+      "returning": [
+        {
+          "id": 2,
+          "author": {
+            "rows": [
+              {
+                "first_name": "John",
+                "last_name": "Hughes"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

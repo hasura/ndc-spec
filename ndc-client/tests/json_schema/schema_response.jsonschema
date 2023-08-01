@@ -1,0 +1,465 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SchemaResponse",
+  "type": "object",
+  "required": [
+    "collections",
+    "functions",
+    "object_types",
+    "procedures",
+    "scalar_types"
+  ],
+  "properties": {
+    "collections": {
+      "description": "Collections which are available for queries and/or mutations",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CollectionInfo"
+      }
+    },
+    "functions": {
+      "description": "Functions (i.e. collections which return a single column and row)",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/FunctionInfo"
+      }
+    },
+    "object_types": {
+      "description": "A list of object types which can be used as the types of arguments, or return types of procedures. Names should not overlap with collection names or scalar type names.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/ObjectType"
+      }
+    },
+    "procedures": {
+      "description": "Procedures which are available for execution as part of mutations",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProcedureInfo"
+      }
+    },
+    "scalar_types": {
+      "description": "A list of scalar types which will be used as the types of collection columns",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/ScalarType"
+      }
+    }
+  },
+  "definitions": {
+    "AggregateFunctionDefinition": {
+      "description": "The definition of an aggregation function on a scalar type",
+      "type": "object",
+      "required": [
+        "result_type"
+      ],
+      "properties": {
+        "result_type": {
+          "description": "The scalar or object type of the result of this function",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    },
+    "ArgumentInfo": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "description": {
+          "description": "Argument description",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "description": "The name of the type of this argument",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    },
+    "CollectionInfo": {
+      "type": "object",
+      "required": [
+        "arguments",
+        "deletable",
+        "foreign_keys",
+        "name",
+        "type",
+        "uniqueness_constraints"
+      ],
+      "properties": {
+        "arguments": {
+          "description": "Any arguments that this collection requires",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        },
+        "deletable": {
+          "description": "Whether or not existing rows can be deleted from the collection",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Description of the collection",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "foreign_keys": {
+          "description": "Any foreign key constraints enforced on this collection",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ForeignKeyConstraint"
+          }
+        },
+        "insertable_columns": {
+          "description": "The set of names of insercollection columns, or null if inserts are not supported",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "description": "The name of the collection\n\nNote: these names are abstract - there is no requirement that this name correspond to the name of an actual collection in the database.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The name of the collection's object type",
+          "type": "string"
+        },
+        "uniqueness_constraints": {
+          "description": "Any uniqueness constraints enforced on this collection",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/UniquenessConstraint"
+          }
+        },
+        "updatable_columns": {
+          "description": "The set of names of updateable columns, or null if updates are not supported",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ComparisonOperatorDefinition": {
+      "description": "The definition of a comparison operator on a scalar type",
+      "type": "object",
+      "required": [
+        "argument_type"
+      ],
+      "properties": {
+        "argument_type": {
+          "description": "The type of the argument to this operator",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    },
+    "ForeignKeyConstraint": {
+      "type": "object",
+      "required": [
+        "column_mapping",
+        "foreign_collection"
+      ],
+      "properties": {
+        "column_mapping": {
+          "description": "The columns on which you want want to define the foreign key.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "foreign_collection": {
+          "description": "The name of a collection",
+          "type": "string"
+        }
+      }
+    },
+    "FunctionInfo": {
+      "type": "object",
+      "required": [
+        "arguments",
+        "name",
+        "result_type"
+      ],
+      "properties": {
+        "arguments": {
+          "description": "Any arguments that this collection requires",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        },
+        "description": {
+          "description": "Description of the function",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "The name of the function",
+          "type": "string"
+        },
+        "result_type": {
+          "description": "The name of the function's result type",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    },
+    "ObjectField": {
+      "description": "The definition of an object field",
+      "type": "object",
+      "required": [
+        "arguments",
+        "type"
+      ],
+      "properties": {
+        "arguments": {
+          "description": "Any arguments that this object field accepts",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        },
+        "description": {
+          "description": "Description of this field",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "description": "The type of this field",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    },
+    "ObjectType": {
+      "description": "The definition of an object type",
+      "type": "object",
+      "required": [
+        "fields"
+      ],
+      "properties": {
+        "description": {
+          "description": "Description of this type",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fields": {
+          "description": "Fields defined on this object type",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ObjectField"
+          }
+        }
+      }
+    },
+    "ProcedureInfo": {
+      "type": "object",
+      "required": [
+        "arguments",
+        "name",
+        "result_type"
+      ],
+      "properties": {
+        "arguments": {
+          "description": "Any arguments that this collection requires",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        },
+        "description": {
+          "description": "Column description",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "The name of the procedure",
+          "type": "string"
+        },
+        "result_type": {
+          "description": "The name of the result type",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    },
+    "ScalarType": {
+      "description": "The definition of a scalar type, i.e. types that can be used as the types of columns.",
+      "type": "object",
+      "required": [
+        "aggregate_functions",
+        "comparison_operators",
+        "update_operators"
+      ],
+      "properties": {
+        "aggregate_functions": {
+          "description": "A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/AggregateFunctionDefinition"
+          }
+        },
+        "comparison_operators": {
+          "description": "A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ComparisonOperatorDefinition"
+          }
+        },
+        "update_operators": {
+          "description": "A map from update operator names to their definitions.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/UpdateOperatorDefinition"
+          }
+        }
+      }
+    },
+    "Type": {
+      "description": "Types track the valid representations of values as JSON",
+      "oneOf": [
+        {
+          "description": "A named type",
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "name": {
+              "description": "The name can refer to a primitive type or a scalar type",
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "named"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A nullable type",
+          "type": "object",
+          "required": [
+            "type",
+            "underlying_type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nullable"
+              ]
+            },
+            "underlying_type": {
+              "description": "The type of the non-null inhabitants of this type",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Type"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An array type",
+          "type": "object",
+          "required": [
+            "element_type",
+            "type"
+          ],
+          "properties": {
+            "element_type": {
+              "description": "The type of the elements of the array",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Type"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "array"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "UniquenessConstraint": {
+      "type": "object",
+      "required": [
+        "unique_columns"
+      ],
+      "properties": {
+        "unique_columns": {
+          "description": "A list of columns which this constraint requires to be unique",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "UpdateOperatorDefinition": {
+      "description": "The definition of an update operator on a scalar type",
+      "type": "object",
+      "required": [
+        "argument_type"
+      ],
+      "properties": {
+        "argument_type": {
+          "description": "The type of the argument to this operator",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

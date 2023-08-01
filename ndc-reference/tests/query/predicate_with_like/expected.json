@@ -2,12 +2,8 @@
   {
     "rows": [
       {
-        "id": {
-          "value": 2
-        },
-        "title": {
-          "value": "Why Functional Programming Matters"
-        }
+        "id": 2,
+        "title": "Why Functional Programming Matters"
       }
     ]
   }

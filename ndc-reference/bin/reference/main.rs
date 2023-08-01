@@ -1,6 +1,7 @@
 use std::{
     cmp::Ordering,
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashSet},
+    error::Error,
     sync::Arc,
 };
 
@@ -11,28 +12,36 @@ use axum::{
     Json, Router,
 };
 use csv;
+use indexmap::IndexMap;
 use ndc_client::models;
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
+use tokio::sync::Mutex;
 
 // ANCHOR: csv-types
-type Row = HashMap<String, serde_json::Value>;
+type Row = BTreeMap<String, serde_json::Value>;
 // ANCHOR_END: csv-types
 
 // ANCHOR: app-state
 #[derive(Debug, Clone)]
 pub struct AppState {
-    pub articles: Vec<Row>,
-    pub authors: Vec<Row>,
+    pub articles: BTreeMap<i64, Row>,
+    pub authors: BTreeMap<i64, Row>,
     pub metrics: Metrics,
 }
 // ANCHOR_END: app-state
 
-fn read_csv(path: &str) -> Result<Vec<Row>, csv::Error> {
+fn read_csv(path: &str) -> Result<BTreeMap<i64, Row>, Box<dyn Error>> {
     let mut rdr = csv::Reader::from_path(path)?;
-    let mut records: Vec<Row> = Vec::new();
+    let mut records: BTreeMap<i64, Row> = BTreeMap::new();
     for row in rdr.deserialize() {
-        records.push(row?)
+        let row: BTreeMap<String, serde_json::Value> = row?;
+        let id = row
+            .get("id")
+            .ok_or("'id' field not found in csv file")?
+            .as_i64()
+            .ok_or("'id' field was not an integer in csv file")?;
+        records.insert(id, row);
     }
     Ok(records)
 }
@@ -70,14 +79,22 @@ impl Metrics {
 }
 
 async fn metrics_middleware<T>(
-    state: State<Arc<AppState>>,
+    state: State<Arc<Mutex<AppState>>>,
     request: axum::http::Request<T>,
     next: axum::middleware::Next<T>,
 ) -> axum::response::Response {
-    state.metrics.total_requests.inc();
-    state.metrics.active_requests.inc();
+    // Don't hold the lock to update metrics, since the
+    // lock doesn't protect the metrics anyway.
+    let metrics = 
+    {
+        let state = state.lock().await;
+        state.metrics.clone()
+    };
+
+    metrics.total_requests.inc();
+    metrics.active_requests.inc();
     let response = next.run(request).await;
-    state.metrics.active_requests.dec();
+    metrics.active_requests.dec();
     response
 }
 
@@ -100,7 +117,7 @@ type StatusLine = (StatusCode, &'static str);
 // ANCHOR: main
 #[tokio::main]
 async fn main() {
-    let app_state = Arc::new(init_app_state());
+    let app_state = Arc::new(Mutex::new(init_app_state()));
 
     let app = Router::new()
         .route("/healthz", get(get_healthz))
@@ -131,7 +148,8 @@ async fn get_healthz() -> StatusCode {
 // ANCHOR_END: health
 
 // ANCHOR: metrics
-async fn get_metrics(State(state): State<Arc<AppState>>) -> Result<String, StatusLine> {
+async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String, StatusLine> {
+    let state = state.lock().await;
     state
         .metrics
         .as_text()
@@ -141,7 +159,7 @@ async fn get_metrics(State(state): State<Arc<AppState>>) -> Result<String, Statu
 
 // ANCHOR: capabilities
 async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
-    let empty = serde_json::to_value(HashMap::<String, ()>::new()).unwrap();
+    let empty = serde_json::to_value(BTreeMap::<String, ()>::new()).unwrap();
     Json(models::CapabilitiesResponse {
         versions: "^0.1.0".into(),
         capabilities: models::Capabilities {
@@ -165,12 +183,12 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
 async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR_END: schema1
     // ANCHOR: schema_scalar_types
-    let scalar_types = HashMap::from_iter([
+    let scalar_types = BTreeMap::from_iter([
         (
             "String".into(),
             models::ScalarType {
-                aggregate_functions: HashMap::new(),
-                comparison_operators: HashMap::from_iter([(
+                aggregate_functions: BTreeMap::new(),
+                comparison_operators: BTreeMap::from_iter([(
                     "like".into(),
                     models::ComparisonOperatorDefinition {
                         argument_type: models::Type::Named {
@@ -178,13 +196,13 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         },
                     },
                 )]),
-                update_operators: HashMap::new(),
+                update_operators: BTreeMap::new(),
             },
         ),
         (
             "Int".into(),
             models::ScalarType {
-                aggregate_functions: HashMap::from_iter([
+                aggregate_functions: BTreeMap::from_iter([
                     (
                         "max".into(),
                         models::AggregateFunctionDefinition {
@@ -206,8 +224,8 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         },
                     ),
                 ]),
-                comparison_operators: HashMap::from_iter([]),
-                update_operators: HashMap::new(),
+                comparison_operators: BTreeMap::from_iter([]),
+                update_operators: BTreeMap::new(),
             },
         ),
     ]);
@@ -215,12 +233,12 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR: schema_object_type_article
     let article_type = models::ObjectType {
         description: Some("An article".into()),
-        fields: HashMap::from_iter([
+        fields: BTreeMap::from_iter([
             (
                 "id".into(),
                 models::ObjectField {
                     description: Some("The article's primary key".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named { name: "Int".into() },
                 },
             ),
@@ -228,7 +246,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 "title".into(),
                 models::ObjectField {
                     description: Some("The article's title".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -238,7 +256,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 "author_id".into(),
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named { name: "Int".into() },
                 },
             ),
@@ -248,12 +266,12 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR: schema_object_type_author
     let author_type = models::ObjectType {
         description: Some("An author".into()),
-        fields: HashMap::from_iter([
+        fields: BTreeMap::from_iter([
             (
                 "id".into(),
                 models::ObjectField {
                     description: Some("The author's primary key".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named { name: "Int".into() },
                 },
             ),
@@ -261,7 +279,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 "first_name".into(),
                 models::ObjectField {
                     description: Some("The author's first name".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -271,7 +289,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 "last_name".into(),
                 models::ObjectField {
                     description: Some("The author's last name".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -281,53 +299,53 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     };
     // ANCHOR_END: schema_object_type_author
     // ANCHOR: schema_object_types
-    let object_types = HashMap::from_iter([
+    let object_types = BTreeMap::from_iter([
         ("article".into(), article_type),
         ("author".into(), author_type),
     ]);
     // ANCHOR_END: schema_object_types
-    // ANCHOR: schema_table_article
-    let articles_table = models::TableInfo {
+    // ANCHOR: schema_collection_article
+    let articles_collection = models::CollectionInfo {
         name: "articles".into(),
         description: Some("A collection of articles".into()),
-        table_type: "article".into(),
-        arguments: HashMap::new(),
+        collection_type: "article".into(),
+        arguments: BTreeMap::new(),
         deletable: false,
         insertable_columns: None,
         updatable_columns: None,
-        foreign_keys: HashMap::new(),
-        uniqueness_constraints: HashMap::from_iter([(
+        foreign_keys: BTreeMap::new(),
+        uniqueness_constraints: BTreeMap::from_iter([(
             "ArticleByID".into(),
             models::UniquenessConstraint {
                 unique_columns: vec!["id".into()],
             },
         )]),
     };
-    // ANCHOR_END: schema_table_article
-    // ANCHOR: schema_table_author
-    let authors_table = models::TableInfo {
+    // ANCHOR_END: schema_collection_article
+    // ANCHOR: schema_collection_author
+    let authors_collection = models::CollectionInfo {
         name: "authors".into(),
         description: Some("A collection of authors".into()),
-        table_type: "author".into(),
-        arguments: HashMap::new(),
+        collection_type: "author".into(),
+        arguments: BTreeMap::new(),
         deletable: false,
         insertable_columns: None,
         updatable_columns: None,
-        foreign_keys: HashMap::new(),
-        uniqueness_constraints: HashMap::from_iter([(
+        foreign_keys: BTreeMap::new(),
+        uniqueness_constraints: BTreeMap::from_iter([(
             "AuthorByID".into(),
             models::UniquenessConstraint {
                 unique_columns: vec!["id".into()],
             },
         )]),
     };
-    // ANCHOR_END: schema_table_author
-    // ANCHOR: schema_table_articles_by_author
-    let articles_by_author_table = models::TableInfo {
+    // ANCHOR_END: schema_collection_author
+    // ANCHOR: schema_collection_articles_by_author
+    let articles_by_author_collection = models::CollectionInfo {
         name: "articles_by_author".into(),
         description: Some("Articles parameterized by author".into()),
-        table_type: "article".into(),
-        arguments: HashMap::from_iter([(
+        collection_type: "article".into(),
+        arguments: BTreeMap::from_iter([(
             "author_id".into(),
             models::ArgumentInfo {
                 argument_type: models::Type::Named { name: "Int".into() },
@@ -337,36 +355,40 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         deletable: false,
         insertable_columns: None,
         updatable_columns: None,
-        foreign_keys: HashMap::new(),
-        uniqueness_constraints: HashMap::new(),
+        foreign_keys: BTreeMap::new(),
+        uniqueness_constraints: BTreeMap::new(),
     };
-    // ANCHOR_END: schema_table_articles_by_author
-    // ANCHOR: schema_tables
-    let tables = vec![articles_table, authors_table, articles_by_author_table];
-    // ANCHOR_END: schema_tables
-    // ANCHOR: schema_command_upsert_article
-    let upsert_article = models::CommandInfo {
+    // ANCHOR_END: schema_collection_articles_by_author
+    // ANCHOR: schema_collections
+    let collections = vec![
+        articles_collection,
+        authors_collection,
+        articles_by_author_collection,
+    ];
+    // ANCHOR_END: schema_collections
+    // ANCHOR: schema_procedure_upsert_article
+    let upsert_article = models::ProcedureInfo {
         name: "upsert_article".into(),
         description: Some("Insert or update an article".into()),
-        arguments: HashMap::from_iter([(
+        arguments: BTreeMap::from_iter([(
             "article".into(),
             models::ArgumentInfo {
                 description: Some("The article to insert or update".into()),
-                argument_type: models::Type::Nullable {
-                    underlying_type: Box::new(models::Type::Named {
-                        name: "article".into(),
-                    }),
+                argument_type: models::Type::Named {
+                    name: "article".into(),
                 },
             },
         )]),
-        result_type: models::Type::Named {
-            name: "article".into(),
+        result_type: models::Type::Nullable {
+            underlying_type: Box::new(models::Type::Named {
+                name: "article".into(),
+            }),
         },
     };
-    // ANCHOR_END: schema_command_upsert_article
-    // ANCHOR: schema_commands
-    let commands = vec![upsert_article];
-    // ANCHOR_END: schema_commands
+    // ANCHOR_END: schema_procedure_upsert_article
+    // ANCHOR: schema_procedures
+    let procedures = vec![upsert_article];
+    // ANCHOR_END: schema_procedures
     // ANCHOR: schema_function_latest_article_id
     let latest_article_id_function = models::FunctionInfo {
         name: "latest_article_id".into(),
@@ -374,7 +396,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         result_type: models::Type::Nullable {
             underlying_type: Box::new(models::Type::Named { name: "Int".into() }),
         },
-        arguments: HashMap::new(),
+        arguments: BTreeMap::new(),
     };
     // ANCHOR_END: schema_function_latest_article_id
     // ANCHOR: schema_functions
@@ -384,23 +406,25 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     Json(models::SchemaResponse {
         scalar_types,
         object_types,
-        tables,
+        collections,
         functions,
-        commands,
+        procedures,
     })
 }
 // ANCHOR_END: schema2
 
 // ANCHOR: query
 pub async fn post_query(
-    State(state): State<Arc<AppState>>,
+    State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<models::QueryRequest>,
 ) -> Result<Json<models::QueryResponse>, StatusLine> {
-    let variable_sets = request.variables.unwrap_or(vec![HashMap::new()]);
+    let state = state.lock().await;
+
+    let variable_sets = request.variables.unwrap_or(vec![BTreeMap::new()]);
 
     let mut row_sets = vec![];
     for variables in variable_sets.iter() {
-        let mut arguments = HashMap::new();
+        let mut arguments = BTreeMap::new();
 
         for (argument_name, argument_value) in request.arguments.iter() {
             if let Some(_) = arguments.insert(
@@ -411,14 +435,14 @@ pub async fn post_query(
             }
         }
 
-        let row_set = execute_query_by_table_name(
-            &request.table_relationships,
+        let row_set = execute_query_by_collection_name(
+            &request.collection_relationships,
             variables,
-            request.table.as_str(),
+            request.collection.as_str(),
             &arguments,
             None,
             &request.query,
-            state.as_ref(),
+            &state,
         )?;
         row_sets.push(row_set);
     }
@@ -427,18 +451,18 @@ pub async fn post_query(
     Ok(Json(response))
 }
 
-fn execute_query_by_table_name(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
-    table_name: &str,
-    arguments: &HashMap<String, serde_json::Value>,
+fn execute_query_by_collection_name(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    collection_name: &str,
+    arguments: &BTreeMap<String, serde_json::Value>,
     root: Option<&Row>,
     query: &models::Query,
     state: &AppState,
 ) -> Result<models::RowSet, StatusLine> {
-    let collection = get_table_by_name(table_name, arguments, state)?;
+    let collection = get_collection_by_name(collection_name, arguments, state)?;
     execute_query(
-        table_relationships,
+        collection_relationships,
         variables,
         state,
         query,
@@ -447,14 +471,14 @@ fn execute_query_by_table_name(
     )
 }
 
-fn get_table_by_name(
-    table_name: &str,
-    arguments: &HashMap<String, serde_json::Value>,
+fn get_collection_by_name(
+    collection_name: &str,
+    arguments: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
 ) -> Result<Vec<Row>, StatusLine> {
-    match table_name {
-        "articles" => Ok(state.articles.clone()),
-        "authors" => Ok(state.authors.clone()),
+    match collection_name {
+        "articles" => Ok(state.articles.values().cloned().collect()),
+        "authors" => Ok(state.authors.values().cloned().collect()),
         "articles_by_author" => {
             let author_id = arguments
                 .get("author_id".into())
@@ -465,7 +489,7 @@ fn get_table_by_name(
 
             let mut articles_by_author = vec![];
 
-            for article in state.articles.iter() {
+            for (_id, article) in state.articles.iter() {
                 let article_author_id = article
                     .get("author_id")
                     .ok_or((StatusCode::INTERNAL_SERVER_ERROR, "author_id not found"))?;
@@ -484,7 +508,7 @@ fn get_table_by_name(
             let latest_id = state
                 .articles
                 .iter()
-                .filter_map(|a| a.get("id").and_then(|v| v.as_i64()))
+                .filter_map(|(_id, a)| a.get("id").and_then(|v| v.as_i64()))
                 .max();
             let latest_id_value = serde_json::to_value(latest_id).map_err(|_| {
                 (
@@ -492,25 +516,25 @@ fn get_table_by_name(
                     "cannot encode article id",
                 )
             })?;
-            Ok(vec![HashMap::from_iter([(
+            Ok(vec![BTreeMap::from_iter([(
                 "__value".into(),
                 latest_id_value,
             )])])
         }
-        _ => Err((StatusCode::BAD_REQUEST, "invalid table name")),
+        _ => Err((StatusCode::BAD_REQUEST, "invalid collection name")),
     }
 }
 
 fn execute_query(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     query: &models::Query,
     root: Option<&Row>,
     collection: Vec<Row>,
 ) -> Result<models::RowSet, StatusLine> {
     let sorted = sort(
-        table_relationships,
+        collection_relationships,
         variables,
         state,
         collection,
@@ -523,7 +547,14 @@ fn execute_query(
             let mut filtered: Vec<Row> = vec![];
             for item in sorted.into_iter() {
                 let root = root.unwrap_or(&item);
-                if eval_expression(table_relationships, variables, state, &expr, root, &item)? {
+                if eval_expression(
+                    collection_relationships,
+                    variables,
+                    state,
+                    &expr,
+                    root,
+                    &item,
+                )? {
                     filtered.push(item);
                 }
             }
@@ -536,7 +567,7 @@ fn execute_query(
         .aggregates
         .as_ref()
         .map(|aggregates| {
-            let mut row: HashMap<String, serde_json::Value> = HashMap::new();
+            let mut row: IndexMap<String, serde_json::Value> = IndexMap::new();
             for (aggregate_name, aggregate) in aggregates.iter() {
                 match aggregate {
                     models::Aggregate::StarCount {} => {
@@ -599,14 +630,21 @@ fn execute_query(
         .fields
         .as_ref()
         .map(|fields| {
-            let mut rows: Vec<HashMap<String, models::RowFieldValue>> = vec![];
+            let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
             for item in paginated.iter() {
-                let mut row = HashMap::new();
+                let mut row = IndexMap::new();
                 let root = root.unwrap_or(item);
                 for (field_name, field) in fields.iter() {
                     row.insert(
                         field_name.clone(),
-                        eval_field(table_relationships, variables, state, field, root, item)?,
+                        eval_field(
+                            collection_relationships,
+                            variables,
+                            state,
+                            field,
+                            root,
+                            item,
+                        )?,
                     );
                 }
                 rows.push(row)
@@ -644,8 +682,8 @@ fn eval_aggregate_function(
 // ANCHOR_END: query
 
 fn sort(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     collection: Vec<Row>,
     root: Option<&Row>,
@@ -659,7 +697,7 @@ fn sort(
                 let mut index = 0;
                 for other in copy.iter() {
                     if let Ordering::Greater = eval_order_by(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         order_by,
@@ -692,8 +730,8 @@ fn paginate<I: Iterator<Item = Row>>(
 }
 
 fn eval_order_by(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     order_by: &models::OrderBy,
     root: Option<&Row>,
@@ -704,7 +742,7 @@ fn eval_order_by(
 
     for element in order_by.elements.iter() {
         let v1 = eval_order_by_element(
-            table_relationships,
+            collection_relationships,
             variables,
             state,
             element,
@@ -712,7 +750,7 @@ fn eval_order_by(
             t1,
         )?;
         let v2 = eval_order_by_element(
-            table_relationships,
+            collection_relationships,
             variables,
             state,
             element,
@@ -749,8 +787,8 @@ fn compare(v1: serde_json::Value, v2: serde_json::Value) -> Result<Ordering, Sta
 }
 
 fn eval_order_by_element(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     element: &models::OrderByElement,
     root: &Row,
@@ -758,8 +796,14 @@ fn eval_order_by_element(
 ) -> Result<serde_json::Value, StatusLine> {
     match element.target.clone() {
         models::OrderByTarget::Column { name, path } => {
-            let rows: Vec<Row> =
-                eval_path(table_relationships, variables, state, &path, root, item)?;
+            let rows: Vec<Row> = eval_path(
+                collection_relationships,
+                variables,
+                state,
+                &path,
+                root,
+                item,
+            )?;
             if rows.len() > 1 {
                 return Err((
                     StatusCode::BAD_REQUEST,
@@ -776,8 +820,8 @@ fn eval_order_by_element(
             function,
             path,
         } => {
-            let rows: Vec<Row> = eval_path_with_predicates(
-                table_relationships,
+            let rows: Vec<Row> = eval_path(
+                collection_relationships,
                 variables,
                 state,
                 &path,
@@ -794,8 +838,8 @@ fn eval_order_by_element(
             eval_aggregate_function(&function, values)
         }
         models::OrderByTarget::StarCountAggregate { path } => {
-            let rows: Vec<Row> = eval_path_with_predicates(
-                table_relationships,
+            let rows: Vec<Row> = eval_path(
+                collection_relationships,
                 variables,
                 state,
                 &path,
@@ -808,31 +852,10 @@ fn eval_order_by_element(
 }
 
 fn eval_path(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     path: &Vec<models::PathElement>,
-    root: &Row,
-    item: &Row,
-) -> Result<Vec<Row>, StatusLine> {
-    let path = path
-        .iter()
-        .map(|path_element| models::PathElementWithPredicate {
-            relationship: path_element.relationship.clone(),
-            arguments: path_element.arguments.clone(),
-            predicate: Box::new(models::Expression::And {
-                expressions: vec![],
-            }),
-        })
-        .collect();
-    eval_path_with_predicates(table_relationships, variables, state, &path, root, item)
-}
-
-fn eval_path_with_predicates(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
-    state: &AppState,
-    path: &Vec<models::PathElementWithPredicate>,
     root: &Row,
     item: &Row,
 ) -> Result<Vec<Row>, StatusLine> {
@@ -840,11 +863,11 @@ fn eval_path_with_predicates(
 
     for path_element in path.iter() {
         let relationship_name = path_element.relationship.as_str();
-        let relationship = table_relationships
+        let relationship = collection_relationships
             .get(relationship_name)
             .ok_or((StatusCode::BAD_REQUEST, "invalid relationship name in path"))?;
-        result = eval_path_element_with_predicate(
-            table_relationships,
+        result = eval_path_element(
+            collection_relationships,
             variables,
             state,
             relationship,
@@ -858,12 +881,12 @@ fn eval_path_with_predicates(
     Ok(result)
 }
 
-fn eval_path_element_with_predicate(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
+fn eval_path_element(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     relationship: &models::Relationship,
-    arguments: &HashMap<String, models::RelationshipArgument>,
+    arguments: &BTreeMap<String, models::RelationshipArgument>,
     root: &Row,
     source: &Vec<Row>,
     predicate: &models::Expression,
@@ -873,9 +896,9 @@ fn eval_path_element_with_predicate(
     // Note: Join strategy
     //
     // Rows can be related in two ways: 1) via a column mapping, and
-    // 2) via table arguments. Because table arguments can be computed
+    // 2) via collection arguments. Because collection arguments can be computed
     // using the columns on the source side of a relationship, in general
-    // we need to compute the target table once for each source row.
+    // we need to compute the target collection once for each source row.
     // This join strategy can result in some target rows appearing in the
     // resulting row set more than once, if two source rows are both related
     // to the same target row.
@@ -888,7 +911,7 @@ fn eval_path_element_with_predicate(
     // single array relationship, so there should be no double counting.
 
     for src_row in source.iter() {
-        let mut all_arguments = HashMap::new();
+        let mut all_arguments = BTreeMap::new();
 
         for (argument_name, argument_value) in relationship.arguments.iter() {
             if let Some(_) = all_arguments.insert(
@@ -908,12 +931,16 @@ fn eval_path_element_with_predicate(
             }
         }
 
-        let target = get_table_by_name(relationship.target_table.as_str(), &all_arguments, state)?;
+        let target = get_collection_by_name(
+            relationship.target_collection.as_str(),
+            &all_arguments,
+            state,
+        )?;
 
         for tgt_row in target.iter() {
             if eval_column_mapping(relationship, src_row, tgt_row)? {
                 if eval_expression(
-                    table_relationships,
+                    collection_relationships,
                     variables,
                     state,
                     &predicate,
@@ -930,7 +957,7 @@ fn eval_path_element_with_predicate(
 }
 
 fn eval_argument(
-    variables: &HashMap<String, serde_json::Value>,
+    variables: &BTreeMap<String, serde_json::Value>,
     argument: &models::Argument,
 ) -> Result<serde_json::Value, StatusLine> {
     match argument {
@@ -946,7 +973,7 @@ fn eval_argument(
 }
 
 fn eval_relationship_argument(
-    variables: &HashMap<String, serde_json::Value>,
+    variables: &BTreeMap<String, serde_json::Value>,
     row: &Row,
     argument: &models::RelationshipArgument,
 ) -> Result<serde_json::Value, StatusLine> {
@@ -964,8 +991,8 @@ fn eval_relationship_argument(
 }
 
 fn eval_expression(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     expr: &models::Expression,
     root: &Row,
@@ -974,7 +1001,7 @@ fn eval_expression(
     match expr {
         models::Expression::And { expressions } => {
             for expr in expressions.iter() {
-                if !eval_expression(table_relationships, variables, state, expr, root, item)? {
+                if !eval_expression(collection_relationships, variables, state, expr, root, item)? {
                     return Ok(false);
                 }
             }
@@ -982,7 +1009,7 @@ fn eval_expression(
         }
         models::Expression::Or { expressions } => {
             for expr in expressions.iter() {
-                if eval_expression(table_relationships, variables, state, expr, root, item)? {
+                if eval_expression(collection_relationships, variables, state, expr, root, item)? {
                     return Ok(true);
                 }
             }
@@ -990,7 +1017,7 @@ fn eval_expression(
         }
         models::Expression::Not { expression } => {
             let b = eval_expression(
-                table_relationships,
+                collection_relationships,
                 variables,
                 state,
                 expression,
@@ -1002,7 +1029,7 @@ fn eval_expression(
         models::Expression::UnaryComparisonOperator { column, operator } => match &**operator {
             models::UnaryComparisonOperator::IsNull => {
                 let vals = eval_comparison_target(
-                    table_relationships,
+                    collection_relationships,
                     variables,
                     state,
                     &*column,
@@ -1019,7 +1046,7 @@ fn eval_expression(
         } => match &**operator {
             models::BinaryComparisonOperator::Equal => {
                 let left_vals = eval_comparison_target(
-                    table_relationships,
+                    collection_relationships,
                     variables,
                     state,
                     &*column,
@@ -1027,7 +1054,7 @@ fn eval_expression(
                     item,
                 )?;
                 let right_vals = eval_comparison_value(
-                    table_relationships,
+                    collection_relationships,
                     variables,
                     state,
                     value,
@@ -1047,7 +1074,7 @@ fn eval_expression(
             models::BinaryComparisonOperator::Other { name } => match name.as_str() {
                 "like" => {
                     let column_vals = eval_comparison_target(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         &*column,
@@ -1055,7 +1082,7 @@ fn eval_expression(
                         item,
                     )?;
                     let regex_vals = eval_comparison_value(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         value,
@@ -1094,7 +1121,7 @@ fn eval_expression(
         } => match &**operator {
             models::BinaryArrayComparisonOperator::In => {
                 let left_val = eval_comparison_target(
-                    table_relationships,
+                    collection_relationships,
                     variables,
                     state,
                     &*column,
@@ -1104,7 +1131,7 @@ fn eval_expression(
 
                 for v in values.iter() {
                     let right_val = eval_comparison_value(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         v,
@@ -1119,29 +1146,30 @@ fn eval_expression(
             }
         },
         models::Expression::Exists {
-            in_table,
+            in_collection,
             predicate,
         } => {
             let query = models::Query {
                 aggregates: None,
-                fields: Some(HashMap::new()),
+                fields: Some(IndexMap::new()),
                 limit: None,
                 offset: None,
                 order_by: None,
                 predicate: Some(*predicate.clone()),
             };
-            let row_set = match &**in_table {
-                models::ExistsInTable::Related {
+            let row_set = match &**in_collection {
+                models::ExistsInCollection::Related {
                     relationship,
                     arguments,
                 } => {
-                    let relationship = table_relationships.get(relationship.as_str()).ok_or((
-                        StatusCode::BAD_REQUEST,
-                        "invalid relationship name in exists predicate",
-                    ))?;
+                    let relationship =
+                        collection_relationships.get(relationship.as_str()).ok_or((
+                            StatusCode::BAD_REQUEST,
+                            "invalid relationship name in exists predicate",
+                        ))?;
                     let source = vec![item.clone()];
-                    let collection = eval_path_element_with_predicate(
-                        table_relationships,
+                    let collection = eval_path_element(
+                        collection_relationships,
                         variables,
                         state,
                         relationship,
@@ -1153,7 +1181,7 @@ fn eval_expression(
                         },
                     )?;
                     execute_query(
-                        table_relationships,
+                        collection_relationships,
                         variables,
                         state,
                         &query,
@@ -1161,17 +1189,20 @@ fn eval_expression(
                         collection,
                     )
                 }
-                models::ExistsInTable::Unrelated { table, arguments } => {
+                models::ExistsInCollection::Unrelated {
+                    collection,
+                    arguments,
+                } => {
                     let arguments = arguments
                         .iter()
                         .map(|(k, v)| {
                             Ok((k.clone(), eval_relationship_argument(variables, item, v)?))
                         })
-                        .collect::<Result<HashMap<_, _>, _>>()?;
-                    execute_query_by_table_name(
-                        table_relationships,
+                        .collect::<Result<BTreeMap<_, _>, _>>()?;
+                    execute_query_by_collection_name(
+                        collection_relationships,
                         variables,
-                        table.as_str(),
+                        collection.as_str(),
                         &arguments,
                         Some(root),
                         &query,
@@ -1179,7 +1210,7 @@ fn eval_expression(
                     )
                 }
             }?;
-            let rows: Vec<HashMap<_, _>> = row_set.rows.ok_or((
+            let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "exists query returned no rows",
             ))?;
@@ -1189,8 +1220,8 @@ fn eval_expression(
 }
 
 fn eval_comparison_target(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     target: &models::ComparisonTarget,
     root: &Row,
@@ -1198,7 +1229,7 @@ fn eval_comparison_target(
 ) -> Result<Vec<serde_json::Value>, StatusLine> {
     match target {
         models::ComparisonTarget::Column { name, path } => {
-            let rows = eval_path(table_relationships, variables, state, path, root, item)?;
+            let rows = eval_path(collection_relationships, variables, state, path, root, item)?;
             let mut values = vec![];
             for row in rows.iter() {
                 let value = eval_column(row, name.as_str())?;
@@ -1206,7 +1237,7 @@ fn eval_comparison_target(
             }
             Ok(values)
         }
-        models::ComparisonTarget::RootTableColumn { name } => {
+        models::ComparisonTarget::RootCollectionColumn { name } => {
             let value = eval_column(root, name.as_str())?;
             Ok(vec![value])
         }
@@ -1220,17 +1251,22 @@ fn eval_column(row: &Row, column_name: &str) -> Result<serde_json::Value, Status
 }
 
 fn eval_comparison_value(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     comparison_value: &models::ComparisonValue,
     root: &Row,
     item: &Row,
 ) -> Result<Vec<serde_json::Value>, StatusLine> {
     match comparison_value {
-        models::ComparisonValue::Column { column } => {
-            eval_comparison_target(table_relationships, variables, state, &*column, root, item)
-        }
+        models::ComparisonValue::Column { column } => eval_comparison_target(
+            collection_relationships,
+            variables,
+            state,
+            &*column,
+            root,
+            item,
+        ),
         models::ComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
         models::ComparisonValue::Variable { name } => {
             let value = variables
@@ -1243,29 +1279,30 @@ fn eval_comparison_value(
 }
 
 fn eval_field(
-    table_relationships: &HashMap<String, models::Relationship>,
-    variables: &HashMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     field: &models::Field,
     root: &Row,
     item: &Row,
 ) -> Result<models::RowFieldValue, StatusLine> {
     match field {
-        models::Field::Column { column, .. } => Ok(models::RowFieldValue::Column {
-            value: eval_column(item, column.as_str())?,
-        }),
+        models::Field::Column { column, .. } => Ok(models::RowFieldValue::Column(eval_column(
+            item,
+            column.as_str(),
+        )?)),
         models::Field::Relationship {
             relationship,
             arguments,
             query,
         } => {
-            let relationship = table_relationships.get(relationship.as_str()).ok_or((
+            let relationship = collection_relationships.get(relationship.as_str()).ok_or((
                 StatusCode::BAD_REQUEST,
                 "invalid relationship name in field",
             ))?;
             let source = vec![item.clone()];
-            let collection = eval_path_element_with_predicate(
-                table_relationships,
+            let collection = eval_path_element(
+                collection_relationships,
                 variables,
                 state,
                 relationship,
@@ -1277,14 +1314,14 @@ fn eval_field(
                 },
             )?;
             let rows = execute_query(
-                table_relationships,
+                collection_relationships,
                 variables,
                 state,
                 query,
                 Some(root),
                 collection,
             )?;
-            Ok(models::RowFieldValue::Relationship { rows })
+            Ok(models::RowFieldValue::Relationship(rows))
         }
     }
 }
@@ -1299,16 +1336,18 @@ async fn post_explain(
 
 // ANCHOR: mutation
 async fn post_mutation(
-    State(state): State<Arc<AppState>>,
+    State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<models::MutationRequest>,
 ) -> Result<Json<models::MutationResponse>, StatusLine> {
+    let mut state = state.lock().await;
+
     let mut operation_results = vec![];
 
     for operation in request.operations.iter() {
         let operation_result = execute_mutation_operation(
-            &state,
+            &mut state,
             &request.insert_schema,
-            &request.table_relationships,
+            &request.collection_relationships,
             operation,
         )
         .await?;
@@ -1320,9 +1359,9 @@ async fn post_mutation(
 // ANCHOR_END: mutation
 
 async fn execute_mutation_operation(
-    _state: &Arc<AppState>,
-    _insert_schema: &Vec<models::TableInsertSchema>,
-    _table_relationships: &HashMap<String, models::Relationship>,
+    state: &mut AppState,
+    _insert_schema: &Vec<models::CollectionInsertSchema>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
     operation: &models::MutationOperation,
 ) -> Result<models::MutationOperationResults, StatusLine> {
     match operation {
@@ -1330,13 +1369,13 @@ async fn execute_mutation_operation(
             post_insert_check: _,
             returning_fields: _,
             rows: _,
-            table: _,
+            collection: _,
         } => {
             todo!()
         }
         models::MutationOperation::Delete {
             returning_fields: _,
-            table: _,
+            collection: _,
             predicate: _,
         } => {
             todo!()
@@ -1344,19 +1383,65 @@ async fn execute_mutation_operation(
         models::MutationOperation::Update {
             post_update_check: _,
             returning_fields: _,
-            table: _,
+            collection: _,
             updates: _,
             r#where: _,
         } => {
             todo!()
         }
-        models::MutationOperation::Command {
-            name: _,
-            arguments: _,
-            fields: _,
-        } => {
-            todo!()
-        }
+        models::MutationOperation::Procedure {
+            name,
+            arguments,
+            fields,
+        } => match name.as_str() {
+            "upsert_article" => {
+                let article = arguments.get("article").ok_or((
+                    StatusCode::BAD_REQUEST,
+                    "argument 'article' is required in upsert_article",
+                ))?;
+                let article_obj = article.as_object().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    "argument 'article' is not an object",
+                ))?;
+                let id = article_obj.get("id").ok_or((
+                    StatusCode::BAD_REQUEST,
+                    "argument 'article' is missing required field 'id'",
+                ))?;
+                let id_int = id.as_i64().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    "argument 'article.id' is not an integer",
+                ))?;
+                let new_row =
+                    BTreeMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
+                let old_row = state.articles.insert(id_int, new_row);
+                let returning = old_row
+                    .map(|old_row| {
+                        let mut row = IndexMap::new();
+                        for fields in fields.iter() {
+                            for (field_name, field) in fields.iter() {
+                                row.insert(
+                                    field_name.clone(),
+                                    eval_field(
+                                        collection_relationships,
+                                        &BTreeMap::new(),
+                                        state,
+                                        field,
+                                        &old_row,
+                                        &old_row,
+                                    )?,
+                                );
+                            }
+                        }
+                        Ok(vec![row])
+                    })
+                    .transpose()?;
+                Ok(models::MutationOperationResults {
+                    affected_rows: 1,
+                    returning,
+                })
+            }
+            _ => Err((StatusCode::BAD_REQUEST, "unknown procedure")),
+        },
     }
 }
 
@@ -1378,7 +1463,7 @@ fn eval_column_mapping(
 #[cfg(test)]
 mod tests {
     use axum::{extract::State, Json};
-    use goldenfile::{differs::text_diff, Mint};
+    use goldenfile::Mint;
     use ndc_client::models;
     use std::{
         fs::{self, File},
@@ -1386,6 +1471,7 @@ mod tests {
         path::PathBuf,
         sync::Arc,
     };
+    use tokio::sync::Mutex;
 
     #[test]
     fn test_capabilities() {
@@ -1398,20 +1484,7 @@ mod tests {
 
             let response = crate::get_capabilities().await;
 
-            let mut expected = mint
-                .new_goldenfile_with_differ(
-                    expected_path,
-                    Box::new(|file1, file2| {
-                        let json1: serde_json::Value =
-                            serde_json::from_reader(File::open(file1).unwrap()).unwrap();
-                        let json2: serde_json::Value =
-                            serde_json::from_reader(File::open(file2).unwrap()).unwrap();
-                        if json1 != json2 {
-                            text_diff(file1, file2)
-                        }
-                    }),
-                )
-                .unwrap();
+            let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
             write!(
                 expected,
@@ -1433,20 +1506,7 @@ mod tests {
 
             let response = crate::get_schema().await;
 
-            let mut expected = mint
-                .new_goldenfile_with_differ(
-                    expected_path,
-                    Box::new(|file1, file2| {
-                        let json1: serde_json::Value =
-                            serde_json::from_reader(File::open(file1).unwrap()).unwrap();
-                        let json2: serde_json::Value =
-                            serde_json::from_reader(File::open(file2).unwrap()).unwrap();
-                        if json1 != json2 {
-                            text_diff(file1, file2)
-                        }
-                    }),
-                )
-                .unwrap();
+            let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
             write!(
                 expected,
@@ -1480,25 +1540,52 @@ mod tests {
                     PathBuf::from_iter(["query", test_name, "expected.json"])
                 };
 
-                let state = Arc::new(crate::init_app_state());
+                let state = Arc::new(Mutex::new(crate::init_app_state()));
                 let response = crate::post_query(State(state), Json(request))
                     .await
                     .unwrap();
 
-                let mut expected = mint
-                    .new_goldenfile_with_differ(
-                        expected_path,
-                        Box::new(|file1, file2| {
-                            let json1: serde_json::Value =
-                                serde_json::from_reader(File::open(file1).unwrap()).unwrap();
-                            let json2: serde_json::Value =
-                                serde_json::from_reader(File::open(file2).unwrap()).unwrap();
-                            if json1 != json2 {
-                                text_diff(file1, file2)
-                            }
-                        }),
-                    )
+                let mut expected = mint.new_goldenfile(expected_path).unwrap();
+
+                write!(
+                    expected,
+                    "{}",
+                    serde_json::to_string_pretty(&response.0).unwrap()
+                )
+                .unwrap();
+            }
+        });
+    }
+
+    #[test]
+    fn test_mutation() {
+        tokio_test::block_on(async {
+            let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+
+            let mut mint = Mint::new(&test_dir);
+
+            for input_file in fs::read_dir(test_dir.join("mutation")).unwrap() {
+                let entry = input_file.unwrap();
+                let request = {
+                    let path = entry.path();
+                    assert!(path.is_dir());
+                    let req_path = path.join("request.json");
+                    let req_file = File::open(req_path).unwrap();
+                    serde_json::from_reader::<_, models::MutationRequest>(req_file).unwrap()
+                };
+
+                let expected_path = {
+                    let path = entry.path();
+                    let test_name = path.file_name().unwrap().to_str().unwrap();
+                    PathBuf::from_iter(["mutation", test_name, "expected.json"])
+                };
+
+                let state = Arc::new(Mutex::new(crate::init_app_state()));
+                let response = crate::post_mutation(State(state), Json(request))
+                    .await
                     .unwrap();
+
+                let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
                 write!(
                     expected,

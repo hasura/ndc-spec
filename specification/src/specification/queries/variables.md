@@ -14,8 +14,8 @@ The result contains one rowset containing articles from the author with ID `1`, 
 
 ```json
 {
-  "table": ["articles"],
-  "table_relationships": [],
+  "collection": ["articles"],
+  "collection_relationships": [],
   "query": {
     "fields": {
       "title": {

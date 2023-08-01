@@ -1,6 +1,6 @@
 {
-    "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
-    "table": "authors",
+    "$schema": "../../../../ndc-client/tests/json_schema/query_request.jsonschema",
+    "collection": "authors",
     "arguments": {},
     "query": {
         "fields": {
@@ -41,7 +41,11 @@
                 "name": "title",
                 "path": [{
                     "arguments": {},
-                    "relationship": "author_articles"
+                    "relationship": "author_articles",
+                    "predicate": {
+                        "type": "and",
+                        "expressions": []
+                    }
                 }]
             },
             "operator": {
@@ -54,15 +58,15 @@
             }
         }
     },
-    "table_relationships": {
+    "collection_relationships": {
         "author_articles": {
             "arguments": {},
             "column_mapping": {
                 "id": "author_id"
             },
             "relationship_type": "array",
-            "source_table_or_type": "author",
-            "target_table": "articles"
+            "source_collection_or_type": "author",
+            "target_collection": "articles"
         }
     }
 }

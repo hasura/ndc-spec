@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryResponse",
+  "description": "Query responses may return multiple RowSets when using foreach queries Else, there should always be exactly one RowSet",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/RowSet"
+  },
+  "definitions": {
+    "RowFieldValue": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/RowSet"
+        },
+        true
+      ]
+    },
+    "RowSet": {
+      "type": "object",
+      "properties": {
+        "aggregates": {
+          "description": "The results of the aggregates returned by the query",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        },
+        "rows": {
+          "description": "The rows returned by the query, corresponding to the query's fields",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/RowFieldValue"
+            }
+          }
+        }
+      }
+    }
+  }
+}

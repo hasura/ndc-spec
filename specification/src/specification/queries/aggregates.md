@@ -1,6 +1,6 @@
 # Aggregates
 
-In addition to fetching multiple rows of raw data from a table, the query API supports fetching aggregated data.
+In addition to fetching multiple rows of raw data from a collection, the query API supports fetching aggregated data.
 
 Aggregates are requested in the `aggregates` field of the [`Query`](../../reference/types.md#query) object.
 
@@ -16,8 +16,8 @@ The following query object requests the aggregated sum of all order totals, alon
 
 ```json
 {
-  "table": ["orders"],
-  "table_relationships": [],
+  "collection": ["orders"],
+  "collection_relationships": {},
   "query": {
     "aggregates": {
       "orders_total": {

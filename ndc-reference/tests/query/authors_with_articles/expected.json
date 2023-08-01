@@ -2,55 +2,31 @@
   {
     "rows": [
       {
-        "first_name": {
-          "value": "Peter"
-        },
-        "last_name": {
-          "value": "Landin"
-        },
+        "first_name": "Peter",
+        "last_name": "Landin",
         "articles": {
-          "rows": {
-            "rows": [
-              {
-                "title": {
-                  "value": "The Next 700 Programming Languages"
-                },
-                "id": {
-                  "value": 1
-                }
-              }
-            ]
-          }
+          "rows": [
+            {
+              "id": 1,
+              "title": "The Next 700 Programming Languages"
+            }
+          ]
         }
       },
       {
-        "last_name": {
-          "value": "Hughes"
-        },
-        "first_name": {
-          "value": "John"
-        },
+        "first_name": "John",
+        "last_name": "Hughes",
         "articles": {
-          "rows": {
-            "rows": [
-              {
-                "title": {
-                  "value": "Why Functional Programming Matters"
-                },
-                "id": {
-                  "value": 2
-                }
-              },
-              {
-                "title": {
-                  "value": "The Design And Implementation Of Programming Languages"
-                },
-                "id": {
-                  "value": 3
-                }
-              }
-            ]
-          }
+          "rows": [
+            {
+              "id": 2,
+              "title": "Why Functional Programming Matters"
+            },
+            {
+              "id": 3,
+              "title": "The Design And Implementation Of Programming Languages"
+            }
+          ]
         }
       }
     ]

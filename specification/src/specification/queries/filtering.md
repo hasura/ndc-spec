@@ -115,13 +115,13 @@ See type [`ComparisonValue`](../../reference/types.md#comparisonvalue) for the v
 
 ## `EXISTS` expressions
 
-An `EXISTS` expression tests whether a row exists in some possibly-related table, and is denoted by an expression with a `type` field of `exists`.
+An `EXISTS` expression tests whether a row exists in some possibly-related collection, and is denoted by an expression with a `type` field of `exists`.
 
-`EXISTS` expressions can query related or unrelated tables. 
+`EXISTS` expressions can query related or unrelated collections. 
 
-### Related Tables
+### Related Collections
 
-Related tables are related to the original table by a relationship in the `table_relationships` field of the top-level [`QueryRequest`](../../reference/types.md#queryrequest).
+Related collections are related to the original collection by a relationship in the `collection_relationships` field of the top-level [`QueryRequest`](../../reference/types.md#queryrequest).
 
 For example, this query fetches authors who have written articles whose titles contain the string `"Functional"`:
 
@@ -130,7 +130,7 @@ For example, this query fetches authors who have written articles whose titles c
 {{#include ../../../../ndc-reference/tests/query/predicate_with_exists/request.json:3: }}
 ```
 
-### Unrelated Tables
+### Unrelated Collections
 
 ```json
 {{#include ../../../../ndc-reference/tests/query/predicate_with_unrelated_exists/request.json:1 }}

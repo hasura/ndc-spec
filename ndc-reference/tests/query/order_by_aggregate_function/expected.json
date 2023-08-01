@@ -2,32 +2,20 @@
   {
     "rows": [
       {
-        "first_name": {
-          "value": "Peter"
-        },
-        "last_name": {
-          "value": "Landin"
-        },
+        "first_name": "Peter",
+        "last_name": "Landin",
         "articles_aggregate": {
-          "rows": {
-            "aggregates": {
-              "max_id": 1
-            }
+          "aggregates": {
+            "max_id": 1
           }
         }
       },
       {
-        "first_name": {
-          "value": "John"
-        },
-        "last_name": {
-          "value": "Hughes"
-        },
+        "first_name": "John",
+        "last_name": "Hughes",
         "articles_aggregate": {
-          "rows": {
-            "aggregates": {
-              "max_id": 3
-            }
+          "aggregates": {
+            "max_id": 3
           }
         }
       }

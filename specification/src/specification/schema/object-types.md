@@ -1,10 +1,10 @@
 # Object Types
 
-The schema should define any named _object types_ which will be used as the types of [table](./tables.md) row sets, or [command](./commands.md) inputs or outputs.
+The schema should define any named _object types_ which will be used as the types of [collection](./collections.md) row sets, or [procedure](./procedures.md) inputs or outputs.
 
 An object type consists of a name and a collection of named fields. Each field is defined by its [type](../types.md), and any [arguments](../queries/arguments.md).
 
-_Note_: field arguments are only used in a query context, and ignored when an object type is used in other contexts (such as the input type of a command).
+_Note_: field arguments are only used in a query context, and ignored when an object type is used in other contexts (such as the input type of a _procedure_).
 
 To define an object type, add an [`ObjectType`
 ](../../reference/types.md#objecttype) to the `object_types` field of the schema response.

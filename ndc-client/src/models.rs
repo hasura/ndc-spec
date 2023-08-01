@@ -1,5 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
+use indexmap::IndexMap;
 use schemars::JsonSchema;
 use serde_with::skip_serializing_none;
 
@@ -30,7 +31,7 @@ pub struct Capabilities {
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct QueryCapabilities {
-    /// Does the agent support comparisons that involve related tables (ie. joins)?
+    /// Does the agent support comparisons that involve related collections (ie. joins)?
     pub relation_comparisons: Option<serde_json::Value>,
     /// Does the agent support ordering by an aggregated array relationship?
     pub order_by_aggregate: Option<serde_json::Value>,
@@ -43,7 +44,7 @@ pub struct QueryCapabilities {
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct MutationCapabilities {
-    /// Whether or not nested inserts to related tables are supported
+    /// Whether or not nested inserts to related collections are supported
     pub nested_inserts: Option<serde_json::Value>,
     pub returning: Option<serde_json::Value>,
 }
@@ -52,17 +53,17 @@ pub struct MutationCapabilities {
 // ANCHOR: SchemaResponse
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct SchemaResponse {
-    /// A list of scalar types which will be used as the types of table columns
-    pub scalar_types: HashMap<String, ScalarType>,
-    /// A list of object types which can be used as the types of arguments, or return types of commands.
-    /// Names should not overlap with table names or scalar type names.
-    pub object_types: HashMap<String, ObjectType>,
-    /// Tables which are available for queries and/or mutations
-    pub tables: Vec<TableInfo>,
-    /// Functions (i.e. tables which return a single column and row)
+    /// A list of scalar types which will be used as the types of collection columns
+    pub scalar_types: BTreeMap<String, ScalarType>,
+    /// A list of object types which can be used as the types of arguments, or return types of procedures.
+    /// Names should not overlap with collection names or scalar type names.
+    pub object_types: BTreeMap<String, ObjectType>,
+    /// Collections which are available for queries and/or mutations
+    pub collections: Vec<CollectionInfo>,
+    /// Functions (i.e. collections which return a single column and row)
     pub functions: Vec<FunctionInfo>,
-    /// Commands which are available for execution as part of mutations
-    pub commands: Vec<CommandInfo>,
+    /// Procedures which are available for execution as part of mutations
+    pub procedures: Vec<ProcedureInfo>,
 }
 // ANCHOR_END: SchemaResponse
 
@@ -71,11 +72,11 @@ pub struct SchemaResponse {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct ScalarType {
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
-    pub aggregate_functions: HashMap<String, AggregateFunctionDefinition>,
+    pub aggregate_functions: BTreeMap<String, AggregateFunctionDefinition>,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
-    pub comparison_operators: HashMap<String, ComparisonOperatorDefinition>,
+    pub comparison_operators: BTreeMap<String, ComparisonOperatorDefinition>,
     /// A map from update operator names to their definitions.
-    pub update_operators: HashMap<String, UpdateOperatorDefinition>,
+    pub update_operators: BTreeMap<String, UpdateOperatorDefinition>,
 }
 // ANCHOR_END: ScalarType
 
@@ -87,7 +88,7 @@ pub struct ObjectType {
     /// Description of this type
     pub description: Option<String>,
     /// Fields defined on this object type
-    pub fields: HashMap<String, ObjectField>,
+    pub fields: BTreeMap<String, ObjectField>,
 }
 // ANCHOR_END: ObjectType
 
@@ -99,7 +100,7 @@ pub struct ObjectField {
     /// Description of this field
     pub description: Option<String>,
     /// Any arguments that this object field accepts
-    pub arguments: HashMap<String, ArgumentInfo>,
+    pub arguments: BTreeMap<String, ArgumentInfo>,
     /// The type of this field
     #[serde(rename = "type")]
     pub r#type: Type,
@@ -158,34 +159,34 @@ pub struct UpdateOperatorDefinition {
 }
 // ANCHOR_END: UpdateOperatorDefinition
 
-// ANCHOR: TableInfo
+// ANCHOR: CollectionInfo
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-pub struct TableInfo {
-    /// The name of the table
+pub struct CollectionInfo {
+    /// The name of the collection
     ///
     /// Note: these names are abstract - there is no requirement that this name correspond to
-    /// the name of an actual table in the database.
+    /// the name of an actual collection in the database.
     pub name: String,
-    /// Description of the table
+    /// Description of the collection
     pub description: Option<String>,
-    /// Any arguments that this table requires
-    pub arguments: HashMap<String, ArgumentInfo>,
-    /// The name of the table's object type
+    /// Any arguments that this collection requires
+    pub arguments: BTreeMap<String, ArgumentInfo>,
+    /// The name of the collection's object type
     #[serde(rename = "type")]
-    pub table_type: String,
-    /// The set of names of insertable columns, or null if inserts are not supported
+    pub collection_type: String,
+    /// The set of names of insercollection columns, or null if inserts are not supported
     pub insertable_columns: Option<Vec<String>>,
     /// The set of names of updateable columns, or null if updates are not supported
     pub updatable_columns: Option<Vec<String>>,
-    /// Whether or not existing rows can be deleted in the table
+    /// Whether or not existing rows can be deleted from the collection
     pub deletable: bool,
-    /// Any uniqueness constraints enforced on this table
-    pub uniqueness_constraints: HashMap<String, UniquenessConstraint>,
-    /// Any foreign key constraints enforced on this table
-    pub foreign_keys: HashMap<String, ForeignKeyConstraint>,
+    /// Any uniqueness constraints enforced on this collection
+    pub uniqueness_constraints: BTreeMap<String, UniquenessConstraint>,
+    /// Any foreign key constraints enforced on this collection
+    pub foreign_keys: BTreeMap<String, ForeignKeyConstraint>,
 }
-// ANCHOR_END: TableInfo
+// ANCHOR_END: CollectionInfo
 
 // ANCHOR: FunctionInfo
 #[skip_serializing_none]
@@ -195,8 +196,8 @@ pub struct FunctionInfo {
     pub name: String,
     /// Description of the function
     pub description: Option<String>,
-    /// Any arguments that this table requires
-    pub arguments: HashMap<String, ArgumentInfo>,
+    /// Any arguments that this collection requires
+    pub arguments: BTreeMap<String, ArgumentInfo>,
     /// The name of the function's result type
     pub result_type: Type,
 }
@@ -226,43 +227,43 @@ pub struct UniquenessConstraint {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct ForeignKeyConstraint {
     /// The columns on which you want want to define the foreign key.
-    pub column_mapping: HashMap<String, String>,
-    /// The name of a table
-    pub foreign_table: String,
+    pub column_mapping: BTreeMap<String, String>,
+    /// The name of a collection
+    pub foreign_collection: String,
 }
 // ANCHOR_END: ForeignKeyConstraint
 
-// ANCHOR: CommandInfo
+// ANCHOR: ProcedureInfo
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-pub struct CommandInfo {
-    /// The name of the command
+pub struct ProcedureInfo {
+    /// The name of the procedure
     pub name: String,
     /// Column description
     pub description: Option<String>,
-    /// Any arguments that this table requires
-    pub arguments: HashMap<String, ArgumentInfo>,
+    /// Any arguments that this collection requires
+    pub arguments: BTreeMap<String, ArgumentInfo>,
     /// The name of the result type
     pub result_type: Type,
 }
-// ANCHOR_END: CommandInfo
+// ANCHOR_END: ProcedureInfo
 
 // ANCHOR: QueryRequest
 /// This is the request body of the query POST endpoint
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct QueryRequest {
-    /// The name of a table
-    pub table: String,
+    /// The name of a collection
+    pub collection: String,
     /// The query syntax tree
     pub query: Query,
-    /// Values to be provided to any table arguments
-    pub arguments: HashMap<String, Argument>,
-    /// Any relationships between tables involved in the query request
-    pub table_relationships: HashMap<String, Relationship>,
+    /// Values to be provided to any collection arguments
+    pub arguments: BTreeMap<String, Argument>,
+    /// Any relationships between collections involved in the query request
+    pub collection_relationships: BTreeMap<String, Relationship>,
     /// One set of named variables for each rowset to fetch. Each variable set
     /// should be subtituted in turn, and a fresh set of rows returned.
-    pub variables: Option<Vec<HashMap<String, serde_json::Value>>>,
+    pub variables: Option<Vec<BTreeMap<String, serde_json::Value>>>,
 }
 // ANCHOR_END: QueryRequest
 
@@ -282,9 +283,9 @@ pub enum Argument {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct Query {
     /// Aggregate fields of the query
-    pub aggregates: Option<HashMap<String, Aggregate>>,
+    pub aggregates: Option<IndexMap<String, Aggregate>>,
     /// Fields of the query
-    pub fields: Option<HashMap<String, Field>>,
+    pub fields: Option<IndexMap<String, Field>>,
     /// Optionally limit to N results
     pub limit: Option<u32>,
     /// Optionally offset from the Nth result
@@ -323,14 +324,14 @@ pub enum Field {
     Column {
         column: String,
         /// Values to be provided to any field arguments
-        arguments: HashMap<String, Argument>,
+        arguments: BTreeMap<String, Argument>,
     },
     Relationship {
         query: Box<Query>,
         /// The name of the relationship to follow for the subquery
         relationship: String,
-        /// Values to be provided to any table arguments
-        arguments: HashMap<String, RelationshipArgument>,
+        /// Values to be provided to any collection arguments
+        arguments: BTreeMap<String, RelationshipArgument>,
     },
 }
 // ANCHOR_END: Field
@@ -339,7 +340,7 @@ pub enum Field {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct OrderBy {
     /// The elements to order by, in priority order
-    pub elements: Vec<OrderByElement>
+    pub elements: Vec<OrderByElement>,
 }
 // ANCHOR_END: OrderBy
 
@@ -368,27 +369,14 @@ pub enum OrderByTarget {
         /// Single column aggregate function name.
         function: String,
         /// Non-empty collection of relationships to traverse
-        path: Vec<PathElementWithPredicate>,
+        path: Vec<PathElement>,
     },
     StarCountAggregate {
         /// Non-empty collection of relationships to traverse
-        path: Vec<PathElementWithPredicate>,
+        path: Vec<PathElement>,
     },
 }
 // ANCHOR_END: OrderByTarget
-
-// ANCHOR: PathElementWithPredicate
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "snake_case")]
-pub struct PathElementWithPredicate {
-    /// The name of the relationship to follow
-    pub relationship: String,
-    /// Values to be provided to any table arguments
-    pub arguments: HashMap<String, RelationshipArgument>,
-    /// A predicate expression to apply to the target table
-    pub predicate: Box<Expression>,
-}
-// ANCHOR_END: PathElementWithPredicate
 
 // ANCHOR: OrderDirection
 #[derive(
@@ -429,7 +417,7 @@ pub enum Expression {
         values: Vec<ComparisonValue>,
     },
     Exists {
-        in_table: Box<ExistsInTable>,
+        in_collection: Box<ExistsInCollection>,
         #[serde(rename = "where")]
         predicate: Box<Expression>,
     },
@@ -473,13 +461,13 @@ pub enum BinaryComparisonOperator {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ComparisonTarget {
-    Column { 
+    Column {
         /// The name of the column
         name: String,
         /// Any relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
-    RootTableColumn { 
+    RootCollectionColumn {
         /// The name of the column
         name: String,
     },
@@ -492,8 +480,10 @@ pub enum ComparisonTarget {
 pub struct PathElement {
     /// The name of the relationship to follow
     pub relationship: String,
-    /// Values to be provided to any table arguments
-    pub arguments: HashMap<String, RelationshipArgument>,
+    /// Values to be provided to any collection arguments
+    pub arguments: BTreeMap<String, RelationshipArgument>,
+    /// A predicate expression to apply to the target collection
+    pub predicate: Box<Expression>,
 }
 // ANCHOR_END: PathElement
 
@@ -507,23 +497,23 @@ pub enum ComparisonValue {
 }
 // ANCHOR_END: ComparisonValue
 
-// ANCHOR: ExistsInTable
+// ANCHOR: ExistsInCollection
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum ExistsInTable {
+pub enum ExistsInCollection {
     Related {
         relationship: String,
-        /// Values to be provided to any table arguments
-        arguments: HashMap<String, RelationshipArgument>,
+        /// Values to be provided to any collection arguments
+        arguments: BTreeMap<String, RelationshipArgument>,
     },
     Unrelated {
-        /// The name of a table
-        table: String,
-        /// Values to be provided to any table arguments
-        arguments: HashMap<String, RelationshipArgument>,
+        /// The name of a collection
+        collection: String,
+        /// Values to be provided to any collection arguments
+        arguments: BTreeMap<String, RelationshipArgument>,
     },
 }
-// ANCHOR_END: ExistsInTable
+// ANCHOR_END: ExistsInCollection
 
 // ANCHOR: QueryResponse
 #[skip_serializing_none]
@@ -538,9 +528,9 @@ pub struct QueryResponse(pub Vec<RowSet>);
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct RowSet {
     /// The results of the aggregates returned by the query
-    pub aggregates: Option<HashMap<String, serde_json::Value>>,
+    pub aggregates: Option<IndexMap<String, serde_json::Value>>,
     /// The rows returned by the query, corresponding to the query's fields
-    pub rows: Option<Vec<HashMap<String, RowFieldValue>>>,
+    pub rows: Option<Vec<IndexMap<String, RowFieldValue>>>,
 }
 // ANCHOR_END: RowSet
 
@@ -548,18 +538,21 @@ pub struct RowSet {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(untagged)]
 pub enum RowFieldValue {
-    Relationship { rows: RowSet },
-    Column { value: serde_json::Value },
+    Relationship(RowSet),
+    Column(serde_json::Value),
 }
 // ANCHOR_END: RowFieldValue
 
 // ANCHOR: ExplainResponse
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct ExplainResponse {
-    /// Lines of the formatted explain plan response
-    pub lines: Vec<String>,
-    /// The generated query - i.e. SQL for a relational DB
-    pub query: String,
+    /// A list of human-readable key-value pairs describing
+    /// a query execution plan. For example, a connector for
+    /// a relational database might return the generated SQL
+    /// and/or the output of the `EXPLAIN` command. An API-based
+    /// connector might encode a list of statically-known API
+    /// calls which would be made.
+    pub details: BTreeMap<String, String>,
 }
 // ANCHOR_END: ExplainResponse
 
@@ -567,23 +560,23 @@ pub struct ExplainResponse {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct MutationRequest {
     /// The schema by which to interpret row data specified in any insert operations in this request
-    pub insert_schema: Vec<TableInsertSchema>,
+    pub insert_schema: Vec<CollectionInsertSchema>,
     /// The mutation operations to perform
     pub operations: Vec<MutationOperation>,
-    /// The relationships between tables involved in the entire mutation request
-    pub table_relationships: HashMap<String, Relationship>,
+    /// The relationships between collections involved in the entire mutation request
+    pub collection_relationships: BTreeMap<String, Relationship>,
 }
 // ANCHOR_END: MutationRequest
 
-// ANCHOR: TableInsertSchema
+// ANCHOR: CollectionInsertSchema
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-pub struct TableInsertSchema {
-    /// The fields that will be found in the insert row data for the table and the schema for each field
-    pub fields: HashMap<String, InsertFieldSchema>,
-    /// The name of a table
-    pub table: String,
+pub struct CollectionInsertSchema {
+    /// The fields that will be found in the insert row data for the collection and the schema for each field
+    pub fields: BTreeMap<String, InsertFieldSchema>,
+    /// The name of a collection
+    pub collection: String,
 }
-// ANCHOR_END: TableInsertSchema
+// ANCHOR_END: CollectionInsertSchema
 
 // ANCHOR: InsertFieldSchema
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -623,39 +616,39 @@ pub enum ObjectRelationInsertionOrder {
 pub enum MutationOperation {
     Delete {
         /// The fields to return for the rows affected by this delete operation
-        returning_fields: Option<HashMap<String, Field>>,
-        /// The name of a table
-        table: String,
+        returning_fields: Option<IndexMap<String, Field>>,
+        /// The name of a collection
+        collection: String,
         #[serde(rename = "where")]
         predicate: Option<Expression>,
     },
     Insert {
         post_insert_check: Option<Expression>,
         /// The fields to return for the rows affected by this insert operation
-        returning_fields: Option<HashMap<String, Field>>,
-        /// The rows to insert into the table
-        rows: Vec<HashMap<String, serde_json::Value>>,
-        /// The name of a table
-        table: String,
+        returning_fields: Option<IndexMap<String, Field>>,
+        /// The rows to insert into the collection
+        rows: Vec<BTreeMap<String, serde_json::Value>>,
+        /// The name of a collection
+        collection: String,
     },
     Update {
         post_update_check: Option<Expression>,
         /// The fields to return for the rows affected by this update operation
-        returning_fields: Option<HashMap<String, Field>>,
-        /// The name of a table
-        table: String,
-        /// The updates to make to the matched rows in the table
+        returning_fields: Option<IndexMap<String, Field>>,
+        /// The name of a collection
+        collection: String,
+        /// The updates to make to the matched rows in the collection
         updates: Vec<RowUpdate>,
         #[serde(rename = "where")]
         r#where: Option<Expression>,
     },
-    Command {
-        /// The name of a command
+    Procedure {
+        /// The name of a procedure
         name: String,
-        /// Any named command arguments
-        arguments: HashMap<String, serde_json::Value>,
+        /// Any named procedure arguments
+        arguments: BTreeMap<String, serde_json::Value>,
         /// The fields to return
-        fields: Option<HashMap<String, Field>>,
+        fields: Option<IndexMap<String, Field>>,
     },
 }
 // ANCHOR_END: MutationOperation
@@ -683,15 +676,15 @@ pub enum RowUpdate {
 // ANCHOR: Relationship
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct Relationship {
-    /// A mapping between columns on the source table to columns on the target table
-    pub column_mapping: HashMap<String, String>,
+    /// A mapping between columns on the source collection to columns on the target collection
+    pub column_mapping: BTreeMap<String, String>,
     pub relationship_type: RelationshipType,
-    /// The name of the table or object type which is the source of this relationship
-    pub source_table_or_type: String,
-    /// The name of a table
-    pub target_table: String,
-    /// Values to be provided to any table arguments
-    pub arguments: HashMap<String, RelationshipArgument>,
+    /// The name of the collection or object type which is the source of this relationship
+    pub source_collection_or_type: String,
+    /// The name of a collection
+    pub target_collection: String,
+    /// Values to be provided to any collection arguments
+    pub arguments: BTreeMap<String, RelationshipArgument>,
 }
 // ANCHOR_END: Relationship
 
@@ -701,11 +694,17 @@ pub struct Relationship {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum RelationshipArgument {
     /// The argument is provided by reference to a variable
-    Variable { name: String },
+    Variable {
+        name: String,
+    },
     /// The argument is provided as a literal value
-    Literal { value: serde_json::Value },
-    // The argument is provided based on a column of the source table
-    Column{ name: String },
+    Literal {
+        value: serde_json::Value,
+    },
+    // The argument is provided based on a column of the source collection
+    Column {
+        name: String,
+    },
 }
 // ANCHOR_END: RelationshipArgument
 
@@ -735,6 +734,74 @@ pub struct MutationOperationResults {
     /// The number of rows affected by the mutation operation
     pub affected_rows: u32,
     /// The rows affected by the mutation operation
-    pub returning: Option<Vec<HashMap<String, serde_json::Value>>>,
+    pub returning: Option<Vec<IndexMap<String, RowFieldValue>>>,
 }
 // ANCHOR_END: MutationOperationResults
+
+#[cfg(test)]
+mod tests {
+    use crate::models::{self};
+    use goldenfile::Mint;
+    use schemars::schema_for;
+    use std::{io::Write, path::PathBuf};
+
+    #[test]
+    fn test_query_request_schema() {
+        let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+
+        let mut mint = Mint::new(&test_dir);
+
+        test_json_schema(
+            &mut mint,
+            schema_for!(models::SchemaResponse),
+            "schema_response.jsonschema",
+        );
+
+        test_json_schema(
+            &mut mint,
+            schema_for!(models::CapabilitiesResponse),
+            "capabilities_response.jsonschema",
+        );
+
+        test_json_schema(
+            &mut mint,
+            schema_for!(models::QueryRequest),
+            "query_request.jsonschema",
+        );
+        test_json_schema(
+            &mut mint,
+            schema_for!(models::QueryResponse),
+            "query_response.jsonschema",
+        );
+
+        test_json_schema(
+            &mut mint,
+            schema_for!(models::ExplainResponse),
+            "explain_response.jsonschema",
+        );
+
+        test_json_schema(
+            &mut mint,
+            schema_for!(models::MutationRequest),
+            "mutation_request.jsonschema",
+        );
+        test_json_schema(
+            &mut mint,
+            schema_for!(models::MutationResponse),
+            "mutation_response.jsonschema",
+        );
+    }
+
+    fn test_json_schema(mint: &mut Mint, schema: schemars::schema::RootSchema, filename: &str) {
+        let expected_path = PathBuf::from_iter(["json_schema", filename]);
+
+        let mut expected = mint.new_goldenfile(expected_path).unwrap();
+
+        write!(
+            expected,
+            "{}",
+            serde_json::to_string_pretty(&schema).unwrap()
+        )
+        .unwrap();
+    }
+}

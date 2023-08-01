@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use clap::Parser;
+use indexmap::IndexMap;
 use ndc_client::apis::configuration::Configuration;
 use ndc_client::apis::default_api as api;
 use ndc_client::models;
@@ -58,39 +59,45 @@ fn validate_schema(schema: &models::SchemaResponse) {
         }
     }
 
-    println!("Validating tables");
-    for table_info in schema.tables.iter() {
-        println!("Validating table {}", table_info.name);
-        let table_type = schema.object_types.get(table_info.table_type.as_str());
+    println!("Validating collections");
+    for collection_info in schema.collections.iter() {
+        println!("Validating collection {}", collection_info.name);
+        let collection_type = schema
+            .object_types
+            .get(collection_info.collection_type.as_str());
 
-        for (_arg_name, arg_info) in table_info.arguments.iter() {
+        for (_arg_name, arg_info) in collection_info.arguments.iter() {
             validate_type(schema, &arg_info.argument_type);
         }
 
-        match table_type {
+        match collection_type {
             None => {
                 panic!(
-                    "table type {} is not a defined object type",
-                    table_info.table_type
+                    "collection type {} is not a defined object type",
+                    collection_info.collection_type
                 );
             }
 
-            Some(table_type) => {
+            Some(collection_type) => {
                 println!("Validating columns");
-                if let Some(insertable_columns) = &table_info.insertable_columns {
+                if let Some(insertable_columns) = &collection_info.insertable_columns {
                     for insertable_column in insertable_columns.iter() {
                         assert!(
-                            table_type.fields.contains_key(insertable_column.as_str()),
-                            "insertable column {} is not defined on table type",
+                            collection_type
+                                .fields
+                                .contains_key(insertable_column.as_str()),
+                            "insertable column {} is not defined on collection type",
                             insertable_column
                         );
                     }
                 }
-                if let Some(updatable_columns) = &table_info.updatable_columns {
+                if let Some(updatable_columns) = &collection_info.updatable_columns {
                     for updatable_column in updatable_columns.iter() {
                         assert!(
-                            table_type.fields.contains_key(updatable_column.as_str()),
-                            "updatable column {} is not defined on table type",
+                            collection_type
+                                .fields
+                                .contains_key(updatable_column.as_str()),
+                            "updatable column {} is not defined on collection type",
                             updatable_column
                         );
                     }
@@ -109,13 +116,13 @@ fn validate_schema(schema: &models::SchemaResponse) {
         }
     }
 
-    println!("Validating commands");
-    for command_info in schema.commands.iter() {
-        println!("Validating command {}", command_info.name);
+    println!("Validating procedures");
+    for procedure_info in schema.procedures.iter() {
+        println!("Validating procedure {}", procedure_info.name);
 
-        validate_type(schema, &command_info.result_type);
+        validate_type(schema, &procedure_info.result_type);
 
-        for (_arg_name, arg_info) in command_info.arguments.iter() {
+        for (_arg_name, arg_info) in procedure_info.arguments.iter() {
             validate_type(schema, &arg_info.argument_type);
         }
     }
@@ -146,28 +153,28 @@ async fn test_query(
     schema: &models::SchemaResponse,
 ) {
     println!("Testing simple queries");
-    for table_info in schema.tables.iter() {
-        println!("Querying table {}", table_info.name);
-        test_simple_queries(configuration, schema, table_info).await;
+    for collection_info in schema.collections.iter() {
+        println!("Querying collection {}", collection_info.name);
+        test_simple_queries(configuration, schema, collection_info).await;
     }
 
     println!("Testing aggregate queries");
-    for table_info in schema.tables.iter() {
-        println!("Querying table {}", table_info.name);
-        test_aggregate_queries(configuration, schema, table_info).await;
+    for collection_info in schema.collections.iter() {
+        println!("Querying collection {}", collection_info.name);
+        test_aggregate_queries(configuration, schema, collection_info).await;
     }
 }
 
 async fn test_simple_queries(
     configuration: &Configuration,
     schema: &models::SchemaResponse,
-    table_info: &models::TableInfo,
+    collection_info: &models::CollectionInfo,
 ) {
-    let table_type = schema
+    let collection_type = schema
         .object_types
-        .get(table_info.table_type.as_str())
+        .get(collection_info.collection_type.as_str())
         .unwrap();
-    let fields = table_type
+    let fields = collection_type
         .fields
         .iter()
         .map(|f| {
@@ -175,13 +182,13 @@ async fn test_simple_queries(
                 f.0.clone(),
                 models::Field::Column {
                     column: f.0.clone(),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                 },
             )
         })
-        .collect::<HashMap<String, models::Field>>();
+        .collect::<IndexMap<String, models::Field>>();
     let query_request = models::QueryRequest {
-        table: table_info.name.clone(),
+        collection: collection_info.name.clone(),
         query: models::Query {
             aggregates: None,
             fields: Some(fields),
@@ -190,8 +197,8 @@ async fn test_simple_queries(
             order_by: None,
             predicate: None,
         },
-        arguments: HashMap::new(),
-        table_relationships: HashMap::new(),
+        arguments: BTreeMap::new(),
+        collection_relationships: BTreeMap::new(),
         variables: None,
     };
     let _response = api::query_post(configuration, query_request).await;
@@ -202,11 +209,11 @@ async fn test_simple_queries(
 async fn test_aggregate_queries(
     configuration: &Configuration,
     _schema: &models::SchemaResponse,
-    table_info: &models::TableInfo,
+    collection_info: &models::CollectionInfo,
 ) {
-    let aggregates = HashMap::from([("count".into(), models::Aggregate::StarCount {})]);
+    let aggregates = IndexMap::from([("count".into(), models::Aggregate::StarCount {})]);
     let query_request = models::QueryRequest {
-        table: table_info.name.clone(),
+        collection: collection_info.name.clone(),
         query: models::Query {
             aggregates: Some(aggregates),
             fields: None,
@@ -215,20 +222,21 @@ async fn test_aggregate_queries(
             order_by: None,
             predicate: None,
         },
-        arguments: HashMap::new(),
-        table_relationships: HashMap::new(),
+        arguments: BTreeMap::new(),
+        collection_relationships: BTreeMap::new(),
         variables: None,
     };
-    let response = api::query_post(configuration, query_request)
-        .await
-        .unwrap();
+    let response = api::query_post(configuration, query_request).await.unwrap();
     if let [row_set] = &*response.0.clone() {
         assert!(
             row_set.rows.is_none(),
             "aggregate-only query should not return rows"
         );
         if let Some(aggregates) = &row_set.aggregates {
-            assert!(aggregates.contains_key("count"), "aggregate query should return requested count aggregate");
+            assert!(
+                aggregates.contains_key("count"),
+                "aggregate query should return requested count aggregate"
+            );
         } else {
             panic!("aggregate query should return aggregates");
         }

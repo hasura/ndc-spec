@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MutationResponse",
+  "type": "object",
+  "required": [
+    "operation_results"
+  ],
+  "properties": {
+    "operation_results": {
+      "description": "The results of each mutation operation, in the same order as they were received",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MutationOperationResults"
+      }
+    }
+  },
+  "definitions": {
+    "MutationOperationResults": {
+      "type": "object",
+      "required": [
+        "affected_rows"
+      ],
+      "properties": {
+        "affected_rows": {
+          "description": "The number of rows affected by the mutation operation",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "returning": {
+          "description": "The rows affected by the mutation operation",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/RowFieldValue"
+            }
+          }
+        }
+      }
+    },
+    "RowFieldValue": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/RowSet"
+        },
+        true
+      ]
+    },
+    "RowSet": {
+      "type": "object",
+      "properties": {
+        "aggregates": {
+          "description": "The results of the aggregates returned by the query",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        },
+        "rows": {
+          "description": "The rows returned by the query, corresponding to the query's fields",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/RowFieldValue"
+            }
+          }
+        }
+      }
+    }
+  }
+}

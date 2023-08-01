@@ -1,6 +1,6 @@
 {
-    "$schema": "../../../../ndc-client/jsonschema/query_request.jsonschema",
-    "table": "articles",
+    "$schema": "../../../../ndc-client/tests/json_schema/query_request.jsonschema",
+    "collection": "articles",
     "arguments": {},
     "query": {
         "fields": {
@@ -32,5 +32,5 @@
             }
         }
     },
-    "table_relationships": {}
+    "collection_relationships": {}
 }
