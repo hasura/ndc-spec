@@ -83,11 +83,18 @@ async fn metrics_middleware<T>(
     request: axum::http::Request<T>,
     next: axum::middleware::Next<T>,
 ) -> axum::response::Response {
-    let state = state.lock().await;
-    state.metrics.total_requests.inc();
-    state.metrics.active_requests.inc();
+    // Don't hold the lock to update metrics, since the
+    // lock doesn't protect the metrics anyway.
+    let metrics = 
+    {
+        let state = state.lock().await;
+        state.metrics.clone()
+    };
+
+    metrics.total_requests.inc();
+    metrics.active_requests.inc();
     let response = next.run(request).await;
-    state.metrics.active_requests.dec();
+    metrics.active_requests.dec();
     response
 }
 
@@ -1407,25 +1414,27 @@ async fn execute_mutation_operation(
                 let new_row =
                     BTreeMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
                 let old_row = state.articles.insert(id_int, new_row);
-                let returning = old_row.map(|old_row| {
-                    let mut row = IndexMap::new();
-                    for fields in fields.iter() {
-                        for (field_name, field) in fields.iter() {
-                            row.insert(
-                                field_name.clone(),
-                                eval_field(
-                                    collection_relationships,
-                                    &BTreeMap::new(),
-                                    state,
-                                    field,
-                                    &old_row,
-                                    &old_row,
-                                )?,
-                            );
+                let returning = old_row
+                    .map(|old_row| {
+                        let mut row = IndexMap::new();
+                        for fields in fields.iter() {
+                            for (field_name, field) in fields.iter() {
+                                row.insert(
+                                    field_name.clone(),
+                                    eval_field(
+                                        collection_relationships,
+                                        &BTreeMap::new(),
+                                        state,
+                                        field,
+                                        &old_row,
+                                        &old_row,
+                                    )?,
+                                );
+                            }
                         }
-                    }
-                    Ok(vec![row])
-                }).transpose()?;
+                        Ok(vec![row])
+                    })
+                    .transpose()?;
                 Ok(models::MutationOperationResults {
                     affected_rows: 1,
                     returning,
