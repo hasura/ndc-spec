@@ -3,20 +3,15 @@
   "title": "ExplainResponse",
   "type": "object",
   "required": [
-    "lines",
-    "query"
+    "details"
   ],
   "properties": {
-    "lines": {
-      "description": "Lines of the formatted explain plan response",
-      "type": "array",
-      "items": {
+    "details": {
+      "description": "A list of human-readable key-value pairs describing a query execution plan. For example, a connector for a relational database might return the generated SQL and/or the output of the `EXPLAIN` command. An API-based connector might encode a list of statically-known API calls which would be made.",
+      "type": "object",
+      "additionalProperties": {
         "type": "string"
       }
-    },
-    "query": {
-      "description": "The generated query - i.e. SQL for a relational DB",
-      "type": "string"
     }
   }
 }

@@ -546,10 +546,13 @@ pub enum RowFieldValue {
 // ANCHOR: ExplainResponse
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct ExplainResponse {
-    /// Lines of the formatted explain plan response
-    pub lines: Vec<String>,
-    /// The generated query - i.e. SQL for a relational DB
-    pub query: String,
+    /// A list of human-readable key-value pairs describing
+    /// a query execution plan. For example, a connector for
+    /// a relational database might return the generated SQL
+    /// and/or the output of the `EXPLAIN` command. An API-based
+    /// connector might encode a list of statically-known API
+    /// calls which would be made.
+    pub details: BTreeMap<String, String>,
 }
 // ANCHOR_END: ExplainResponse
 
