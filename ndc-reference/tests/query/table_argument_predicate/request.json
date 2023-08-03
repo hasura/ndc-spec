@@ -6,8 +6,7 @@
         "fields": {
             "id": {
                 "type": "column",
-                "column": "id",
-                "arguments": {}
+                "column": "id"
             }
         },
         "where": {

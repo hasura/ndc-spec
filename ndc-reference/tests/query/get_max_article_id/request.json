@@ -5,8 +5,7 @@
         "fields": {
             "__value": {
                 "type": "column",
-                "column": "__value",
-                "arguments": {}
+                "column": "__value"
             }
         }
     },

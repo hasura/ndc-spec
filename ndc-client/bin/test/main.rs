@@ -182,7 +182,6 @@ async fn test_simple_queries(
                 f.0.clone(),
                 models::Field::Column {
                     column: f.0.clone(),
-                    arguments: BTreeMap::new(),
                 },
             )
         })

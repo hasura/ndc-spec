@@ -323,8 +323,6 @@ pub enum Aggregate {
 pub enum Field {
     Column {
         column: String,
-        /// Values to be provided to any field arguments
-        arguments: BTreeMap<String, Argument>,
     },
     Relationship {
         query: Box<Query>,

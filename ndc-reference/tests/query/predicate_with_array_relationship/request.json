@@ -6,13 +6,11 @@
         "fields": {
             "first_name": {
                 "type": "column",
-                "column": "first_name",
-                "arguments": {}
+                "column": "first_name"
             },
             "last_name": {
                 "type": "column",
-                "column": "last_name",
-                "arguments": {}
+                "column": "last_name"
             },
             "articles": {
                 "type": "relationship",
@@ -22,13 +20,11 @@
                     "fields": {
                         "id": {
                             "type": "column",
-                            "column": "id",
-                            "arguments": {}
+                            "column": "id"
                         },
                         "title": {
                             "type": "column",
-                            "column": "title",
-                            "arguments": {}
+                            "column": "title"
                         }
                     }
                 }
