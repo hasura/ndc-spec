@@ -32,10 +32,12 @@
         }
     },
     "collection_relationships": {},
-    "variables": [{
-
-        "$article_id": 1
-    }, {
-        "$article_id": 2
-    }]
+    "variables": [
+        {
+            "$article_id": 1
+        },
+        {
+            "$article_id": 2
+        }
+    ]
 }

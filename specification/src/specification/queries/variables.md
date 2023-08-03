@@ -13,35 +13,8 @@ In the following query, we fetch two rowsets of article data. In each rowset, th
 The result contains one rowset containing articles from the author with ID `1`, and a second for the author with ID `2`.
 
 ```json
-{
-  "collection": ["articles"],
-  "collection_relationships": [],
-  "query": {
-    "fields": {
-      "title": {
-        "type": "column",
-        "column": "title"
-      }
-    },
-    "predicate": {
-        "type": "binary_comparison_operator",
-        "operator": {
-            "type": "equal"
-        },
-        "column": {
-            "name": "author_id"
-        },
-        "value": {
-            "type": "variable",
-            "name": "author_id"
-        }
-    }
-  },
-  "variables": [
-    { "author_id": "1" },
-    { "author_id": "2" }
-  ]
-}
+{{#include ../../../../ndc-reference/tests/query/variables/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/variables/request.json:3: }}
 ```
 
 ## Requirements

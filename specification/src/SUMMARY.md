@@ -36,6 +36,7 @@
 
 - [Introduction](tutorial/README.md)
 - [Getting Started](tutorial/getting-started.md)
+- [Testing](tutorial/testing.md)
 - [Capabilities](tutorial/capabilities.md)
 - [Schema](tutorial/schema.md)
 - [Queries](tutorial/queries/README.md)
@@ -49,3 +50,4 @@
 # Reference
 
 - [Types](reference/types.md)
+- [JSON Schema](reference/json-schema.md)
