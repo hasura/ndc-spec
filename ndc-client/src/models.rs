@@ -175,7 +175,7 @@ pub struct CollectionInfo {
     /// The name of the collection's object type
     #[serde(rename = "type")]
     pub collection_type: String,
-    /// The set of names of insercollection columns, or null if inserts are not supported
+    /// The set of names of insertable columns, or null if inserts are not supported
     pub insertable_columns: Option<Vec<String>>,
     /// The set of names of updateable columns, or null if updates are not supported
     pub updatable_columns: Option<Vec<String>>,

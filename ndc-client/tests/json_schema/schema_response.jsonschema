@@ -124,7 +124,7 @@
           }
         },
         "insertable_columns": {
-          "description": "The set of names of insercollection columns, or null if inserts are not supported",
+          "description": "The set of names of insertable columns, or null if inserts are not supported",
           "type": [
             "array",
             "null"
