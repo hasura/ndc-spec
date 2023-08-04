@@ -18,9 +18,9 @@ use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
 
-// ANCHOR: csv-types
+// ANCHOR: row-type
 type Row = BTreeMap<String, serde_json::Value>;
-// ANCHOR_END: csv-types
+// ANCHOR_END: row-type
 
 // ANCHOR: app-state
 #[derive(Debug, Clone)]
@@ -85,8 +85,7 @@ async fn metrics_middleware<T>(
 ) -> axum::response::Response {
     // Don't hold the lock to update metrics, since the
     // lock doesn't protect the metrics anyway.
-    let metrics = 
-    {
+    let metrics = {
         let state = state.lock().await;
         state.metrics.clone()
     };
@@ -98,6 +97,7 @@ async fn metrics_middleware<T>(
     response
 }
 
+// ANCHOR: init_app_state
 fn init_app_state() -> AppState {
     // Read the CSV data files
     let articles = read_csv("articles.csv").unwrap();
@@ -111,6 +111,7 @@ fn init_app_state() -> AppState {
         metrics,
     }
 }
+// ANCHOR_END: init_app_state
 
 type StatusLine = (StatusCode, &'static str);
 
@@ -413,44 +414,70 @@ async fn get_schema() -> Json<models::SchemaResponse> {
 }
 // ANCHOR_END: schema2
 
-// ANCHOR: query
+// ANCHOR: post_query
+// ANCHOR: post_query_signature
 pub async fn post_query(
     State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<models::QueryRequest>,
 ) -> Result<Json<models::QueryResponse>, StatusLine> {
+// ANCHOR_END: post_query_signature
     let state = state.lock().await;
 
     let variable_sets = request.variables.unwrap_or(vec![BTreeMap::new()]);
 
     let mut row_sets = vec![];
+
     for variables in variable_sets.iter() {
-        let mut arguments = BTreeMap::new();
-
-        for (argument_name, argument_value) in request.arguments.iter() {
-            if let Some(_) = arguments.insert(
-                argument_name.clone(),
-                eval_argument(variables, argument_value)?,
-            ) {
-                return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
-            }
-        }
-
-        let row_set = execute_query_by_collection_name(
+        let row_set = execute_query_with_variables(
+            &request.collection,
+            &request.arguments,
             &request.collection_relationships,
-            variables,
-            request.collection.as_str(),
-            &arguments,
-            None,
             &request.query,
+            variables,
             &state,
         )?;
         row_sets.push(row_set);
     }
 
-    let response = models::QueryResponse(row_sets);
-    Ok(Json(response))
+    Ok(Json(models::QueryResponse(row_sets)))
 }
+// ANCHOR_END: post_query
 
+// ANCHOR: execute_query_with_variables
+// ANCHOR: execute_query_with_variables_signature
+fn execute_query_with_variables(
+    collection: &String,
+    arguments: &BTreeMap<String, models::Argument>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    query: &models::Query,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+) -> Result<models::RowSet, StatusLine> {
+// ANCHOR_END: execute_query_with_variables_signature
+    let mut argument_values = BTreeMap::new();
+    
+    for (argument_name, argument_value) in arguments.iter() {
+        if let Some(_) = argument_values.insert(
+            argument_name.clone(),
+            eval_argument(variables, argument_value)?,
+        ) {
+            return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
+        }
+    }
+
+    execute_query_by_collection_name(
+        &collection_relationships,
+        variables,
+        collection.as_str(),
+        &argument_values,
+        None,
+        &query,
+        state,
+    )
+}
+// ANCHOR_END: execute_query_with_variables
+
+// ANCHOR: execute_query_by_collection_name
 fn execute_query_by_collection_name(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -470,7 +497,9 @@ fn execute_query_by_collection_name(
         collection,
     )
 }
+// ANCHOR_END: execute_query_by_collection_name
 
+// ANCHOR: get_collection_by_name
 fn get_collection_by_name(
     collection_name: &str,
     arguments: &BTreeMap<String, serde_json::Value>,
@@ -524,7 +553,10 @@ fn get_collection_by_name(
         _ => Err((StatusCode::BAD_REQUEST, "invalid collection name")),
     }
 }
+// ANCHOR_END: get_collection_by_name
 
+// ANCHOR: execute_query
+// ANCHOR: execute_query_signature
 fn execute_query(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -533,6 +565,7 @@ fn execute_query(
     root: Option<&Row>,
     collection: Vec<Row>,
 ) -> Result<models::RowSet, StatusLine> {
+// ANCHOR_END: execute_query_signature
     let sorted = sort(
         collection_relationships,
         variables,
@@ -654,6 +687,7 @@ fn execute_query(
         .transpose()?;
     Ok(models::RowSet { aggregates, rows })
 }
+// ANCHOR_END: execute_query_signature
 
 fn eval_aggregate_function(
     function: &String,
@@ -679,7 +713,6 @@ fn eval_aggregate_function(
         )
     })
 }
-// ANCHOR_END: query
 
 fn sort(
     collection_relationships: &BTreeMap<String, models::Relationship>,

@@ -16,25 +16,31 @@ For example, running the reference connector and passing its URL to `ndc-test`, 
 
 ```text
 ndc-test --ent http://localhost:8100
+
 Fetching /capabilities
 Validating capabilities
-Fetching /schema
-Validating schema
+Fetching /schemaValidating schema
 Validating object_types
 Validating collections
 Validating collection articles
 Validating columns
 Validating collection authors
 Validating columns
+Validating collection articles_by_author
+Validating columns
+Validating functions
+Validating function latest_article_id
 Validating procedures
 Validating procedure upsert_article
 Testing /query
 Testing simple queries
 Querying collection articles
 Querying collection authors
+Skipping parameterized collection articles_by_author
 Testing aggregate queries
 Querying collection articles
 Querying collection authors
+Skipping parameterized collection articles_by_author
 ```
 
 However, `ndc-test` cannot validate the entire schema. For example, it will not issue queries against the `articles_by_author` collection, because it does not have any way to synthesize inputs for its required collection argument.

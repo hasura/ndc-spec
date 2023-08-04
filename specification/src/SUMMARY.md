@@ -35,16 +35,17 @@
 # Tutorial
 
 - [Introduction](tutorial/README.md)
-- [Getting Started](tutorial/getting-started.md)
+- [Setup](tutorial/setup.md)
 - [Testing](tutorial/testing.md)
+- [Getting Started](tutorial/getting-started.md)
 - [Capabilities](tutorial/capabilities.md)
 - [Schema](tutorial/schema.md)
 - [Queries](tutorial/queries/README.md)
+  - [Query Variables](tutorial/queries/variables.md)
+  - [Evaluating Arguments](tutorial/queries/arguments.md)
   - [Simple Queries](tutorial/queries/simple-queries.md)
   - [Relationships](tutorial/queries/relationships.md)
   - [Aggregates](tutorial/queries/aggregates.md)
-  - [Arguments](tutorial/queries/arguments.md)
-  - [Variables](tutorial/queries/variables.md)
 - [Mutations](tutorial/mutations/README.md)
 
 # Reference
