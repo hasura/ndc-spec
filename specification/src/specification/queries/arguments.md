@@ -1,9 +1,6 @@
 # Arguments
 
-Data connectors can parameterize their datasets with two types of arguments:
-
-- _Collection arguments_ parameterize the entire dataset, and are provided in queries wherever the collection is referenced, either directly, or via relationships,
-- _Column arguments_ parameterize single columns, and are optional, but can be provided
+_Collection arguments_ parameterize an entire collection, and must be provided in queries wherever the collection is referenced, either directly, or via relationships,
 
 ## Collection Arguments
 
@@ -62,7 +59,3 @@ For example, when ordering by an aggregate of rows in a related collection, and 
 {{#include ../../../../ndc-reference/tests/query/table_argument_order_by/request.json:1 }}
 {{#include ../../../../ndc-reference/tests/query/table_argument_order_by/request.json:3: }}
 ```
-
-## Column Arguments
-
-_TODO_

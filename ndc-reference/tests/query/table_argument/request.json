@@ -11,13 +11,11 @@
         "fields": {
             "id": {
                 "type": "column",
-                "column": "id",
-                "arguments": {}
+                "column": "id"
             },
             "title": {
                 "type": "column",
-                "column": "title",
-                "arguments": {}
+                "column": "title"
             }
         }
     },
