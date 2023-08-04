@@ -43,9 +43,13 @@
 - [Queries](tutorial/queries/README.md)
   - [Query Variables](tutorial/queries/variables.md)
   - [Evaluating Arguments](tutorial/queries/arguments.md)
-  - [Simple Queries](tutorial/queries/simple-queries.md)
-  - [Relationships](tutorial/queries/relationships.md)
-  - [Aggregates](tutorial/queries/aggregates.md)
+  - [Executing Queries](tutorial/queries/execute/README.md)
+    - [Sorting](tutorial/queries/execute/sorting.md)
+    - [Filtering](tutorial/queries/execute/filtering.md)
+    - [Pagination](tutorial/queries/execute/pagination.md)
+    - [Aggregates](tutorial/queries/execute/aggregates.md)
+    - [Field Selection](tutorial/queries/execute/field-selection.md)
+    - [Relationships](tutorial/queries/execute/relationships.md)
 - [Mutations](tutorial/mutations/README.md)
 
 # Reference
