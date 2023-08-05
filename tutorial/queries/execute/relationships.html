@@ -1,0 +1,306 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Relationships - Hasura Data Connectors Developer&#x27;s Guide</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../../highlight.css">
+        <link rel="stylesheet" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../../overview.html">Overview</a></li><li class="chapter-item expanded affix "><li class="part-title">API Specification</li><li class="chapter-item expanded "><a href="../../../specification/index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../../../specification/changelog.html"><strong aria-hidden="true">2.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="../../../specification/basics.html"><strong aria-hidden="true">3.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../../../specification/versioning.html"><strong aria-hidden="true">4.</strong> Versioning</a></li><li class="chapter-item expanded "><a href="../../../specification/error-handling.html"><strong aria-hidden="true">5.</strong> Error Handling</a></li><li class="chapter-item expanded "><a href="../../../specification/health.html"><strong aria-hidden="true">6.</strong> Service Health</a></li><li class="chapter-item expanded "><a href="../../../specification/metrics.html"><strong aria-hidden="true">7.</strong> Metrics</a></li><li class="chapter-item expanded "><a href="../../../specification/telemetry.html"><strong aria-hidden="true">8.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../../../specification/capabilities.html"><strong aria-hidden="true">9.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../../../specification/types.html"><strong aria-hidden="true">10.</strong> Types</a></li><li class="chapter-item expanded "><a href="../../../specification/schema/index.html"><strong aria-hidden="true">11.</strong> Schema</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../specification/schema/scalar-types.html"><strong aria-hidden="true">11.1.</strong> Scalar Types</a></li><li class="chapter-item expanded "><a href="../../../specification/schema/object-types.html"><strong aria-hidden="true">11.2.</strong> Object Types</a></li><li class="chapter-item expanded "><a href="../../../specification/schema/collections.html"><strong aria-hidden="true">11.3.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../../../specification/schema/functions.html"><strong aria-hidden="true">11.4.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../../../specification/schema/procedures.html"><strong aria-hidden="true">11.5.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../../../specification/queries/index.html"><strong aria-hidden="true">12.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../specification/queries/field-selection.html"><strong aria-hidden="true">12.1.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/filtering.html"><strong aria-hidden="true">12.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/sorting.html"><strong aria-hidden="true">12.3.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/pagination.html"><strong aria-hidden="true">12.4.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/aggregates.html"><strong aria-hidden="true">12.5.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/arguments.html"><strong aria-hidden="true">12.6.</strong> Arguments</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/relationships.html"><strong aria-hidden="true">12.7.</strong> Relationships</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/variables.html"><strong aria-hidden="true">12.8.</strong> Variables</a></li></ol></li><li class="chapter-item expanded "><a href="../../../specification/mutations/index.html"><strong aria-hidden="true">13.</strong> Mutations</a></li><li class="chapter-item expanded "><a href="../../../specification/explain.html"><strong aria-hidden="true">14.</strong> Explain</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorial</li><li class="chapter-item expanded "><a href="../../../tutorial/index.html"><strong aria-hidden="true">15.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../../../tutorial/setup.html"><strong aria-hidden="true">16.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../../../tutorial/testing.html"><strong aria-hidden="true">17.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../../../tutorial/getting-started.html"><strong aria-hidden="true">18.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../../../tutorial/capabilities.html"><strong aria-hidden="true">19.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../../../tutorial/schema.html"><strong aria-hidden="true">20.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/index.html"><strong aria-hidden="true">21.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../tutorial/queries/variables.html"><strong aria-hidden="true">21.1.</strong> Query Variables</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/arguments.html"><strong aria-hidden="true">21.2.</strong> Evaluating Arguments</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/index.html"><strong aria-hidden="true">21.3.</strong> Executing Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/sorting.html"><strong aria-hidden="true">21.3.1.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/filtering.html"><strong aria-hidden="true">21.3.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/pagination.html"><strong aria-hidden="true">21.3.3.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/aggregates.html"><strong aria-hidden="true">21.3.4.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/field-selection.html"><strong aria-hidden="true">21.3.5.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/relationships.html" class="active"><strong aria-hidden="true">21.3.6.</strong> Relationships</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../../tutorial/mutations/index.html"><strong aria-hidden="true">22.</strong> Mutations</a></li><li class="chapter-item expanded "><a href="../../../tutorial/explain.html"><strong aria-hidden="true">23.</strong> Explain</a></li><li class="chapter-item expanded "><a href="../../../tutorial/health.html"><strong aria-hidden="true">24.</strong> Health and Metrics</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../../../reference/types.html"><strong aria-hidden="true">25.</strong> Types</a></li><li class="chapter-item expanded "><a href="../../../reference/json-schema.html"><strong aria-hidden="true">26.</strong> JSON Schema</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Hasura Data Connectors Developer&#x27;s Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="relationships"><a class="header" href="#relationships">Relationships</a></h1>
+<p>Relationships appear in many places in the <a href="../../../reference/types.html#queryrequest"><code>QueryRequest</code></a>, but are always computed using the <code>eval_path</code> function.</p>
+<p><code>eval_path</code> accepts a list of <a href="../../../reference/types.html#pathelement"><code>PathElement</code></a>s, each of which describes the traversal of a single edge of the collection-relationship graph. <code>eval_path</code> computes the collection at the final node of this path through the graph.</p>
+<p>It does this by successively evaluating each edge in turn using the <code>eval_path_element</code> function:</p>
+<pre><code class="language-rust no_run noplayground">fn eval_path(
+    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    state: &amp;AppState,
+    path: &amp;Vec&lt;models::PathElement&gt;,
+    root: &amp;Row,
+    item: &amp;Row,
+) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
+    let mut result: Vec&lt;Row&gt; = vec![item.clone()];
+
+    for path_element in path.iter() {
+        let relationship_name = path_element.relationship.as_str();
+        let relationship = collection_relationships
+            .get(relationship_name)
+            .ok_or((StatusCode::BAD_REQUEST, &quot;invalid relationship name in path&quot;))?;
+        result = eval_path_element(
+            collection_relationships,
+            variables,
+            state,
+            relationship,
+            &amp;path_element.arguments,
+            root,
+            &amp;result,
+            &amp;path_element.predicate,
+        )?;
+    }
+
+    Ok(result)
+}</code></pre>
+<p>The <code>eval_path_element</code> function computes a collection from a single relationship, one source row at a time, by evaluating all relationship arguments, computing the target collection using <code>get_collection_by_name</code>, and evaluating any column mapping on any resulting rows:</p>
+<pre><code class="language-rust no_run noplayground">fn eval_path_element(
+    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    state: &amp;AppState,
+    relationship: &amp;models::Relationship,
+    arguments: &amp;BTreeMap&lt;String, models::RelationshipArgument&gt;,
+    root: &amp;Row,
+    source: &amp;Vec&lt;Row&gt;,
+    predicate: &amp;models::Expression,
+) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
+    let mut matching_rows: Vec&lt;Row&gt; = vec![];
+
+    // Note: Join strategy
+    //
+    // Rows can be related in two ways: 1) via a column mapping, and
+    // 2) via collection arguments. Because collection arguments can be computed
+    // using the columns on the source side of a relationship, in general
+    // we need to compute the target collection once for each source row.
+    // This join strategy can result in some target rows appearing in the
+    // resulting row set more than once, if two source rows are both related
+    // to the same target row.
+    //
+    // In practice, this is not an issue, either because a) the relationship
+    // is computed in the course of evaluating a predicate, and all predicates are
+    // implicitly or explicitly existentially quantified, or b) if the
+    // relationship is computed in the course of evaluating an ordering, the path
+    // should consist of all object relationships, and possibly terminated by a
+    // single array relationship, so there should be no double counting.
+
+    for src_row in source.iter() {
+        let mut all_arguments = BTreeMap::new();
+
+        for (argument_name, argument_value) in relationship.arguments.iter() {
+            if let Some(_) = all_arguments.insert(
+                argument_name.clone(),
+                eval_relationship_argument(variables, src_row, argument_value)?,
+            ) {
+                return Err((StatusCode::BAD_REQUEST, &quot;duplicate argument names&quot;));
+            }
+        }
+
+        for (argument_name, argument_value) in arguments.iter() {
+            if let Some(_) = all_arguments.insert(
+                argument_name.clone(),
+                eval_relationship_argument(variables, src_row, argument_value)?,
+            ) {
+                return Err((StatusCode::BAD_REQUEST, &quot;duplicate argument names&quot;));
+            }
+        }
+
+        let target = get_collection_by_name(
+            relationship.target_collection.as_str(),
+            &amp;all_arguments,
+            state,
+        )?;
+
+        for tgt_row in target.iter() {
+            if eval_column_mapping(relationship, src_row, tgt_row)? {
+                if eval_expression(
+                    collection_relationships,
+                    variables,
+                    state,
+                    &amp;predicate,
+                    root,
+                    &amp;tgt_row,
+                )? {
+                    matching_rows.push(tgt_row.clone());
+                }
+            }
+        }
+    }
+
+    Ok(matching_rows)
+}</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../tutorial/queries/execute/field-selection.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="../../../tutorial/mutations/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../tutorial/queries/execute/field-selection.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="../../../tutorial/mutations/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

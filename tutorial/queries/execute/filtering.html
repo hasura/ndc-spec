@@ -1,0 +1,448 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Filtering - Hasura Data Connectors Developer&#x27;s Guide</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../../highlight.css">
+        <link rel="stylesheet" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../../overview.html">Overview</a></li><li class="chapter-item expanded affix "><li class="part-title">API Specification</li><li class="chapter-item expanded "><a href="../../../specification/index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../../../specification/changelog.html"><strong aria-hidden="true">2.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="../../../specification/basics.html"><strong aria-hidden="true">3.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../../../specification/versioning.html"><strong aria-hidden="true">4.</strong> Versioning</a></li><li class="chapter-item expanded "><a href="../../../specification/error-handling.html"><strong aria-hidden="true">5.</strong> Error Handling</a></li><li class="chapter-item expanded "><a href="../../../specification/health.html"><strong aria-hidden="true">6.</strong> Service Health</a></li><li class="chapter-item expanded "><a href="../../../specification/metrics.html"><strong aria-hidden="true">7.</strong> Metrics</a></li><li class="chapter-item expanded "><a href="../../../specification/telemetry.html"><strong aria-hidden="true">8.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../../../specification/capabilities.html"><strong aria-hidden="true">9.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../../../specification/types.html"><strong aria-hidden="true">10.</strong> Types</a></li><li class="chapter-item expanded "><a href="../../../specification/schema/index.html"><strong aria-hidden="true">11.</strong> Schema</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../specification/schema/scalar-types.html"><strong aria-hidden="true">11.1.</strong> Scalar Types</a></li><li class="chapter-item expanded "><a href="../../../specification/schema/object-types.html"><strong aria-hidden="true">11.2.</strong> Object Types</a></li><li class="chapter-item expanded "><a href="../../../specification/schema/collections.html"><strong aria-hidden="true">11.3.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../../../specification/schema/functions.html"><strong aria-hidden="true">11.4.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../../../specification/schema/procedures.html"><strong aria-hidden="true">11.5.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../../../specification/queries/index.html"><strong aria-hidden="true">12.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../specification/queries/field-selection.html"><strong aria-hidden="true">12.1.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/filtering.html"><strong aria-hidden="true">12.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/sorting.html"><strong aria-hidden="true">12.3.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/pagination.html"><strong aria-hidden="true">12.4.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/aggregates.html"><strong aria-hidden="true">12.5.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/arguments.html"><strong aria-hidden="true">12.6.</strong> Arguments</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/relationships.html"><strong aria-hidden="true">12.7.</strong> Relationships</a></li><li class="chapter-item expanded "><a href="../../../specification/queries/variables.html"><strong aria-hidden="true">12.8.</strong> Variables</a></li></ol></li><li class="chapter-item expanded "><a href="../../../specification/mutations/index.html"><strong aria-hidden="true">13.</strong> Mutations</a></li><li class="chapter-item expanded "><a href="../../../specification/explain.html"><strong aria-hidden="true">14.</strong> Explain</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorial</li><li class="chapter-item expanded "><a href="../../../tutorial/index.html"><strong aria-hidden="true">15.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../../../tutorial/setup.html"><strong aria-hidden="true">16.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../../../tutorial/testing.html"><strong aria-hidden="true">17.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../../../tutorial/getting-started.html"><strong aria-hidden="true">18.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../../../tutorial/capabilities.html"><strong aria-hidden="true">19.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../../../tutorial/schema.html"><strong aria-hidden="true">20.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/index.html"><strong aria-hidden="true">21.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../tutorial/queries/variables.html"><strong aria-hidden="true">21.1.</strong> Query Variables</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/arguments.html"><strong aria-hidden="true">21.2.</strong> Evaluating Arguments</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/index.html"><strong aria-hidden="true">21.3.</strong> Executing Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/sorting.html"><strong aria-hidden="true">21.3.1.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/filtering.html" class="active"><strong aria-hidden="true">21.3.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/pagination.html"><strong aria-hidden="true">21.3.3.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/aggregates.html"><strong aria-hidden="true">21.3.4.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/field-selection.html"><strong aria-hidden="true">21.3.5.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../../../tutorial/queries/execute/relationships.html"><strong aria-hidden="true">21.3.6.</strong> Relationships</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../../tutorial/mutations/index.html"><strong aria-hidden="true">22.</strong> Mutations</a></li><li class="chapter-item expanded "><a href="../../../tutorial/explain.html"><strong aria-hidden="true">23.</strong> Explain</a></li><li class="chapter-item expanded "><a href="../../../tutorial/health.html"><strong aria-hidden="true">24.</strong> Health and Metrics</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../../../reference/types.html"><strong aria-hidden="true">25.</strong> Types</a></li><li class="chapter-item expanded "><a href="../../../reference/json-schema.html"><strong aria-hidden="true">26.</strong> JSON Schema</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Hasura Data Connectors Developer&#x27;s Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="filtering"><a class="header" href="#filtering">Filtering</a></h1>
+<p>The next step is to filter the rows based on the provided predicate expression:</p>
+<pre><code class="language-rust no_run noplayground">    let filtered: Vec&lt;Row&gt; = (match &amp;query.predicate {
+        None =&gt; Ok::&lt;_, StatusLine&gt;(sorted),
+        Some(expr) =&gt; {
+            let mut filtered: Vec&lt;Row&gt; = vec![];
+            for item in sorted.into_iter() {
+                let root = root.unwrap_or(&amp;item);
+                if eval_expression(
+                    collection_relationships,
+                    variables,
+                    state,
+                    &amp;expr,
+                    root,
+                    &amp;item,
+                )? {
+                    filtered.push(item);
+                }
+            }
+            Ok(filtered)
+        }
+    })?;</code></pre>
+<p>As we can see, the function delegates to the <code>eval_expression</code> function in order to evaluate the predicate on each row.</p>
+<h2 id="evaluating-expressions"><a class="header" href="#evaluating-expressions">Evaluating expressions</a></h2>
+<p>The <code>eval_expression</code> function evaluates a predicate by pattern matching on the type of the expression <code>expr</code>, and returns a boolean value indicating whether the current row matches the predicate:</p>
+<pre><code class="language-rust no_run noplayground">fn eval_expression(
+    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    state: &amp;AppState,
+    expr: &amp;models::Expression,
+    root: &amp;Row,
+    item: &amp;Row,
+) -&gt; Result&lt;bool, StatusLine&gt; {</code></pre>
+<h3 id="logical-expressions"><a class="header" href="#logical-expressions">Logical expressions</a></h3>
+<p>The first category of expression types are the <em>logical expressions</em> - <em>and</em> (conjunction), <em>or</em> (disjunction) and <em>not</em> (negation) - whose evaluators are straightforward:</p>
+<ul>
+<li>To evaluate a conjunction/disjunction of subexpressions, we evaluate all of the subexpressions to booleans, and find the conjunction/disjunction of those boolean values respectively.</li>
+<li>To evaluate the negation of a subexpression, we evaluate the subexpression to a boolean value, and negate the boolean.</li>
+</ul>
+<pre><code class="language-rust no_run noplayground">    match expr {
+        models::Expression::And { expressions } =&gt; {
+            for expr in expressions.iter() {
+                if !eval_expression(collection_relationships, variables, state, expr, root, item)? {
+                    return Ok(false);
+                }
+            }
+            Ok(true)
+        }
+        models::Expression::Or { expressions } =&gt; {
+            for expr in expressions.iter() {
+                if eval_expression(collection_relationships, variables, state, expr, root, item)? {
+                    return Ok(true);
+                }
+            }
+            Ok(false)
+        }
+        models::Expression::Not { expression } =&gt; {
+            let b = eval_expression(
+                collection_relationships,
+                variables,
+                state,
+                expression,
+                root,
+                item,
+            )?;
+            Ok(!b)
+        }</code></pre>
+<h3 id="unary-operators"><a class="header" href="#unary-operators">Unary Operators</a></h3>
+<p>The next category of expressions are the <em>unary operators</em>. The only unary operator is the <code>IsNull</code> operator, which is evaluated by evaluating the operator's <em>comparison target</em>, and then comparing the result to <code>null</code>:</p>
+<pre><code class="language-rust no_run noplayground">        models::Expression::UnaryComparisonOperator { column, operator } =&gt; match &amp;**operator {
+            models::UnaryComparisonOperator::IsNull =&gt; {
+                let vals = eval_comparison_target(
+                    collection_relationships,
+                    variables,
+                    state,
+                    &amp;*column,
+                    root,
+                    item,
+                )?;
+                Ok(vals.iter().any(|val| val.is_null()))
+            }
+        },</code></pre>
+<p>To evaluate the comparison target, we delegate to the <code>eval_comparison_target</code> function, which pattern matches:</p>
+<ul>
+<li>A column is evaluated using the <code>eval_path</code> function, which we will cover when we talk about <a href="./relationships.html">relationships</a>.</li>
+<li>A <em>root collection</em> column (that is, a column from the <em>root collection</em>, or collection used by the original query) is evaluated using <code>eval_column</code>. You may have noticed the additional argument, <code>root</code>, which has been passed down through every function call so far - this is to track the root collection for exactly this case.</li>
+</ul>
+<pre><code class="language-rust no_run noplayground">fn eval_comparison_target(
+    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    state: &amp;AppState,
+    target: &amp;models::ComparisonTarget,
+    root: &amp;Row,
+    item: &amp;Row,
+) -&gt; Result&lt;Vec&lt;serde_json::Value&gt;, StatusLine&gt; {
+    match target {
+        models::ComparisonTarget::Column { name, path } =&gt; {
+            let rows = eval_path(collection_relationships, variables, state, path, root, item)?;
+            let mut values = vec![];
+            for row in rows.iter() {
+                let value = eval_column(row, name.as_str())?;
+                values.push(value);
+            }
+            Ok(values)
+        }
+        models::ComparisonTarget::RootCollectionColumn { name } =&gt; {
+            let value = eval_column(root, name.as_str())?;
+            Ok(vec![value])
+        }
+    }
+}</code></pre>
+<h3 id="binary-operators"><a class="header" href="#binary-operators">Binary Operators</a></h3>
+<p>The next category of expressions are the <em>binary operators</em>. Binary operators can be <em>standard</em> or <em>custom</em>.</p>
+<p>The only standard binary operators are the <code>equal</code> and <code>in</code> operators. </p>
+<p><code>equal</code> evaluated by evaluating its <em>comparison target</em> and <em>comparison value</em>, and comparing them for equality:</p>
+<pre><code class="language-rust no_run noplayground">        models::Expression::BinaryComparisonOperator {
+            column,
+            operator,
+            value,
+        } =&gt; match &amp;**operator {
+            models::BinaryComparisonOperator::Equal =&gt; {
+                let left_vals = eval_comparison_target(
+                    collection_relationships,
+                    variables,
+                    state,
+                    &amp;*column,
+                    root,
+                    item,
+                )?;
+                let right_vals = eval_comparison_value(
+                    collection_relationships,
+                    variables,
+                    state,
+                    value,
+                    root,
+                    item,
+                )?;
+                for left_val in left_vals.iter() {
+                    for right_val in right_vals.iter() {
+                        if left_val == right_val {
+                            return Ok(true);
+                        }
+                    }
+                }
+
+                Ok(false)
+            }</code></pre>
+<p>The <code>in</code> operator is evaluated by evaluating its comparison target, and all of its comparison values, and testing whether the evaluated target appears in the list of evaluated values:</p>
+<pre><code class="language-rust no_run noplayground">        models::Expression::BinaryArrayComparisonOperator {
+            column,
+            operator,
+            values,
+        } =&gt; match &amp;**operator {
+            models::BinaryArrayComparisonOperator::In =&gt; {
+                let left_val = eval_comparison_target(
+                    collection_relationships,
+                    variables,
+                    state,
+                    &amp;*column,
+                    root,
+                    item,
+                )?;
+
+                for v in values.iter() {
+                    let right_val = eval_comparison_value(
+                        collection_relationships,
+                        variables,
+                        state,
+                        v,
+                        root,
+                        item,
+                    )?;
+                    if left_val == right_val {
+                        return Ok(true);
+                    }
+                }
+                Ok(false)
+            }
+        },</code></pre>
+<p>The reference implementation provides a single custom binary operator as an example, which is the <code>like</code> operator on strings:</p>
+<pre><code class="language-rust no_run noplayground">            models::BinaryComparisonOperator::Other { name } =&gt; match name.as_str() {
+                &quot;like&quot; =&gt; {
+                    let column_vals = eval_comparison_target(
+                        collection_relationships,
+                        variables,
+                        state,
+                        &amp;*column,
+                        root,
+                        item,
+                    )?;
+                    let regex_vals = eval_comparison_value(
+                        collection_relationships,
+                        variables,
+                        state,
+                        value,
+                        root,
+                        item,
+                    )?;
+                    for column_val in column_vals.iter() {
+                        for regex_val in regex_vals.iter() {
+                            let column_str = column_val
+                                .as_str()
+                                .ok_or((StatusCode::BAD_REQUEST, &quot;column is not a string&quot;))?;
+                            let regex_str = regex_val.as_str().ok_or((
+                                StatusCode::BAD_REQUEST,
+                                &quot;regular expression is not a string&quot;,
+                            ))?;
+                            let regex = Regex::new(regex_str.into()).map_err(|_| {
+                                (StatusCode::BAD_REQUEST, &quot;invalid regular expression&quot;)
+                            })?;
+                            if regex.is_match(column_str) {
+                                return Ok(true);
+                            }
+                        }
+                    }
+                    Ok(false)
+                }
+                _ =&gt; Err((
+                    StatusCode::BAD_REQUEST,
+                    &quot;invalid binary comparison operator&quot;,
+                )),
+            },</code></pre>
+<h3 id="exists-expressions"><a class="header" href="#exists-expressions"><code>EXISTS</code> expressions</a></h3>
+<p>An <code>EXISTS</code> expression is evaluated by recursively evaluating a <code>Query</code> on a related collection, and testing to see whether the resulting <code>RowSet</code> contains any rows:</p>
+<pre><code class="language-rust no_run noplayground">        models::Expression::Exists {
+            in_collection,
+            predicate,
+        } =&gt; {
+            let query = models::Query {
+                aggregates: None,
+                fields: Some(IndexMap::new()),
+                limit: None,
+                offset: None,
+                order_by: None,
+                predicate: Some(*predicate.clone()),
+            };
+            let row_set = eval_in_collection(
+                collection_relationships,
+                item,
+                variables,
+                state,
+                root,
+                query,
+                in_collection,
+            )?;
+            let rows: Vec&lt;IndexMap&lt;_, _&gt;&gt; = row_set.rows.ok_or((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                &quot;exists query returned no rows&quot;,
+            ))?;
+            Ok(!rows.is_empty())</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../tutorial/queries/execute/sorting.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="../../../tutorial/queries/execute/pagination.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../tutorial/queries/execute/sorting.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="../../../tutorial/queries/execute/pagination.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
