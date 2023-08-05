@@ -51,6 +51,8 @@
     - [Field Selection](tutorial/queries/execute/field-selection.md)
     - [Relationships](tutorial/queries/execute/relationships.md)
 - [Mutations](tutorial/mutations/README.md)
+- [Explain](tutorial/explain.md)
+- [Health and Metrics](tutorial/health.md)
 
 # Reference
 

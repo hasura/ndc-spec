@@ -78,6 +78,7 @@ impl Metrics {
     }
 }
 
+// ANCHOR: metrics_middleware
 async fn metrics_middleware<T>(
     state: State<Arc<Mutex<AppState>>>,
     request: axum::http::Request<T>,
@@ -96,6 +97,7 @@ async fn metrics_middleware<T>(
     metrics.active_requests.dec();
     response
 }
+// ANCHOR_END: metrics_middleware
 // ANCHOR: init_app_state
 fn init_app_state() -> AppState {
     // Read the CSV data files
