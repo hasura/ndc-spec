@@ -1182,7 +1182,7 @@ fn eval_expression(
                 Ok(false)
             }
             // ANCHOR_END: eval_expression_binary_operators
-            // ANCHOR_END: eval_expression_custom_binary_operators
+            // ANCHOR: eval_expression_custom_binary_operators
             models::BinaryComparisonOperator::Other { name } => match name.as_str() {
                 "like" => {
                     let column_vals = eval_comparison_target(
@@ -1273,59 +1273,15 @@ fn eval_expression(
                 order_by: None,
                 predicate: Some(*predicate.clone()),
             };
-            let row_set = match &**in_collection {
-                models::ExistsInCollection::Related {
-                    relationship,
-                    arguments,
-                } => {
-                    let relationship =
-                        collection_relationships.get(relationship.as_str()).ok_or((
-                            StatusCode::BAD_REQUEST,
-                            "invalid relationship name in exists predicate",
-                        ))?;
-                    let source = vec![item.clone()];
-                    let collection = eval_path_element(
-                        collection_relationships,
-                        variables,
-                        state,
-                        relationship,
-                        arguments,
-                        root,
-                        &source,
-                        &models::Expression::And {
-                            expressions: vec![],
-                        },
-                    )?;
-                    execute_query(
-                        collection_relationships,
-                        variables,
-                        state,
-                        &query,
-                        Some(root),
-                        collection,
-                    )
-                }
-                models::ExistsInCollection::Unrelated {
-                    collection,
-                    arguments,
-                } => {
-                    let arguments = arguments
-                        .iter()
-                        .map(|(k, v)| {
-                            Ok((k.clone(), eval_relationship_argument(variables, item, v)?))
-                        })
-                        .collect::<Result<BTreeMap<_, _>, _>>()?;
-                    execute_query_by_collection_name(
-                        collection_relationships,
-                        variables,
-                        collection.as_str(),
-                        &arguments,
-                        Some(root),
-                        &query,
-                        state,
-                    )
-                }
-            }?;
+            let row_set = eval_in_collection(
+                collection_relationships,
+                item,
+                variables,
+                state,
+                root,
+                query,
+                in_collection,
+            )?;
             let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "exists query returned no rows",
@@ -1335,6 +1291,69 @@ fn eval_expression(
     }
 }
 // ANCHOR_END: eval_expression
+// ANCHOR: eval_in_collection
+fn eval_in_collection(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    item: &BTreeMap<String, serde_json::Value>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+    root: &BTreeMap<String, serde_json::Value>,
+    query: models::Query,
+    in_collection: &Box<models::ExistsInCollection>,
+) -> Result<models::RowSet, StatusLine> {
+    let row_set = match &**in_collection {
+        models::ExistsInCollection::Related {
+            relationship,
+            arguments,
+        } => {
+            let relationship = collection_relationships.get(relationship.as_str()).ok_or((
+                StatusCode::BAD_REQUEST,
+                "invalid relationship name in exists predicate",
+            ))?;
+            let source = vec![item.clone()];
+            let collection = eval_path_element(
+                collection_relationships,
+                variables,
+                state,
+                relationship,
+                arguments,
+                root,
+                &source,
+                &models::Expression::And {
+                    expressions: vec![],
+                },
+            )?;
+            execute_query(
+                collection_relationships,
+                variables,
+                state,
+                &query,
+                Some(root),
+                collection,
+            )
+        }
+        models::ExistsInCollection::Unrelated {
+            collection,
+            arguments,
+        } => {
+            let arguments = arguments
+                .iter()
+                .map(|(k, v)| Ok((k.clone(), eval_relationship_argument(variables, item, v)?)))
+                .collect::<Result<BTreeMap<_, _>, _>>()?;
+            execute_query_by_collection_name(
+                collection_relationships,
+                variables,
+                collection.as_str(),
+                &arguments,
+                Some(root),
+                &query,
+                state,
+            )
+        }
+    }?;
+    Ok(row_set)
+}
+// ANCHOR_END: eval_in_collection
 // ANCHOR: eval_comparison_target
 fn eval_comparison_target(
     collection_relationships: &BTreeMap<String, models::Relationship>,
