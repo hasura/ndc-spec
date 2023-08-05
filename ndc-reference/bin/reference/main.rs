@@ -18,10 +18,9 @@ use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
 
-// ANCHOR: csv-types
+// ANCHOR: row-type
 type Row = BTreeMap<String, serde_json::Value>;
-// ANCHOR_END: csv-types
-
+// ANCHOR_END: row-type
 // ANCHOR: app-state
 #[derive(Debug, Clone)]
 pub struct AppState {
@@ -30,7 +29,7 @@ pub struct AppState {
     pub metrics: Metrics,
 }
 // ANCHOR_END: app-state
-
+// ANCHOR: read_csv
 fn read_csv(path: &str) -> Result<BTreeMap<i64, Row>, Box<dyn Error>> {
     let mut rdr = csv::Reader::from_path(path)?;
     let mut records: BTreeMap<i64, Row> = BTreeMap::new();
@@ -45,6 +44,7 @@ fn read_csv(path: &str) -> Result<BTreeMap<i64, Row>, Box<dyn Error>> {
     }
     Ok(records)
 }
+// ANCHOR_END: read_csv
 
 #[derive(Debug, Clone)]
 pub struct Metrics {
@@ -78,6 +78,7 @@ impl Metrics {
     }
 }
 
+// ANCHOR: metrics_middleware
 async fn metrics_middleware<T>(
     state: State<Arc<Mutex<AppState>>>,
     request: axum::http::Request<T>,
@@ -85,8 +86,7 @@ async fn metrics_middleware<T>(
 ) -> axum::response::Response {
     // Don't hold the lock to update metrics, since the
     // lock doesn't protect the metrics anyway.
-    let metrics = 
-    {
+    let metrics = {
         let state = state.lock().await;
         state.metrics.clone()
     };
@@ -97,7 +97,8 @@ async fn metrics_middleware<T>(
     metrics.active_requests.dec();
     response
 }
-
+// ANCHOR_END: metrics_middleware
+// ANCHOR: init_app_state
 fn init_app_state() -> AppState {
     // Read the CSV data files
     let articles = read_csv("articles.csv").unwrap();
@@ -111,9 +112,9 @@ fn init_app_state() -> AppState {
         metrics,
     }
 }
+// ANCHOR_END: init_app_state
 
 type StatusLine = (StatusCode, &'static str);
-
 // ANCHOR: main
 #[tokio::main]
 async fn main() {
@@ -140,13 +141,11 @@ async fn main() {
         .unwrap();
 }
 // ANCHOR_END: main
-
 // ANCHOR: health
 async fn get_healthz() -> StatusCode {
     StatusCode::NO_CONTENT
 }
 // ANCHOR_END: health
-
 // ANCHOR: metrics
 async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String, StatusLine> {
     let state = state.lock().await;
@@ -156,7 +155,6 @@ async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String
         .ok_or((StatusCode::INTERNAL_SERVER_ERROR, "cannot encode metrics"))
 }
 // ANCHOR_END: metrics
-
 // ANCHOR: capabilities
 async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
     let empty = serde_json::to_value(BTreeMap::<String, ()>::new()).unwrap();
@@ -178,7 +176,6 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
     })
 }
 // ANCHOR_END: capabilities
-
 // ANCHOR: schema1
 async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR_END: schema1
@@ -412,45 +409,68 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     })
 }
 // ANCHOR_END: schema2
-
-// ANCHOR: query
+// ANCHOR: post_query
+// ANCHOR: post_query_signature
 pub async fn post_query(
     State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<models::QueryRequest>,
 ) -> Result<Json<models::QueryResponse>, StatusLine> {
+    // ANCHOR_END: post_query_signature
     let state = state.lock().await;
 
     let variable_sets = request.variables.unwrap_or(vec![BTreeMap::new()]);
 
     let mut row_sets = vec![];
+
     for variables in variable_sets.iter() {
-        let mut arguments = BTreeMap::new();
-
-        for (argument_name, argument_value) in request.arguments.iter() {
-            if let Some(_) = arguments.insert(
-                argument_name.clone(),
-                eval_argument(variables, argument_value)?,
-            ) {
-                return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
-            }
-        }
-
-        let row_set = execute_query_by_collection_name(
+        let row_set = execute_query_with_variables(
+            &request.collection,
+            &request.arguments,
             &request.collection_relationships,
-            variables,
-            request.collection.as_str(),
-            &arguments,
-            None,
             &request.query,
+            variables,
             &state,
         )?;
         row_sets.push(row_set);
     }
 
-    let response = models::QueryResponse(row_sets);
-    Ok(Json(response))
+    Ok(Json(models::QueryResponse(row_sets)))
 }
+// ANCHOR_END: post_query
+// ANCHOR: execute_query_with_variables
+// ANCHOR: execute_query_with_variables_signature
+fn execute_query_with_variables(
+    collection: &String,
+    arguments: &BTreeMap<String, models::Argument>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    query: &models::Query,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+) -> Result<models::RowSet, StatusLine> {
+    // ANCHOR_END: execute_query_with_variables_signature
+    let mut argument_values = BTreeMap::new();
 
+    for (argument_name, argument_value) in arguments.iter() {
+        if let Some(_) = argument_values.insert(
+            argument_name.clone(),
+            eval_argument(variables, argument_value)?,
+        ) {
+            return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
+        }
+    }
+
+    execute_query_by_collection_name(
+        &collection_relationships,
+        variables,
+        collection.as_str(),
+        &argument_values,
+        None,
+        &query,
+        state,
+    )
+}
+// ANCHOR_END: execute_query_with_variables
+// ANCHOR: execute_query_by_collection_name
 fn execute_query_by_collection_name(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -470,7 +490,8 @@ fn execute_query_by_collection_name(
         collection,
     )
 }
-
+// ANCHOR_END: execute_query_by_collection_name
+// ANCHOR: get_collection_by_name
 fn get_collection_by_name(
     collection_name: &str,
     arguments: &BTreeMap<String, serde_json::Value>,
@@ -524,7 +545,9 @@ fn get_collection_by_name(
         _ => Err((StatusCode::BAD_REQUEST, "invalid collection name")),
     }
 }
-
+// ANCHOR_END: get_collection_by_name
+// ANCHOR: execute_query
+// ANCHOR: execute_query_signature
 fn execute_query(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -533,6 +556,8 @@ fn execute_query(
     root: Option<&Row>,
     collection: Vec<Row>,
 ) -> Result<models::RowSet, StatusLine> {
+    // ANCHOR_END: execute_query_signature
+    // ANCHOR: execute_query_sort
     let sorted = sort(
         collection_relationships,
         variables,
@@ -541,6 +566,8 @@ fn execute_query(
         root,
         &query.order_by,
     )?;
+    // ANCHOR_END: execute_query_sort
+    // ANCHOR: execute_query_filter
     let filtered: Vec<Row> = (match &query.predicate {
         None => Ok::<_, StatusLine>(sorted),
         Some(expr) => {
@@ -561,71 +588,27 @@ fn execute_query(
             Ok(filtered)
         }
     })?;
+    // ANCHOR_END: execute_query_filter
+    // ANCHOR: execute_query_paginate
     let paginated: Vec<Row> = paginate(filtered.into_iter(), query.limit, query.offset);
-
+    // ANCHOR_END: execute_query_paginate
+    // ANCHOR: execute_query_aggregates
     let aggregates = query
         .aggregates
         .as_ref()
         .map(|aggregates| {
             let mut row: IndexMap<String, serde_json::Value> = IndexMap::new();
             for (aggregate_name, aggregate) in aggregates.iter() {
-                match aggregate {
-                    models::Aggregate::StarCount {} => {
-                        row.insert(
-                            aggregate_name.clone(),
-                            serde_json::Value::from(paginated.len()),
-                        );
-                    }
-                    models::Aggregate::ColumnCount { column, distinct } => {
-                        let values = paginated
-                            .iter()
-                            .map(|row| {
-                                row.get(column)
-                                    .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
-                            })
-                            .collect::<Result<Vec<_>, StatusLine>>()?;
-
-                        let non_null_values = values.iter().filter(|value| !value.is_null());
-
-                        let agg_value = if *distinct {
-                            non_null_values
-                                .map(|value| {
-                                    serde_json::to_string(value).map_err(|_| {
-                                        (
-                                            StatusCode::INTERNAL_SERVER_ERROR,
-                                            "unable to encode value",
-                                        )
-                                    })
-                                })
-                                .collect::<HashSet<_>>()
-                                .len()
-                        } else {
-                            non_null_values.count()
-                        };
-                        let agg_json = serde_json::to_value(agg_value).map_err(|_| {
-                            (
-                                StatusCode::INTERNAL_SERVER_ERROR,
-                                "unable to encode response",
-                            )
-                        })?;
-                        row.insert(aggregate_name.clone(), agg_json);
-                    }
-                    models::Aggregate::SingleColumn { column, function } => {
-                        let values = paginated
-                            .iter()
-                            .map(|row| {
-                                row.get(column)
-                                    .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
-                            })
-                            .collect::<Result<Vec<_>, StatusLine>>()?;
-                        let agg_value = eval_aggregate_function(function, values)?;
-                        row.insert(aggregate_name.clone(), agg_value);
-                    }
-                }
+                row.insert(
+                    aggregate_name.clone(),
+                    eval_aggregate(aggregate, &paginated)?,
+                );
             }
             Ok(row)
         })
         .transpose()?;
+    // ANCHOR_END: execute_query_aggregates
+    // ANCHOR: execute_query_fields
     let rows = query
         .fields
         .as_ref()
@@ -652,9 +635,63 @@ fn execute_query(
             Ok::<_, StatusLine>(rows)
         })
         .transpose()?;
+    // ANCHOR_END: execute_query_fields
+    // ANCHOR: execute_query_rowset
     Ok(models::RowSet { aggregates, rows })
+    // ANCHOR_END: execute_query_rowset
 }
+// ANCHOR_END: execute_query
+// ANCHOR: eval_aggregate
+fn eval_aggregate(
+    aggregate: &models::Aggregate,
+    paginated: &Vec<BTreeMap<String, serde_json::Value>>,
+) -> Result<serde_json::Value, StatusLine> {
+    match aggregate {
+        models::Aggregate::StarCount {} => Ok(serde_json::Value::from(paginated.len())),
+        models::Aggregate::ColumnCount { column, distinct } => {
+            let values = paginated
+                .iter()
+                .map(|row| {
+                    row.get(column)
+                        .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
+                })
+                .collect::<Result<Vec<_>, StatusLine>>()?;
 
+            let non_null_values = values.iter().filter(|value| !value.is_null());
+
+            let agg_value = if *distinct {
+                non_null_values
+                    .map(|value| {
+                        serde_json::to_string(value).map_err(|_| {
+                            (StatusCode::INTERNAL_SERVER_ERROR, "unable to encode value")
+                        })
+                    })
+                    .collect::<HashSet<_>>()
+                    .len()
+            } else {
+                non_null_values.count()
+            };
+            serde_json::to_value(agg_value).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "unable to encode response",
+                )
+            })
+        }
+        models::Aggregate::SingleColumn { column, function } => {
+            let values = paginated
+                .iter()
+                .map(|row| {
+                    row.get(column)
+                        .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
+                })
+                .collect::<Result<Vec<_>, StatusLine>>()?;
+            eval_aggregate_function(function, values)
+        }
+    }
+}
+// ANCHOR_END: eval_aggregate
+// ANCHOR: eval_aggregate_function
 fn eval_aggregate_function(
     function: &String,
     values: Vec<&serde_json::Value>,
@@ -679,8 +716,8 @@ fn eval_aggregate_function(
         )
     })
 }
-// ANCHOR_END: query
-
+// ANCHOR_END: eval_aggregate_function
+// ANCHOR: sort
 fn sort(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -716,7 +753,8 @@ fn sort(
         }
     }
 }
-
+// ANCHOR_END: sort
+// ANCHOR: paginate
 fn paginate<I: Iterator<Item = Row>>(
     collection: I,
     limit: Option<u32>,
@@ -728,7 +766,8 @@ fn paginate<I: Iterator<Item = Row>>(
         None => collection.skip(start).collect(),
     }
 }
-
+// ANCHOR_END: paginate
+// ANCHOR: eval_order_by
 fn eval_order_by(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -766,7 +805,8 @@ fn eval_order_by(
 
     Ok(result)
 }
-
+// ANCHOR_END: eval_order_by
+// ANCHOR: compare
 fn compare(v1: serde_json::Value, v2: serde_json::Value) -> Result<Ordering, StatusLine> {
     match (v1, v2) {
         (serde_json::Value::Null, serde_json::Value::Null) => Ok(Ordering::Equal),
@@ -785,7 +825,8 @@ fn compare(v1: serde_json::Value, v2: serde_json::Value) -> Result<Ordering, Sta
         _ => Err((StatusCode::INTERNAL_SERVER_ERROR, "cannot compare values")),
     }
 }
-
+// ANCHOR_END: compare
+// ANCHOR: eval_order_by_element
 fn eval_order_by_element(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -795,62 +836,120 @@ fn eval_order_by_element(
     item: &Row,
 ) -> Result<serde_json::Value, StatusLine> {
     match element.target.clone() {
-        models::OrderByTarget::Column { name, path } => {
-            let rows: Vec<Row> = eval_path(
-                collection_relationships,
-                variables,
-                state,
-                &path,
-                root,
-                item,
-            )?;
-            if rows.len() > 1 {
-                return Err((
-                    StatusCode::BAD_REQUEST,
-                    "cannot order by column via array relationship",
-                ));
-            }
-            match rows.first() {
-                Some(row) => eval_column(row, name.as_str()),
-                None => Ok(serde_json::Value::Null),
-            }
-        }
+        models::OrderByTarget::Column { name, path } => eval_order_by_column(
+            collection_relationships,
+            variables,
+            state,
+            root,
+            item,
+            path,
+            name,
+        ),
         models::OrderByTarget::SingleColumnAggregate {
             column,
             function,
             path,
-        } => {
-            let rows: Vec<Row> = eval_path(
-                collection_relationships,
-                variables,
-                state,
-                &path,
-                root,
-                item,
-            )?;
-            let values = rows
-                .iter()
-                .map(|row| {
-                    row.get(column.as_str())
-                        .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
-                })
-                .collect::<Result<Vec<_>, StatusLine>>()?;
-            eval_aggregate_function(&function, values)
-        }
-        models::OrderByTarget::StarCountAggregate { path } => {
-            let rows: Vec<Row> = eval_path(
-                collection_relationships,
-                variables,
-                state,
-                &path,
-                root,
-                item,
-            )?;
-            Ok(rows.len().into())
-        }
+        } => eval_order_by_single_column_aggregate(
+            collection_relationships,
+            variables,
+            state,
+            root,
+            item,
+            path,
+            column,
+            function,
+        ),
+        models::OrderByTarget::StarCountAggregate { path } => eval_order_by_star_count_aggregate(
+            collection_relationships,
+            variables,
+            state,
+            root,
+            item,
+            path,
+        ),
     }
 }
-
+// ANCHOR_END: eval_order_by_element
+// ANCHOR: eval_order_by_star_count_aggregate
+fn eval_order_by_star_count_aggregate(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+    root: &BTreeMap<String, serde_json::Value>,
+    item: &BTreeMap<String, serde_json::Value>,
+    path: Vec<models::PathElement>,
+) -> Result<serde_json::Value, StatusLine> {
+    let rows: Vec<Row> = eval_path(
+        collection_relationships,
+        variables,
+        state,
+        &path,
+        root,
+        item,
+    )?;
+    Ok(rows.len().into())
+}
+// ANCHOR_END: eval_order_by_star_count_aggregate
+// ANCHOR: eval_order_by_single_column_aggregate
+fn eval_order_by_single_column_aggregate(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+    root: &BTreeMap<String, serde_json::Value>,
+    item: &BTreeMap<String, serde_json::Value>,
+    path: Vec<models::PathElement>,
+    column: String,
+    function: String,
+) -> Result<serde_json::Value, StatusLine> {
+    let rows: Vec<Row> = eval_path(
+        collection_relationships,
+        variables,
+        state,
+        &path,
+        root,
+        item,
+    )?;
+    let values = rows
+        .iter()
+        .map(|row| {
+            row.get(column.as_str())
+                .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
+        })
+        .collect::<Result<Vec<_>, StatusLine>>()?;
+    eval_aggregate_function(&function, values)
+}
+// ANCHOR_END: eval_order_by_single_column_aggregate
+// ANCHOR: eval_order_by_column
+fn eval_order_by_column(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+    root: &BTreeMap<String, serde_json::Value>,
+    item: &BTreeMap<String, serde_json::Value>,
+    path: Vec<models::PathElement>,
+    name: String,
+) -> Result<serde_json::Value, StatusLine> {
+    let rows: Vec<Row> = eval_path(
+        collection_relationships,
+        variables,
+        state,
+        &path,
+        root,
+        item,
+    )?;
+    if rows.len() > 1 {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "cannot order by column via array relationship",
+        ));
+    }
+    match rows.first() {
+        Some(row) => eval_column(row, name.as_str()),
+        None => Ok(serde_json::Value::Null),
+    }
+}
+// ANCHOR_END: eval_order_by_column
+// ANCHOR: eval_path
 fn eval_path(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -880,7 +979,8 @@ fn eval_path(
 
     Ok(result)
 }
-
+// ANCHOR_END: eval_path
+// ANCHOR: eval_path_element
 fn eval_path_element(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -955,7 +1055,8 @@ fn eval_path_element(
 
     Ok(matching_rows)
 }
-
+// ANCHOR_END: eval_path_element
+// ANCHOR: eval_argument
 fn eval_argument(
     variables: &BTreeMap<String, serde_json::Value>,
     argument: &models::Argument,
@@ -971,7 +1072,8 @@ fn eval_argument(
         models::Argument::Literal { value } => Ok(value.clone()),
     }
 }
-
+// ANCHOR_END: eval_argument
+// ANCHOR: eval_relationship_argument
 fn eval_relationship_argument(
     variables: &BTreeMap<String, serde_json::Value>,
     row: &Row,
@@ -989,7 +1091,9 @@ fn eval_relationship_argument(
         models::RelationshipArgument::Column { name } => eval_column(row, name),
     }
 }
-
+// ANCHOR_END: eval_relationship_argument
+// ANCHOR: eval_expression
+// ANCHOR: eval_expression_signature
 fn eval_expression(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -998,6 +1102,8 @@ fn eval_expression(
     root: &Row,
     item: &Row,
 ) -> Result<bool, StatusLine> {
+    // ANCHOR_END: eval_expression_signature
+    // ANCHOR: eval_expression_logical
     match expr {
         models::Expression::And { expressions } => {
             for expr in expressions.iter() {
@@ -1026,6 +1132,8 @@ fn eval_expression(
             )?;
             Ok(!b)
         }
+        // ANCHOR_END: eval_expression_logical
+        // ANCHOR: eval_expression_unary_operators
         models::Expression::UnaryComparisonOperator { column, operator } => match &**operator {
             models::UnaryComparisonOperator::IsNull => {
                 let vals = eval_comparison_target(
@@ -1039,6 +1147,8 @@ fn eval_expression(
                 Ok(vals.iter().any(|val| val.is_null()))
             }
         },
+        // ANCHOR_END: eval_expression_unary_operators
+        // ANCHOR: eval_expression_binary_operators
         models::Expression::BinaryComparisonOperator {
             column,
             operator,
@@ -1071,6 +1181,8 @@ fn eval_expression(
 
                 Ok(false)
             }
+            // ANCHOR_END: eval_expression_binary_operators
+            // ANCHOR: eval_expression_custom_binary_operators
             models::BinaryComparisonOperator::Other { name } => match name.as_str() {
                 "like" => {
                     let column_vals = eval_comparison_target(
@@ -1113,7 +1225,9 @@ fn eval_expression(
                     "invalid binary comparison operator",
                 )),
             },
+            // ANCHOR_END: eval_expression_custom_binary_operators
         },
+        // ANCHOR: eval_expression_binary_array_operators
         models::Expression::BinaryArrayComparisonOperator {
             column,
             operator,
@@ -1145,6 +1259,8 @@ fn eval_expression(
                 Ok(false)
             }
         },
+        // ANCHOR_END: eval_expression_binary_array_operators
+        // ANCHOR: eval_expression_exists
         models::Expression::Exists {
             in_collection,
             predicate,
@@ -1157,68 +1273,88 @@ fn eval_expression(
                 order_by: None,
                 predicate: Some(*predicate.clone()),
             };
-            let row_set = match &**in_collection {
-                models::ExistsInCollection::Related {
-                    relationship,
-                    arguments,
-                } => {
-                    let relationship =
-                        collection_relationships.get(relationship.as_str()).ok_or((
-                            StatusCode::BAD_REQUEST,
-                            "invalid relationship name in exists predicate",
-                        ))?;
-                    let source = vec![item.clone()];
-                    let collection = eval_path_element(
-                        collection_relationships,
-                        variables,
-                        state,
-                        relationship,
-                        arguments,
-                        root,
-                        &source,
-                        &models::Expression::And {
-                            expressions: vec![],
-                        },
-                    )?;
-                    execute_query(
-                        collection_relationships,
-                        variables,
-                        state,
-                        &query,
-                        Some(root),
-                        collection,
-                    )
-                }
-                models::ExistsInCollection::Unrelated {
-                    collection,
-                    arguments,
-                } => {
-                    let arguments = arguments
-                        .iter()
-                        .map(|(k, v)| {
-                            Ok((k.clone(), eval_relationship_argument(variables, item, v)?))
-                        })
-                        .collect::<Result<BTreeMap<_, _>, _>>()?;
-                    execute_query_by_collection_name(
-                        collection_relationships,
-                        variables,
-                        collection.as_str(),
-                        &arguments,
-                        Some(root),
-                        &query,
-                        state,
-                    )
-                }
-            }?;
+            let row_set = eval_in_collection(
+                collection_relationships,
+                item,
+                variables,
+                state,
+                root,
+                query,
+                in_collection,
+            )?;
             let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "exists query returned no rows",
             ))?;
             Ok(!rows.is_empty())
-        }
+        } // ANCHOR_END: eval_expression_exists
     }
 }
-
+// ANCHOR_END: eval_expression
+// ANCHOR: eval_in_collection
+fn eval_in_collection(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    item: &BTreeMap<String, serde_json::Value>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+    root: &BTreeMap<String, serde_json::Value>,
+    query: models::Query,
+    in_collection: &Box<models::ExistsInCollection>,
+) -> Result<models::RowSet, StatusLine> {
+    let row_set = match &**in_collection {
+        models::ExistsInCollection::Related {
+            relationship,
+            arguments,
+        } => {
+            let relationship = collection_relationships.get(relationship.as_str()).ok_or((
+                StatusCode::BAD_REQUEST,
+                "invalid relationship name in exists predicate",
+            ))?;
+            let source = vec![item.clone()];
+            let collection = eval_path_element(
+                collection_relationships,
+                variables,
+                state,
+                relationship,
+                arguments,
+                root,
+                &source,
+                &models::Expression::And {
+                    expressions: vec![],
+                },
+            )?;
+            execute_query(
+                collection_relationships,
+                variables,
+                state,
+                &query,
+                Some(root),
+                collection,
+            )
+        }
+        models::ExistsInCollection::Unrelated {
+            collection,
+            arguments,
+        } => {
+            let arguments = arguments
+                .iter()
+                .map(|(k, v)| Ok((k.clone(), eval_relationship_argument(variables, item, v)?)))
+                .collect::<Result<BTreeMap<_, _>, _>>()?;
+            execute_query_by_collection_name(
+                collection_relationships,
+                variables,
+                collection.as_str(),
+                &arguments,
+                Some(root),
+                &query,
+                state,
+            )
+        }
+    }?;
+    Ok(row_set)
+}
+// ANCHOR_END: eval_in_collection
+// ANCHOR: eval_comparison_target
 fn eval_comparison_target(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -1243,13 +1379,15 @@ fn eval_comparison_target(
         }
     }
 }
-
+// ANCHOR_END: eval_comparison_target
+// ANCHOR: eval_column
 fn eval_column(row: &Row, column_name: &str) -> Result<serde_json::Value, StatusLine> {
     row.get(column_name)
         .cloned()
         .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
 }
-
+// ANCHOR_END: eval_column
+// ANCHOR: eval_comparison_value
 fn eval_comparison_value(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -1277,7 +1415,8 @@ fn eval_comparison_value(
         }
     }
 }
-
+// ANCHOR_END: eval_comparison_value
+// ANCHOR: eval_field
 fn eval_field(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -1325,7 +1464,7 @@ fn eval_field(
         }
     }
 }
-
+// ANCHOR_END: eval_field
 // ANCHOR: explain
 async fn post_explain(
     Json(_request): Json<models::QueryRequest>,
@@ -1333,7 +1472,6 @@ async fn post_explain(
     Err((StatusCode::NOT_IMPLEMENTED, "explain is not supported"))
 }
 // ANCHOR_END: explain
-
 // ANCHOR: mutation
 async fn post_mutation(
     State(state): State<Arc<Mutex<AppState>>>,

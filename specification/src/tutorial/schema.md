@@ -10,6 +10,10 @@ The [schema endpoint](../specification/schema/README.md) should return data desc
 
 ## Scalar Types
 
+We define two scalar types: `String` and `Int`.
+
+`String` supports a custom `like` comparison operator, and `Int` supports custom aggregation operators `min` and `max`.
+
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_scalar_types}}
 ```
@@ -54,17 +58,29 @@ We define each collection's schema using the type information defined above:
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_collection_article}}
 ```
 
+### `articles_by_author`
+
+We define one additional collection, `articles_by_author`, which is provided as an example of a collection with an argument:
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-reference/bin/reference/main.rs:schema_collection_articles_by_author}}
+```
+
 ## Functions
 
-The schema defines a list of functions, each including its input and output [types](../specification/types.md).
+The schema defines a list of [functions](../specification/schema/functions.md), each including its input and output [types](../specification/types.md).
 
 ### Get Latest Article
 
-_TODO_
+As an example, we define a `latest_article_id` function, which returns a single integer representing the maximum article ID.
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-reference/bin/reference/main.rs:schema_function_latest_article_id}}
+```
 
 ## Procedures
 
-The schema defines a list of procedures, each including its input and output [types](../specification/types.md).
+The schema defines a list of [procedures](../specification/schema/procedures.md), each including its input and output [types](../specification/types.md).
 
 ### Upsert Article
 

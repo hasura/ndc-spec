@@ -154,14 +154,22 @@ async fn test_query(
 ) {
     println!("Testing simple queries");
     for collection_info in schema.collections.iter() {
-        println!("Querying collection {}", collection_info.name);
-        test_simple_queries(configuration, schema, collection_info).await;
+        if collection_info.arguments.is_empty() {
+            println!("Querying collection {}", collection_info.name);
+            test_simple_queries(configuration, schema, collection_info).await;
+        } else {
+            println!("Skipping parameterized collection {}", collection_info.name);
+        }
     }
 
     println!("Testing aggregate queries");
     for collection_info in schema.collections.iter() {
-        println!("Querying collection {}", collection_info.name);
-        test_aggregate_queries(configuration, schema, collection_info).await;
+        if collection_info.arguments.is_empty() {
+            println!("Querying collection {}", collection_info.name);
+            test_aggregate_queries(configuration, schema, collection_info).await;
+        } else {
+            println!("Skipping parameterized collection {}", collection_info.name);
+        }
     }
 }
 
