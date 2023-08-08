@@ -1,5 +1,5 @@
 agents:
-  queue: "aws-v3-build-node-ami-0386a14a5b63702a4"
+  queue: "aws-v3-build-node-common"
 steps:
   - label: "Build"
     command: |
