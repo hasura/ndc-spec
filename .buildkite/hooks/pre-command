@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -o pipefail
+
+### Clean up any containers from a previous run
+
+function clean_up_containers {
+  echo '--- :docker: cleaning up containers before launch'
+  echo 'Current state:'
+  docker ps -a
+  echo 'Stopping...'
+  docker container stop --time=1 "$@"
+  echo 'Removing...'
+  docker container rm --volumes "$@"
+}
+
+# Read the list of containers from `docker container ls`
+mapfile -t CONTAINERS < <(docker container ls --all --format='{{ .Names }}')
+
+# Remove 'registry' from the list of containers
+for index in "${!CONTAINERS[@]}"; do
+  if [[ ${CONTAINERS[$index]} == 'registry' ]]; then
+    unset -v 'CONTAINERS[$index]'
+  fi
+done
+
+if [[ -n "${CONTAINERS[*]}" ]]; then
+  clean_up_containers "${CONTAINERS[@]}" \
+    || echo 'Failed, but continuing anyway.'
+else
+  echo 'No need to clean up containers.'
+fi
