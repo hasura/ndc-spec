@@ -228,10 +228,10 @@
 {{#include ../../../ndc-client/src/models.rs:RelationshipType}}
 ```
 
-## `RowFieldValue`
+## `Row`
 
 ```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:RowFieldValue}}
+{{#include ../../../ndc-client/src/models.rs:Row}}
 ```
 
 ## `RowSet`

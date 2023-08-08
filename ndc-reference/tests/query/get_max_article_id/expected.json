@@ -2,7 +2,9 @@
   {
     "rows": [
       {
-        "__value": 3
+        "columns": {
+          "__value": 3
+        }
       }
     ]
   }

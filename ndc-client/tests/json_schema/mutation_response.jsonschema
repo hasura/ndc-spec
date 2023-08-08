@@ -34,21 +34,27 @@
             "null"
           ],
           "items": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/definitions/RowFieldValue"
-            }
+            "$ref": "#/definitions/Row"
           }
         }
       }
     },
-    "RowFieldValue": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/RowSet"
+    "Row": {
+      "type": "object",
+      "properties": {
+        "columns": {
+          "description": "Columns fetched from the requested collection",
+          "type": "object",
+          "additionalProperties": true
         },
-        true
-      ]
+        "relationships": {
+          "description": "Related collections fetched via relationships",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/RowSet"
+          }
+        }
+      }
     },
     "RowSet": {
       "type": "object",
@@ -62,16 +68,13 @@
           "additionalProperties": true
         },
         "rows": {
-          "description": "The rows returned by the query, corresponding to the query's fields",
+          "description": "The rows returned by the query",
           "type": [
             "array",
             "null"
           ],
           "items": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/definitions/RowFieldValue"
-            }
+            "$ref": "#/definitions/Row"
           }
         }
       }

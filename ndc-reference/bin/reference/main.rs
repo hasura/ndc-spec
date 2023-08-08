@@ -613,22 +613,24 @@ fn execute_query(
         .fields
         .as_ref()
         .map(|fields| {
-            let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
+            let mut rows: Vec<models::Row> = vec![];
             for item in paginated.iter() {
-                let mut row = IndexMap::new();
+                let mut row = models::Row {
+                    columns: IndexMap::new(),
+                    relationships: IndexMap::new(),
+                };
                 let root = root.unwrap_or(item);
                 for (field_name, field) in fields.iter() {
-                    row.insert(
-                        field_name.clone(),
-                        eval_field(
-                            collection_relationships,
-                            variables,
-                            state,
-                            field,
-                            root,
-                            item,
-                        )?,
-                    );
+                    eval_field(
+                        collection_relationships,
+                        variables,
+                        state,
+                        field,
+                        root,
+                        &field_name,
+                        &mut row,
+                        item,
+                    )?;
                 }
                 rows.push(row)
             }
@@ -1282,7 +1284,7 @@ fn eval_expression(
                 query,
                 in_collection,
             )?;
-            let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
+            let rows: Vec<models::Row> = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "exists query returned no rows",
             ))?;
@@ -1423,13 +1425,16 @@ fn eval_field(
     state: &AppState,
     field: &models::Field,
     root: &Row,
+    field_name: &String,
+    row: &mut models::Row,
     item: &Row,
-) -> Result<models::RowFieldValue, StatusLine> {
+) -> Result<(), StatusLine> {
     match field {
-        models::Field::Column { column, .. } => Ok(models::RowFieldValue::Column(eval_column(
-            item,
-            column.as_str(),
-        )?)),
+        models::Field::Column { column, .. } => {
+            row.columns
+                .insert(field_name.clone(), eval_column(item, column.as_str())?);
+            Ok(())
+        }
         models::Field::Relationship {
             relationship,
             arguments,
@@ -1460,7 +1465,8 @@ fn eval_field(
                 Some(root),
                 collection,
             )?;
-            Ok(models::RowFieldValue::Relationship(rows))
+            row.relationships.insert(field_name.clone(), rows);
+            Ok(())
         }
     }
 }
@@ -1554,20 +1560,22 @@ async fn execute_mutation_operation(
                 let old_row = state.articles.insert(id_int, new_row);
                 let returning = old_row
                     .map(|old_row| {
-                        let mut row = IndexMap::new();
+                        let mut row = models::Row {
+                            columns: IndexMap::new(),
+                            relationships: IndexMap::new(),
+                        };
                         for fields in fields.iter() {
                             for (field_name, field) in fields.iter() {
-                                row.insert(
-                                    field_name.clone(),
-                                    eval_field(
-                                        collection_relationships,
-                                        &BTreeMap::new(),
-                                        state,
-                                        field,
-                                        &old_row,
-                                        &old_row,
-                                    )?,
-                                );
+                                eval_field(
+                                    collection_relationships,
+                                    &BTreeMap::new(),
+                                    state,
+                                    field,
+                                    &old_row,
+                                    &field_name,
+                                    &mut row,
+                                    &old_row,
+                                )?;
                             }
                         }
                         Ok(vec![row])
@@ -1685,12 +1693,15 @@ mod tests {
 
                 let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
-                write!(
-                    expected,
-                    "{}",
-                    serde_json::to_string_pretty(&response.0).unwrap()
-                )
-                .unwrap();
+                let response_json = serde_json::to_string_pretty(&response.0).unwrap();
+
+                write!(expected, "{}", response_json).unwrap();
+
+                // Test roundtrip
+                assert_eq!(
+                    response.0,
+                    serde_json::from_str(response_json.as_str()).unwrap()
+                );
             }
         });
     }

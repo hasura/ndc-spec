@@ -527,19 +527,23 @@ pub struct QueryResponse(pub Vec<RowSet>);
 pub struct RowSet {
     /// The results of the aggregates returned by the query
     pub aggregates: Option<IndexMap<String, serde_json::Value>>,
-    /// The rows returned by the query, corresponding to the query's fields
-    pub rows: Option<Vec<IndexMap<String, RowFieldValue>>>,
+    /// The rows returned by the query
+    pub rows: Option<Vec<Row>>,
 }
 // ANCHOR_END: RowSet
 
-// ANCHOR: RowFieldValue
+// ANCHOR: Row
+#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(untagged)]
-pub enum RowFieldValue {
-    Relationship(RowSet),
-    Column(serde_json::Value),
+pub struct Row {
+    #[serde(default, skip_serializing_if = "IndexMap::is_empty")]
+    /// Columns fetched from the requested collection
+    pub columns: IndexMap<String, serde_json::Value>,
+    #[serde(default, skip_serializing_if = "IndexMap::is_empty")]
+    /// Related collections fetched via relationships
+    pub relationships: IndexMap<String, RowSet>,
 }
-// ANCHOR_END: RowFieldValue
+// ANCHOR_END: Row
 
 // ANCHOR: ExplainResponse
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -732,7 +736,7 @@ pub struct MutationOperationResults {
     /// The number of rows affected by the mutation operation
     pub affected_rows: u32,
     /// The rows affected by the mutation operation
-    pub returning: Option<Vec<IndexMap<String, RowFieldValue>>>,
+    pub returning: Option<Vec<Row>>,
 }
 // ANCHOR_END: MutationOperationResults
 

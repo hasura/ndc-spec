@@ -4,14 +4,20 @@
       "affected_rows": 1,
       "returning": [
         {
-          "id": 2,
-          "author": {
-            "rows": [
-              {
-                "first_name": "John",
-                "last_name": "Hughes"
-              }
-            ]
+          "columns": {
+            "id": 2
+          },
+          "relationships": {
+            "author": {
+              "rows": [
+                {
+                  "columns": {
+                    "first_name": "John",
+                    "last_name": "Hughes"
+                  }
+                }
+              ]
+            }
           }
         }
       ]

@@ -2,16 +2,20 @@
   {
     "rows": [
       {
-        "id": 1,
-        "title": "The Next 700 Programming Languages"
+        "columns": {
+          "id": 1,
+          "title": "The Next 700 Programming Languages"
+        }
       }
     ]
   },
   {
     "rows": [
       {
-        "id": 2,
-        "title": "Why Functional Programming Matters"
+        "columns": {
+          "id": 2,
+          "title": "Why Functional Programming Matters"
+        }
       }
     ]
   }

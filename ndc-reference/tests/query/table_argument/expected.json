@@ -2,8 +2,10 @@
   {
     "rows": [
       {
-        "id": 1,
-        "title": "The Next 700 Programming Languages"
+        "columns": {
+          "id": 1,
+          "title": "The Next 700 Programming Languages"
+        }
       }
     ]
   }
