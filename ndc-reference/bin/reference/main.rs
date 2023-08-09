@@ -459,38 +459,18 @@ fn execute_query_with_variables(
         }
     }
 
-    execute_query_by_collection_name(
-        &collection_relationships,
-        variables,
-        collection.as_str(),
-        &argument_values,
-        None,
-        &query,
-        state,
-    )
-}
-// ANCHOR_END: execute_query_with_variables
-// ANCHOR: execute_query_by_collection_name
-fn execute_query_by_collection_name(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
-    collection_name: &str,
-    arguments: &BTreeMap<String, serde_json::Value>,
-    root: Option<&Row>,
-    query: &models::Query,
-    state: &AppState,
-) -> Result<models::RowSet, StatusLine> {
-    let collection = get_collection_by_name(collection_name, arguments, state)?;
+    let collection = get_collection_by_name(collection.as_str(), &argument_values, state)?;
+
     execute_query(
         collection_relationships,
         variables,
         state,
         query,
-        root,
+        None,
         collection,
     )
 }
-// ANCHOR_END: execute_query_by_collection_name
+// ANCHOR_END: execute_query_with_variables
 // ANCHOR: get_collection_by_name
 fn get_collection_by_name(
     collection_name: &str,
@@ -502,7 +482,7 @@ fn get_collection_by_name(
         "authors" => Ok(state.authors.values().cloned().collect()),
         "articles_by_author" => {
             let author_id = arguments
-                .get("author_id".into())
+                .get("author_id")
                 .ok_or((StatusCode::BAD_REQUEST, "missing argument author_id"))?;
             let author_id_int = author_id
                 .as_i64()
@@ -1273,14 +1253,21 @@ fn eval_expression(
                 order_by: None,
                 predicate: Some(*predicate.clone()),
             };
-            let row_set = eval_in_collection(
+            let collection = eval_in_collection(
                 collection_relationships,
                 item,
                 variables,
                 state,
                 root,
-                query,
                 in_collection,
+            )?;
+            let row_set = execute_query(
+                collection_relationships,
+                variables,
+                state,
+                &query,
+                Some(root),
+                collection,
             )?;
             let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
@@ -1298,10 +1285,9 @@ fn eval_in_collection(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     root: &BTreeMap<String, serde_json::Value>,
-    query: models::Query,
     in_collection: &Box<models::ExistsInCollection>,
-) -> Result<models::RowSet, StatusLine> {
-    let row_set = match &**in_collection {
+) -> Result<Vec<Row>, (StatusCode, &'static str)> {
+    match &**in_collection {
         models::ExistsInCollection::Related {
             relationship,
             arguments,
@@ -1311,7 +1297,7 @@ fn eval_in_collection(
                 "invalid relationship name in exists predicate",
             ))?;
             let source = vec![item.clone()];
-            let collection = eval_path_element(
+            eval_path_element(
                 collection_relationships,
                 variables,
                 state,
@@ -1322,14 +1308,6 @@ fn eval_in_collection(
                 &models::Expression::And {
                     expressions: vec![],
                 },
-            )?;
-            execute_query(
-                collection_relationships,
-                variables,
-                state,
-                &query,
-                Some(root),
-                collection,
             )
         }
         models::ExistsInCollection::Unrelated {
@@ -1340,18 +1318,10 @@ fn eval_in_collection(
                 .iter()
                 .map(|(k, v)| Ok((k.clone(), eval_relationship_argument(variables, item, v)?)))
                 .collect::<Result<BTreeMap<_, _>, _>>()?;
-            execute_query_by_collection_name(
-                collection_relationships,
-                variables,
-                collection.as_str(),
-                &arguments,
-                Some(root),
-                &query,
-                state,
-            )
+
+            get_collection_by_name(collection.as_str(), &arguments, state)
         }
-    }?;
-    Ok(row_set)
+    }
 }
 // ANCHOR_END: eval_in_collection
 // ANCHOR: eval_comparison_target
@@ -1457,7 +1427,7 @@ fn eval_field(
                 variables,
                 state,
                 query,
-                Some(root),
+                None,
                 collection,
             )?;
             Ok(models::RowFieldValue::Relationship(rows))

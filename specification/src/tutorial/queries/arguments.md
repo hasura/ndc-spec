@@ -10,13 +10,7 @@ The first step is to evaluate each argument, which the `execute_query_with_varia
 {{#include ../../../../ndc-reference/bin/reference/main.rs:execute_query_with_variables}}
 ```
 
-Once this is complete, and we have a collection of evaluated `argument_values`, we can delegate to the `execute_query_by_collection_name` function, which will compute the collection itself:
-
-```rust,no_run,noplayground
-{{#include ../../../../ndc-reference/bin/reference/main.rs:execute_query_by_collection_name}}
-```
-
-The `get_collection_by_name` function peforms the work of computing the full collection, by pattern matching on the name of the collection:
+Once this is complete, and we have a collection of evaluated `argument_values`, we can delegate to the `get_collection_by_name` function. This function peforms the work of computing the full collection, by pattern matching on the name of the collection:
 
 ```rust,no_run,noplayground
 {{#include ../../../../ndc-reference/bin/reference/main.rs:get_collection_by_name}}
