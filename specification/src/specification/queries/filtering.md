@@ -113,6 +113,34 @@ See type [`ComparisonValue`](../../reference/types.md#comparisonvalue) for the v
 }
 ```
 
+### Columns in Operators
+
+Comparison operators compare columns to values. The column on the left hand side of any operator is described by a [`ComparisonTarget`](../../reference/types.md#comparisontarget), and the various cases will be explained next.
+
+#### Referencing a column from the same collection
+
+If the `ComparisonTarget` has type `column`, and the `path` property is empty, then the `name` property refers to a column in the current collection.
+
+#### Referencing a column from a related collection
+
+If the `ComparisonTarget` has type `column`, and the `path` property is non-empty, then the `name` property refers to column in a related collection. The path consists of a collection of [`PathElement`](../../reference/types.md#pathelement)s, each of which references a named [relationship](./relationships.md), any [collection arguments](./arguments.md), and a [predicate expression](./filtering.md) to be applied to any relevant rows in the related collection.
+
+When a `PathElement` references an _array_ relationship, the enclosing operator should be considered _existentially quantified_ over all related rows.
+
+#### Referencing a column from the root collection
+
+If the `ComparisonTarget` has type `root_collection_column`, then the `name` property refers to a column in the _root collection_.
+
+The root collection is defined as the collection in scope at the nearest enclosing [`Query`](../../reference/types.md#query), and the column should be chosen from the _row_ in that collection which was in scope when that `Query` was being evaluated.
+
+### Values in Binary Operators
+
+Binary (including array-valued) operators compare columns to _values_, but there are several types of valid values:
+
+- Scalar values, as seen in the examples above, compare the column to a specific value,
+- Variable values compare the column to the current value of a [variable](./variables.md),
+- Column values compare the column to _another_ column, possibly selected from a different collection. Column values are also described by a [`ComparisonTarget`](../../reference/types.md#comparisontarget).
+
 ## `EXISTS` expressions
 
 An `EXISTS` expression tests whether a row exists in some possibly-related collection, and is denoted by an expression with a `type` field of `exists`.
@@ -211,10 +239,6 @@ For example, to test if the `first_name` column is _not_ null:
     }
 }
 ```
-
-## Requirements
-
-_TODO_
 
 ## See also
 
