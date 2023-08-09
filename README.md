@@ -2,7 +2,7 @@
 
 This repository contains the [specification](./specification), [Rust client library](./ndc-client) and [reference implementation](./ndc-reference) for Hasura's Native Data Connectors (NDC).
 
-- [Rendered Hpecification](http://hasura.github.io/ndc-spec/)
+- [Rendered Specification](http://hasura.github.io/ndc-spec/)
 - [Connector Hub](https://github.com/hasura/ndc-hub)
 
 ## Getting Started
