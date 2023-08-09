@@ -534,10 +534,16 @@ pub struct RowSet {
 
 // ANCHOR: RowFieldValue
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(untagged)]
-pub enum RowFieldValue {
-    Relationship(RowSet),
-    Column(serde_json::Value),
+pub struct RowFieldValue(pub serde_json::Value);
+
+impl RowFieldValue {
+    /// In the case where this field value was obtained using a
+    /// [`Field::Relationship`], the returned JSON will be a [`RowSet`].
+    /// We cannot express [`RowFieldValue`] as an enum, because
+    /// [`RowFieldValue`] overlaps with values which have object types.
+    pub fn as_rowset(self) -> Option<RowSet> {
+        serde_json::from_value(self.0).ok()
+    }
 }
 // ANCHOR_END: RowFieldValue
 

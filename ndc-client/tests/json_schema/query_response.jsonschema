@@ -7,14 +7,7 @@
     "$ref": "#/definitions/RowSet"
   },
   "definitions": {
-    "RowFieldValue": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/RowSet"
-        },
-        true
-      ]
-    },
+    "RowFieldValue": true,
     "RowSet": {
       "type": "object",
       "properties": {
