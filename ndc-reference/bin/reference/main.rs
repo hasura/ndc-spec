@@ -466,7 +466,7 @@ fn execute_query_with_variables(
         variables,
         state,
         query,
-        None,
+        Root::CurrentRow,
         collection,
     )
 }
@@ -526,6 +526,20 @@ fn get_collection_by_name(
     }
 }
 // ANCHOR_END: get_collection_by_name
+/// ANCHOR: Root
+enum Root<'a> {
+    /// References to the root collection actually
+    /// refer to the current row, because the path to
+    /// the nearest enclosing [`models::Query`] does not pass
+    /// an [`models::Expression::Exists`] node.
+    CurrentRow,
+    /// References to the root collection refer to the
+    /// explicitly-identified row, which is the row
+    /// being evaluated in the context of the nearest enclosing
+    /// [`models::Query`].
+    ExplicitRow(&'a Row)
+}
+/// ANCHOR_END: Root
 // ANCHOR: execute_query
 // ANCHOR: execute_query_signature
 fn execute_query(
@@ -533,7 +547,7 @@ fn execute_query(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     query: &models::Query,
-    root: Option<&Row>,
+    root: Root,
     collection: Vec<Row>,
 ) -> Result<models::RowSet, StatusLine> {
     // ANCHOR_END: execute_query_signature
@@ -543,7 +557,6 @@ fn execute_query(
         variables,
         state,
         collection,
-        root,
         &query.order_by,
     )?;
     // ANCHOR_END: execute_query_sort
@@ -553,7 +566,10 @@ fn execute_query(
         Some(expr) => {
             let mut filtered: Vec<Row> = vec![];
             for item in sorted.into_iter() {
-                let root = root.unwrap_or(&item);
+                let root = match root {
+                    Root::CurrentRow => &item,
+                    Root::ExplicitRow(root) => &root,
+                };
                 if eval_expression(
                     collection_relationships,
                     variables,
@@ -596,7 +612,6 @@ fn execute_query(
             let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
             for item in paginated.iter() {
                 let mut row = IndexMap::new();
-                let root = root.unwrap_or(item);
                 for (field_name, field) in fields.iter() {
                     row.insert(
                         field_name.clone(),
@@ -605,7 +620,6 @@ fn execute_query(
                             variables,
                             state,
                             field,
-                            root,
                             item,
                         )?,
                     );
@@ -703,7 +717,6 @@ fn sort(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     collection: Vec<Row>,
-    root: Option<&Row>,
     order_by: &Option<models::OrderBy>,
 ) -> Result<Vec<Row>, StatusLine> {
     match order_by {
@@ -718,7 +731,6 @@ fn sort(
                         variables,
                         state,
                         order_by,
-                        root,
                         other,
                         &item_to_insert,
                     )? {
@@ -753,7 +765,6 @@ fn eval_order_by(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     order_by: &models::OrderBy,
-    root: Option<&Row>,
     t1: &Row,
     t2: &Row,
 ) -> Result<Ordering, StatusLine> {
@@ -765,7 +776,6 @@ fn eval_order_by(
             variables,
             state,
             element,
-            root.unwrap_or(t1),
             t1,
         )?;
         let v2 = eval_order_by_element(
@@ -773,7 +783,6 @@ fn eval_order_by(
             variables,
             state,
             element,
-            root.unwrap_or(t2),
             t2,
         )?;
         let x = match element.order_direction {
@@ -812,7 +821,6 @@ fn eval_order_by_element(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     element: &models::OrderByElement,
-    root: &Row,
     item: &Row,
 ) -> Result<serde_json::Value, StatusLine> {
     match element.target.clone() {
@@ -820,7 +828,6 @@ fn eval_order_by_element(
             collection_relationships,
             variables,
             state,
-            root,
             item,
             path,
             name,
@@ -833,7 +840,6 @@ fn eval_order_by_element(
             collection_relationships,
             variables,
             state,
-            root,
             item,
             path,
             column,
@@ -843,7 +849,6 @@ fn eval_order_by_element(
             collection_relationships,
             variables,
             state,
-            root,
             item,
             path,
         ),
@@ -855,7 +860,6 @@ fn eval_order_by_star_count_aggregate(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-    root: &BTreeMap<String, serde_json::Value>,
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
 ) -> Result<serde_json::Value, StatusLine> {
@@ -864,7 +868,6 @@ fn eval_order_by_star_count_aggregate(
         variables,
         state,
         &path,
-        root,
         item,
     )?;
     Ok(rows.len().into())
@@ -875,7 +878,6 @@ fn eval_order_by_single_column_aggregate(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-    root: &BTreeMap<String, serde_json::Value>,
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
     column: String,
@@ -886,7 +888,6 @@ fn eval_order_by_single_column_aggregate(
         variables,
         state,
         &path,
-        root,
         item,
     )?;
     let values = rows
@@ -904,7 +905,6 @@ fn eval_order_by_column(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-    root: &BTreeMap<String, serde_json::Value>,
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
     name: String,
@@ -914,7 +914,6 @@ fn eval_order_by_column(
         variables,
         state,
         &path,
-        root,
         item,
     )?;
     if rows.len() > 1 {
@@ -935,7 +934,6 @@ fn eval_path(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     path: &Vec<models::PathElement>,
-    root: &Row,
     item: &Row,
 ) -> Result<Vec<Row>, StatusLine> {
     let mut result: Vec<Row> = vec![item.clone()];
@@ -951,7 +949,6 @@ fn eval_path(
             state,
             relationship,
             &path_element.arguments,
-            root,
             &result,
             &path_element.predicate,
         )?;
@@ -967,7 +964,6 @@ fn eval_path_element(
     state: &AppState,
     relationship: &models::Relationship,
     arguments: &BTreeMap<String, models::RelationshipArgument>,
-    root: &Row,
     source: &Vec<Row>,
     predicate: &models::Expression,
 ) -> Result<Vec<Row>, StatusLine> {
@@ -1024,8 +1020,8 @@ fn eval_path_element(
                     variables,
                     state,
                     &predicate,
-                    root,
-                    &tgt_row,
+                    tgt_row,
+                    tgt_row,
                 )? {
                     matching_rows.push(tgt_row.clone());
                 }
@@ -1258,7 +1254,6 @@ fn eval_expression(
                 item,
                 variables,
                 state,
-                root,
                 in_collection,
             )?;
             let row_set = execute_query(
@@ -1266,7 +1261,7 @@ fn eval_expression(
                 variables,
                 state,
                 &query,
-                Some(root),
+                Root::ExplicitRow(root),
                 collection,
             )?;
             let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
@@ -1284,7 +1279,6 @@ fn eval_in_collection(
     item: &BTreeMap<String, serde_json::Value>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-    root: &BTreeMap<String, serde_json::Value>,
     in_collection: &Box<models::ExistsInCollection>,
 ) -> Result<Vec<Row>, (StatusCode, &'static str)> {
     match &**in_collection {
@@ -1303,7 +1297,6 @@ fn eval_in_collection(
                 state,
                 relationship,
                 arguments,
-                root,
                 &source,
                 &models::Expression::And {
                     expressions: vec![],
@@ -1335,7 +1328,7 @@ fn eval_comparison_target(
 ) -> Result<Vec<serde_json::Value>, StatusLine> {
     match target {
         models::ComparisonTarget::Column { name, path } => {
-            let rows = eval_path(collection_relationships, variables, state, path, root, item)?;
+            let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in rows.iter() {
                 let value = eval_column(row, name.as_str())?;
@@ -1392,7 +1385,6 @@ fn eval_field(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     field: &models::Field,
-    root: &Row,
     item: &Row,
 ) -> Result<models::RowFieldValue, StatusLine> {
     match field {
@@ -1416,7 +1408,6 @@ fn eval_field(
                 state,
                 relationship,
                 arguments,
-                root,
                 &source,
                 &models::Expression::And {
                     expressions: vec![],
@@ -1427,7 +1418,7 @@ fn eval_field(
                 variables,
                 state,
                 query,
-                None,
+                Root::CurrentRow,
                 collection,
             )?;
             Ok(models::RowFieldValue::Relationship(rows))
@@ -1534,7 +1525,6 @@ async fn execute_mutation_operation(
                                         &BTreeMap::new(),
                                         state,
                                         field,
-                                        &old_row,
                                         &old_row,
                                     )?,
                                 );
