@@ -1426,10 +1426,9 @@ fn eval_field(
     item: &Row,
 ) -> Result<models::RowFieldValue, StatusLine> {
     match field {
-        models::Field::Column { column, .. } => Ok(models::RowFieldValue(eval_column(
-            item,
-            column.as_str(),
-        )?)),
+        models::Field::Column { column, .. } => {
+            Ok(models::RowFieldValue(eval_column(item, column.as_str())?))
+        }
         models::Field::Relationship {
             relationship,
             arguments,
@@ -1460,9 +1459,8 @@ fn eval_field(
                 Some(root),
                 collection,
             )?;
-            let rows_json = serde_json::to_value(rows).map_err(|_| {
-                (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode rowset")
-            })?;
+            let rows_json = serde_json::to_value(rows)
+                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode rowset"))?;
             Ok(models::RowFieldValue(rows_json))
         }
     }
@@ -1627,12 +1625,15 @@ mod tests {
 
             let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
-            write!(
-                expected,
-                "{}",
-                serde_json::to_string_pretty(&response.0).unwrap()
-            )
-            .unwrap();
+            let response_json = serde_json::to_string_pretty(&response.0).unwrap();
+
+            write!(expected, "{}", response_json).unwrap();
+
+            // Test roundtrip
+            assert_eq!(
+                response.0,
+                serde_json::from_str(response_json.as_str()).unwrap()
+            );
         });
     }
 
