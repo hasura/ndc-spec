@@ -151,7 +151,6 @@
         variables,
         state,
         collection,
-        root,
         &amp;query.order_by,
     )?;</code></pre>
 <p>The <a href="../../../reference/types.html#query"><code>Query</code></a> object defines the sort order in terms of a list of <a href="../../../reference/types.html#orderbyelement"><code>OrderByElement</code></a>s. See the <a href="../../../specification/queries/sorting.html">sorting specification</a> for details on how this ought to be interpreted.</p>
@@ -162,7 +161,6 @@
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     collection: Vec&lt;Row&gt;,
-    root: Option&lt;&amp;Row&gt;,
     order_by: &amp;Option&lt;models::OrderBy&gt;,
 ) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
     match order_by {
@@ -177,7 +175,6 @@
                         variables,
                         state,
                         order_by,
-                        root,
                         other,
                         &amp;item_to_insert,
                     )? {
@@ -201,7 +198,6 @@
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     order_by: &amp;models::OrderBy,
-    root: Option&lt;&amp;Row&gt;,
     t1: &amp;Row,
     t2: &amp;Row,
 ) -&gt; Result&lt;Ordering, StatusLine&gt; {
@@ -213,7 +209,6 @@
             variables,
             state,
             element,
-            root.unwrap_or(t1),
             t1,
         )?;
         let v2 = eval_order_by_element(
@@ -221,7 +216,6 @@
             variables,
             state,
             element,
-            root.unwrap_or(t2),
             t2,
         )?;
         let x = match element.order_direction {
@@ -241,7 +235,6 @@
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
-    root: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     item: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     path: Vec&lt;models::PathElement&gt;,
     name: String,
@@ -251,7 +244,6 @@
         variables,
         state,
         &amp;path,
-        root,
         item,
     )?;
     if rows.len() &gt; 1 {

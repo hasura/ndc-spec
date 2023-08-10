@@ -229,6 +229,23 @@
     ]
 }
 </code></pre>
+<h3 id="columns-in-operators"><a class="header" href="#columns-in-operators">Columns in Operators</a></h3>
+<p>Comparison operators compare columns to values. The column on the left hand side of any operator is described by a <a href="../../reference/types.html#comparisontarget"><code>ComparisonTarget</code></a>, and the various cases will be explained next.</p>
+<h4 id="referencing-a-column-from-the-same-collection"><a class="header" href="#referencing-a-column-from-the-same-collection">Referencing a column from the same collection</a></h4>
+<p>If the <code>ComparisonTarget</code> has type <code>column</code>, and the <code>path</code> property is empty, then the <code>name</code> property refers to a column in the current collection.</p>
+<h4 id="referencing-a-column-from-a-related-collection"><a class="header" href="#referencing-a-column-from-a-related-collection">Referencing a column from a related collection</a></h4>
+<p>If the <code>ComparisonTarget</code> has type <code>column</code>, and the <code>path</code> property is non-empty, then the <code>name</code> property refers to column in a related collection. The path consists of a collection of <a href="../../reference/types.html#pathelement"><code>PathElement</code></a>s, each of which references a named <a href="./relationships.html">relationship</a>, any <a href="./arguments.html">collection arguments</a>, and a <a href="./filtering.html">predicate expression</a> to be applied to any relevant rows in the related collection.</p>
+<p>When a <code>PathElement</code> references an <em>array</em> relationship, the enclosing operator should be considered <em>existentially quantified</em> over all related rows.</p>
+<h4 id="referencing-a-column-from-the-root-collection"><a class="header" href="#referencing-a-column-from-the-root-collection">Referencing a column from the root collection</a></h4>
+<p>If the <code>ComparisonTarget</code> has type <code>root_collection_column</code>, then the <code>name</code> property refers to a column in the <em>root collection</em>.</p>
+<p>The root collection is defined as the collection in scope at the nearest enclosing <a href="../../reference/types.html#query"><code>Query</code></a>, and the column should be chosen from the <em>row</em> in that collection which was in scope when that <code>Query</code> was being evaluated.</p>
+<h3 id="values-in-binary-operators"><a class="header" href="#values-in-binary-operators">Values in Binary Operators</a></h3>
+<p>Binary (including array-valued) operators compare columns to <em>values</em>, but there are several types of valid values:</p>
+<ul>
+<li>Scalar values, as seen in the examples above, compare the column to a specific value,</li>
+<li>Variable values compare the column to the current value of a <a href="./variables.html">variable</a>,</li>
+<li>Column values compare the column to <em>another</em> column, possibly selected from a different collection. Column values are also described by a <a href="../../reference/types.html#comparisontarget"><code>ComparisonTarget</code></a>.</li>
+</ul>
 <h2 id="exists-expressions"><a class="header" href="#exists-expressions"><code>EXISTS</code> expressions</a></h2>
 <p>An <code>EXISTS</code> expression tests whether a row exists in some possibly-related collection, and is denoted by an expression with a <code>type</code> field of <code>exists</code>.</p>
 <p><code>EXISTS</code> expressions can query related or unrelated collections. </p>
@@ -457,8 +474,6 @@
     }
 }
 </code></pre>
-<h2 id="requirements"><a class="header" href="#requirements">Requirements</a></h2>
-<p><em>TODO</em></p>
 <h2 id="see-also"><a class="header" href="#see-also">See also</a></h2>
 <ul>
 <li>Type <a href="../../reference/types.html#expression"><code>Expression</code></a></li>

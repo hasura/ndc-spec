@@ -620,10 +620,16 @@ pub enum RelationshipType {
 }</code></pre>
 <h2 id="rowfieldvalue"><a class="header" href="#rowfieldvalue"><code>RowFieldValue</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(untagged)]
-pub enum RowFieldValue {
-    Relationship(RowSet),
-    Column(serde_json::Value),
+pub struct RowFieldValue(pub serde_json::Value);
+
+impl RowFieldValue {
+    /// In the case where this field value was obtained using a
+    /// [`Field::Relationship`], the returned JSON will be a [`RowSet`].
+    /// We cannot express [`RowFieldValue`] as an enum, because
+    /// [`RowFieldValue`] overlaps with values which have object types.
+    pub fn as_rowset(self) -&gt; Option&lt;RowSet&gt; {
+        serde_json::from_value(self.0).ok()
+    }
 }</code></pre>
 <h2 id="rowset"><a class="header" href="#rowset"><code>RowSet</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]

@@ -1456,40 +1456,7 @@
         }
       }
     },
-    &quot;RowFieldValue&quot;: {
-      &quot;anyOf&quot;: [
-        {
-          &quot;$ref&quot;: &quot;#/definitions/RowSet&quot;
-        },
-        true
-      ]
-    },
-    &quot;RowSet&quot;: {
-      &quot;type&quot;: &quot;object&quot;,
-      &quot;properties&quot;: {
-        &quot;aggregates&quot;: {
-          &quot;description&quot;: &quot;The results of the aggregates returned by the query&quot;,
-          &quot;type&quot;: [
-            &quot;object&quot;,
-            &quot;null&quot;
-          ],
-          &quot;additionalProperties&quot;: true
-        },
-        &quot;rows&quot;: {
-          &quot;description&quot;: &quot;The rows returned by the query, corresponding to the query's fields&quot;,
-          &quot;type&quot;: [
-            &quot;array&quot;,
-            &quot;null&quot;
-          ],
-          &quot;items&quot;: {
-            &quot;type&quot;: &quot;object&quot;,
-            &quot;additionalProperties&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/RowFieldValue&quot;
-            }
-          }
-        }
-      }
-    }
+    &quot;RowFieldValue&quot;: true
   }
 }
 </code></pre>
@@ -2407,14 +2374,7 @@
     &quot;$ref&quot;: &quot;#/definitions/RowSet&quot;
   },
   &quot;definitions&quot;: {
-    &quot;RowFieldValue&quot;: {
-      &quot;anyOf&quot;: [
-        {
-          &quot;$ref&quot;: &quot;#/definitions/RowSet&quot;
-        },
-        true
-      ]
-    },
+    &quot;RowFieldValue&quot;: true,
     &quot;RowSet&quot;: {
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {

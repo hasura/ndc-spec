@@ -167,37 +167,18 @@
         }
     }
 
-    execute_query_by_collection_name(
-        &amp;collection_relationships,
-        variables,
-        collection.as_str(),
-        &amp;argument_values,
-        None,
-        &amp;query,
-        state,
-    )
-}</code></pre>
-<p>Once this is complete, and we have a collection of evaluated <code>argument_values</code>, we can delegate to the <code>execute_query_by_collection_name</code> function, which will compute the collection itself:</p>
-<pre><code class="language-rust no_run noplayground">fn execute_query_by_collection_name(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
-    collection_name: &amp;str,
-    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
-    root: Option&lt;&amp;Row&gt;,
-    query: &amp;models::Query,
-    state: &amp;AppState,
-) -&gt; Result&lt;models::RowSet, StatusLine&gt; {
-    let collection = get_collection_by_name(collection_name, arguments, state)?;
+    let collection = get_collection_by_name(collection.as_str(), &amp;argument_values, state)?;
+
     execute_query(
         collection_relationships,
         variables,
         state,
         query,
-        root,
+        Root::CurrentRow,
         collection,
     )
 }</code></pre>
-<p>The <code>get_collection_by_name</code> function peforms the work of computing the full collection, by pattern matching on the name of the collection:</p>
+<p>Once this is complete, and we have a collection of evaluated <code>argument_values</code>, we can delegate to the <code>get_collection_by_name</code> function. This function peforms the work of computing the full collection, by pattern matching on the name of the collection:</p>
 <pre><code class="language-rust no_run noplayground">fn get_collection_by_name(
     collection_name: &amp;str,
     arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
@@ -208,7 +189,7 @@
         &quot;authors&quot; =&gt; Ok(state.authors.values().cloned().collect()),
         &quot;articles_by_author&quot; =&gt; {
             let author_id = arguments
-                .get(&quot;author_id&quot;.into())
+                .get(&quot;author_id&quot;)
                 .ok_or((StatusCode::BAD_REQUEST, &quot;missing argument author_id&quot;))?;
             let author_id_int = author_id
                 .as_i64()
@@ -260,7 +241,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     query: &amp;models::Query,
-    root: Option&lt;&amp;Row&gt;,
+    root: Root,
     collection: Vec&lt;Row&gt;,
 ) -&gt; Result&lt;models::RowSet, StatusLine&gt; {</code></pre>
 <p>In the next section, we will break down the implementation of <code>execute_query</code>.</p>

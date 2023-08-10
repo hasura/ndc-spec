@@ -153,7 +153,6 @@
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     path: &amp;Vec&lt;models::PathElement&gt;,
-    root: &amp;Row,
     item: &amp;Row,
 ) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
     let mut result: Vec&lt;Row&gt; = vec![item.clone()];
@@ -169,7 +168,6 @@
             state,
             relationship,
             &amp;path_element.arguments,
-            root,
             &amp;result,
             &amp;path_element.predicate,
         )?;
@@ -184,7 +182,6 @@
     state: &amp;AppState,
     relationship: &amp;models::Relationship,
     arguments: &amp;BTreeMap&lt;String, models::RelationshipArgument&gt;,
-    root: &amp;Row,
     source: &amp;Vec&lt;Row&gt;,
     predicate: &amp;models::Expression,
 ) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
@@ -241,8 +238,8 @@
                     variables,
                     state,
                     &amp;predicate,
-                    root,
-                    &amp;tgt_row,
+                    tgt_row,
+                    tgt_row,
                 )? {
                     matching_rows.push(tgt_row.clone());
                 }

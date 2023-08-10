@@ -151,7 +151,10 @@
         Some(expr) =&gt; {
             let mut filtered: Vec&lt;Row&gt; = vec![];
             for item in sorted.into_iter() {
-                let root = root.unwrap_or(&amp;item);
+                let root = match root {
+                    Root::CurrentRow =&gt; &amp;item,
+                    Root::ExplicitRow(root) =&gt; &amp;root,
+                };
                 if eval_expression(
                     collection_relationships,
                     variables,
@@ -229,7 +232,7 @@
 <p>To evaluate the comparison target, we delegate to the <code>eval_comparison_target</code> function, which pattern matches:</p>
 <ul>
 <li>A column is evaluated using the <code>eval_path</code> function, which we will cover when we talk about <a href="./relationships.html">relationships</a>.</li>
-<li>A <em>root collection</em> column (that is, a column from the <em>root collection</em>, or collection used by the original query) is evaluated using <code>eval_column</code>. You may have noticed the additional argument, <code>root</code>, which has been passed down through every function call so far - this is to track the root collection for exactly this case.</li>
+<li>A <em>root collection</em> column (that is, a column from the <em>root collection</em>, or collection used by the nearest enclosing <a href="../../../reference/types.html#query"><code>Query</code></a>) is evaluated using <code>eval_column</code>. You may have noticed the additional argument, <code>root</code>, which has been passed down through every function call so far - this is to track the root collection for exactly this case.</li>
 </ul>
 <pre><code class="language-rust no_run noplayground">fn eval_comparison_target(
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
@@ -241,7 +244,7 @@
 ) -&gt; Result&lt;Vec&lt;serde_json::Value&gt;, StatusLine&gt; {
     match target {
         models::ComparisonTarget::Column { name, path } =&gt; {
-            let rows = eval_path(collection_relationships, variables, state, path, root, item)?;
+            let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in rows.iter() {
                 let value = eval_column(row, name.as_str())?;
@@ -380,14 +383,20 @@
                 order_by: None,
                 predicate: Some(*predicate.clone()),
             };
-            let row_set = eval_in_collection(
+            let collection = eval_in_collection(
                 collection_relationships,
                 item,
                 variables,
                 state,
-                root,
-                query,
                 in_collection,
+            )?;
+            let row_set = execute_query(
+                collection_relationships,
+                variables,
+                state,
+                &amp;query,
+                Root::ExplicitRow(root),
+                collection,
             )?;
             let rows: Vec&lt;IndexMap&lt;_, _&gt;&gt; = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,

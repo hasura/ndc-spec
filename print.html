@@ -984,6 +984,23 @@ mutation_total 5000 1685405427000
     ]
 }
 </code></pre>
+<h3 id="columns-in-operators"><a class="header" href="#columns-in-operators">Columns in Operators</a></h3>
+<p>Comparison operators compare columns to values. The column on the left hand side of any operator is described by a <a href="specification/queries/../../reference/types.html#comparisontarget"><code>ComparisonTarget</code></a>, and the various cases will be explained next.</p>
+<h4 id="referencing-a-column-from-the-same-collection"><a class="header" href="#referencing-a-column-from-the-same-collection">Referencing a column from the same collection</a></h4>
+<p>If the <code>ComparisonTarget</code> has type <code>column</code>, and the <code>path</code> property is empty, then the <code>name</code> property refers to a column in the current collection.</p>
+<h4 id="referencing-a-column-from-a-related-collection"><a class="header" href="#referencing-a-column-from-a-related-collection">Referencing a column from a related collection</a></h4>
+<p>If the <code>ComparisonTarget</code> has type <code>column</code>, and the <code>path</code> property is non-empty, then the <code>name</code> property refers to column in a related collection. The path consists of a collection of <a href="specification/queries/../../reference/types.html#pathelement"><code>PathElement</code></a>s, each of which references a named <a href="specification/queries/./relationships.html">relationship</a>, any <a href="specification/queries/./arguments.html">collection arguments</a>, and a <a href="specification/queries/./filtering.html">predicate expression</a> to be applied to any relevant rows in the related collection.</p>
+<p>When a <code>PathElement</code> references an <em>array</em> relationship, the enclosing operator should be considered <em>existentially quantified</em> over all related rows.</p>
+<h4 id="referencing-a-column-from-the-root-collection"><a class="header" href="#referencing-a-column-from-the-root-collection">Referencing a column from the root collection</a></h4>
+<p>If the <code>ComparisonTarget</code> has type <code>root_collection_column</code>, then the <code>name</code> property refers to a column in the <em>root collection</em>.</p>
+<p>The root collection is defined as the collection in scope at the nearest enclosing <a href="specification/queries/../../reference/types.html#query"><code>Query</code></a>, and the column should be chosen from the <em>row</em> in that collection which was in scope when that <code>Query</code> was being evaluated.</p>
+<h3 id="values-in-binary-operators"><a class="header" href="#values-in-binary-operators">Values in Binary Operators</a></h3>
+<p>Binary (including array-valued) operators compare columns to <em>values</em>, but there are several types of valid values:</p>
+<ul>
+<li>Scalar values, as seen in the examples above, compare the column to a specific value,</li>
+<li>Variable values compare the column to the current value of a <a href="specification/queries/./variables.html">variable</a>,</li>
+<li>Column values compare the column to <em>another</em> column, possibly selected from a different collection. Column values are also described by a <a href="specification/queries/../../reference/types.html#comparisontarget"><code>ComparisonTarget</code></a>.</li>
+</ul>
 <h2 id="exists-expressions"><a class="header" href="#exists-expressions"><code>EXISTS</code> expressions</a></h2>
 <p>An <code>EXISTS</code> expression tests whether a row exists in some possibly-related collection, and is denoted by an expression with a <code>type</code> field of <code>exists</code>.</p>
 <p><code>EXISTS</code> expressions can query related or unrelated collections. </p>
@@ -1212,8 +1229,6 @@ mutation_total 5000 1685405427000
     }
 }
 </code></pre>
-<h2 id="requirements-3"><a class="header" href="#requirements-3">Requirements</a></h2>
-<p><em>TODO</em></p>
 <h2 id="see-also-8"><a class="header" href="#see-also-8">See also</a></h2>
 <ul>
 <li>Type <a href="specification/queries/../../reference/types.html#expression"><code>Expression</code></a></li>
@@ -1485,7 +1500,7 @@ mutation_total 5000 1685405427000
     }
 }
 </code></pre>
-<h2 id="requirements-4"><a class="header" href="#requirements-4">Requirements</a></h2>
+<h2 id="requirements-3"><a class="header" href="#requirements-3">Requirements</a></h2>
 <ul>
 <li>Rows in the response should be ordered according to the algorithm described above.</li>
 <li>The <code>order_by</code> field should not affect the set of collection which are returned, except for their order.</li>
@@ -1503,7 +1518,7 @@ mutation_total 5000 1685405427000
 <li><code>limit</code> specifies the maximum number of rows to return from a query in the rows property. <code>limit</code> does not influence the rows considered by aggregations.</li>
 <li><code>offset</code>: The index of the first row to return. This affects the rows returned, and also the rows considered by aggregations.</li>
 </ul>
-<h2 id="requirements-5"><a class="header" href="#requirements-5">Requirements</a></h2>
+<h2 id="requirements-4"><a class="header" href="#requirements-4">Requirements</a></h2>
 <ul>
 <li>If <code>limit</code> is specified, the response should contain at most that many rows.</li>
 </ul>
@@ -1544,7 +1559,7 @@ mutation_total 5000 1685405427000
 }
 </code></pre>
 <p>In this case, the query has no predicate function, so all three aggregates would be computed over all rows.</p>
-<h2 id="requirements-6"><a class="header" href="#requirements-6">Requirements</a></h2>
+<h2 id="requirements-5"><a class="header" href="#requirements-5">Requirements</a></h2>
 <ul>
 <li>Each aggregate should be computed over all rows that match the <code>Query</code>.</li>
 <li>Each requested aggregate must be returned in the <code>aggregates</code> property on the <a href="specification/queries/../../reference/types.html#queryresponse"><code>QueryResponse</code></a> object, using the same key as used to request it.</li>
@@ -2215,7 +2230,7 @@ mutation_total 5000 1685405427000
     ]
 }
 </code></pre>
-<h2 id="requirements-7"><a class="header" href="#requirements-7">Requirements</a></h2>
+<h2 id="requirements-6"><a class="header" href="#requirements-6">Requirements</a></h2>
 <ul>
 <li>If <code>variables</code> are provided in the <a href="specification/queries/../../reference/types.html#queryrequest"><code>QueryRequest</code></a>, then the <a href="specification/queries/../../reference/types.html#queryresponse"><code>QueryResponse</code></a> should contain one <a href="specification/queries/../../reference/types.html#rowset"><code>RowSet</code></a> for each set of variables.</li>
 <li>If <code>variables</code> are not provided, the data connector should return a single <a href="specification/queries/../../reference/types.html#rowset"><code>RowSet</code></a>.</li>
@@ -2658,37 +2673,18 @@ async fn main() {
         }
     }
 
-    execute_query_by_collection_name(
-        &amp;collection_relationships,
-        variables,
-        collection.as_str(),
-        &amp;argument_values,
-        None,
-        &amp;query,
-        state,
-    )
-}</code></pre>
-<p>Once this is complete, and we have a collection of evaluated <code>argument_values</code>, we can delegate to the <code>execute_query_by_collection_name</code> function, which will compute the collection itself:</p>
-<pre><code class="language-rust no_run noplayground">fn execute_query_by_collection_name(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
-    collection_name: &amp;str,
-    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
-    root: Option&lt;&amp;Row&gt;,
-    query: &amp;models::Query,
-    state: &amp;AppState,
-) -&gt; Result&lt;models::RowSet, StatusLine&gt; {
-    let collection = get_collection_by_name(collection_name, arguments, state)?;
+    let collection = get_collection_by_name(collection.as_str(), &amp;argument_values, state)?;
+
     execute_query(
         collection_relationships,
         variables,
         state,
         query,
-        root,
+        Root::CurrentRow,
         collection,
     )
 }</code></pre>
-<p>The <code>get_collection_by_name</code> function peforms the work of computing the full collection, by pattern matching on the name of the collection:</p>
+<p>Once this is complete, and we have a collection of evaluated <code>argument_values</code>, we can delegate to the <code>get_collection_by_name</code> function. This function peforms the work of computing the full collection, by pattern matching on the name of the collection:</p>
 <pre><code class="language-rust no_run noplayground">fn get_collection_by_name(
     collection_name: &amp;str,
     arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
@@ -2699,7 +2695,7 @@ async fn main() {
         &quot;authors&quot; =&gt; Ok(state.authors.values().cloned().collect()),
         &quot;articles_by_author&quot; =&gt; {
             let author_id = arguments
-                .get(&quot;author_id&quot;.into())
+                .get(&quot;author_id&quot;)
                 .ok_or((StatusCode::BAD_REQUEST, &quot;missing argument author_id&quot;))?;
             let author_id_int = author_id
                 .as_i64()
@@ -2751,7 +2747,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     query: &amp;models::Query,
-    root: Option&lt;&amp;Row&gt;,
+    root: Root,
     collection: Vec&lt;Row&gt;,
 ) -&gt; Result&lt;models::RowSet, StatusLine&gt; {</code></pre>
 <p>In the next section, we will break down the implementation of <code>execute_query</code>.</p>
@@ -2762,7 +2758,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     query: &amp;models::Query,
-    root: Option&lt;&amp;Row&gt;,
+    root: Root,
     collection: Vec&lt;Row&gt;,
 ) -&gt; Result&lt;models::RowSet, StatusLine&gt; {</code></pre>
 <p>At this point, we have already computed the full collection, which is passed via the <code>collection</code> argument. Now, we need to evaluate the <a href="tutorial/queries/execute/../../../reference/types.html#query"><code>Query</code></a> in the context of this collection.</p>
@@ -2776,7 +2772,6 @@ Once we have computed the full collection, we can move onto evaluating the query
         variables,
         state,
         collection,
-        root,
         &amp;query.order_by,
     )?;</code></pre>
 <p>The <a href="tutorial/queries/execute/../../../reference/types.html#query"><code>Query</code></a> object defines the sort order in terms of a list of <a href="tutorial/queries/execute/../../../reference/types.html#orderbyelement"><code>OrderByElement</code></a>s. See the <a href="tutorial/queries/execute/../../../specification/queries/sorting.html">sorting specification</a> for details on how this ought to be interpreted.</p>
@@ -2787,7 +2782,6 @@ Once we have computed the full collection, we can move onto evaluating the query
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     collection: Vec&lt;Row&gt;,
-    root: Option&lt;&amp;Row&gt;,
     order_by: &amp;Option&lt;models::OrderBy&gt;,
 ) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
     match order_by {
@@ -2802,7 +2796,6 @@ Once we have computed the full collection, we can move onto evaluating the query
                         variables,
                         state,
                         order_by,
-                        root,
                         other,
                         &amp;item_to_insert,
                     )? {
@@ -2826,7 +2819,6 @@ Once we have computed the full collection, we can move onto evaluating the query
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     order_by: &amp;models::OrderBy,
-    root: Option&lt;&amp;Row&gt;,
     t1: &amp;Row,
     t2: &amp;Row,
 ) -&gt; Result&lt;Ordering, StatusLine&gt; {
@@ -2838,7 +2830,6 @@ Once we have computed the full collection, we can move onto evaluating the query
             variables,
             state,
             element,
-            root.unwrap_or(t1),
             t1,
         )?;
         let v2 = eval_order_by_element(
@@ -2846,7 +2837,6 @@ Once we have computed the full collection, we can move onto evaluating the query
             variables,
             state,
             element,
-            root.unwrap_or(t2),
             t2,
         )?;
         let x = match element.order_direction {
@@ -2866,7 +2856,6 @@ Once we have computed the full collection, we can move onto evaluating the query
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
-    root: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     item: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     path: Vec&lt;models::PathElement&gt;,
     name: String,
@@ -2876,7 +2865,6 @@ Once we have computed the full collection, we can move onto evaluating the query
         variables,
         state,
         &amp;path,
-        root,
         item,
     )?;
     if rows.len() &gt; 1 {
@@ -2899,7 +2887,10 @@ Once we have computed the full collection, we can move onto evaluating the query
         Some(expr) =&gt; {
             let mut filtered: Vec&lt;Row&gt; = vec![];
             for item in sorted.into_iter() {
-                let root = root.unwrap_or(&amp;item);
+                let root = match root {
+                    Root::CurrentRow =&gt; &amp;item,
+                    Root::ExplicitRow(root) =&gt; &amp;root,
+                };
                 if eval_expression(
                     collection_relationships,
                     variables,
@@ -2977,7 +2968,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 <p>To evaluate the comparison target, we delegate to the <code>eval_comparison_target</code> function, which pattern matches:</p>
 <ul>
 <li>A column is evaluated using the <code>eval_path</code> function, which we will cover when we talk about <a href="tutorial/queries/execute/./relationships.html">relationships</a>.</li>
-<li>A <em>root collection</em> column (that is, a column from the <em>root collection</em>, or collection used by the original query) is evaluated using <code>eval_column</code>. You may have noticed the additional argument, <code>root</code>, which has been passed down through every function call so far - this is to track the root collection for exactly this case.</li>
+<li>A <em>root collection</em> column (that is, a column from the <em>root collection</em>, or collection used by the nearest enclosing <a href="tutorial/queries/execute/../../../reference/types.html#query"><code>Query</code></a>) is evaluated using <code>eval_column</code>. You may have noticed the additional argument, <code>root</code>, which has been passed down through every function call so far - this is to track the root collection for exactly this case.</li>
 </ul>
 <pre><code class="language-rust no_run noplayground">fn eval_comparison_target(
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
@@ -2989,7 +2980,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 ) -&gt; Result&lt;Vec&lt;serde_json::Value&gt;, StatusLine&gt; {
     match target {
         models::ComparisonTarget::Column { name, path } =&gt; {
-            let rows = eval_path(collection_relationships, variables, state, path, root, item)?;
+            let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in rows.iter() {
                 let value = eval_column(row, name.as_str())?;
@@ -3128,14 +3119,20 @@ Once we have computed the full collection, we can move onto evaluating the query
                 order_by: None,
                 predicate: Some(*predicate.clone()),
             };
-            let row_set = eval_in_collection(
+            let collection = eval_in_collection(
                 collection_relationships,
                 item,
                 variables,
                 state,
-                root,
-                query,
                 in_collection,
+            )?;
+            let row_set = execute_query(
+                collection_relationships,
+                variables,
+                state,
+                &amp;query,
+                Root::ExplicitRow(root),
+                collection,
             )?;
             let rows: Vec&lt;IndexMap&lt;_, _&gt;&gt; = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
@@ -3263,7 +3260,6 @@ Once we have computed the full collection, we can move onto evaluating the query
             let mut rows: Vec&lt;IndexMap&lt;String, models::RowFieldValue&gt;&gt; = vec![];
             for item in paginated.iter() {
                 let mut row = IndexMap::new();
-                let root = root.unwrap_or(item);
                 for (field_name, field) in fields.iter() {
                     row.insert(
                         field_name.clone(),
@@ -3272,7 +3268,6 @@ Once we have computed the full collection, we can move onto evaluating the query
                             variables,
                             state,
                             field,
-                            root,
                             item,
                         )?,
                     );
@@ -3292,14 +3287,12 @@ Once we have computed the full collection, we can move onto evaluating the query
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     field: &amp;models::Field,
-    root: &amp;Row,
     item: &amp;Row,
 ) -&gt; Result&lt;models::RowFieldValue, StatusLine&gt; {
     match field {
-        models::Field::Column { column, .. } =&gt; Ok(models::RowFieldValue::Column(eval_column(
-            item,
-            column.as_str(),
-        )?)),
+        models::Field::Column { column, .. } =&gt; {
+            Ok(models::RowFieldValue(eval_column(item, column.as_str())?))
+        }
         models::Field::Relationship {
             relationship,
             arguments,
@@ -3316,7 +3309,6 @@ Once we have computed the full collection, we can move onto evaluating the query
                 state,
                 relationship,
                 arguments,
-                root,
                 &amp;source,
                 &amp;models::Expression::And {
                     expressions: vec![],
@@ -3327,10 +3319,12 @@ Once we have computed the full collection, we can move onto evaluating the query
                 variables,
                 state,
                 query,
-                Some(root),
+                Root::CurrentRow,
                 collection,
             )?;
-            Ok(models::RowFieldValue::Relationship(rows))
+            let rows_json = serde_json::to_value(rows)
+                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, &quot;cannot encode rowset&quot;))?;
+            Ok(models::RowFieldValue(rows_json))
         }
     }
 }</code></pre>
@@ -3343,7 +3337,6 @@ Once we have computed the full collection, we can move onto evaluating the query
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     path: &amp;Vec&lt;models::PathElement&gt;,
-    root: &amp;Row,
     item: &amp;Row,
 ) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
     let mut result: Vec&lt;Row&gt; = vec![item.clone()];
@@ -3359,7 +3352,6 @@ Once we have computed the full collection, we can move onto evaluating the query
             state,
             relationship,
             &amp;path_element.arguments,
-            root,
             &amp;result,
             &amp;path_element.predicate,
         )?;
@@ -3374,7 +3366,6 @@ Once we have computed the full collection, we can move onto evaluating the query
     state: &amp;AppState,
     relationship: &amp;models::Relationship,
     arguments: &amp;BTreeMap&lt;String, models::RelationshipArgument&gt;,
-    root: &amp;Row,
     source: &amp;Vec&lt;Row&gt;,
     predicate: &amp;models::Expression,
 ) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
@@ -3431,8 +3422,8 @@ Once we have computed the full collection, we can move onto evaluating the query
                     variables,
                     state,
                     &amp;predicate,
-                    root,
-                    &amp;tgt_row,
+                    tgt_row,
+                    tgt_row,
                 )? {
                     matching_rows.push(tgt_row.clone());
                 }
@@ -3968,10 +3959,16 @@ pub enum RelationshipType {
 }</code></pre>
 <h2 id="rowfieldvalue"><a class="header" href="#rowfieldvalue"><code>RowFieldValue</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(untagged)]
-pub enum RowFieldValue {
-    Relationship(RowSet),
-    Column(serde_json::Value),
+pub struct RowFieldValue(pub serde_json::Value);
+
+impl RowFieldValue {
+    /// In the case where this field value was obtained using a
+    /// [`Field::Relationship`], the returned JSON will be a [`RowSet`].
+    /// We cannot express [`RowFieldValue`] as an enum, because
+    /// [`RowFieldValue`] overlaps with values which have object types.
+    pub fn as_rowset(self) -&gt; Option&lt;RowSet&gt; {
+        serde_json::from_value(self.0).ok()
+    }
 }</code></pre>
 <h2 id="rowset"><a class="header" href="#rowset"><code>RowSet</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -5417,40 +5414,7 @@ pub struct UpdateOperatorDefinition {
         }
       }
     },
-    &quot;RowFieldValue&quot;: {
-      &quot;anyOf&quot;: [
-        {
-          &quot;$ref&quot;: &quot;#/definitions/RowSet&quot;
-        },
-        true
-      ]
-    },
-    &quot;RowSet&quot;: {
-      &quot;type&quot;: &quot;object&quot;,
-      &quot;properties&quot;: {
-        &quot;aggregates&quot;: {
-          &quot;description&quot;: &quot;The results of the aggregates returned by the query&quot;,
-          &quot;type&quot;: [
-            &quot;object&quot;,
-            &quot;null&quot;
-          ],
-          &quot;additionalProperties&quot;: true
-        },
-        &quot;rows&quot;: {
-          &quot;description&quot;: &quot;The rows returned by the query, corresponding to the query's fields&quot;,
-          &quot;type&quot;: [
-            &quot;array&quot;,
-            &quot;null&quot;
-          ],
-          &quot;items&quot;: {
-            &quot;type&quot;: &quot;object&quot;,
-            &quot;additionalProperties&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/RowFieldValue&quot;
-            }
-          }
-        }
-      }
-    }
+    &quot;RowFieldValue&quot;: true
   }
 }
 </code></pre>
@@ -6368,14 +6332,7 @@ pub struct UpdateOperatorDefinition {
     &quot;$ref&quot;: &quot;#/definitions/RowSet&quot;
   },
   &quot;definitions&quot;: {
-    &quot;RowFieldValue&quot;: {
-      &quot;anyOf&quot;: [
-        {
-          &quot;$ref&quot;: &quot;#/definitions/RowSet&quot;
-        },
-        true
-      ]
-    },
+    &quot;RowFieldValue&quot;: true,
     &quot;RowSet&quot;: {
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {

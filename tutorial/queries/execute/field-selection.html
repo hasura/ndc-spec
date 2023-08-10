@@ -154,7 +154,6 @@
             let mut rows: Vec&lt;IndexMap&lt;String, models::RowFieldValue&gt;&gt; = vec![];
             for item in paginated.iter() {
                 let mut row = IndexMap::new();
-                let root = root.unwrap_or(item);
                 for (field_name, field) in fields.iter() {
                     row.insert(
                         field_name.clone(),
@@ -163,7 +162,6 @@
                             variables,
                             state,
                             field,
-                            root,
                             item,
                         )?,
                     );
@@ -183,14 +181,12 @@
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
     field: &amp;models::Field,
-    root: &amp;Row,
     item: &amp;Row,
 ) -&gt; Result&lt;models::RowFieldValue, StatusLine&gt; {
     match field {
-        models::Field::Column { column, .. } =&gt; Ok(models::RowFieldValue::Column(eval_column(
-            item,
-            column.as_str(),
-        )?)),
+        models::Field::Column { column, .. } =&gt; {
+            Ok(models::RowFieldValue(eval_column(item, column.as_str())?))
+        }
         models::Field::Relationship {
             relationship,
             arguments,
@@ -207,7 +203,6 @@
                 state,
                 relationship,
                 arguments,
-                root,
                 &amp;source,
                 &amp;models::Expression::And {
                     expressions: vec![],
@@ -218,10 +213,12 @@
                 variables,
                 state,
                 query,
-                Some(root),
+                Root::CurrentRow,
                 collection,
             )?;
-            Ok(models::RowFieldValue::Relationship(rows))
+            let rows_json = serde_json::to_value(rows)
+                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, &quot;cannot encode rowset&quot;))?;
+            Ok(models::RowFieldValue(rows_json))
         }
     }
 }</code></pre>
