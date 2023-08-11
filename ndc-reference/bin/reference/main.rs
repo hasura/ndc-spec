@@ -537,7 +537,7 @@ enum Root<'a> {
     /// explicitly-identified row, which is the row
     /// being evaluated in the context of the nearest enclosing
     /// [`models::Query`].
-    ExplicitRow(&'a Row)
+    ExplicitRow(&'a Row),
 }
 /// ANCHOR_END: Root
 // ANCHOR: execute_query
@@ -615,13 +615,7 @@ fn execute_query(
                 for (field_name, field) in fields.iter() {
                     row.insert(
                         field_name.clone(),
-                        eval_field(
-                            collection_relationships,
-                            variables,
-                            state,
-                            field,
-                            item,
-                        )?,
+                        eval_field(collection_relationships, variables, state, field, item)?,
                     );
                 }
                 rows.push(row)
@@ -771,20 +765,8 @@ fn eval_order_by(
     let mut result = Ordering::Equal;
 
     for element in order_by.elements.iter() {
-        let v1 = eval_order_by_element(
-            collection_relationships,
-            variables,
-            state,
-            element,
-            t1,
-        )?;
-        let v2 = eval_order_by_element(
-            collection_relationships,
-            variables,
-            state,
-            element,
-            t2,
-        )?;
+        let v1 = eval_order_by_element(collection_relationships, variables, state, element, t1)?;
+        let v2 = eval_order_by_element(collection_relationships, variables, state, element, t2)?;
         let x = match element.order_direction {
             models::OrderDirection::Asc => compare(v1, v2)?,
             models::OrderDirection::Desc => compare(v2, v1)?,
@@ -824,14 +806,9 @@ fn eval_order_by_element(
     item: &Row,
 ) -> Result<serde_json::Value, StatusLine> {
     match element.target.clone() {
-        models::OrderByTarget::Column { name, path } => eval_order_by_column(
-            collection_relationships,
-            variables,
-            state,
-            item,
-            path,
-            name,
-        ),
+        models::OrderByTarget::Column { name, path } => {
+            eval_order_by_column(collection_relationships, variables, state, item, path, name)
+        }
         models::OrderByTarget::SingleColumnAggregate {
             column,
             function,
@@ -863,13 +840,7 @@ fn eval_order_by_star_count_aggregate(
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
 ) -> Result<serde_json::Value, StatusLine> {
-    let rows: Vec<Row> = eval_path(
-        collection_relationships,
-        variables,
-        state,
-        &path,
-        item,
-    )?;
+    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     Ok(rows.len().into())
 }
 // ANCHOR_END: eval_order_by_star_count_aggregate
@@ -883,13 +854,7 @@ fn eval_order_by_single_column_aggregate(
     column: String,
     function: String,
 ) -> Result<serde_json::Value, StatusLine> {
-    let rows: Vec<Row> = eval_path(
-        collection_relationships,
-        variables,
-        state,
-        &path,
-        item,
-    )?;
+    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     let values = rows
         .iter()
         .map(|row| {
@@ -909,13 +874,7 @@ fn eval_order_by_column(
     path: Vec<models::PathElement>,
     name: String,
 ) -> Result<serde_json::Value, StatusLine> {
-    let rows: Vec<Row> = eval_path(
-        collection_relationships,
-        variables,
-        state,
-        &path,
-        item,
-    )?;
+    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     if rows.len() > 1 {
         return Err((
             StatusCode::BAD_REQUEST,
@@ -1110,13 +1069,13 @@ fn eval_expression(
         }
         // ANCHOR_END: eval_expression_logical
         // ANCHOR: eval_expression_unary_operators
-        models::Expression::UnaryComparisonOperator { column, operator } => match &**operator {
+        models::Expression::UnaryComparisonOperator { column, operator } => match operator {
             models::UnaryComparisonOperator::IsNull => {
                 let vals = eval_comparison_target(
                     collection_relationships,
                     variables,
                     state,
-                    &*column,
+                    column,
                     root,
                     item,
                 )?;
@@ -1129,13 +1088,13 @@ fn eval_expression(
             column,
             operator,
             value,
-        } => match &**operator {
+        } => match operator {
             models::BinaryComparisonOperator::Equal => {
                 let left_vals = eval_comparison_target(
                     collection_relationships,
                     variables,
                     state,
-                    &*column,
+                    column,
                     root,
                     item,
                 )?;
@@ -1165,7 +1124,7 @@ fn eval_expression(
                         collection_relationships,
                         variables,
                         state,
-                        &*column,
+                        column,
                         root,
                         item,
                     )?;
@@ -1208,13 +1167,13 @@ fn eval_expression(
             column,
             operator,
             values,
-        } => match &**operator {
+        } => match operator {
             models::BinaryArrayComparisonOperator::In => {
                 let left_val = eval_comparison_target(
                     collection_relationships,
                     variables,
                     state,
-                    &*column,
+                    column,
                     root,
                     item,
                 )?;
@@ -1279,9 +1238,9 @@ fn eval_in_collection(
     item: &BTreeMap<String, serde_json::Value>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-    in_collection: &Box<models::ExistsInCollection>,
+    in_collection: &models::ExistsInCollection,
 ) -> Result<Vec<Row>, (StatusCode, &'static str)> {
-    match &**in_collection {
+    match in_collection {
         models::ExistsInCollection::Related {
             relationship,
             arguments,
@@ -1364,7 +1323,7 @@ fn eval_comparison_value(
             collection_relationships,
             variables,
             state,
-            &*column,
+            column,
             root,
             item,
         ),

@@ -56,7 +56,7 @@ pub struct SchemaResponse {
     /// A list of scalar types which will be used as the types of collection columns
     pub scalar_types: BTreeMap<String, ScalarType>,
     /// A list of object types which can be used as the types of arguments, or return types of procedures.
-    /// Names should not overlap with collection names or scalar type names.
+    /// Names should not overlap with scalar type names.
     pub object_types: BTreeMap<String, ObjectType>,
     /// Collections which are available for queries and/or mutations
     pub collections: Vec<CollectionInfo>,
@@ -401,21 +401,21 @@ pub enum Expression {
         expression: Box<Expression>,
     },
     UnaryComparisonOperator {
-        column: Box<ComparisonTarget>,
-        operator: Box<UnaryComparisonOperator>,
+        column: ComparisonTarget,
+        operator: UnaryComparisonOperator,
     },
     BinaryComparisonOperator {
-        column: Box<ComparisonTarget>,
-        operator: Box<BinaryComparisonOperator>,
-        value: Box<ComparisonValue>,
+        column: ComparisonTarget,
+        operator: BinaryComparisonOperator,
+        value: ComparisonValue,
     },
     BinaryArrayComparisonOperator {
-        column: Box<ComparisonTarget>,
-        operator: Box<BinaryArrayComparisonOperator>,
+        column: ComparisonTarget,
+        operator: BinaryArrayComparisonOperator,
         values: Vec<ComparisonValue>,
     },
     Exists {
-        in_collection: Box<ExistsInCollection>,
+        in_collection: ExistsInCollection,
         #[serde(rename = "where")]
         predicate: Box<Expression>,
     },
@@ -489,7 +489,7 @@ pub struct PathElement {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ComparisonValue {
-    Column { column: Box<ComparisonTarget> },
+    Column { column: ComparisonTarget },
     Scalar { value: serde_json::Value },
     Variable { name: String },
 }
