@@ -753,7 +753,7 @@ mod tests {
     fn test_query_request_schema() {
         let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
 
-        let mut mint = Mint::new(&test_dir);
+        let mut mint = Mint::new(test_dir);
 
         test_json_schema(
             &mut mint,

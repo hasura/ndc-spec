@@ -12,8 +12,6 @@
         "author_if_has_functional_articles": {
           "rows": [
             {
-              "first_name": "John",
-              "last_name": "Hughes",
               "articles": {
                 "rows": [
                   {
@@ -23,7 +21,9 @@
                     "title": "The Design And Implementation Of Programming Languages"
                   }
                 ]
-              }
+              },
+              "first_name": "John",
+              "last_name": "Hughes"
             }
           ]
         }
@@ -33,8 +33,6 @@
         "author_if_has_functional_articles": {
           "rows": [
             {
-              "first_name": "John",
-              "last_name": "Hughes",
               "articles": {
                 "rows": [
                   {
@@ -44,7 +42,9 @@
                     "title": "The Design And Implementation Of Programming Languages"
                   }
                 ]
-              }
+              },
+              "first_name": "John",
+              "last_name": "Hughes"
             }
           ]
         }
