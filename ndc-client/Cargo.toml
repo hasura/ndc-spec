@@ -1,8 +1,8 @@
 [package]
 name = "ndc-client"
-version = "0.1.0"
 description = "Protocol definitions and client library for the Hasura NDC specification"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [[bin]]
 name = "ndc-test"
