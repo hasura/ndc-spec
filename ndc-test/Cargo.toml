@@ -1,0 +1,16 @@
+[package]
+name = "ndc-test"
+description = "A tool to verify that a data connector is somewhat compatible with the specification"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+indexmap = { version = "1", features = ["serde"] }
+tokio = { version = "1.26.0", features = ["macros", "rt-multi-thread", "parking_lot"] }
+
+ndc-client = { path = "../ndc-client" }
+
+[dependencies.reqwest]
+version = "^0.11"
+features = ["json", "multipart"]
