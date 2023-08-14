@@ -11,7 +11,7 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use csv;
+
 use indexmap::IndexMap;
 use ndc_client::models;
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
@@ -440,7 +440,7 @@ pub async fn post_query(
 // ANCHOR: execute_query_with_variables
 // ANCHOR: execute_query_with_variables_signature
 fn execute_query_with_variables(
-    collection: &String,
+    collection: &str,
     arguments: &BTreeMap<String, models::Argument>,
     collection_relationships: &BTreeMap<String, models::Relationship>,
     query: &models::Query,
@@ -451,15 +451,18 @@ fn execute_query_with_variables(
     let mut argument_values = BTreeMap::new();
 
     for (argument_name, argument_value) in arguments.iter() {
-        if let Some(_) = argument_values.insert(
-            argument_name.clone(),
-            eval_argument(variables, argument_value)?,
-        ) {
+        if argument_values
+            .insert(
+                argument_name.clone(),
+                eval_argument(variables, argument_value)?,
+            )
+            .is_some()
+        {
             return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
         }
     }
 
-    let collection = get_collection_by_name(collection.as_str(), &argument_values, state)?;
+    let collection = get_collection_by_name(collection, &argument_values, state)?;
 
     execute_query(
         collection_relationships,
@@ -537,7 +540,7 @@ enum Root<'a> {
     /// explicitly-identified row, which is the row
     /// being evaluated in the context of the nearest enclosing
     /// [`models::Query`].
-    ExplicitRow(&'a Row)
+    ExplicitRow(&'a Row),
 }
 /// ANCHOR_END: Root
 // ANCHOR: execute_query
@@ -568,13 +571,13 @@ fn execute_query(
             for item in sorted.into_iter() {
                 let root = match root {
                     Root::CurrentRow => &item,
-                    Root::ExplicitRow(root) => &root,
+                    Root::ExplicitRow(root) => root,
                 };
                 if eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &expr,
+                    expr,
                     root,
                     &item,
                 )? {
@@ -615,13 +618,7 @@ fn execute_query(
                 for (field_name, field) in fields.iter() {
                     row.insert(
                         field_name.clone(),
-                        eval_field(
-                            collection_relationships,
-                            variables,
-                            state,
-                            field,
-                            item,
-                        )?,
+                        eval_field(collection_relationships, variables, state, field, item)?,
                     );
                 }
                 rows.push(row)
@@ -687,7 +684,7 @@ fn eval_aggregate(
 // ANCHOR_END: eval_aggregate
 // ANCHOR: eval_aggregate_function
 fn eval_aggregate_function(
-    function: &String,
+    function: &str,
     values: Vec<&serde_json::Value>,
 ) -> Result<serde_json::Value, StatusLine> {
     let int_values = values
@@ -698,7 +695,7 @@ fn eval_aggregate_function(
                 .ok_or((StatusCode::BAD_REQUEST, "column is not an integer"))
         })
         .collect::<Result<Vec<_>, _>>()?;
-    let agg_value = match function.as_str() {
+    let agg_value = match function {
         "min" => Ok(int_values.iter().min()),
         "max" => Ok(int_values.iter().max()),
         _ => Err((StatusCode::BAD_REQUEST, "invalid aggregation function")),
@@ -771,20 +768,8 @@ fn eval_order_by(
     let mut result = Ordering::Equal;
 
     for element in order_by.elements.iter() {
-        let v1 = eval_order_by_element(
-            collection_relationships,
-            variables,
-            state,
-            element,
-            t1,
-        )?;
-        let v2 = eval_order_by_element(
-            collection_relationships,
-            variables,
-            state,
-            element,
-            t2,
-        )?;
+        let v1 = eval_order_by_element(collection_relationships, variables, state, element, t1)?;
+        let v2 = eval_order_by_element(collection_relationships, variables, state, element, t2)?;
         let x = match element.order_direction {
             models::OrderDirection::Asc => compare(v1, v2)?,
             models::OrderDirection::Desc => compare(v2, v1)?,
@@ -824,14 +809,9 @@ fn eval_order_by_element(
     item: &Row,
 ) -> Result<serde_json::Value, StatusLine> {
     match element.target.clone() {
-        models::OrderByTarget::Column { name, path } => eval_order_by_column(
-            collection_relationships,
-            variables,
-            state,
-            item,
-            path,
-            name,
-        ),
+        models::OrderByTarget::Column { name, path } => {
+            eval_order_by_column(collection_relationships, variables, state, item, path, name)
+        }
         models::OrderByTarget::SingleColumnAggregate {
             column,
             function,
@@ -863,13 +843,7 @@ fn eval_order_by_star_count_aggregate(
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
 ) -> Result<serde_json::Value, StatusLine> {
-    let rows: Vec<Row> = eval_path(
-        collection_relationships,
-        variables,
-        state,
-        &path,
-        item,
-    )?;
+    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     Ok(rows.len().into())
 }
 // ANCHOR_END: eval_order_by_star_count_aggregate
@@ -883,13 +857,7 @@ fn eval_order_by_single_column_aggregate(
     column: String,
     function: String,
 ) -> Result<serde_json::Value, StatusLine> {
-    let rows: Vec<Row> = eval_path(
-        collection_relationships,
-        variables,
-        state,
-        &path,
-        item,
-    )?;
+    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     let values = rows
         .iter()
         .map(|row| {
@@ -909,13 +877,7 @@ fn eval_order_by_column(
     path: Vec<models::PathElement>,
     name: String,
 ) -> Result<serde_json::Value, StatusLine> {
-    let rows: Vec<Row> = eval_path(
-        collection_relationships,
-        variables,
-        state,
-        &path,
-        item,
-    )?;
+    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     if rows.len() > 1 {
         return Err((
             StatusCode::BAD_REQUEST,
@@ -933,7 +895,7 @@ fn eval_path(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-    path: &Vec<models::PathElement>,
+    path: &[models::PathElement],
     item: &Row,
 ) -> Result<Vec<Row>, StatusLine> {
     let mut result: Vec<Row> = vec![item.clone()];
@@ -964,7 +926,7 @@ fn eval_path_element(
     state: &AppState,
     relationship: &models::Relationship,
     arguments: &BTreeMap<String, models::RelationshipArgument>,
-    source: &Vec<Row>,
+    source: &[Row],
     predicate: &models::Expression,
 ) -> Result<Vec<Row>, StatusLine> {
     let mut matching_rows: Vec<Row> = vec![];
@@ -990,19 +952,25 @@ fn eval_path_element(
         let mut all_arguments = BTreeMap::new();
 
         for (argument_name, argument_value) in relationship.arguments.iter() {
-            if let Some(_) = all_arguments.insert(
-                argument_name.clone(),
-                eval_relationship_argument(variables, src_row, argument_value)?,
-            ) {
+            if all_arguments
+                .insert(
+                    argument_name.clone(),
+                    eval_relationship_argument(variables, src_row, argument_value)?,
+                )
+                .is_some()
+            {
                 return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
             }
         }
 
         for (argument_name, argument_value) in arguments.iter() {
-            if let Some(_) = all_arguments.insert(
-                argument_name.clone(),
-                eval_relationship_argument(variables, src_row, argument_value)?,
-            ) {
+            if all_arguments
+                .insert(
+                    argument_name.clone(),
+                    eval_relationship_argument(variables, src_row, argument_value)?,
+                )
+                .is_some()
+            {
                 return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
             }
         }
@@ -1014,17 +982,17 @@ fn eval_path_element(
         )?;
 
         for tgt_row in target.iter() {
-            if eval_column_mapping(relationship, src_row, tgt_row)? {
-                if eval_expression(
+            if eval_column_mapping(relationship, src_row, tgt_row)?
+                && eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &predicate,
+                    predicate,
                     tgt_row,
                     tgt_row,
-                )? {
-                    matching_rows.push(tgt_row.clone());
-                }
+                )?
+            {
+                matching_rows.push(tgt_row.clone());
             }
         }
     }
@@ -1116,7 +1084,7 @@ fn eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &*column,
+                    column,
                     root,
                     item,
                 )?;
@@ -1135,7 +1103,7 @@ fn eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &*column,
+                    column,
                     root,
                     item,
                 )?;
@@ -1165,7 +1133,7 @@ fn eval_expression(
                         collection_relationships,
                         variables,
                         state,
-                        &*column,
+                        column,
                         root,
                         item,
                     )?;
@@ -1186,7 +1154,7 @@ fn eval_expression(
                                 StatusCode::BAD_REQUEST,
                                 "regular expression is not a string",
                             ))?;
-                            let regex = Regex::new(regex_str.into()).map_err(|_| {
+                            let regex = Regex::new(regex_str).map_err(|_| {
                                 (StatusCode::BAD_REQUEST, "invalid regular expression")
                             })?;
                             if regex.is_match(column_str) {
@@ -1214,7 +1182,7 @@ fn eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &*column,
+                    column,
                     root,
                     item,
                 )?;
@@ -1279,9 +1247,9 @@ fn eval_in_collection(
     item: &BTreeMap<String, serde_json::Value>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-    in_collection: &Box<models::ExistsInCollection>,
+    in_collection: &models::ExistsInCollection,
 ) -> Result<Vec<Row>, (StatusCode, &'static str)> {
-    match &**in_collection {
+    match in_collection {
         models::ExistsInCollection::Related {
             relationship,
             arguments,
@@ -1364,7 +1332,7 @@ fn eval_comparison_value(
             collection_relationships,
             variables,
             state,
-            &*column,
+            column,
             root,
             item,
         ),
@@ -1460,7 +1428,7 @@ async fn post_mutation(
 
 async fn execute_mutation_operation(
     state: &mut AppState,
-    _insert_schema: &Vec<models::CollectionInsertSchema>,
+    _insert_schema: &[models::CollectionInsertSchema],
     collection_relationships: &BTreeMap<String, models::Relationship>,
     operation: &models::MutationOperation,
 ) -> Result<models::MutationOperationResults, StatusLine> {
