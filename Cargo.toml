@@ -1,5 +1,9 @@
 [workspace]
+package.version = "0.1.0"
+package.edition = "2021"
+
 members = [
   "ndc-client",
   "ndc-reference",
+  "ndc-test",
 ]
