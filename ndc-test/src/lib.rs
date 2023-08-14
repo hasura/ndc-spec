@@ -5,6 +5,23 @@ use ndc_client::apis::configuration::Configuration;
 use ndc_client::apis::default_api as api;
 use ndc_client::models;
 
+pub async fn test_connector(configuration: &Configuration) -> Result<(), ndc_client::apis::Error> {
+    println!("Fetching /capabilities");
+    let capabilities = api::capabilities_get(configuration).await?;
+    println!("Validating capabilities");
+    validate_capabilities(&capabilities);
+
+    print!("Fetching /schema");
+    let schema = api::schema_get(configuration).await.unwrap();
+    println!("Validating schema");
+    validate_schema(&schema);
+
+    println!("Testing /query");
+    test_query(configuration, &capabilities, &schema).await;
+
+    Ok(())
+}
+
 pub fn validate_capabilities(_capabilities: &models::CapabilitiesResponse) {
     // TODO: validate capabilities.version
 }
