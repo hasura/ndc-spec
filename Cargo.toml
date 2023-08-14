@@ -5,4 +5,5 @@ package.edition = "2021"
 members = [
   "ndc-client",
   "ndc-reference",
+  "ndc-test",
 ]

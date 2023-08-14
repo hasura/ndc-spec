@@ -13,11 +13,11 @@ use super::{configuration, Error};
 use crate::apis::ResponseContent;
 
 trait ToHeaderString {
-    fn to_header_string(self: Self) -> String;
+    fn to_header_string(self) -> String;
 }
 
 impl ToHeaderString for HashMap<String, json::Value> {
-    fn to_header_string(self: Self) -> String {
+    fn to_header_string(self) -> String {
         json::to_value(self).map_or("".to_string(), |val| val.to_string())
     }
 }
@@ -36,7 +36,7 @@ fn inject_trace_context(builder: RequestBuilder) -> RequestBuilder {
 }
 
 impl ToHeaderString for &str {
-    fn to_header_string(self: Self) -> String {
+    fn to_header_string(self) -> String {
         self.to_string()
     }
 }
