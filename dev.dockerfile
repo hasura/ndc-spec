@@ -7,6 +7,8 @@ RUN apt-get update \
     apt-get install --no-install-recommends --assume-yes \
       lld libssl-dev ssh git pkg-config
 
+RUN rustup component add clippy
+
 ENV RUSTFLAGS="-C link-arg=-fuse-ld=lld"
 
 COPY . .

@@ -39,6 +39,25 @@ steps:
           # The following option makes sure that we get a unique folder to perform our CI build everytime
           interpolate_checkout_path: "$BUILDKITE_BUILD_CHECKOUT_PATH/$BUILDKITE_BUILD_ID/$BUILDKITE_JOB_ID"
 
+  - label: "Lint"
+    command: |
+      echo "--- lint"
+      just ci-lint
+    plugins:
+      - hasura/smooth-secrets#v1.3.2:
+          secrets:
+            - strategy: aws-secrets-manager
+              key: github-user-keys/hasura-ci
+              type: ssh
+              region: us-east-2
+      - hasura/smooth-checkout#v4.3.2:
+          repos:
+            - config:
+                - url: git@github.com:hasura/ndc-spec.git
+          delete_checkout: true
+          # The following option makes sure that we get a unique folder to perform our CI build everytime
+          interpolate_checkout_path: "$BUILDKITE_BUILD_CHECKOUT_PATH/$BUILDKITE_BUILD_ID/$BUILDKITE_JOB_ID"
+
   - label: "Bench"
     command: |
       echo "--- bench"
