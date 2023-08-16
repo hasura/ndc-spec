@@ -72,6 +72,7 @@
           pkgs.rustc
           pkgs.rustfmt
 
+          pkgs.just
           pkgs.mdbook
         ];
 
