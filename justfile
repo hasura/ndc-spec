@@ -16,7 +16,7 @@ ci-test:
   just docker cargo test
 
 ci-lint:
-  just docker-cargo clippy -- --deny clippy::all
+  just docker cargo clippy -- --deny clippy::all
 
 ci-bench:
   just docker cargo bench
