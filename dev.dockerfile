@@ -10,3 +10,5 @@ RUN apt-get update \
 ENV RUSTFLAGS="-C link-arg=-fuse-ld=lld"
 
 COPY . .
+
+RUN cargo fetch
