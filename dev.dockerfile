@@ -12,5 +12,3 @@ RUN rustup component add clippy
 ENV RUSTFLAGS="-C link-arg=-fuse-ld=lld"
 
 COPY . .
-
-RUN cargo fetch
