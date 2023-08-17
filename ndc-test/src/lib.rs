@@ -1,54 +1,32 @@
 use std::collections::BTreeMap;
 
-use clap::Parser;
 use indexmap::IndexMap;
 use ndc_client::apis::configuration::Configuration;
 use ndc_client::apis::default_api as api;
 use ndc_client::models;
 
-#[derive(Parser)]
-struct Options {
-    #[arg(long, value_name = "ENDPOINT")]
-    endpoint: String,
-}
-
-#[tokio::main]
-async fn main() {
-    let options = Options::parse();
-
-    let http_client = reqwest::Client::new();
-
-    let configuration = Configuration {
-        base_path: options.endpoint,
-        user_agent: None,
-        client: http_client.clone(),
-        basic_auth: None,
-        oauth_access_token: None,
-        bearer_access_token: None,
-        api_key: None,
-    };
-
+pub async fn test_connector(configuration: &Configuration) -> Result<(), ndc_client::apis::Error> {
     println!("Fetching /capabilities");
-    let capabilities = api::capabilities_get(&configuration).await.unwrap();
-
+    let capabilities = api::capabilities_get(configuration).await?;
     println!("Validating capabilities");
     validate_capabilities(&capabilities);
 
     print!("Fetching /schema");
-    let schema = api::schema_get(&configuration).await.unwrap();
-
+    let schema = api::schema_get(configuration).await.unwrap();
     println!("Validating schema");
     validate_schema(&schema);
 
     println!("Testing /query");
-    test_query(&configuration, &capabilities, &schema).await;
+    test_query(configuration, &capabilities, &schema).await;
+
+    Ok(())
 }
 
-fn validate_capabilities(_capabilities: &models::CapabilitiesResponse) {
+pub fn validate_capabilities(_capabilities: &models::CapabilitiesResponse) {
     // TODO: validate capabilities.version
 }
 
-fn validate_schema(schema: &models::SchemaResponse) {
+pub fn validate_schema(schema: &models::SchemaResponse) {
     println!("Validating object_types");
     for (_type_name, object_type) in schema.object_types.iter() {
         for (_field_name, object_field) in object_type.fields.iter() {
@@ -128,7 +106,7 @@ fn validate_schema(schema: &models::SchemaResponse) {
     }
 }
 
-fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) {
+pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) {
     match r#type {
         models::Type::Named { name } => {
             assert!(
@@ -147,7 +125,7 @@ fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) {
     }
 }
 
-async fn test_query(
+pub async fn test_query(
     configuration: &Configuration,
     _capabilities: &models::CapabilitiesResponse,
     schema: &models::SchemaResponse,
@@ -234,7 +212,7 @@ async fn test_aggregate_queries(
         variables: None,
     };
     let response = api::query_post(configuration, query_request).await.unwrap();
-    if let [row_set] = &*response.0.clone() {
+    if let [row_set] = &*response.0 {
         assert!(
             row_set.rows.is_none(),
             "aggregate-only query should not return rows"

@@ -11,7 +11,7 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use csv;
+
 use indexmap::IndexMap;
 use ndc_client::models;
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
@@ -440,7 +440,7 @@ pub async fn post_query(
 // ANCHOR: execute_query_with_variables
 // ANCHOR: execute_query_with_variables_signature
 fn execute_query_with_variables(
-    collection: &String,
+    collection: &str,
     arguments: &BTreeMap<String, models::Argument>,
     collection_relationships: &BTreeMap<String, models::Relationship>,
     query: &models::Query,
@@ -451,15 +451,18 @@ fn execute_query_with_variables(
     let mut argument_values = BTreeMap::new();
 
     for (argument_name, argument_value) in arguments.iter() {
-        if let Some(_) = argument_values.insert(
-            argument_name.clone(),
-            eval_argument(variables, argument_value)?,
-        ) {
+        if argument_values
+            .insert(
+                argument_name.clone(),
+                eval_argument(variables, argument_value)?,
+            )
+            .is_some()
+        {
             return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
         }
     }
 
-    let collection = get_collection_by_name(collection.as_str(), &argument_values, state)?;
+    let collection = get_collection_by_name(collection, &argument_values, state)?;
 
     execute_query(
         collection_relationships,
@@ -568,13 +571,13 @@ fn execute_query(
             for item in sorted.into_iter() {
                 let root = match root {
                     Root::CurrentRow => &item,
-                    Root::ExplicitRow(root) => &root,
+                    Root::ExplicitRow(root) => root,
                 };
                 if eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &expr,
+                    expr,
                     root,
                     &item,
                 )? {
@@ -681,7 +684,7 @@ fn eval_aggregate(
 // ANCHOR_END: eval_aggregate
 // ANCHOR: eval_aggregate_function
 fn eval_aggregate_function(
-    function: &String,
+    function: &str,
     values: Vec<&serde_json::Value>,
 ) -> Result<serde_json::Value, StatusLine> {
     let int_values = values
@@ -692,7 +695,7 @@ fn eval_aggregate_function(
                 .ok_or((StatusCode::BAD_REQUEST, "column is not an integer"))
         })
         .collect::<Result<Vec<_>, _>>()?;
-    let agg_value = match function.as_str() {
+    let agg_value = match function {
         "min" => Ok(int_values.iter().min()),
         "max" => Ok(int_values.iter().max()),
         _ => Err((StatusCode::BAD_REQUEST, "invalid aggregation function")),
@@ -892,7 +895,7 @@ fn eval_path(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-    path: &Vec<models::PathElement>,
+    path: &[models::PathElement],
     item: &Row,
 ) -> Result<Vec<Row>, StatusLine> {
     let mut result: Vec<Row> = vec![item.clone()];
@@ -923,7 +926,7 @@ fn eval_path_element(
     state: &AppState,
     relationship: &models::Relationship,
     arguments: &BTreeMap<String, models::RelationshipArgument>,
-    source: &Vec<Row>,
+    source: &[Row],
     predicate: &models::Expression,
 ) -> Result<Vec<Row>, StatusLine> {
     let mut matching_rows: Vec<Row> = vec![];
@@ -949,19 +952,25 @@ fn eval_path_element(
         let mut all_arguments = BTreeMap::new();
 
         for (argument_name, argument_value) in relationship.arguments.iter() {
-            if let Some(_) = all_arguments.insert(
-                argument_name.clone(),
-                eval_relationship_argument(variables, src_row, argument_value)?,
-            ) {
+            if all_arguments
+                .insert(
+                    argument_name.clone(),
+                    eval_relationship_argument(variables, src_row, argument_value)?,
+                )
+                .is_some()
+            {
                 return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
             }
         }
 
         for (argument_name, argument_value) in arguments.iter() {
-            if let Some(_) = all_arguments.insert(
-                argument_name.clone(),
-                eval_relationship_argument(variables, src_row, argument_value)?,
-            ) {
+            if all_arguments
+                .insert(
+                    argument_name.clone(),
+                    eval_relationship_argument(variables, src_row, argument_value)?,
+                )
+                .is_some()
+            {
                 return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
             }
         }
@@ -973,17 +982,17 @@ fn eval_path_element(
         )?;
 
         for tgt_row in target.iter() {
-            if eval_column_mapping(relationship, src_row, tgt_row)? {
-                if eval_expression(
+            if eval_column_mapping(relationship, src_row, tgt_row)?
+                && eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &predicate,
+                    predicate,
                     tgt_row,
                     tgt_row,
-                )? {
-                    matching_rows.push(tgt_row.clone());
-                }
+                )?
+            {
+                matching_rows.push(tgt_row.clone());
             }
         }
     }
@@ -1145,7 +1154,7 @@ fn eval_expression(
                                 StatusCode::BAD_REQUEST,
                                 "regular expression is not a string",
                             ))?;
-                            let regex = Regex::new(regex_str.into()).map_err(|_| {
+                            let regex = Regex::new(regex_str).map_err(|_| {
                                 (StatusCode::BAD_REQUEST, "invalid regular expression")
                             })?;
                             if regex.is_match(column_str) {
@@ -1419,7 +1428,7 @@ async fn post_mutation(
 
 async fn execute_mutation_operation(
     state: &mut AppState,
-    _insert_schema: &Vec<models::CollectionInsertSchema>,
+    _insert_schema: &[models::CollectionInsertSchema],
     collection_relationships: &BTreeMap<String, models::Relationship>,
     operation: &models::MutationOperation,
 ) -> Result<models::MutationOperationResults, StatusLine> {
