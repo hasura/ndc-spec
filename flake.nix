@@ -22,10 +22,15 @@
       pkgs = import nixpkgs { inherit system; };
       craneLib = crane.lib.${system};
 
-      runtimeDependencies = pkgs.lib.optionals pkgs.stdenv.isDarwin [
-        pkgs.darwin.apple_sdk.frameworks.Security
-        pkgs.libiconv
-      ];
+      buildDependencies =
+        [
+          pkgs.openssl
+        ];
+      runtimeDependencies =
+        pkgs.lib.optionals pkgs.stdenv.isDarwin [
+          pkgs.darwin.apple_sdk.frameworks.Security
+          pkgs.libiconv
+        ];
 
       buildArgs = {
         pname = "ndc-spec";
@@ -41,6 +46,7 @@
               || craneLib.filterCargoSources path type;
           in
           pkgs.lib.cleanSourceWith { src = craneLib.path ./.; filter = isSourceFile; };
+        nativeBuildInputs = buildDependencies;
         buildInputs = runtimeDependencies;
       };
     in
@@ -74,7 +80,7 @@
 
           pkgs.just
           pkgs.mdbook
-        ];
+        ] ++ buildDependencies;
 
         buildInputs = runtimeDependencies;
       };
