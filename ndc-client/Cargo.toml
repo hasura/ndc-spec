@@ -7,7 +7,7 @@ edition = "2021"
 [dependencies]
 async-trait = "0.1.67"
 indexmap = { version = "1", features = ["serde"] }
-opentelemetry = "0.18.0"
+opentelemetry = "0.20.0"
 schemars = { version = "0.8.12", features = ["smol_str", "indexmap1"] }
 serde = "^1.0"
 serde_derive = "^1.0"
