@@ -212,7 +212,7 @@ async fn test_aggregate_queries(
         variables: None,
     };
     let response = api::query_post(configuration, query_request).await.unwrap();
-    if let [row_set] = &*response.0.clone() {
+    if let [row_set] = &*response.0 {
         assert!(
             row_set.rows.is_none(),
             "aggregate-only query should not return rows"
