@@ -25,6 +25,7 @@
       buildDependencies =
         [
           pkgs.openssl
+          pkgs.pkg-config
         ];
       runtimeDependencies =
         pkgs.lib.optionals pkgs.stdenv.isDarwin [
