@@ -235,7 +235,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 "id".into(),
                 models::ObjectField {
                     description: Some("The article's primary key".into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named { name: "Int".into() },
                 },
             ),
@@ -243,7 +242,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 "title".into(),
                 models::ObjectField {
                     description: Some("The article's title".into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -253,7 +251,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 "author_id".into(),
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named { name: "Int".into() },
                 },
             ),
@@ -268,7 +265,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 "id".into(),
                 models::ObjectField {
                     description: Some("The author's primary key".into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named { name: "Int".into() },
                 },
             ),
@@ -276,7 +272,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 "first_name".into(),
                 models::ObjectField {
                     description: Some("The author's first name".into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -286,7 +281,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 "last_name".into(),
                 models::ObjectField {
                     description: Some("The author's last name".into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },

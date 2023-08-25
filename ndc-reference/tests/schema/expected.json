@@ -43,7 +43,6 @@
       "fields": {
         "author_id": {
           "description": "The article's author ID",
-          "arguments": {},
           "type": {
             "type": "named",
             "name": "Int"
@@ -51,7 +50,6 @@
         },
         "id": {
           "description": "The article's primary key",
-          "arguments": {},
           "type": {
             "type": "named",
             "name": "Int"
@@ -59,7 +57,6 @@
         },
         "title": {
           "description": "The article's title",
-          "arguments": {},
           "type": {
             "type": "named",
             "name": "String"
@@ -72,7 +69,6 @@
       "fields": {
         "first_name": {
           "description": "The author's first name",
-          "arguments": {},
           "type": {
             "type": "named",
             "name": "String"
@@ -80,7 +76,6 @@
         },
         "id": {
           "description": "The author's primary key",
-          "arguments": {},
           "type": {
             "type": "named",
             "name": "Int"
@@ -88,7 +83,6 @@
         },
         "last_name": {
           "description": "The author's last name",
-          "arguments": {},
           "type": {
             "type": "named",
             "name": "String"

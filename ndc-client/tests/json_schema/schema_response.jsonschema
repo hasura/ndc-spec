@@ -237,17 +237,9 @@
       "description": "The definition of an object field",
       "type": "object",
       "required": [
-        "arguments",
         "type"
       ],
       "properties": {
-        "arguments": {
-          "description": "Any arguments that this object field accepts",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/ArgumentInfo"
-          }
-        },
         "description": {
           "description": "Description of this field",
           "type": [
