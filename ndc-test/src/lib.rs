@@ -83,10 +83,12 @@ async fn test<A, F: Future<Output = Result<A, Error>>>(
     results: &RefCell<TestResults>,
     f: F,
 ) -> Option<A> {
-    let mut results_mut = results.borrow_mut();
-    let level = results_mut.path.len();
-    let spaces = "│ ".repeat(level);
-    print!("{spaces}├ {name} ...");
+    {
+        let results = results.borrow();
+        let level = results.path.len();
+        let spaces = "│ ".repeat(level);
+        print!("{spaces}├ {name} ...");
+    }
 
     match f.await {
         Ok(result) => {
@@ -94,6 +96,7 @@ async fn test<A, F: Future<Output = Result<A, Error>>>(
             Some(result)
         }
         Err(err) => {
+            let mut results_mut = results.borrow_mut();
             println!(" \x1b[1;31mFAIL\x1b[22;0m");
             let path = results_mut.path.clone();
             results_mut.failures.push(FailedTest {
@@ -255,7 +258,8 @@ pub async fn validate_schema(
                     }
 
                     Ok(())
-                });
+                })
+                .await;
             })
             .await;
         }

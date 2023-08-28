@@ -22,7 +22,7 @@ enum Commands {
 }
 
 #[tokio::main]
-async fn main() -> () {
+async fn main() {
     match Options::parse().command {
         Commands::Test { endpoint, seed } => {
             let configuration = Configuration {
