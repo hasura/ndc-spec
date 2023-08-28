@@ -1,6 +1,7 @@
+use std::process::exit;
+
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
-use ndc_test::TestFailure;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -21,7 +22,7 @@ enum Commands {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), TestFailure> {
+async fn main() -> () {
     match Options::parse().command {
         Commands::Test {
             endpoint,
@@ -38,7 +39,12 @@ async fn main() -> Result<(), TestFailure> {
                 seed,
             };
 
-            ndc_test::test_connector(&configuration).await
+            let results = ndc_test::test_connector(&configuration).await;
+
+            if !results.failures.is_empty() {
+                println!("\x1b[1;31mFailed with {0} test failures, see stderr for details.\x1b[22;0m", results.failures.len());
+                exit(1)
+            }
         }
     }
 }

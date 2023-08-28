@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
 use std::future::Future;
 
@@ -11,11 +12,17 @@ use proptest::test_runner::{Config, Reason, RngAlgorithm, TestRng, TestRunner};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum TestFailure {
+pub enum Error {
     #[error("error communicating with the connector: {0}")]
     CommunicationError(ndc_client::apis::Error),
     #[error("error generating test data: {0}")]
     StrategyError(Reason),
+    #[error("error parsing semver range: {0}")]
+    SemverError(semver::Error),
+    #[error(
+        "capabilities.versions does not include the current version of the specification: {0}"
+    )]
+    IncompatibleSpecification(semver::VersionReq),
     #[error("collection type {0} is not a defined object type")]
     CollectionTypeIsNotDefined(String),
     #[error("named type {0} is not a defined object or scalar type")]
@@ -40,45 +47,84 @@ pub enum TestFailure {
     MissingField(String),
 }
 
-impl From<ndc_client::apis::Error> for TestFailure {
+impl From<ndc_client::apis::Error> for Error {
     fn from(value: ndc_client::apis::Error) -> Self {
-        TestFailure::CommunicationError(value)
+        Error::CommunicationError(value)
     }
 }
 
-impl From<Reason> for TestFailure {
+impl From<Reason> for Error {
     fn from(value: Reason) -> Self {
-        TestFailure::StrategyError(value)
+        Error::StrategyError(value)
     }
 }
 
-async fn test<A, F: Future<Output = Result<A, TestFailure>>>(
+impl From<semver::Error> for Error {
+    fn from(value: semver::Error) -> Self {
+        Error::SemverError(value)
+    }
+}
+
+#[derive(Debug)]
+pub struct TestResults {
+    pub path: Vec<String>,
+    pub failures: Vec<FailedTest>,
+}
+
+#[derive(Debug)]
+pub struct FailedTest {
+    pub test_name: String,
+    pub error: Error,
+}
+
+async fn test<A, F: Future<Output = Result<A, Error>>>(
     name: &str,
-    level: usize,
+    results: &RefCell<TestResults>,
     f: F,
-) -> Result<A, TestFailure> {
+) -> Option<A> {
+    let mut results_mut = results.borrow_mut();
+    let level = results_mut.path.len();
     let spaces = "  ".repeat(level);
     print!("{spaces}∟ {name} ...");
 
     match f.await {
         Ok(result) => {
             println!(" \x1b[1;32mOK\x1b[22;0m");
-            Ok(result)
+            Some(result)
         }
         Err(err) => {
             println!(" \x1b[1;31mFAIL\x1b[22;0m");
-            eprintln!("{name} failed with message {}", err);
-            Err(err)
+            results_mut.failures.push(FailedTest {
+                test_name: name.into(),
+                error: err,
+            });
+            None
         }
     }
 }
 
-fn nest(name: &str, level: usize) {
-    let spaces = "  ".repeat(level);
-    println!("{spaces}∟ {name} ...");
+async fn nest<A, F: Future<Output = A>>(name: &str, results: &RefCell<TestResults>, f: F) -> A {
+    {
+        let mut results_mut = results.borrow_mut();
+        let level = results_mut.path.len();
+        let spaces = "  ".repeat(level);
+        println!("{spaces}∟ {name} ...");
+        results_mut.path.push(name.into());
+    }
+    let result = f.await;
+    {
+        let mut results_mut = results.borrow_mut();
+        let _ = results_mut.path.pop();
+    }
+    result
 }
 
-pub async fn test_connector(configuration: &Configuration) -> Result<(), TestFailure> {
+pub async fn test_connector(configuration: &Configuration) -> TestResults {
+    let results = RefCell::new(TestResults {
+        path: vec![],
+        failures: vec![],
+    });
+
     let mut runner = TestRunner::new_with_rng(
         Config::default(),
         match &configuration.seed {
@@ -87,52 +133,71 @@ pub async fn test_connector(configuration: &Configuration) -> Result<(), TestFai
         },
     );
 
+    let _ = run_all_tests(&configuration, &mut runner, &results).await;
+
+    results.into_inner()
+}
+
+async fn run_all_tests(
+    configuration: &&Configuration,
+    runner: &mut TestRunner,
+    results: &RefCell<TestResults>,
+) -> Option<()> {
     println!("Capabilities");
+
     let capabilities = async {
-        let capabilities = test("Fetching /capabilities ...", 1, async {
+        let capabilities = test("Fetching /capabilities ...", results, async {
             Ok(api::capabilities_get(configuration).await?)
         })
         .await?;
 
-        let _ = test("Validating capabilities", 1, async {
+        let _ = test("Validating capabilities", results, async {
             validate_capabilities(&capabilities)
         })
         .await;
 
-        Ok::<_, TestFailure>(capabilities)
+        Some(capabilities)
     }
     .await?;
 
     println!("Schema");
     let schema = async {
-        let schema = test("Fetching /schema", 1, async {
+        let schema = test("Fetching /schema", results, async {
             Ok(api::schema_get(configuration).await?)
         })
         .await?;
 
-        nest("Validating schema", 1);
-        let _ = validate_schema(&schema).await;
+        nest("Validating schema", results, async {
+            validate_schema(&schema, results).await
+        })
+        .await?;
 
-        Ok::<_, TestFailure>(schema)
+        Some(schema)
     }
     .await?;
 
     println!("Query");
 
-    test_query(configuration, &capabilities, &schema, &mut runner).await;
+    test_query(configuration, &capabilities, &schema, runner, results).await;
+
+    Some(())
+}
+
+pub fn validate_capabilities(capabilities: &models::CapabilitiesResponse) -> Result<(), Error> {
+    let spec_version = semver::Version::parse(env!("CARGO_PKG_VERSION"))?;
+    let claimed_range = semver::VersionReq::parse(capabilities.versions.as_str())?;
+    if !claimed_range.matches(&spec_version) {
+        return Err(Error::IncompatibleSpecification(claimed_range));
+    }
 
     Ok(())
 }
 
-pub fn validate_capabilities(
-    _capabilities: &models::CapabilitiesResponse,
-) -> Result<(), TestFailure> {
-    // TODO: validate capabilities.version
-    Ok(())
-}
-
-pub async fn validate_schema(schema: &models::SchemaResponse) -> Result<(), TestFailure> {
-    let _ = test("object_types", 2, async {
+pub async fn validate_schema(
+    schema: &models::SchemaResponse,
+    results: &RefCell<TestResults>,
+) -> Option<()> {
+    let _ = test("object_types", results, async {
         for (_type_name, object_type) in schema.object_types.iter() {
             for (_field_name, object_field) in object_type.fields.iter() {
                 validate_type(schema, &object_field.r#type)?;
@@ -142,110 +207,112 @@ pub async fn validate_schema(schema: &models::SchemaResponse) -> Result<(), Test
     })
     .await;
 
-    nest("Collections", 2);
-
-    for collection_info in schema.collections.iter() {
-        nest(collection_info.name.as_str(), 3);
-
-        let _ = test("Arguments", 4, async {
-            for (_arg_name, arg_info) in collection_info.arguments.iter() {
-                validate_type(schema, &arg_info.argument_type)?;
-            }
-            Ok(())
-        })
-        .await;
-
-        let _ = test("Collection type", 4, async {
-            let collection_type = schema
-                .object_types
-                .get(collection_info.collection_type.as_str())
-                .ok_or(TestFailure::CollectionTypeIsNotDefined(
-                    collection_info.collection_type.clone(),
-                ))?;
-
-            if let Some(insertable_columns) = &collection_info.insertable_columns {
-                for insertable_column in insertable_columns.iter() {
-                    if !collection_type
-                        .fields
-                        .contains_key(insertable_column.as_str())
-                    {
-                        return Err(TestFailure::InsertableColumnNotDefined(
-                            insertable_column.clone(),
-                        ));
+    nest("Collections", results, async {
+        for collection_info in schema.collections.iter() {
+            nest(collection_info.name.as_str(), results, async {
+                let _ = test("Arguments", results, async {
+                    for (_arg_name, arg_info) in collection_info.arguments.iter() {
+                        validate_type(schema, &arg_info.argument_type)?;
                     }
-                }
-            }
-            if let Some(updatable_columns) = &collection_info.updatable_columns {
-                for updatable_column in updatable_columns.iter() {
-                    if !collection_type
-                        .fields
-                        .contains_key(updatable_column.as_str())
-                    {
-                        return Err(TestFailure::UpdatableColumnNotDefined(
-                            updatable_column.clone(),
-                        ));
+                    Ok(())
+                })
+                .await;
+
+                let _ = test("Collection type", results, async {
+                    let collection_type = schema
+                        .object_types
+                        .get(collection_info.collection_type.as_str())
+                        .ok_or(Error::CollectionTypeIsNotDefined(
+                            collection_info.collection_type.clone(),
+                        ))?;
+
+                    if let Some(insertable_columns) = &collection_info.insertable_columns {
+                        for insertable_column in insertable_columns.iter() {
+                            if !collection_type
+                                .fields
+                                .contains_key(insertable_column.as_str())
+                            {
+                                return Err(Error::InsertableColumnNotDefined(
+                                    insertable_column.clone(),
+                                ));
+                            }
+                        }
                     }
-                }
+                    if let Some(updatable_columns) = &collection_info.updatable_columns {
+                        for updatable_column in updatable_columns.iter() {
+                            if !collection_type
+                                .fields
+                                .contains_key(updatable_column.as_str())
+                            {
+                                return Err(Error::UpdatableColumnNotDefined(
+                                    updatable_column.clone(),
+                                ));
+                            }
+                        }
+                    }
+
+                    Ok(())
+                });
+            })
+            .await;
+        }
+    })
+    .await;
+
+    nest("Functions", results, async {
+        for function_info in schema.functions.iter() {
+            nest(function_info.name.as_str(), results, async {
+                let _ = test("Result type", results, async {
+                    validate_type(schema, &function_info.result_type)
+                })
+                .await;
+
+                let _ = test("Arguments", results, async {
+                    for (_arg_name, arg_info) in function_info.arguments.iter() {
+                        validate_type(schema, &arg_info.argument_type)?;
+                    }
+
+                    Ok(())
+                })
+                .await;
+            })
+            .await;
+        }
+
+        nest("Procedures", results, async {
+            for procedure_info in schema.procedures.iter() {
+                nest(procedure_info.name.as_str(), results, async {
+                    let _ = test("Result type", results, async {
+                        validate_type(schema, &procedure_info.result_type)
+                    })
+                    .await;
+
+                    let _ = test("Arguments", results, async {
+                        for (_arg_name, arg_info) in procedure_info.arguments.iter() {
+                            validate_type(schema, &arg_info.argument_type)?;
+                        }
+
+                        Ok(())
+                    })
+                    .await;
+                })
+                .await;
             }
-
-            Ok(())
         })
         .await;
-    }
+    })
+    .await;
 
-    nest("Functions", 2);
-
-    for function_info in schema.functions.iter() {
-        nest(function_info.name.as_str(), 3);
-
-        let _ = test("Result type", 4, async {
-            validate_type(schema, &function_info.result_type)
-        })
-        .await;
-
-        let _ = test("Arguments", 4, async {
-            for (_arg_name, arg_info) in function_info.arguments.iter() {
-                validate_type(schema, &arg_info.argument_type)?;
-            }
-
-            Ok(())
-        })
-        .await;
-    }
-
-    nest("Procedures", 2);
-
-    for procedure_info in schema.procedures.iter() {
-        nest(procedure_info.name.as_str(), 3);
-
-        let _ = test("Result type", 4, async {
-            validate_type(schema, &procedure_info.result_type)
-        })
-        .await;
-
-        let _ = test("Arguments", 4, async {
-            for (_arg_name, arg_info) in procedure_info.arguments.iter() {
-                validate_type(schema, &arg_info.argument_type)?;
-            }
-
-            Ok(())
-        })
-        .await;
-    }
-
-    Ok(())
+    Some(())
 }
 
-pub fn validate_type(
-    schema: &models::SchemaResponse,
-    r#type: &models::Type,
-) -> Result<(), TestFailure> {
+pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> Result<(), Error> {
     match r#type {
         models::Type::Named { name } => {
             if !schema.object_types.contains_key(name.as_str())
                 && !schema.scalar_types.contains_key(name.as_str())
             {
-                return Err(TestFailure::NamedTypeIsNotDefined(name.clone()));
+                return Err(Error::NamedTypeIsNotDefined(name.clone()));
             }
         }
         models::Type::Array { element_type } => {
@@ -264,43 +331,54 @@ pub async fn test_query(
     _capabilities: &models::CapabilitiesResponse,
     schema: &models::SchemaResponse,
     runner: &mut TestRunner,
+    results: &RefCell<TestResults>,
 ) {
     for collection_info in schema.collections.iter() {
-        nest(collection_info.name.as_str(), 1);
+        nest(collection_info.name.as_str(), results, async {
+            if collection_info.arguments.is_empty() {
+                nest("Simple queries", results, async {
+                    test_simple_queries(runner, results, configuration, schema, collection_info)
+                        .await
+                })
+                .await;
 
-        if collection_info.arguments.is_empty() {
-            nest("Simple queries", 2);
-
-            let _ = test_simple_queries(runner, configuration, schema, collection_info).await;
-
-            nest("Aggregate queries", 2);
-
-            let _ = test_aggregate_queries(configuration, schema, collection_info).await;
-        } else {
-            eprintln!("Skipping parameterized collection {}", collection_info.name);
-        }
+                nest("Aggregate queries", results, async {
+                    test_aggregate_queries(configuration, schema, collection_info, results).await
+                })
+                .await;
+            } else {
+                eprintln!("Skipping parameterized collection {}", collection_info.name);
+            }
+        })
+        .await;
     }
 }
 
 async fn test_simple_queries(
     runner: &mut TestRunner,
+    results: &RefCell<TestResults>,
     configuration: &Configuration,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
-) -> Result<(), TestFailure> {
-    let collection_type = schema
-        .object_types
-        .get(collection_info.collection_type.as_str())
-        .ok_or(TestFailure::CollectionTypeIsNotDefined(
-            collection_info.collection_type.clone(),
-        ))?;
+) -> Option<()> {
+    let (collection_type, rows) = test("Select top N", results, async {
+        let collection_type = schema
+            .object_types
+            .get(collection_info.collection_type.as_str())
+            .ok_or(Error::CollectionTypeIsNotDefined(
+                collection_info.collection_type.clone(),
+            ))?;
 
-    let rows = test("Select top N", 3, test_select_top_n_rows(collection_type, collection_info, configuration)).await?;
+        let rows = test_select_top_n_rows(collection_type, collection_info, configuration).await?;
 
-    let value_strategies = make_value_strategies(rows, collection_type)?;
+        Ok((collection_type, rows))
+    })
+    .await?;
 
-    if let Some(expression_strategy) = make_expression_strategies(value_strategies) {
-        test("Predicates", 3, async {
+    test("Predicates", results, async {
+        let value_strategies = make_value_strategies(rows, collection_type)?;
+
+        if let Some(expression_strategy) = make_expression_strategies(value_strategies) {
             for _ in 1..10 {
                 test_select_top_n_rows_with_predicate(
                     runner,
@@ -311,21 +389,20 @@ async fn test_simple_queries(
                 )
                 .await?;
             }
+        } else {
+            eprintln!("Skipping empty collection {}", collection_info.name);
+        }
 
-            Ok(())
-        }).await?;
-    } else {
-        eprintln!("Skipping empty collection {}", collection_info.name);
-    }
-
-    Ok(())
+        Ok(())
+    })
+    .await
 }
 
 async fn test_select_top_n_rows(
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
     configuration: &Configuration,
-) -> Result<Vec<IndexMap<String, models::RowFieldValue>>, TestFailure> {
+) -> Result<Vec<IndexMap<String, models::RowFieldValue>>, Error> {
     let fields = select_all_columns(collection_type);
     let query_request = models::QueryRequest {
         collection: collection_info.name.clone(),
@@ -342,16 +419,15 @@ async fn test_select_top_n_rows(
         variables: None,
     };
 
-    let response = api::query_post(configuration, query_request)
-        .await?;
+    let response = api::query_post(configuration, query_request).await?;
 
     if response.0.len() != 1 {
-        return Err(TestFailure::ExpectedSingleRowSet);
+        return Err(Error::ExpectedSingleRowSet);
     }
 
     let row_set = response.0[0].clone();
 
-    row_set.rows.ok_or(TestFailure::RowsShouldBeNonNullInRowSet)
+    row_set.rows.ok_or(Error::RowsShouldBeNonNullInRowSet)
 }
 
 async fn test_select_top_n_rows_with_predicate(
@@ -360,7 +436,7 @@ async fn test_select_top_n_rows_with_predicate(
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
     configuration: &Configuration,
-) -> Result<(), TestFailure> {
+) -> Result<(), Error> {
     if let Ok(tree) = expression_strategy.new_tree(runner) {
         let predicate = tree.current();
 
@@ -381,21 +457,20 @@ async fn test_select_top_n_rows_with_predicate(
             variables: None,
         };
 
-        let response = api::query_post(configuration, query_request)
-            .await?;
+        let response = api::query_post(configuration, query_request).await?;
 
         if response.0.len() != 1 {
-            return Err(TestFailure::ExpectedSingleRowSet);
+            return Err(Error::ExpectedSingleRowSet);
         }
 
         let row_set = response.0.first().unwrap();
         let rows = row_set
             .rows
             .as_ref()
-            .ok_or(TestFailure::RowsShouldBeNonNullInRowSet)?;
+            .ok_or(Error::RowsShouldBeNonNullInRowSet)?;
 
         if rows.is_empty() {
-            return Err(TestFailure::ExpectedNonEmptyRows);
+            return Err(Error::ExpectedNonEmptyRows);
         }
     }
 
@@ -405,13 +480,13 @@ async fn test_select_top_n_rows_with_predicate(
 fn make_value_strategies(
     rows: Vec<IndexMap<String, models::RowFieldValue>>,
     collection_type: &models::ObjectType,
-) -> Result<HashMap<String, impl Strategy<Value = serde_json::Value>>, TestFailure> {
+) -> Result<HashMap<String, impl Strategy<Value = serde_json::Value>>, Error> {
     let mut values: HashMap<String, Vec<serde_json::Value>> = HashMap::new();
 
     for row in rows {
         for (field_name, _) in collection_type.fields.iter() {
             if !row.contains_key(field_name.as_str()) {
-                panic!("field {0} was missing in query response", field_name)
+                return Err(Error::MissingField(field_name.clone()));
             }
         }
 
@@ -474,7 +549,18 @@ async fn test_aggregate_queries(
     configuration: &Configuration,
     _schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
-) -> Result<(), TestFailure> {
+    results: &RefCell<TestResults>,
+) -> Option<()> {
+    test("star_count", results, async {
+        test_star_count_aggregate(collection_info, configuration).await
+    })
+    .await
+}
+
+async fn test_star_count_aggregate(
+    collection_info: &models::CollectionInfo,
+    configuration: &Configuration,
+) -> Result<(), Error> {
     let aggregates = IndexMap::from([("count".into(), models::Aggregate::StarCount {})]);
     let query_request = models::QueryRequest {
         collection: collection_info.name.clone(),
@@ -491,21 +577,19 @@ async fn test_aggregate_queries(
         variables: None,
     };
     let response = api::query_post(configuration, query_request).await.unwrap();
-    
     if let [row_set] = &*response.0 {
         if row_set.rows.is_some() {
-            return Err(TestFailure::RowsShouldBeNullInRowSet);
+            return Err(Error::RowsShouldBeNullInRowSet);
         }
         if let Some(aggregates) = &row_set.aggregates {
             if !aggregates.contains_key("count") {
-                return Err(TestFailure::MissingField("count".into()));
+                return Err(Error::MissingField("count".into()));
             }
         } else {
-            return Err(TestFailure::AggregatesShouldBeNonNullInRowSet);
+            return Err(Error::AggregatesShouldBeNonNullInRowSet);
         }
     } else {
-        return Err(TestFailure::ExpectedSingleRowSet);
+        return Err(Error::ExpectedSingleRowSet);
     }
-
     Ok(())
 }
