@@ -24,10 +24,7 @@ enum Commands {
 #[tokio::main]
 async fn main() -> () {
     match Options::parse().command {
-        Commands::Test {
-            endpoint,
-            seed,
-        } => {
+        Commands::Test { endpoint, seed } => {
             let configuration = Configuration {
                 base_path: endpoint,
                 user_agent: None,
@@ -42,7 +39,23 @@ async fn main() -> () {
             let results = ndc_test::test_connector(&configuration).await;
 
             if !results.failures.is_empty() {
-                println!("\x1b[1;31mFailed with {0} test failures, see stderr for details.\x1b[22;0m", results.failures.len());
+                println!();
+                println!(
+                    "\x1b[1;31mFailed with {0} test failures:\x1b[22;0m",
+                    results.failures.len()
+                );
+
+                let mut ix = 1;
+                for failure in results.failures {
+                    println!();
+                    println!("[{0}] {1}", ix, failure.name);
+                    for path_element in failure.path {
+                        println!("  in {0}", path_element);
+                    }
+                    println!("Details: {0}", failure.error);
+                    ix += 1;
+                }
+
                 exit(1)
             }
         }

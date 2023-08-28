@@ -73,7 +73,8 @@ pub struct TestResults {
 
 #[derive(Debug)]
 pub struct FailedTest {
-    pub test_name: String,
+    pub path: Vec<String>,
+    pub name: String,
     pub error: Error,
 }
 
@@ -84,8 +85,8 @@ async fn test<A, F: Future<Output = Result<A, Error>>>(
 ) -> Option<A> {
     let mut results_mut = results.borrow_mut();
     let level = results_mut.path.len();
-    let spaces = "  ".repeat(level);
-    print!("{spaces}∟ {name} ...");
+    let spaces = "│ ".repeat(level);
+    print!("{spaces}├ {name} ...");
 
     match f.await {
         Ok(result) => {
@@ -94,8 +95,10 @@ async fn test<A, F: Future<Output = Result<A, Error>>>(
         }
         Err(err) => {
             println!(" \x1b[1;31mFAIL\x1b[22;0m");
+            let path = results_mut.path.clone();
             results_mut.failures.push(FailedTest {
-                test_name: name.into(),
+                path,
+                name: name.into(),
                 error: err,
             });
             None
@@ -107,8 +110,8 @@ async fn nest<A, F: Future<Output = A>>(name: &str, results: &RefCell<TestResult
     {
         let mut results_mut = results.borrow_mut();
         let level = results_mut.path.len();
-        let spaces = "  ".repeat(level);
-        println!("{spaces}∟ {name} ...");
+        let spaces = "│ ".repeat(level);
+        println!("{spaces}├ {name} ...");
         results_mut.path.push(name.into());
     }
     let result = f.await;
