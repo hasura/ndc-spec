@@ -67,7 +67,7 @@ async fn test<A, F: Future<Output = Result<A, TestFailure>>>(
         }
         Err(err) => {
             println!(" \x1b[1;31mFAIL\x1b[22;0m");
-            eprintln!("{name} failed with message {}", err.to_string());
+            eprintln!("{name} failed with message {}", err);
             Err(err)
         }
     }
@@ -82,7 +82,7 @@ pub async fn test_connector(configuration: &Configuration) -> Result<(), TestFai
     let mut runner = TestRunner::new_with_rng(
         Config::default(),
         match &configuration.seed {
-            Some(seed) => TestRng::from_seed(RngAlgorithm::XorShift, &seed.as_bytes()),
+            Some(seed) => TestRng::from_seed(RngAlgorithm::XorShift, seed.as_bytes()),
             None => TestRng::deterministic_rng(RngAlgorithm::XorShift),
         },
     );
@@ -300,7 +300,7 @@ async fn test_simple_queries(
     let value_strategies = make_value_strategies(rows, collection_type)?;
 
     if let Some(expression_strategy) = make_expression_strategies(value_strategies) {
-        let _ = test("Predicates", 3, async {
+        test("Predicates", 3, async {
             for _ in 1..10 {
                 test_select_top_n_rows_with_predicate(
                     runner,
