@@ -1,7 +1,16 @@
 use std::collections::BTreeMap;
 
 use indexmap::IndexMap;
-use schemars::JsonSchema;
+use schemars::{
+    gen::SchemaGenerator,
+    schema::{Schema, SchemaObject, SubschemaValidation},
+    JsonSchema,
+};
+use serde::{
+    self,
+    de::{self, Visitor},
+    Deserialize, Deserializer, Serialize,
+};
 use serde_with::skip_serializing_none;
 
 // ANCHOR_END
@@ -303,13 +312,13 @@ pub enum Aggregate {
     // TODO: do we need aggregation row limits?
     ColumnCount {
         /// The column to apply the count aggregate function to
-        column: String,
+        column: ColumnSelector,
         /// Whether or not only distinct items should be counted
         distinct: bool,
     },
     SingleColumn {
         /// The column to apply the aggregation function to
-        column: String,
+        column: ColumnSelector,
         /// Single column aggregate function name.
         function: String,
     },
@@ -357,13 +366,13 @@ pub struct OrderByElement {
 pub enum OrderByTarget {
     Column {
         /// The name of the column
-        name: String,
+        name: ColumnSelector,
         /// Any relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
     SingleColumnAggregate {
         /// The column to apply the aggregation function to
-        column: String,
+        column: ColumnSelector,
         /// Single column aggregate function name.
         function: String,
         /// Non-empty collection of relationships to traverse
@@ -454,6 +463,75 @@ pub enum BinaryComparisonOperator {
 }
 // ANCHOR_END: BinaryComparisonOperator
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct ColumnSelector(pub Vec<String>);
+
+impl<'de> Deserialize<'de> for ColumnSelector {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct ColumnSelectorVisitor;
+
+        impl<'de> Visitor<'de> for ColumnSelectorVisitor {
+            type Value = ColumnSelector;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("string or array of strings")
+            }
+
+            fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Ok(ColumnSelector(vec![v]))
+            }
+
+            fn visit_seq<A>(self, seq: A) -> Result<Self::Value, A::Error>
+            where
+                A: serde::de::SeqAccess<'de>,
+            {
+                let v = Deserialize::deserialize(de::value::SeqAccessDeserializer::new(seq))?;
+                Ok(ColumnSelector(v))
+            }
+        }
+
+        deserializer.deserialize_any(ColumnSelectorVisitor)
+    }
+}
+
+impl Serialize for ColumnSelector {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        match self.0.as_slice() {
+            [single] => single.serialize(serializer),
+            multi => multi.serialize(serializer),
+        }
+    }
+}
+
+impl JsonSchema for ColumnSelector {
+    fn schema_name() -> String {
+        "ColumnSelector".to_string()
+    }
+
+    fn json_schema(gen: &mut SchemaGenerator) -> Schema {
+        let string_schema = gen.subschema_for::<String>();
+        let array_schema = gen.subschema_for::<Vec<String>>();
+        let subschema_validation = SubschemaValidation {
+            one_of: Some(vec![string_schema, array_schema]),
+            ..Default::default()
+        };
+        SchemaObject {
+            subschemas: Some(Box::new(subschema_validation)),
+            ..Default::default()
+        }
+        .into()
+    }
+}
+
 // ANCHOR: ComparisonTarget
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -461,13 +539,13 @@ pub enum BinaryComparisonOperator {
 pub enum ComparisonTarget {
     Column {
         /// The name of the column
-        name: String,
+        name: ColumnSelector,
         /// Any relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
     RootCollectionColumn {
         /// The name of the column
-        name: String,
+        name: ColumnSelector,
     },
 }
 // ANCHOR_END: ComparisonTarget
