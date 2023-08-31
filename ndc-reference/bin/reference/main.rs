@@ -16,6 +16,7 @@ use indexmap::IndexMap;
 use ndc_client::models;
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
+use serde_json::Value;
 use tokio::sync::Mutex;
 
 // ANCHOR: row-type
@@ -383,9 +384,11 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         },
     };
     // ANCHOR_END: schema_procedure_upsert_article
+
     // ANCHOR: schema_procedures
     let procedures = vec![upsert_article];
     // ANCHOR_END: schema_procedures
+
     // ANCHOR: schema_function_latest_article_id
     let latest_article_id_function = models::FunctionInfo {
         name: "latest_article_id".into(),
@@ -396,8 +399,59 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         arguments: BTreeMap::new(),
     };
     // ANCHOR_END: schema_function_latest_article_id
+
+    // ANCHOR: schema_function_latest_article
+    let latest_article_function = models::FunctionInfo {
+        name: "latest_article".into(),
+        description: Some("Get the most recent article".into()),
+        result_type: models::Type::Nullable {
+            underlying_type: Box::new(models::Type::Named {
+                name: "article".into(),
+            }),
+        },
+        arguments: BTreeMap::new(),
+    };
+    // ANCHOR_END: schema_function_latest_article
+
+    // ANCHOR: schema_function_get_all_articles
+    let get_all_articles_function = models::FunctionInfo {
+        name: "get_all_articles".into(),
+        description: Some("Get all the articles".into()),
+        result_type: models::Type::Array {
+            element_type: Box::new(models::Type::Named {
+                name: "article".into(),
+            }),
+        },
+        arguments: BTreeMap::new(),
+    };
+    // ANCHOR_END: schema_function_get_all_articles
+
+    // ANCHOR: schema_function_get_article_by_id
+    let get_article_by_id_function = models::FunctionInfo {
+        name: "get_article_by_id".into(),
+        description: Some("Get article by ID".into()),
+        arguments: BTreeMap::from_iter([(
+            "id".into(),
+            models::ArgumentInfo {
+                description: Some("the id of the article to fetch".into()),
+                argument_type: models::Type::Named { name: "Int".into() },
+            },
+        )]),
+        result_type: models::Type::Nullable {
+            underlying_type: Box::new(models::Type::Named {
+                name: "article".into(),
+            }),
+        },
+    };
+    // ANCHOR_END: schema_function_get_article_by_id
+
     // ANCHOR: schema_functions
-    let functions: Vec<models::FunctionInfo> = vec![latest_article_id_function];
+    let functions: Vec<models::FunctionInfo> = vec![
+        latest_article_id_function,
+        latest_article_function,
+        get_all_articles_function,
+        get_article_by_id_function,
+    ];
     // ANCHOR_END: schema_functions
     // ANCHOR: schema2
     Json(models::SchemaResponse {
@@ -421,7 +475,6 @@ pub async fn post_query(
     let variable_sets = request.variables.unwrap_or(vec![BTreeMap::new()]);
 
     let mut row_sets = vec![];
-
     for variables in variable_sets.iter() {
         let row_set = execute_query_with_variables(
             &request.collection,
@@ -462,7 +515,7 @@ fn execute_query_with_variables(
         }
     }
 
-    let collection = get_collection_by_name(collection, &argument_values, state)?;
+    let collection = get_collection_by_name(collection, &argument_values, state, query)?;
 
     execute_query(
         collection_relationships,
@@ -479,6 +532,7 @@ fn get_collection_by_name(
     collection_name: &str,
     arguments: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
+    query: &models::Query,
 ) -> Result<Vec<Row>, StatusLine> {
     match collection_name {
         "articles" => Ok(state.articles.values().cloned().collect()),
@@ -524,6 +578,140 @@ fn get_collection_by_name(
                 "__value".into(),
                 latest_id_value,
             )])])
+        }
+        "latest_article" => {
+            let latest_id = state
+                .articles
+                .iter()
+                .filter_map(|(_id, a)| a.get("id").and_then(|v| v.as_i64()))
+                .max();
+
+            if let Some(id) = latest_id {
+                let latest_article = state.articles.get(&id);
+
+                let rows = query
+                    .fields
+                    .as_ref()
+                    .map(|fields| {
+                        let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
+                        for item in latest_article.iter() {
+                            let mut row = IndexMap::new();
+                            for (field_name, field) in fields.iter() {
+                                row.insert(
+                                    field_name.clone(),
+                                    eval_field(
+                                        &BTreeMap::new(),
+                                        &BTreeMap::new(),
+                                        state,
+                                        field,
+                                        item,
+                                    )?,
+                                );
+                            }
+                            rows.push(row)
+                        }
+                        Ok::<_, StatusLine>(rows)
+                    })
+                    .transpose()?;
+
+                let row_set = models::RowSet {
+                    aggregates: None,
+                    rows,
+                };
+
+                let latest_article_value = serde_json::to_value(row_set)
+                    .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode article"))?;
+
+                Ok(vec![BTreeMap::from_iter([(
+                    "__value".into(),
+                    latest_article_value,
+                )])])
+            } else {
+                Err((StatusCode::INTERNAL_SERVER_ERROR, "No max id for articles"))
+            }
+        }
+        "get_all_articles" => {
+            //let articles: Option<&BTreeMap<String, Value>>;
+            let articles: Vec<Row> = state.articles.values().cloned().collect();
+
+            let rows = query
+                .fields
+                .as_ref()
+                .map(|fields| {
+                    let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
+                    for item in articles.iter() {
+                        let mut row = IndexMap::new();
+                        for (field_name, field) in fields.iter() {
+                            row.insert(
+                                field_name.clone(),
+                                eval_field(&BTreeMap::new(), &BTreeMap::new(), state, field, item)?,
+                            );
+                        }
+                        rows.push(row)
+                    }
+                    Ok::<_, StatusLine>(rows)
+                })
+                .transpose()?;
+
+            let row_set = models::RowSet {
+                aggregates: None,
+                rows,
+            };
+            let articles_value = serde_json::to_value(row_set)
+                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode article"))?;
+
+            Ok(vec![BTreeMap::from_iter([(
+                "__value".into(),
+                articles_value,
+            )])])
+        }
+        "get_article_by_id" => {
+            let id_value = arguments
+                .get("id")
+                .ok_or((StatusCode::BAD_REQUEST, "missing argument author_id"))?;
+            if let (Some(id)) = id_value.as_i64() {
+                let article = state.articles.get(&id);
+
+                let rows = query
+                    .fields
+                    .as_ref()
+                    .map(|fields| {
+                        let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
+                        for item in article.iter() {
+                            let mut row = IndexMap::new();
+                            for (field_name, field) in fields.iter() {
+                                row.insert(
+                                    field_name.clone(),
+                                    eval_field(
+                                        &BTreeMap::new(),
+                                        &BTreeMap::new(),
+                                        state,
+                                        field,
+                                        item,
+                                    )?,
+                                );
+                            }
+                            rows.push(row)
+                        }
+                        Ok::<_, StatusLine>(rows)
+                    })
+                    .transpose()?;
+
+                let row_set = models::RowSet {
+                    aggregates: None,
+                    rows,
+                };
+
+                let latest_article_value = serde_json::to_value(row_set)
+                    .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode article"))?;
+
+                Ok(vec![BTreeMap::from_iter([(
+                    "__value".into(),
+                    latest_article_value,
+                )])])
+            }else{
+                Err((StatusCode::INTERNAL_SERVER_ERROR, "Incorrect type for id"))
+            }
         }
         _ => Err((StatusCode::BAD_REQUEST, "invalid collection name")),
     }
@@ -608,24 +796,23 @@ fn execute_query(
         .transpose()?;
     // ANCHOR_END: execute_query_aggregates
     // ANCHOR: execute_query_fields
-    let rows = query
-        .fields
-        .as_ref()
-        .map(|fields| {
-            let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
-            for item in paginated.iter() {
-                let mut row = IndexMap::new();
-                for (field_name, field) in fields.iter() {
-                    row.insert(
-                        field_name.clone(),
-                        eval_field(collection_relationships, variables, state, field, item)?,
-                    );
-                }
-                rows.push(row)
-            }
-            Ok::<_, StatusLine>(rows)
-        })
-        .transpose()?;
+
+    let rows = {
+        let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
+        for item in paginated.iter() {
+            let mut row = IndexMap::new();
+            let field = models::Field::Column {
+                column: String::from("__value"),
+            };
+            row.insert(
+                String::from("__value"),
+                eval_field(collection_relationships, variables, state, &field, item)?,
+            );
+            rows.push(row);
+        }
+
+        Some(rows)
+    };
     // ANCHOR_END: execute_query_fields
     // ANCHOR: execute_query_rowset
     Ok(models::RowSet { aggregates, rows })
@@ -975,10 +1162,20 @@ fn eval_path_element(
             }
         }
 
+        let query = models::Query {
+            aggregates: None,
+            fields: Some(IndexMap::new()),
+            limit: None,
+            offset: None,
+            order_by: None,
+            predicate: None,
+        };
+
         let target = get_collection_by_name(
             relationship.target_collection.as_str(),
             &all_arguments,
             state,
+            &query,
         )?;
 
         for tgt_row in target.iter() {
@@ -1280,7 +1477,16 @@ fn eval_in_collection(
                 .map(|(k, v)| Ok((k.clone(), eval_relationship_argument(variables, item, v)?)))
                 .collect::<Result<BTreeMap<_, _>, _>>()?;
 
-            get_collection_by_name(collection.as_str(), &arguments, state)
+            let query = models::Query {
+                aggregates: None,
+                fields: Some(IndexMap::new()),
+                limit: None,
+                offset: None,
+                order_by: None,
+                predicate: None,
+            };
+
+            get_collection_by_name(collection.as_str(), &arguments, state, &query)
         }
     }
 }
