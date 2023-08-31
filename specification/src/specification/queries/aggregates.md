@@ -39,6 +39,10 @@ The following query object requests the aggregated sum of all order totals, alon
 
 In this case, the query has no predicate function, so all three aggregates would be computed over all rows.
 
+## Aggregating on scalar fields in nested objects
+
+For databases that support nested objects (e.g. MongoDB), the `column` property of a `single_column` aggregate may be a [`ColumnSelector`](../../reference/types.md#orderbyelement) that specifies the path to a scalar field within an object-valued column.
+
 ## Requirements
 
 - Each aggregate should be computed over all rows that match the `Query`.

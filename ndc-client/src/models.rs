@@ -312,7 +312,7 @@ pub enum Aggregate {
     // TODO: do we need aggregation row limits?
     ColumnCount {
         /// The column to apply the count aggregate function to
-        column: ColumnSelector,
+        column: String,
         /// Whether or not only distinct items should be counted
         distinct: bool,
     },
@@ -463,9 +463,16 @@ pub enum BinaryComparisonOperator {
 }
 // ANCHOR_END: BinaryComparisonOperator
 
+// ANCHOR: ColumnSelector
 #[derive(Clone, Debug, PartialEq)]
+/// ColumnSelector consists of a column name (the first element) and possibly a 
+/// path to a field within a nested objects in that column.
+/// Multi-element ColumnSelectors are only valid for databases that support nested objects,
+/// e.g. MongoDB.
 pub struct ColumnSelector(pub Vec<String>);
 
+/// A string deserializes to a a single-element ColumnSelector.
+/// An array of strings deserializes to a multi-element ColumnSelector.
 impl<'de> Deserialize<'de> for ColumnSelector {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -500,6 +507,8 @@ impl<'de> Deserialize<'de> for ColumnSelector {
     }
 }
 
+/// A single-element ColumnSelector serlializes as a string.
+/// A multi-element ColumnSelector serializes as an array of strings.
 impl Serialize for ColumnSelector {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -512,6 +521,7 @@ impl Serialize for ColumnSelector {
     }
 }
 
+/// In JSON a ColumnSelector is either a string or an array of strings.
 impl JsonSchema for ColumnSelector {
     fn schema_name() -> String {
         "ColumnSelector".to_string()
@@ -531,6 +541,7 @@ impl JsonSchema for ColumnSelector {
         .into()
     }
 }
+// ANCHOR_END: ColumnSelector
 
 // ANCHOR: ComparisonTarget
 #[skip_serializing_none]
