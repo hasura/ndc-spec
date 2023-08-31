@@ -157,6 +157,50 @@
           "name": "Int"
         }
       }
+    },
+    {
+      "name": "latest_article",
+      "description": "Get the most recent article",
+      "arguments": {},
+      "result_type": {
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "article"
+        }
+      }
+    },
+    {
+      "name": "get_all_articles",
+      "description": "Get all the articles",
+      "arguments": {},
+      "result_type": {
+        "type": "array",
+        "element_type": {
+          "type": "named",
+          "name": "article"
+        }
+      }
+    },
+    {
+      "name": "get_article_by_id",
+      "description": "Get article by ID",
+      "arguments": {
+        "id": {
+          "description": "the id of the article to fetch",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        }
+      },
+      "result_type": {
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "article"
+        }
+      }
     }
   ],
   "procedures": [
