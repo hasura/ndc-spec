@@ -16,7 +16,6 @@ use indexmap::IndexMap;
 use ndc_client::models;
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
-use serde_json::Value;
 use tokio::sync::Mutex;
 
 // ANCHOR: row-type
@@ -669,7 +668,7 @@ fn get_collection_by_name(
             let id_value = arguments
                 .get("id")
                 .ok_or((StatusCode::BAD_REQUEST, "missing argument author_id"))?;
-            if let (Some(id)) = id_value.as_i64() {
+            if let Some(id) = id_value.as_i64() {
                 let article = state.articles.get(&id);
 
                 let rows = query
@@ -709,7 +708,7 @@ fn get_collection_by_name(
                     "__value".into(),
                     latest_article_value,
                 )])])
-            }else{
+            } else {
                 Err((StatusCode::INTERNAL_SERVER_ERROR, "Incorrect type for id"))
             }
         }
@@ -803,7 +802,6 @@ fn execute_query(
         .map(|fields| {
             let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
             for item in paginated.iter() {
-
                 // If item contains the key __value, then we are dealing with the response
                 // from a function, and we need to handle it differently.
                 if item.contains_key("__value") {
@@ -813,7 +811,13 @@ fn execute_query(
                     let mut row = IndexMap::new();
                     row.insert(
                         "__value".into(),
-                        eval_field(collection_relationships, variables, state, &value_field, item)?,
+                        eval_field(
+                            collection_relationships,
+                            variables,
+                            state,
+                            &value_field,
+                            item,
+                        )?,
                     );
                     rows.push(row);
                 } else {
