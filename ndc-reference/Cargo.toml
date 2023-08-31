@@ -22,5 +22,7 @@ csv = "1.2.2"
 prometheus = "0.13.3"
 
 [dev-dependencies]
+async-trait = "0.1.67"
 goldenfile = "1.4.5"
 tokio-test = "0.4.2"
+ndc-test = { path = "../ndc-test" }

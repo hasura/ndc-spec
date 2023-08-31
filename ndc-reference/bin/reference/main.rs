@@ -1523,9 +1523,11 @@ fn eval_column_mapping(
 
 #[cfg(test)]
 mod tests {
+    use async_trait::async_trait;
     use axum::{extract::State, Json};
     use goldenfile::Mint;
     use ndc_client::models;
+    use ndc_test::{test_connector, Connector, Error, TestConfiguration};
     use std::{
         fs::{self, File},
         io::Write,
@@ -1533,6 +1535,8 @@ mod tests {
         sync::Arc,
     };
     use tokio::sync::Mutex;
+
+    use crate::{get_capabilities, get_schema, init_app_state, post_query};
 
     #[test]
     fn test_capabilities() {
@@ -1658,6 +1662,43 @@ mod tests {
                 )
                 .unwrap();
             }
+        });
+    }
+
+    struct Reference {
+        state: Arc<Mutex<crate::AppState>>,
+    }
+
+    #[async_trait]
+    impl Connector for Reference {
+        async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse, Error> {
+            Ok(get_capabilities().await.0)
+        }
+
+        async fn get_schema(&self) -> Result<models::SchemaResponse, Error> {
+            Ok(get_schema().await.0)
+        }
+
+        async fn query(
+            &self,
+            request: models::QueryRequest,
+        ) -> Result<models::QueryResponse, Error> {
+            Ok(post_query(State(self.state.clone()), Json(request))
+                .await
+                .map_err(|e| Error::OtherError(e.1.into()))?
+                .0)
+        }
+    }
+
+    #[test]
+    fn test_ndc_test() {
+        tokio_test::block_on(async {
+            let configuration = TestConfiguration { seed: None };
+            let connector = Reference {
+                state: Arc::new(Mutex::new(init_app_state())),
+            };
+            let results = test_connector(&configuration, &connector).await;
+            assert!(results.failures.is_empty());
         });
     }
 }

@@ -958,11 +958,13 @@ dependencies = [
 name = "ndc-reference"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "axum",
  "csv",
  "goldenfile",
  "indexmap",
  "ndc-client",
+ "ndc-test",
  "prometheus",
  "regex",
  "serde_json",
@@ -974,6 +976,7 @@ dependencies = [
 name = "ndc-test"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "clap",
  "indexmap",
  "ndc-client",

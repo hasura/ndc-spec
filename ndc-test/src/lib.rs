@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
 use std::future::Future;
 
+use async_trait::async_trait;
 use indexmap::IndexMap;
 use ndc_client::apis::configuration::Configuration;
 use ndc_client::apis::default_api as api;
@@ -15,11 +16,11 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("error communicating with the connector: {0}")]
-    CommunicationError(ndc_client::apis::Error),
+    CommunicationError(#[from] ndc_client::apis::Error),
     #[error("error generating test data: {0}")]
     StrategyError(Reason),
     #[error("error parsing semver range: {0}")]
-    SemverError(semver::Error),
+    SemverError(#[from] semver::Error),
     #[error(
         "capabilities.versions does not include the current version of the specification: {0}"
     )]
@@ -46,23 +47,13 @@ pub enum Error {
     ExpectedNonEmptyRows,
     #[error("requested field {0} was missing in response")]
     MissingField(String),
-}
-
-impl From<ndc_client::apis::Error> for Error {
-    fn from(value: ndc_client::apis::Error) -> Self {
-        Error::CommunicationError(value)
-    }
+    #[error("other error")]
+    OtherError(#[from] Box<dyn std::error::Error>),
 }
 
 impl From<Reason> for Error {
     fn from(value: Reason) -> Self {
         Error::StrategyError(value)
-    }
-}
-
-impl From<semver::Error> for Error {
-    fn from(value: semver::Error) -> Self {
-        Error::SemverError(value)
     }
 }
 
@@ -126,7 +117,39 @@ async fn nest<A, F: Future<Output = A>>(name: &str, results: &RefCell<TestResult
     result
 }
 
-pub async fn test_connector(configuration: &Configuration) -> TestResults {
+#[derive(Debug)]
+pub struct TestConfiguration {
+    pub seed: Option<String>,
+}
+
+#[async_trait]
+pub trait Connector {
+    async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse, Error>;
+
+    async fn get_schema(&self) -> Result<models::SchemaResponse, Error>;
+
+    async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse, Error>;
+}
+
+#[async_trait]
+impl Connector for Configuration {
+    async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse, Error> {
+        Ok(api::capabilities_get(self).await?)
+    }
+
+    async fn get_schema(&self) -> Result<models::SchemaResponse, Error> {
+        Ok(api::schema_get(self).await?)
+    }
+
+    async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse, Error> {
+        Ok(api::query_post(self, request).await?)
+    }
+}
+
+pub async fn test_connector<C: Connector>(
+    configuration: &TestConfiguration,
+    connector: &C,
+) -> TestResults {
     let results = RefCell::new(TestResults {
         path: vec![],
         failures: vec![],
@@ -140,13 +163,13 @@ pub async fn test_connector(configuration: &Configuration) -> TestResults {
         },
     );
 
-    let _ = run_all_tests(&configuration, &mut runner, &results).await;
+    let _ = run_all_tests(connector, &mut runner, &results).await;
 
     results.into_inner()
 }
 
-async fn run_all_tests(
-    configuration: &&Configuration,
+async fn run_all_tests<C: Connector>(
+    connector: &C,
     runner: &mut TestRunner,
     results: &RefCell<TestResults>,
 ) -> Option<()> {
@@ -154,7 +177,7 @@ async fn run_all_tests(
 
     let capabilities = async {
         let capabilities = test("Fetching /capabilities ...", results, async {
-            Ok(api::capabilities_get(configuration).await?)
+            Ok(connector.get_capabilities().await?)
         })
         .await?;
 
@@ -170,7 +193,7 @@ async fn run_all_tests(
     println!("Schema");
     let schema = async {
         let schema = test("Fetching /schema", results, async {
-            Ok(api::schema_get(configuration).await?)
+            Ok(connector.get_schema().await?)
         })
         .await?;
 
@@ -185,7 +208,7 @@ async fn run_all_tests(
 
     println!("Query");
 
-    test_query(configuration, &capabilities, &schema, runner, results).await;
+    test_query(connector, &capabilities, &schema, runner, results).await;
 
     Some(())
 }
@@ -334,8 +357,8 @@ pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> 
     Ok(())
 }
 
-pub async fn test_query(
-    configuration: &Configuration,
+pub async fn test_query<C: Connector>(
+    connector: &C,
     _capabilities: &models::CapabilitiesResponse,
     schema: &models::SchemaResponse,
     runner: &mut TestRunner,
@@ -345,13 +368,12 @@ pub async fn test_query(
         nest(collection_info.name.as_str(), results, async {
             if collection_info.arguments.is_empty() {
                 nest("Simple queries", results, async {
-                    test_simple_queries(runner, results, configuration, schema, collection_info)
-                        .await
+                    test_simple_queries(connector, runner, results, schema, collection_info).await
                 })
                 .await;
 
                 nest("Aggregate queries", results, async {
-                    test_aggregate_queries(configuration, schema, collection_info, results).await
+                    test_aggregate_queries(connector, schema, collection_info, results).await
                 })
                 .await;
             } else {
@@ -362,10 +384,10 @@ pub async fn test_query(
     }
 }
 
-async fn test_simple_queries(
+async fn test_simple_queries<C: Connector>(
+    connector: &C,
     runner: &mut TestRunner,
     results: &RefCell<TestResults>,
-    configuration: &Configuration,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
 ) -> Option<()> {
@@ -377,7 +399,7 @@ async fn test_simple_queries(
                 collection_info.collection_type.clone(),
             ))?;
 
-        let rows = test_select_top_n_rows(collection_type, collection_info, configuration).await?;
+        let rows = test_select_top_n_rows(connector, collection_type, collection_info).await?;
 
         Ok((collection_type, rows))
     })
@@ -389,11 +411,11 @@ async fn test_simple_queries(
         if let Some(expression_strategy) = make_expression_strategies(value_strategies) {
             for _ in 1..10 {
                 test_select_top_n_rows_with_predicate(
+                    connector,
                     runner,
                     &expression_strategy,
                     collection_type,
                     collection_info,
-                    configuration,
                 )
                 .await?;
             }
@@ -411,11 +433,11 @@ async fn test_simple_queries(
         {
             for _ in 1..10 {
                 test_select_top_n_rows_with_sort(
+                    connector,
                     runner,
                     &order_by_elements_strategy,
                     collection_type,
                     collection_info,
-                    configuration,
                 )
                 .await?;
             }
@@ -428,10 +450,10 @@ async fn test_simple_queries(
     .await
 }
 
-async fn test_select_top_n_rows(
+async fn test_select_top_n_rows<C: Connector>(
+    connector: &C,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
-    configuration: &Configuration,
 ) -> Result<Vec<IndexMap<String, models::RowFieldValue>>, Error> {
     let fields = select_all_columns(collection_type);
     let query_request = models::QueryRequest {
@@ -449,17 +471,17 @@ async fn test_select_top_n_rows(
         variables: None,
     };
 
-    let response = api::query_post(configuration, query_request).await?;
+    let response = connector.query(query_request).await?;
 
     expect_single_rows(response)
 }
 
-async fn test_select_top_n_rows_with_predicate(
+async fn test_select_top_n_rows_with_predicate<C: Connector>(
+    connector: &C,
     runner: &mut TestRunner,
     expression_strategy: &impl Strategy<Value = models::Expression>,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
-    configuration: &Configuration,
 ) -> Result<(), Error> {
     if let Ok(tree) = expression_strategy.new_tree(runner) {
         let predicate = tree.current();
@@ -481,7 +503,7 @@ async fn test_select_top_n_rows_with_predicate(
             variables: None,
         };
 
-        let response = api::query_post(configuration, query_request).await?;
+        let response = connector.query(query_request).await?;
 
         expect_single_non_empty_rows(response)?;
     }
@@ -489,12 +511,12 @@ async fn test_select_top_n_rows_with_predicate(
     Ok(())
 }
 
-async fn test_select_top_n_rows_with_sort(
+async fn test_select_top_n_rows_with_sort<C: Connector>(
+    connector: &C,
     runner: &mut TestRunner,
     order_by_elements_strategy: &impl Strategy<Value = Vec<models::OrderByElement>>,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
-    configuration: &Configuration,
 ) -> Result<(), Error> {
     if let Ok(tree) = order_by_elements_strategy.new_tree(runner) {
         let elements = tree.current();
@@ -516,7 +538,7 @@ async fn test_select_top_n_rows_with_sort(
             variables: None,
         };
 
-        let response = api::query_post(configuration, query_request).await?;
+        let response = connector.query(query_request).await?;
 
         expect_single_non_empty_rows(response)?;
     }
@@ -611,7 +633,8 @@ fn make_order_by_elements_strategy(
     if collection_type.fields.is_empty() {
         None
     } else {
-        let random_fields = Just(collection_type.fields.keys().cloned().collect::<Vec<_>>()).prop_shuffle();
+        let random_fields =
+            Just(collection_type.fields.keys().cloned().collect::<Vec<_>>()).prop_shuffle();
         let strategy = random_fields.prop_perturb(|fields, mut rng| {
             let mut elements = vec![];
 
@@ -655,21 +678,21 @@ fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, 
         .collect::<IndexMap<String, models::Field>>()
 }
 
-async fn test_aggregate_queries(
-    configuration: &Configuration,
+async fn test_aggregate_queries<C: Connector>(
+    connector: &C,
     _schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
     results: &RefCell<TestResults>,
 ) -> Option<()> {
     test("star_count", results, async {
-        test_star_count_aggregate(collection_info, configuration).await
+        test_star_count_aggregate(connector, collection_info).await
     })
     .await
 }
 
-async fn test_star_count_aggregate(
+async fn test_star_count_aggregate<C: Connector>(
+    connector: &C,
     collection_info: &models::CollectionInfo,
-    configuration: &Configuration,
 ) -> Result<(), Error> {
     let aggregates = IndexMap::from([("count".into(), models::Aggregate::StarCount {})]);
     let query_request = models::QueryRequest {
@@ -686,7 +709,7 @@ async fn test_star_count_aggregate(
         collection_relationships: BTreeMap::new(),
         variables: None,
     };
-    let response = api::query_post(configuration, query_request).await.unwrap();
+    let response = connector.query(query_request).await.unwrap();
     if let [row_set] = &*response.0 {
         if row_set.rows.is_some() {
             return Err(Error::RowsShouldBeNullInRowSet);

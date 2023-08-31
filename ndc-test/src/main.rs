@@ -2,6 +2,7 @@ use std::process::exit;
 
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
+use ndc_test::TestConfiguration;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -25,6 +26,8 @@ enum Commands {
 async fn main() {
     match Options::parse().command {
         Commands::Test { endpoint, seed } => {
+            let test_configuration = TestConfiguration { seed };
+
             let configuration = Configuration {
                 base_path: endpoint,
                 user_agent: None,
@@ -33,10 +36,9 @@ async fn main() {
                 oauth_access_token: None,
                 bearer_access_token: None,
                 api_key: None,
-                seed,
             };
 
-            let results = ndc_test::test_connector(&configuration).await;
+            let results = ndc_test::test_connector(&test_configuration, &configuration).await;
 
             if !results.failures.is_empty() {
                 println!();

@@ -5,6 +5,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+async-trait = "0.1.67"
 clap = { version = "4", features = ["derive"] }
 indexmap = { version = "1", features = ["serde"] }
 ndc-client = { path = "../ndc-client" }
