@@ -5,9 +5,10 @@ use std::future::Future;
 use indexmap::IndexMap;
 use ndc_client::apis::configuration::Configuration;
 use ndc_client::apis::default_api as api;
-use ndc_client::models;
+use ndc_client::models::{self, OrderDirection};
+use proptest::prelude::Rng;
 use proptest::sample::select;
-use proptest::strategy::{Strategy, Union, ValueTree};
+use proptest::strategy::{Just, Strategy, Union, ValueTree};
 use proptest::test_runner::{Config, Reason, RngAlgorithm, TestRng, TestRunner};
 use thiserror::Error;
 
@@ -402,6 +403,28 @@ async fn test_simple_queries(
 
         Ok(())
     })
+    .await?;
+
+    test("Sorting", results, async {
+        if let Some(order_by_elements_strategy) =
+            make_order_by_elements_strategy(collection_type.clone())
+        {
+            for _ in 1..10 {
+                test_select_top_n_rows_with_sort(
+                    runner,
+                    &order_by_elements_strategy,
+                    collection_type,
+                    collection_info,
+                    configuration,
+                )
+                .await?;
+            }
+        } else {
+            eprintln!("Skipping empty collection {}", collection_info.name);
+        }
+
+        Ok(())
+    })
     .await
 }
 
@@ -428,13 +451,7 @@ async fn test_select_top_n_rows(
 
     let response = api::query_post(configuration, query_request).await?;
 
-    if response.0.len() != 1 {
-        return Err(Error::ExpectedSingleRowSet);
-    }
-
-    let row_set = response.0[0].clone();
-
-    row_set.rows.ok_or(Error::RowsShouldBeNonNullInRowSet)
+    expect_single_rows(response)
 }
 
 async fn test_select_top_n_rows_with_predicate(
@@ -466,22 +483,73 @@ async fn test_select_top_n_rows_with_predicate(
 
         let response = api::query_post(configuration, query_request).await?;
 
-        if response.0.len() != 1 {
-            return Err(Error::ExpectedSingleRowSet);
-        }
-
-        let row_set = response.0.first().unwrap();
-        let rows = row_set
-            .rows
-            .as_ref()
-            .ok_or(Error::RowsShouldBeNonNullInRowSet)?;
-
-        if rows.is_empty() {
-            return Err(Error::ExpectedNonEmptyRows);
-        }
+        expect_single_non_empty_rows(response)?;
     }
 
     Ok(())
+}
+
+async fn test_select_top_n_rows_with_sort(
+    runner: &mut TestRunner,
+    order_by_elements_strategy: &impl Strategy<Value = Vec<models::OrderByElement>>,
+    collection_type: &models::ObjectType,
+    collection_info: &models::CollectionInfo,
+    configuration: &Configuration,
+) -> Result<(), Error> {
+    if let Ok(tree) = order_by_elements_strategy.new_tree(runner) {
+        let elements = tree.current();
+
+        let fields = select_all_columns(collection_type);
+
+        let query_request = models::QueryRequest {
+            collection: collection_info.name.clone(),
+            query: models::Query {
+                aggregates: None,
+                fields: Some(fields),
+                limit: Some(10),
+                offset: None,
+                order_by: Some(models::OrderBy { elements }),
+                predicate: None,
+            },
+            arguments: BTreeMap::new(),
+            collection_relationships: BTreeMap::new(),
+            variables: None,
+        };
+
+        let response = api::query_post(configuration, query_request).await?;
+
+        expect_single_non_empty_rows(response)?;
+    }
+
+    Ok(())
+}
+
+fn expect_single_non_empty_rows(
+    response: models::QueryResponse,
+) -> Result<Vec<IndexMap<String, models::RowFieldValue>>, Error> {
+    let rows = expect_single_rows(response)?;
+
+    if rows.is_empty() {
+        return Err(Error::ExpectedNonEmptyRows);
+    }
+
+    Ok(rows)
+}
+
+fn expect_single_rows(
+    response: models::QueryResponse,
+) -> Result<Vec<IndexMap<String, models::RowFieldValue>>, Error> {
+    if response.0.len() != 1 {
+        return Err(Error::ExpectedSingleRowSet);
+    }
+
+    let row_set = &response.0[0];
+    let rows = row_set
+        .rows
+        .clone()
+        .ok_or(Error::RowsShouldBeNonNullInRowSet)?;
+
+    Ok(rows)
 }
 
 fn make_value_strategies(
@@ -534,6 +602,41 @@ fn make_expression_strategies<S: Strategy<Value = serde_json::Value>>(
         None
     } else {
         Some(Union::new(expression_strategies))
+    }
+}
+
+fn make_order_by_elements_strategy(
+    collection_type: models::ObjectType,
+) -> Option<impl Strategy<Value = Vec<models::OrderByElement>>> {
+    if collection_type.fields.is_empty() {
+        None
+    } else {
+        let random_fields = Just(collection_type.fields.keys().cloned().collect::<Vec<_>>()).prop_shuffle();
+        let strategy = random_fields.prop_perturb(|fields, mut rng| {
+            let mut elements = vec![];
+
+            let fields = fields.into_iter().take(rng.gen_range(0..3));
+
+            let order_direction = if rng.gen_bool(0.5) {
+                OrderDirection::Asc
+            } else {
+                OrderDirection::Desc
+            };
+
+            for field in fields {
+                elements.push(models::OrderByElement {
+                    order_direction,
+                    target: models::OrderByTarget::Column {
+                        name: field.clone(),
+                        path: vec![],
+                    },
+                });
+            }
+
+            elements
+        });
+
+        Some(strategy)
     }
 }
 
