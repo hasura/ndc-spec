@@ -176,9 +176,11 @@ async fn run_all_tests<C: Connector>(
     println!("Capabilities");
 
     let capabilities = async {
-        let capabilities = test("Fetching /capabilities ...", results, async {
-            Ok(connector.get_capabilities().await?)
-        })
+        let capabilities = test(
+            "Fetching /capabilities ...",
+            results,
+            connector.get_capabilities(),
+        )
         .await?;
 
         let _ = test("Validating capabilities", results, async {
@@ -192,10 +194,7 @@ async fn run_all_tests<C: Connector>(
 
     println!("Schema");
     let schema = async {
-        let schema = test("Fetching /schema", results, async {
-            Ok(connector.get_schema().await?)
-        })
-        .await?;
+        let schema = test("Fetching /schema", results, connector.get_schema()).await?;
 
         nest("Validating schema", results, async {
             validate_schema(&schema, results).await
