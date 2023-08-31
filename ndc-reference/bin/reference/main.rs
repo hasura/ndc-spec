@@ -1499,12 +1499,17 @@ async fn execute_mutation_operation(
                                 );
                             }
                         }
-                        Ok(vec![row])
+                        Ok(row)
                     })
                     .transpose()?;
                 Ok(models::MutationOperationResults {
                     affected_rows: 1,
-                    returning,
+                    returning: Some(vec![IndexMap::from_iter([(
+                        "__value".into(),
+                        models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
+                            (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode response")
+                        })?),
+                    )])]),
                 })
             }
             _ => Err((StatusCode::BAD_REQUEST, "unknown procedure")),
