@@ -464,11 +464,11 @@ pub enum BinaryComparisonOperator {
 // ANCHOR_END: BinaryComparisonOperator
 
 // ANCHOR: ColumnSelector
-#[derive(Clone, Debug, PartialEq)]
 /// ColumnSelector consists of a column name (the first element) and possibly a 
 /// path to a field within a nested objects in that column.
 /// Multi-element ColumnSelectors are only valid for databases that support nested objects,
 /// e.g. MongoDB.
+#[derive(Clone, Debug, PartialEq)]
 pub struct ColumnSelector(pub Vec<String>);
 
 /// A string deserializes to a a single-element ColumnSelector.

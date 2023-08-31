@@ -41,7 +41,7 @@ In this case, the query has no predicate function, so all three aggregates would
 
 ## Aggregating on scalar fields in nested objects
 
-For databases that support nested objects (e.g. MongoDB), the `column` property of a `single_column` aggregate may be a [`ColumnSelector`](../../reference/types.md#orderbyelement) that specifies the path to a scalar field within an object-valued column.
+For databases that support nested objects (e.g. MongoDB), the `column` property of a `single_column` aggregate may be a [`ColumnSelector`](../../reference/types.md#columnselector) that specifies the path to a scalar field within an object-valued column.
 
 ## Requirements
 

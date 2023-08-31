@@ -117,7 +117,7 @@ See type [`ComparisonValue`](../../reference/types.md#comparisonvalue) for the v
 
 Comparison operators compare columns to values. The column on the left hand side of any operator is described by a [`ComparisonTarget`](../../reference/types.md#comparisontarget), and the various cases will be explained next.
 
-The `name` property of `ComparisonTarget` is a [`ColumnSelector`](../../reference/types.md#orderbyelement), which can be either a string or an array of strings.  If it is a string or a singleton array then it refers to a scalar-valued top-level column. `ColumnSelector`s with multi-valued arrays are only relevant for databases that support nested objects, e.g. MongoDB. If `name` is a multi-value array then the first element refers to an object-valued top-level column and the remaining elements specify a path to a scalar-valued field within a nested object within that column.
+The `name` property of `ComparisonTarget` is a [`ColumnSelector`](../../reference/types.md#columnselector), which can be either a string or an array of strings.  If it is a string or a singleton array then it refers to a scalar-valued top-level column. `ColumnSelector`s with multi-valued arrays are only relevant for databases that support nested objects, e.g. MongoDB. If `name` is a multi-value array then the first element refers to an object-valued top-level column and the remaining elements specify a path to a scalar-valued field within a nested object within that column.
 
 #### Referencing a column from the same collection
 
