@@ -797,22 +797,39 @@ fn execute_query(
     // ANCHOR_END: execute_query_aggregates
     // ANCHOR: execute_query_fields
 
-    let rows = {
-        let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
-        for item in paginated.iter() {
-            let mut row = IndexMap::new();
-            let field = models::Field::Column {
-                column: String::from("__value"),
-            };
-            row.insert(
-                String::from("__value"),
-                eval_field(collection_relationships, variables, state, &field, item)?,
-            );
-            rows.push(row);
-        }
+    let rows = query
+        .fields
+        .as_ref()
+        .map(|fields| {
+            let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
+            for item in paginated.iter() {
 
-        Some(rows)
-    };
+                // If item contains the key __value, then we are dealing with the response
+                // from a function, and we need to handle it differently.
+                if item.contains_key("__value") {
+                    let value_field = models::Field::Column {
+                        column: String::from("__value"),
+                    };
+                    let mut row = IndexMap::new();
+                    row.insert(
+                        "__value".into(),
+                        eval_field(collection_relationships, variables, state, &value_field, item)?,
+                    );
+                    rows.push(row);
+                } else {
+                    let mut row = IndexMap::new();
+                    for (field_name, field) in fields.iter() {
+                        row.insert(
+                            field_name.clone(),
+                            eval_field(collection_relationships, variables, state, field, item)?,
+                        );
+                    }
+                    rows.push(row)
+                }
+            }
+            Ok::<_, StatusLine>(rows)
+        })
+        .transpose()?;
     // ANCHOR_END: execute_query_fields
     // ANCHOR: execute_query_rowset
     Ok(models::RowSet { aggregates, rows })
