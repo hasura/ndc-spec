@@ -43,7 +43,11 @@
           "properties": {
             "column": {
               "description": "The column to apply the count aggregate function to",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ColumnSelector"
+                }
+              ]
             },
             "distinct": {
               "description": "Whether or not only distinct items should be counted",
@@ -67,7 +71,11 @@
           "properties": {
             "column": {
               "description": "The column to apply the aggregation function to",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ColumnSelector"
+                }
+              ]
             },
             "function": {
               "description": "Single column aggregate function name.",
@@ -159,6 +167,19 @@
         }
       }
     },
+    "ColumnSelector": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
     "ComparisonTarget": {
       "oneOf": [
         {
@@ -171,7 +192,11 @@
           "properties": {
             "name": {
               "description": "The name of the column",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ColumnSelector"
+                }
+              ]
             },
             "path": {
               "description": "Any relationships to traverse to reach this column",
@@ -197,7 +222,11 @@
           "properties": {
             "name": {
               "description": "The name of the column",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ColumnSelector"
+                }
+              ]
             },
             "type": {
               "type": "string",
@@ -835,7 +864,11 @@
           "properties": {
             "name": {
               "description": "The name of the column",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ColumnSelector"
+                }
+              ]
             },
             "path": {
               "description": "Any relationships to traverse to reach this column",
@@ -863,7 +896,11 @@
           "properties": {
             "column": {
               "description": "The column to apply the aggregation function to",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ColumnSelector"
+                }
+              ]
             },
             "function": {
               "description": "Single column aggregate function name.",
