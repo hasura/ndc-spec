@@ -1,13 +1,20 @@
 {
   "operation_results": [
     {
-      "affected_rows": 1
+      "affected_rows": 1,
+      "returning": [
+        {
+          "__value": null
+        }
+      ]
     },
     {
       "affected_rows": 1,
       "returning": [
         {
-          "id": 2
+          "__value": {
+            "id": 2
+          }
         }
       ]
     }
