@@ -643,7 +643,7 @@ fn eval_aggregate(
             let values = paginated
                 .iter()
                 .map(|row| {
-                    select_from_row(row, column)
+                    row.get(column)
                         .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
                 })
                 .collect::<Result<Vec<_>, StatusLine>>()?;

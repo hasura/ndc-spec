@@ -61,11 +61,7 @@
           "properties": {
             "column": {
               "description": "The column to apply the count aggregate function to",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ColumnSelector"
-                }
-              ]
+              "type": "string"
             },
             "distinct": {
               "description": "Whether or not only distinct items should be counted",
