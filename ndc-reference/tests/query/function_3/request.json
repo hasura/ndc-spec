@@ -1,0 +1,21 @@
+{
+    "collection": "get_all_articles",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "article_id": {
+                "type": "column",
+                "column": "id"
+            },
+            "title": {
+                "type": "column",
+                "column": "title"
+            },
+            "author_id": {
+                "type": "column",
+                "column": "author_id"
+            }
+        }
+    },
+    "collection_relationships": {}
+}

@@ -667,7 +667,7 @@ fn get_collection_by_name(
         "get_article_by_id" => {
             let id_value = arguments
                 .get("id")
-                .ok_or((StatusCode::BAD_REQUEST, "missing argument author_id"))?;
+                .ok_or((StatusCode::BAD_REQUEST, "missing argument id"))?;
             if let Some(id) = id_value.as_i64() {
                 let article = state.articles.get(&id);
 

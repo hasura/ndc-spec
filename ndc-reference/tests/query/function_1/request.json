@@ -1,0 +1,8 @@
+{
+    "collection": "latest_article_id",
+    "arguments": {},
+    "query": {
+        "fields": {}
+    },
+    "collection_relationships": {}
+}
