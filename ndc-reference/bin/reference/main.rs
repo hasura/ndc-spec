@@ -1790,7 +1790,6 @@ async fn execute_mutation_operation(
                             article_obj.iter().map(|(k, v)| (k.clone(), v.clone())),
                         );
                         new_row.insert("title".into(), title.clone());
-                        dbg!(&new_row);
                         state.articles.insert(id_int, new_row);
                         let output_row = state.articles.get(&id_int);
                         let returning = output_row
