@@ -384,8 +384,38 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     };
     // ANCHOR_END: schema_procedure_upsert_article
 
+    // ANCHOR: schema_procedure_update_article_title_by_id
+    let update_article_title_by_id = models::ProcedureInfo {
+        name: "update_article_title_by_id".into(),
+        description: Some("Update an article title given the ID and new title".into()),
+        arguments: BTreeMap::from_iter([
+            (
+                "id".into(),
+                models::ArgumentInfo {
+                    description: Some("the id of the article to update".into()),
+                    argument_type: models::Type::Named { name: "Int".into() },
+                },
+            ),
+            (
+                "title".into(),
+                models::ArgumentInfo {
+                    description: Some("the new title of the article".into()),
+                    argument_type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+        ]),
+        result_type: models::Type::Nullable {
+            underlying_type: Box::new(models::Type::Named {
+                name: "article".into(),
+            }),
+        },
+    };
+    // ANCHOR_END: schema_procedure_update_article_title_by_id
+
     // ANCHOR: schema_procedures
-    let procedures = vec![upsert_article];
+    let procedures = vec![upsert_article, update_article_title_by_id];
     // ANCHOR_END: schema_procedures
 
     // ANCHOR: schema_function_latest_article_id
@@ -1738,6 +1768,110 @@ async fn execute_mutation_operation(
                         })?),
                     )])]),
                 })
+            }
+            "update_article_title_by_id" => {
+                let id = arguments.get("id").ok_or((
+                    StatusCode::BAD_REQUEST,
+                    "required argument field 'id' is missing",
+                ))?;
+                let title = arguments.get("title").ok_or((
+                    StatusCode::BAD_REQUEST,
+                    "required argument field 'title' is missing",
+                ))?;
+                let id_int = id
+                    .as_i64()
+                    .ok_or((StatusCode::BAD_REQUEST, "argument 'id' is not an integer"))?;
+
+                let current_state = state.articles.clone();
+                let old_row = current_state.get(&id_int);
+                match &old_row {
+                    Some(article_obj) => {
+                        let mut new_row = BTreeMap::from_iter(
+                            article_obj.iter().map(|(k, v)| (k.clone(), v.clone())),
+                        );
+                        new_row.insert("title".into(), title.clone());
+                        dbg!(&new_row);
+                        state.articles.insert(id_int, new_row);
+                        let output_row = state.articles.get(&id_int);
+                        let returning = output_row
+                            .map(|new_row| {
+                                let mut row = IndexMap::new();
+                                for fields in fields.iter() {
+                                    for (field_name, field) in fields.iter() {
+                                        row.insert(
+                                            field_name.clone(),
+                                            eval_field(
+                                                collection_relationships,
+                                                &BTreeMap::new(),
+                                                state,
+                                                field,
+                                                new_row,
+                                            )?,
+                                        );
+                                    }
+                                }
+                                Ok(row)
+                            })
+                            .transpose()?;
+                        Ok(models::MutationOperationResults {
+                            affected_rows: 1,
+                            returning: Some(vec![IndexMap::from_iter([(
+                                "__value".into(),
+                                models::RowFieldValue(serde_json::to_value(returning).map_err(
+                                    |_| {
+                                        (
+                                            StatusCode::INTERNAL_SERVER_ERROR,
+                                            "cannot encode response",
+                                        )
+                                    },
+                                )?),
+                            )])]),
+                        })
+                    }
+                    None => Ok(models::MutationOperationResults {
+                        affected_rows: 0,
+                        returning: None,
+                    }),
+                }
+            }
+            "get_article_by_id" => {
+                let id_value = arguments
+                    .get("id")
+                    .ok_or((StatusCode::BAD_REQUEST, "missing argument id"))?;
+                if let Some(id) = id_value.as_i64() {
+                    let article = state.articles.get(&id);
+                    let returning = article
+                        .map(|article| {
+                            let mut row = IndexMap::new();
+                            for fields in fields.iter() {
+                                for (field_name, field) in fields.iter() {
+                                    row.insert(
+                                        field_name.clone(),
+                                        eval_field(
+                                            collection_relationships,
+                                            &BTreeMap::new(),
+                                            state,
+                                            field,
+                                            article,
+                                        )?,
+                                    );
+                                }
+                            }
+                            Ok(row)
+                        })
+                        .transpose()?;
+                    Ok(models::MutationOperationResults {
+                        affected_rows: 1,
+                        returning: Some(vec![IndexMap::from_iter([(
+                            "__value".into(),
+                            models::RowFieldValue(serde_json::to_value(returning).map_err(
+                                |_| (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode response"),
+                            )?),
+                        )])]),
+                    })
+                } else {
+                    Err((StatusCode::INTERNAL_SERVER_ERROR, "Incorrect type for id"))
+                }
             }
             _ => Err((StatusCode::BAD_REQUEST, "unknown procedure")),
         },

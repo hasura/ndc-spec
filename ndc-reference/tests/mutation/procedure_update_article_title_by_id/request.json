@@ -1,0 +1,29 @@
+{
+    "$schema": "../../../../ndc-client/tests/json_schema/mutation_request.jsonschema",
+    "insert_schema": [],
+    "operations": [
+        {
+            "type": "procedure",
+            "name": "update_article_title_by_id",
+            "arguments": {
+                "id": 1,
+                "title": "New Title"
+            },
+            "fields": {
+                "article_id": {
+                    "type": "column",
+                    "column": "id"
+                },
+                "title": {
+                    "type": "column",
+                    "column": "title"
+                },
+                "author_id": {
+                    "type": "column",
+                    "column": "author_id"
+                }
+            }
+        }
+    ],
+    "collection_relationships": {}
+}

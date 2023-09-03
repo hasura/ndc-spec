@@ -223,6 +223,33 @@
           "name": "article"
         }
       }
+    },
+    {
+      "name": "update_article_title_by_id",
+      "description": "Update an article title given the ID and new title",
+      "arguments": {
+        "id": {
+          "description": "the id of the article to update",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "title": {
+          "description": "the new title of the article",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        }
+      },
+      "result_type": {
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "article"
+        }
+      }
     }
   ]
 }
