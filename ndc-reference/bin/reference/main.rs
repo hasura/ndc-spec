@@ -1078,7 +1078,7 @@ fn eval_expression(
         }
         // ANCHOR_END: eval_expression_logical
         // ANCHOR: eval_expression_unary_operators
-        models::Expression::UnaryComparisonOperator { column, operator } => match &**operator {
+        models::Expression::UnaryComparisonOperator { column, operator } => match operator {
             models::UnaryComparisonOperator::IsNull => {
                 let vals = eval_comparison_target(
                     collection_relationships,
@@ -1097,7 +1097,7 @@ fn eval_expression(
             column,
             operator,
             value,
-        } => match &**operator {
+        } => match operator {
             models::BinaryComparisonOperator::Equal => {
                 let left_vals = eval_comparison_target(
                     collection_relationships,
@@ -1176,7 +1176,7 @@ fn eval_expression(
             column,
             operator,
             values,
-        } => match &**operator {
+        } => match operator {
             models::BinaryArrayComparisonOperator::In => {
                 let left_val = eval_comparison_target(
                     collection_relationships,

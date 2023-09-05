@@ -25,7 +25,7 @@
       }
     },
     "object_types": {
-      "description": "A list of object types which can be used as the types of arguments, or return types of procedures. Names should not overlap with collection names or scalar type names.",
+      "description": "A list of object types which can be used as the types of arguments, or return types of procedures. Names should not overlap with scalar type names.",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/ObjectType"
