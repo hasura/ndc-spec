@@ -34,5 +34,5 @@ curl http://localhost:8100/schema | jq .
 ### Test an agent
 
 ```sh
-cargo run --bin ndc-test -- --endpoint http://localhost:8100
+cargo run --bin ndc-test -- test --endpoint http://localhost:8100
 ```

@@ -99,8 +99,6 @@ pub struct ObjectType {
 pub struct ObjectField {
     /// Description of this field
     pub description: Option<String>,
-    /// Any arguments that this object field accepts
-    pub arguments: BTreeMap<String, ArgumentInfo>,
     /// The type of this field
     #[serde(rename = "type")]
     pub r#type: Type,
