@@ -609,12 +609,12 @@ fn make_expression_strategies<S: Strategy<Value = serde_json::Value>>(
         .into_iter()
         .map(|(field_name, strategy)| {
             strategy.prop_map(move |value| models::Expression::BinaryComparisonOperator {
-                column: Box::new(models::ComparisonTarget::Column {
+                column: models::ComparisonTarget::Column {
                     name: field_name.clone(),
                     path: vec![],
-                }),
-                operator: Box::new(models::BinaryComparisonOperator::Equal),
-                value: Box::new(models::ComparisonValue::Scalar { value }),
+                },
+                operator: models::BinaryComparisonOperator::Equal,
+                value: models::ComparisonValue::Scalar { value },
             })
         })
         .collect::<Vec<_>>();
