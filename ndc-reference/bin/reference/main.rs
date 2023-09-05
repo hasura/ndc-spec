@@ -618,13 +618,13 @@ fn get_collection_by_name(
             if let Some(id) = latest_id {
                 let latest_article = state.articles.get(&id);
 
-                let rows = query
+                let return_object = query
                     .fields
                     .as_ref()
                     .map(|fields| {
-                        let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
+                        let mut row = IndexMap::new();
+
                         for item in latest_article.iter() {
-                            let mut row = IndexMap::new();
                             for (field_name, field) in fields.iter() {
                                 row.insert(
                                     field_name.clone(),
@@ -637,18 +637,12 @@ fn get_collection_by_name(
                                     )?,
                                 );
                             }
-                            rows.push(row)
                         }
-                        Ok::<_, StatusLine>(rows)
+                        Ok(row)
                     })
                     .transpose()?;
 
-                let row_set = models::RowSet {
-                    aggregates: None,
-                    rows,
-                };
-
-                let latest_article_value = serde_json::to_value(row_set)
+                let latest_article_value = serde_json::to_value(return_object)
                     .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode article"))?;
 
                 Ok(vec![BTreeMap::from_iter([(
@@ -701,13 +695,13 @@ fn get_collection_by_name(
             if let Some(id) = id_value.as_i64() {
                 let article = state.articles.get(&id);
 
-                let rows = query
+                let return_object = query
                     .fields
                     .as_ref()
                     .map(|fields| {
-                        let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
+                        let mut row = IndexMap::new();
+
                         for item in article.iter() {
-                            let mut row = IndexMap::new();
                             for (field_name, field) in fields.iter() {
                                 row.insert(
                                     field_name.clone(),
@@ -720,18 +714,12 @@ fn get_collection_by_name(
                                     )?,
                                 );
                             }
-                            rows.push(row)
                         }
-                        Ok::<_, StatusLine>(rows)
+                        Ok(row)
                     })
                     .transpose()?;
 
-                let row_set = models::RowSet {
-                    aggregates: None,
-                    rows,
-                };
-
-                let latest_article_value = serde_json::to_value(row_set)
+                let latest_article_value = serde_json::to_value(return_object)
                     .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode article"))?;
 
                 Ok(vec![BTreeMap::from_iter([(
