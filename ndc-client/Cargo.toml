@@ -1,13 +1,13 @@
 [package]
 name = "ndc-client"
-version = "0.1.0"
 description = "Protocol definitions and client library for the Hasura NDC specification"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 async-trait = "^0.1.67"
 indexmap = { version = "^1", features = ["serde"] }
-opentelemetry = "^0.18.0"
+opentelemetry = "^0.20.0"
 schemars = { version = "^0.8.12", features = ["smol_str", "indexmap1"] }
 serde = "^1.0"
 serde_derive = "^1.0"

@@ -1,0 +1,36 @@
+name: test Nix support
+
+on: push
+
+jobs:
+  build-with-nix:
+    name: Build with Nix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Install Nix ❄
+        uses: DeterminateSystems/nix-installer-action@v4
+
+      - name: Run the Magic Nix Cache 🔌
+        uses: DeterminateSystems/magic-nix-cache-action@v2
+
+      - name: Build and test
+        run: nix build --print-build-logs
+
+  evaluate-nix-shell:
+    name: Evaluate the Nix shell
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Install Nix ❄
+        uses: DeterminateSystems/nix-installer-action@v4
+
+      - name: Run the Magic Nix Cache 🔌
+        uses: DeterminateSystems/magic-nix-cache-action@v2
+
+      - name: Evaluate the Nix shell
+        run: nix develop -c "true"
