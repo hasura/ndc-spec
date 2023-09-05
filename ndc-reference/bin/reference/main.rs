@@ -680,6 +680,7 @@ fn get_collection_by_name(
                 aggregates: None,
                 rows,
             };
+
             let articles_value = serde_json::to_value(row_set)
                 .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode article"))?;
 
@@ -719,12 +720,12 @@ fn get_collection_by_name(
                     })
                     .transpose()?;
 
-                let latest_article_value = serde_json::to_value(return_object)
+                let article_value = serde_json::to_value(return_object)
                     .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode article"))?;
 
                 Ok(vec![BTreeMap::from_iter([(
                     "__value".into(),
-                    latest_article_value,
+                    article_value,
                 )])])
             } else {
                 Err((StatusCode::INTERNAL_SERVER_ERROR, "Incorrect type for id"))
