@@ -70,6 +70,15 @@
         "type"
       ],
       "properties": {
+        "argument_position": {
+          "description": "Zero-based index position of this argument in parameter list",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
         "description": {
           "description": "Argument description",
           "type": [

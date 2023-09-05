@@ -212,6 +212,8 @@ pub struct ArgumentInfo {
     /// The name of the type of this argument
     #[serde(rename = "type")]
     pub argument_type: Type,
+    /// Zero-based index position of this argument in parameter list
+    pub argument_position: Option<u32>,
 }
 // ANCHOR_END: ArgumentInfo
 

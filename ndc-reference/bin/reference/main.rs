@@ -347,6 +347,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             models::ArgumentInfo {
                 argument_type: models::Type::Named { name: "Int".into() },
                 description: None,
+                argument_position: None,
             },
         )]),
         deletable: false,
@@ -374,6 +375,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 argument_type: models::Type::Named {
                     name: "article".into(),
                 },
+                argument_position: None,
             },
         )]),
         result_type: models::Type::Nullable {
