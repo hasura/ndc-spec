@@ -2,10 +2,15 @@ use std::error;
 use std::fmt;
 
 #[derive(Debug, Clone)]
-pub struct ResponseContent {
+pub struct ConnectorError {
     pub status: reqwest::StatusCode,
-    pub content: String,
-    pub entity: Option<serde_json::Value>,
+    pub error_response: crate::models::ErrorResponse,
+}
+
+impl fmt::Display for ConnectorError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "ConnectorError {{ status: {0}, error_response.message: {1} }}", self.status, self.error_response.message)
+    }
 }
 
 #[derive(Debug)]
@@ -13,7 +18,7 @@ pub enum Error {
     Reqwest(reqwest::Error),
     Serde(serde_json::Error),
     Io(std::io::Error),
-    ResponseError(ResponseContent),
+    ConnectorError(ConnectorError),
 }
 
 impl fmt::Display for Error {
@@ -22,7 +27,7 @@ impl fmt::Display for Error {
             Error::Reqwest(e) => ("reqwest", e.to_string()),
             Error::Serde(e) => ("serde", e.to_string()),
             Error::Io(e) => ("IO", e.to_string()),
-            Error::ResponseError(e) => ("response", format!("status code {}", e.status)),
+            Error::ConnectorError(e) => ("response", format!("status code {}", e.status)),
         };
         write!(f, "error in {}: {}", module, e)
     }
@@ -34,7 +39,7 @@ impl error::Error for Error {
             Error::Reqwest(e) => e,
             Error::Serde(e) => e,
             Error::Io(e) => e,
-            Error::ResponseError(_) => return None,
+            Error::ConnectorError(_) => return None,
         })
     }
 }

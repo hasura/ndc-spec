@@ -1,5 +1,7 @@
 # Error Handling
 
+## Status Codes
+
 Data connectors should use standard HTTP error codes to signal error conditions back to the Hasura server. In particular, the following error codes should be used in the indicated scenarios:
 
 | Response Code | Meaning | Used when |
@@ -10,3 +12,7 @@ Data connectors should use standard HTTP error codes to signal error conditions 
 | 409 | Conflict | The request could not be handled because it would create a conflicting state for the data source - for example, a mutation might fail because a foreign key constraint was not met. |
 | 500 | Internal Server Error | The request could not be handled because of an error on the server |
 | 501 | Not Supported | The request could not be handled because it relies on an unsupported [capability](capabilities.md). _Note_: this ought to indicate an error on the _caller_ side, since the caller should not generate requests which are incompatible with the indicated capabilities. |
+
+## Response Body
+
+Data connectors should return an [`ErrorResponse`](../reference/types.md#errorresponse) as JSON in the response body, in the case of an error. 
