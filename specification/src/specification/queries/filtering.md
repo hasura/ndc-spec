@@ -70,7 +70,7 @@ Binary comparison operators are denoted by expressions with a `type` field of `b
 
 See type [`ComparisonValue`](../../reference/types.md#comparisonvalue) for the valid inhabitants of the `value` field.
 
-_Note_: in general, `PathElement`s in a `ComparisonValue` can refer to _array_ relationships. However, in the case of the `in` operator, such requests can be very difficult to implement, and for practical purposes, it is not very useful to express such queries. Therefore, connectors can expect `PathElements` in `ComparisonValue`s to always only refer to _object_ relationships, and fail with a `Bad Request` error otherwise.
+_Note_: in general, `PathElement`s in a `ComparisonValue` can refer to _array_ relationships. However, in the case of the `in` operator, such requests can be very difficult to implement, and for practical purposes, it is not very useful to express such queries. Therefore, in the case of the `in` operator, connectors can expect `PathElements` in `ComparisonValue`s to always only refer to _object_ relationships, and fail with a `Bad Request` error otherwise.
 
 ```json
 {{#include ../../../../ndc-reference/tests/query/predicate_with_in/request.json:1 }}
