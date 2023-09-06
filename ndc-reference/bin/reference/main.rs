@@ -1172,7 +1172,7 @@ fn eval_expression(
             values,
         } => match operator {
             models::BinaryArrayComparisonOperator::In => {
-                let left_val = eval_comparison_target(
+                let left_vals = eval_comparison_target(
                     collection_relationships,
                     variables,
                     state,
@@ -1181,17 +1181,21 @@ fn eval_expression(
                     item,
                 )?;
 
-                for v in values.iter() {
-                    let right_val = eval_comparison_value(
+                for comparison_value in values.iter() {
+                    let right_vals = eval_comparison_value(
                         collection_relationships,
                         variables,
                         state,
-                        v,
+                        comparison_value,
                         root,
                         item,
                     )?;
-                    if left_val == right_val {
-                        return Ok(true);
+                    for left_val in left_vals.iter() {
+                        for right_val in right_vals.iter() {
+                            if left_val == right_val {
+                                return Ok(true);
+                            }
+                        }
                     }
                 }
                 Ok(false)

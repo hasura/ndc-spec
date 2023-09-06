@@ -1,0 +1,16 @@
+[
+  {
+    "rows": [
+      {
+        "id": 1,
+        "first_name": "Peter",
+        "last_name": "Landin"
+      },
+      {
+        "id": 2,
+        "first_name": "John",
+        "last_name": "Hughes"
+      }
+    ]
+  }
+]
