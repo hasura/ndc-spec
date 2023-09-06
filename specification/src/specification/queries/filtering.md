@@ -45,19 +45,8 @@ See type [`BinaryComparisonOperator`](../../reference/types.md#binarycomparisono
 See type [`ComparisonValue`](../../reference/types.md#comparisonvalue) for the valid inhabitants of the `value` field.
 
 ```json
-{
-    "type": "binary_comparison_operator",
-    "operator": {
-        "type": "equal"
-    },
-    "column": {
-        "name": "title"
-    },
-    "value": {
-        "type": "scalar",
-        "value": "The Next 700 Programming Languages"
-    }
-}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_eq/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_eq/request.json:3: }}
 ```
 
 ### Custom Binary Comparison Operators
@@ -67,20 +56,8 @@ Data connectors can also extend the expression grammar by defining comparison op
 For example, here is an expression which uses a custom `like` operator provided on the `String` type in the reference implementation:
 
 ```json
-{
-    "type": "binary_comparison_operator",
-    "operator": {
-        "type": "other",
-        "name": "like"
-    },
-    "column": {
-        "name": "title"
-    },
-    "value": {
-        "type": "scalar",
-        "value": "^.*Functional Programming.*$"
-    }
-}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_like/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_like/request.json:3: }}
 ```
 
 ### Binary Array-Valued Comparison Operators
@@ -93,24 +70,11 @@ Binary comparison operators are denoted by expressions with a `type` field of `b
 
 See type [`ComparisonValue`](../../reference/types.md#comparisonvalue) for the valid inhabitants of the `value` field.
 
+_Note_: in general, `PathElement`s in a `ComparisonValue` can refer to _array_ relationships. However, in the case of the `in` operator, such requests can be very difficult to implement, and for practical purposes, it is not very useful to express such queries. Therefore, in the case of the `in` operator, connectors can expect `PathElements` in `ComparisonValue`s to always only refer to _object_ relationships, and fail with a `Bad Request` error otherwise.
+
 ```json
-{
-    "type": "binary_array_comparison_operator",
-    "operator": "in",
-    "column": {
-        "name": "id"
-    },
-    "values": [
-        {
-            "type": "scalar",
-            "value": "1"
-        },
-        {
-            "type": "scalar",
-            "value": "2"
-        }
-    ]
-}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_in/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_in/request.json:3: }}
 ```
 
 ### Columns in Operators
