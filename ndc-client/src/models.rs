@@ -5,6 +5,19 @@ use schemars::JsonSchema;
 use serde_with::skip_serializing_none;
 
 // ANCHOR_END
+// ANCHOR: ErrorResponse
+// ANCHOR: ErrorResponse
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct ErrorResponse {
+    /// A human-readable summary of the error
+    pub message: String,
+    /// Any additional structured information about the error
+    pub details: serde_json::Value,
+}
+// ANCHOR_END: ErrorResponse
+
+// ANCHOR_END
 // ANCHOR: CapabilitiesResponse
 // ANCHOR: CapabilitiesResponse
 #[skip_serializing_none]
@@ -752,6 +765,12 @@ mod tests {
         let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
 
         let mut mint = Mint::new(test_dir);
+
+        test_json_schema(
+            &mut mint,
+            schema_for!(models::ErrorResponse),
+            "error_response.jsonschema",
+        );
 
         test_json_schema(
             &mut mint,

@@ -47,6 +47,8 @@ pub enum Error {
     ExpectedNonEmptyRows,
     #[error("requested field {0} was missing in response")]
     MissingField(String),
+    #[error("error response from connector: {0:?}")]
+    ConnectorError(ndc_client::models::ErrorResponse),
     #[error("other error")]
     OtherError(#[from] Box<dyn std::error::Error>),
 }

@@ -30,7 +30,7 @@ pub struct AppState {
 }
 // ANCHOR_END: app-state
 // ANCHOR: read_csv
-fn read_csv(path: &str) -> Result<BTreeMap<i64, Row>, Box<dyn Error>> {
+fn read_csv(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
     let mut rdr = csv::Reader::from_path(path)?;
     let mut records: BTreeMap<i64, Row> = BTreeMap::new();
     for row in rdr.deserialize() {
@@ -114,7 +114,8 @@ fn init_app_state() -> AppState {
 }
 // ANCHOR_END: init_app_state
 
-type StatusLine = (StatusCode, &'static str);
+type Result<A> = core::result::Result<A, (StatusCode, Json<models::ErrorResponse>)>;
+
 // ANCHOR: main
 #[tokio::main]
 async fn main() {
@@ -147,12 +148,15 @@ async fn get_healthz() -> StatusCode {
 }
 // ANCHOR_END: health
 // ANCHOR: metrics
-async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String, StatusLine> {
+async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String> {
     let state = state.lock().await;
-    state
-        .metrics
-        .as_text()
-        .ok_or((StatusCode::INTERNAL_SERVER_ERROR, "cannot encode metrics"))
+    state.metrics.as_text().ok_or((
+        StatusCode::INTERNAL_SERVER_ERROR,
+        Json(models::ErrorResponse {
+            message: "cannot encode metrics".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))
 }
 // ANCHOR_END: metrics
 // ANCHOR: capabilities
@@ -408,7 +412,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
 pub async fn post_query(
     State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<models::QueryRequest>,
-) -> Result<Json<models::QueryResponse>, StatusLine> {
+) -> Result<Json<models::QueryResponse>> {
     // ANCHOR_END: post_query_signature
     let state = state.lock().await;
 
@@ -440,7 +444,7 @@ fn execute_query_with_variables(
     query: &models::Query,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-) -> Result<models::RowSet, StatusLine> {
+) -> Result<models::RowSet> {
     // ANCHOR_END: execute_query_with_variables_signature
     let mut argument_values = BTreeMap::new();
 
@@ -452,7 +456,13 @@ fn execute_query_with_variables(
             )
             .is_some()
         {
-            return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
+            return Err((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "duplicate argument names".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ));
         }
     }
 
@@ -473,27 +483,42 @@ fn get_collection_by_name(
     collection_name: &str,
     arguments: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-) -> Result<Vec<Row>, StatusLine> {
+) -> Result<Vec<Row>> {
     match collection_name {
         "articles" => Ok(state.articles.values().cloned().collect()),
         "authors" => Ok(state.authors.values().cloned().collect()),
         "articles_by_author" => {
-            let author_id = arguments
-                .get("author_id")
-                .ok_or((StatusCode::BAD_REQUEST, "missing argument author_id"))?;
-            let author_id_int = author_id
-                .as_i64()
-                .ok_or((StatusCode::BAD_REQUEST, "author_id must be a string"))?;
+            let author_id = arguments.get("author_id").ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "missing argument author_id".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
+            let author_id_int = author_id.as_i64().ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "author_id must be a string".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
 
             let mut articles_by_author = vec![];
 
             for (_id, article) in state.articles.iter() {
-                let article_author_id = article
-                    .get("author_id")
-                    .ok_or((StatusCode::INTERNAL_SERVER_ERROR, "author_id not found"))?;
+                let article_author_id = article.get("author_id").ok_or((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: "author_id not found".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
                 let article_author_id_int = article_author_id.as_i64().ok_or((
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "author_id must be a string",
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
                 ))?;
                 if article_author_id_int == author_id_int {
                     articles_by_author.push(article.clone())
@@ -511,7 +536,10 @@ fn get_collection_by_name(
             let latest_id_value = serde_json::to_value(latest_id).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "cannot encode article id",
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
                 )
             })?;
             Ok(vec![BTreeMap::from_iter([(
@@ -519,7 +547,13 @@ fn get_collection_by_name(
                 latest_id_value,
             )])])
         }
-        _ => Err((StatusCode::BAD_REQUEST, "invalid collection name")),
+        _ => Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "invalid collection name".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
     }
 }
 // ANCHOR_END: get_collection_by_name
@@ -546,7 +580,7 @@ fn execute_query(
     query: &models::Query,
     root: Root,
     collection: Vec<Row>,
-) -> Result<models::RowSet, StatusLine> {
+) -> Result<models::RowSet> {
     // ANCHOR_END: execute_query_signature
     // ANCHOR: execute_query_sort
     let sorted = sort(
@@ -559,7 +593,7 @@ fn execute_query(
     // ANCHOR_END: execute_query_sort
     // ANCHOR: execute_query_filter
     let filtered: Vec<Row> = (match &query.predicate {
-        None => Ok::<_, StatusLine>(sorted),
+        None => Ok(sorted),
         Some(expr) => {
             let mut filtered: Vec<Row> = vec![];
             for item in sorted.into_iter() {
@@ -617,7 +651,7 @@ fn execute_query(
                 }
                 rows.push(row)
             }
-            Ok::<_, StatusLine>(rows)
+            Ok(rows)
         })
         .transpose()?;
     // ANCHOR_END: execute_query_fields
@@ -630,17 +664,22 @@ fn execute_query(
 fn eval_aggregate(
     aggregate: &models::Aggregate,
     paginated: &Vec<BTreeMap<String, serde_json::Value>>,
-) -> Result<serde_json::Value, StatusLine> {
+) -> Result<serde_json::Value> {
     match aggregate {
         models::Aggregate::StarCount {} => Ok(serde_json::Value::from(paginated.len())),
         models::Aggregate::ColumnCount { column, distinct } => {
             let values = paginated
                 .iter()
                 .map(|row| {
-                    row.get(column)
-                        .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
+                    row.get(column).ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "invalid column name".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))
                 })
-                .collect::<Result<Vec<_>, StatusLine>>()?;
+                .collect::<Result<Vec<_>>>()?;
 
             let non_null_values = values.iter().filter(|value| !value.is_null());
 
@@ -648,10 +687,16 @@ fn eval_aggregate(
                 non_null_values
                     .map(|value| {
                         serde_json::to_string(value).map_err(|_| {
-                            (StatusCode::INTERNAL_SERVER_ERROR, "unable to encode value")
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Json(models::ErrorResponse {
+                                    message: "unable to encode value".into(),
+                                    details: serde_json::Value::Null,
+                                }),
+                            )
                         })
                     })
-                    .collect::<HashSet<_>>()
+                    .collect::<Result<HashSet<_>>>()?
                     .len()
             } else {
                 non_null_values.count()
@@ -659,7 +704,10 @@ fn eval_aggregate(
             serde_json::to_value(agg_value).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "unable to encode response",
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
                 )
             })
         }
@@ -667,10 +715,15 @@ fn eval_aggregate(
             let values = paginated
                 .iter()
                 .map(|row| {
-                    row.get(column)
-                        .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
+                    row.get(column).ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "invalid column name".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))
                 })
-                .collect::<Result<Vec<_>, StatusLine>>()?;
+                .collect::<Result<Vec<_>>>()?;
             eval_aggregate_function(function, values)
         }
     }
@@ -680,24 +733,37 @@ fn eval_aggregate(
 fn eval_aggregate_function(
     function: &str,
     values: Vec<&serde_json::Value>,
-) -> Result<serde_json::Value, StatusLine> {
+) -> Result<serde_json::Value> {
     let int_values = values
         .iter()
         .map(|value| {
-            value
-                .as_i64()
-                .ok_or((StatusCode::BAD_REQUEST, "column is not an integer"))
+            value.as_i64().ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "column is not an integer".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))
         })
-        .collect::<Result<Vec<_>, _>>()?;
+        .collect::<Result<Vec<_>>>()?;
     let agg_value = match function {
         "min" => Ok(int_values.iter().min()),
         "max" => Ok(int_values.iter().max()),
-        _ => Err((StatusCode::BAD_REQUEST, "invalid aggregation function")),
+        _ => Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "invalid aggregation function".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
     }?;
     serde_json::to_value(agg_value).map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "unable to encode response",
+            Json(models::ErrorResponse {
+                message: " ".into(),
+                details: serde_json::Value::Null,
+            }),
         )
     })
 }
@@ -709,7 +775,7 @@ fn sort(
     state: &AppState,
     collection: Vec<Row>,
     order_by: &Option<models::OrderBy>,
-) -> Result<Vec<Row>, StatusLine> {
+) -> Result<Vec<Row>> {
     match order_by {
         None => Ok(collection),
         Some(order_by) => {
@@ -758,7 +824,7 @@ fn eval_order_by(
     order_by: &models::OrderBy,
     t1: &Row,
     t2: &Row,
-) -> Result<Ordering, StatusLine> {
+) -> Result<Ordering> {
     let mut result = Ordering::Equal;
 
     for element in order_by.elements.iter() {
@@ -775,7 +841,7 @@ fn eval_order_by(
 }
 // ANCHOR_END: eval_order_by
 // ANCHOR: compare
-fn compare(v1: serde_json::Value, v2: serde_json::Value) -> Result<Ordering, StatusLine> {
+fn compare(v1: serde_json::Value, v2: serde_json::Value) -> Result<Ordering> {
     match (v1, v2) {
         (serde_json::Value::Null, serde_json::Value::Null) => Ok(Ordering::Equal),
         (serde_json::Value::Null, _) => Ok(Ordering::Less),
@@ -790,7 +856,13 @@ fn compare(v1: serde_json::Value, v2: serde_json::Value) -> Result<Ordering, Sta
             }
         }
         (serde_json::Value::String(s1), serde_json::Value::String(s2)) => Ok(s1.cmp(&s2)),
-        _ => Err((StatusCode::INTERNAL_SERVER_ERROR, "cannot compare values")),
+        _ => Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(models::ErrorResponse {
+                message: "cannot compare values".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
     }
 }
 // ANCHOR_END: compare
@@ -801,7 +873,7 @@ fn eval_order_by_element(
     state: &AppState,
     element: &models::OrderByElement,
     item: &Row,
-) -> Result<serde_json::Value, StatusLine> {
+) -> Result<serde_json::Value> {
     match element.target.clone() {
         models::OrderByTarget::Column { name, path } => {
             eval_order_by_column(collection_relationships, variables, state, item, path, name)
@@ -836,7 +908,7 @@ fn eval_order_by_star_count_aggregate(
     state: &AppState,
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
-) -> Result<serde_json::Value, StatusLine> {
+) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     Ok(rows.len().into())
 }
@@ -850,15 +922,20 @@ fn eval_order_by_single_column_aggregate(
     path: Vec<models::PathElement>,
     column: String,
     function: String,
-) -> Result<serde_json::Value, StatusLine> {
+) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     let values = rows
         .iter()
         .map(|row| {
-            row.get(column.as_str())
-                .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
+            row.get(column.as_str()).ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "invalid column name".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))
         })
-        .collect::<Result<Vec<_>, StatusLine>>()?;
+        .collect::<Result<Vec<_>>>()?;
     eval_aggregate_function(&function, values)
 }
 // ANCHOR_END: eval_order_by_single_column_aggregate
@@ -870,12 +947,15 @@ fn eval_order_by_column(
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
     name: String,
-) -> Result<serde_json::Value, StatusLine> {
+) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     if rows.len() > 1 {
         return Err((
             StatusCode::BAD_REQUEST,
-            "cannot order by column via array relationship",
+            Json(models::ErrorResponse {
+                message: " ".into(),
+                details: serde_json::Value::Null,
+            }),
         ));
     }
     match rows.first() {
@@ -891,14 +971,18 @@ fn eval_path(
     state: &AppState,
     path: &[models::PathElement],
     item: &Row,
-) -> Result<Vec<Row>, StatusLine> {
+) -> Result<Vec<Row>> {
     let mut result: Vec<Row> = vec![item.clone()];
 
     for path_element in path.iter() {
         let relationship_name = path_element.relationship.as_str();
-        let relationship = collection_relationships
-            .get(relationship_name)
-            .ok_or((StatusCode::BAD_REQUEST, "invalid relationship name in path"))?;
+        let relationship = collection_relationships.get(relationship_name).ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "invalid relationship name in path".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))?;
         result = eval_path_element(
             collection_relationships,
             variables,
@@ -922,7 +1006,7 @@ fn eval_path_element(
     arguments: &BTreeMap<String, models::RelationshipArgument>,
     source: &[Row],
     predicate: &models::Expression,
-) -> Result<Vec<Row>, StatusLine> {
+) -> Result<Vec<Row>> {
     let mut matching_rows: Vec<Row> = vec![];
 
     // Note: Join strategy
@@ -953,7 +1037,13 @@ fn eval_path_element(
                 )
                 .is_some()
             {
-                return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "duplicate argument names".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ));
             }
         }
 
@@ -965,7 +1055,13 @@ fn eval_path_element(
                 )
                 .is_some()
             {
-                return Err((StatusCode::BAD_REQUEST, "duplicate argument names"));
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "duplicate argument names".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ));
             }
         }
 
@@ -998,12 +1094,18 @@ fn eval_path_element(
 fn eval_argument(
     variables: &BTreeMap<String, serde_json::Value>,
     argument: &models::Argument,
-) -> Result<serde_json::Value, StatusLine> {
+) -> Result<serde_json::Value> {
     match argument {
         models::Argument::Variable { name } => {
             let value = variables
                 .get(name.as_str())
-                .ok_or((StatusCode::BAD_REQUEST, "invalid variable name"))
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "invalid variable name".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))
                 .cloned()?;
             Ok(value)
         }
@@ -1016,12 +1118,18 @@ fn eval_relationship_argument(
     variables: &BTreeMap<String, serde_json::Value>,
     row: &Row,
     argument: &models::RelationshipArgument,
-) -> Result<serde_json::Value, StatusLine> {
+) -> Result<serde_json::Value> {
     match argument {
         models::RelationshipArgument::Variable { name } => {
             let value = variables
                 .get(name.as_str())
-                .ok_or((StatusCode::BAD_REQUEST, "invalid variable name"))
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "invalid variable name".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))
                 .cloned()?;
             Ok(value)
         }
@@ -1039,7 +1147,7 @@ fn eval_expression(
     expr: &models::Expression,
     root: &Row,
     item: &Row,
-) -> Result<bool, StatusLine> {
+) -> Result<bool> {
     // ANCHOR_END: eval_expression_signature
     // ANCHOR: eval_expression_logical
     match expr {
@@ -1141,15 +1249,28 @@ fn eval_expression(
                     )?;
                     for column_val in column_vals.iter() {
                         for regex_val in regex_vals.iter() {
-                            let column_str = column_val
-                                .as_str()
-                                .ok_or((StatusCode::BAD_REQUEST, "column is not a string"))?;
+                            let column_str = column_val.as_str().ok_or((
+                                StatusCode::BAD_REQUEST,
+                                Json(models::ErrorResponse {
+                                    message: "column is not a string".into(),
+                                    details: serde_json::Value::Null,
+                                }),
+                            ))?;
                             let regex_str = regex_val.as_str().ok_or((
                                 StatusCode::BAD_REQUEST,
-                                "regular expression is not a string",
+                                Json(models::ErrorResponse {
+                                    message: " ".into(),
+                                    details: serde_json::Value::Null,
+                                }),
                             ))?;
                             let regex = Regex::new(regex_str).map_err(|_| {
-                                (StatusCode::BAD_REQUEST, "invalid regular expression")
+                                (
+                                    StatusCode::BAD_REQUEST,
+                                    Json(models::ErrorResponse {
+                                        message: "invalid regular expression".into(),
+                                        details: serde_json::Value::Null,
+                                    }),
+                                )
                             })?;
                             if regex.is_match(column_str) {
                                 return Ok(true);
@@ -1160,7 +1281,10 @@ fn eval_expression(
                 }
                 _ => Err((
                     StatusCode::BAD_REQUEST,
-                    "invalid binary comparison operator",
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
                 )),
             },
             // ANCHOR_END: eval_expression_custom_binary_operators
@@ -1232,7 +1356,10 @@ fn eval_expression(
             )?;
             let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "exists query returned no rows",
+                Json(models::ErrorResponse {
+                    message: " ".into(),
+                    details: serde_json::Value::Null,
+                }),
             ))?;
             Ok(!rows.is_empty())
         } // ANCHOR_END: eval_expression_exists
@@ -1246,7 +1373,7 @@ fn eval_in_collection(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     in_collection: &models::ExistsInCollection,
-) -> Result<Vec<Row>, (StatusCode, &'static str)> {
+) -> Result<Vec<Row>> {
     match in_collection {
         models::ExistsInCollection::Related {
             relationship,
@@ -1254,7 +1381,10 @@ fn eval_in_collection(
         } => {
             let relationship = collection_relationships.get(relationship.as_str()).ok_or((
                 StatusCode::BAD_REQUEST,
-                "invalid relationship name in exists predicate",
+                Json(models::ErrorResponse {
+                    message: " ".into(),
+                    details: serde_json::Value::Null,
+                }),
             ))?;
             let source = vec![item.clone()];
             eval_path_element(
@@ -1276,7 +1406,7 @@ fn eval_in_collection(
             let arguments = arguments
                 .iter()
                 .map(|(k, v)| Ok((k.clone(), eval_relationship_argument(variables, item, v)?)))
-                .collect::<Result<BTreeMap<_, _>, _>>()?;
+                .collect::<Result<BTreeMap<_, _>>>()?;
 
             get_collection_by_name(collection.as_str(), &arguments, state)
         }
@@ -1291,7 +1421,7 @@ fn eval_comparison_target(
     target: &models::ComparisonTarget,
     root: &Row,
     item: &Row,
-) -> Result<Vec<serde_json::Value>, StatusLine> {
+) -> Result<Vec<serde_json::Value>> {
     match target {
         models::ComparisonTarget::Column { name, path } => {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
@@ -1310,10 +1440,14 @@ fn eval_comparison_target(
 }
 // ANCHOR_END: eval_comparison_target
 // ANCHOR: eval_column
-fn eval_column(row: &Row, column_name: &str) -> Result<serde_json::Value, StatusLine> {
-    row.get(column_name)
-        .cloned()
-        .ok_or((StatusCode::BAD_REQUEST, "invalid column name"))
+fn eval_column(row: &Row, column_name: &str) -> Result<serde_json::Value> {
+    row.get(column_name).cloned().ok_or((
+        StatusCode::BAD_REQUEST,
+        Json(models::ErrorResponse {
+            message: "invalid column name".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))
 }
 // ANCHOR_END: eval_column
 // ANCHOR: eval_comparison_value
@@ -1324,7 +1458,7 @@ fn eval_comparison_value(
     comparison_value: &models::ComparisonValue,
     root: &Row,
     item: &Row,
-) -> Result<Vec<serde_json::Value>, StatusLine> {
+) -> Result<Vec<serde_json::Value>> {
     match comparison_value {
         models::ComparisonValue::Column { column } => eval_comparison_target(
             collection_relationships,
@@ -1338,7 +1472,13 @@ fn eval_comparison_value(
         models::ComparisonValue::Variable { name } => {
             let value = variables
                 .get(name.as_str())
-                .ok_or((StatusCode::BAD_REQUEST, "invalid variable name"))
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "invalid variable name".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))
                 .cloned()?;
             Ok(vec![value])
         }
@@ -1352,7 +1492,7 @@ fn eval_field(
     state: &AppState,
     field: &models::Field,
     item: &Row,
-) -> Result<models::RowFieldValue, StatusLine> {
+) -> Result<models::RowFieldValue> {
     match field {
         models::Field::Column { column, .. } => {
             Ok(models::RowFieldValue(eval_column(item, column.as_str())?))
@@ -1364,7 +1504,10 @@ fn eval_field(
         } => {
             let relationship = collection_relationships.get(relationship.as_str()).ok_or((
                 StatusCode::BAD_REQUEST,
-                "invalid relationship name in field",
+                Json(models::ErrorResponse {
+                    message: " ".into(),
+                    details: serde_json::Value::Null,
+                }),
             ))?;
             let source = vec![item.clone()];
             let collection = eval_path_element(
@@ -1386,8 +1529,15 @@ fn eval_field(
                 Root::CurrentRow,
                 collection,
             )?;
-            let rows_json = serde_json::to_value(rows)
-                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode rowset"))?;
+            let rows_json = serde_json::to_value(rows).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: "cannot encode rowset".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
             Ok(models::RowFieldValue(rows_json))
         }
     }
@@ -1396,15 +1546,21 @@ fn eval_field(
 // ANCHOR: explain
 async fn post_explain(
     Json(_request): Json<models::QueryRequest>,
-) -> Result<Json<models::ExplainResponse>, StatusLine> {
-    Err((StatusCode::NOT_IMPLEMENTED, "explain is not supported"))
+) -> Result<Json<models::ExplainResponse>> {
+    Err((
+        StatusCode::NOT_IMPLEMENTED,
+        Json(models::ErrorResponse {
+            message: "explain is not supported".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))
 }
 // ANCHOR_END: explain
 // ANCHOR: mutation
 async fn post_mutation(
     State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<models::MutationRequest>,
-) -> Result<Json<models::MutationResponse>, StatusLine> {
+) -> Result<Json<models::MutationResponse>> {
     let mut state = state.lock().await;
 
     let mut operation_results = vec![];
@@ -1429,7 +1585,7 @@ async fn execute_mutation_operation(
     _insert_schema: &[models::CollectionInsertSchema],
     collection_relationships: &BTreeMap<String, models::Relationship>,
     operation: &models::MutationOperation,
-) -> Result<models::MutationOperationResults, StatusLine> {
+) -> Result<models::MutationOperationResults> {
     match operation {
         models::MutationOperation::Insert {
             post_insert_check: _,
@@ -1463,19 +1619,31 @@ async fn execute_mutation_operation(
             "upsert_article" => {
                 let article = arguments.get("article").ok_or((
                     StatusCode::BAD_REQUEST,
-                    "argument 'article' is required in upsert_article",
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
                 ))?;
                 let article_obj = article.as_object().ok_or((
                     StatusCode::BAD_REQUEST,
-                    "argument 'article' is not an object",
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
                 ))?;
                 let id = article_obj.get("id").ok_or((
                     StatusCode::BAD_REQUEST,
-                    "argument 'article' is missing required field 'id'",
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
                 ))?;
                 let id_int = id.as_i64().ok_or((
                     StatusCode::BAD_REQUEST,
-                    "argument 'article.id' is not an integer",
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
                 ))?;
                 let new_row =
                     BTreeMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
@@ -1505,12 +1673,24 @@ async fn execute_mutation_operation(
                     returning: Some(vec![IndexMap::from_iter([(
                         "__value".into(),
                         models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
-                            (StatusCode::INTERNAL_SERVER_ERROR, "cannot encode response")
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Json(models::ErrorResponse {
+                                    message: "cannot encode response".into(),
+                                    details: serde_json::Value::Null,
+                                }),
+                            )
                         })?),
                     )])]),
                 })
             }
-            _ => Err((StatusCode::BAD_REQUEST, "unknown procedure")),
+            _ => Err((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "unknown procedure".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )),
         },
     }
 }
@@ -1519,7 +1699,7 @@ fn eval_column_mapping(
     relationship: &models::Relationship,
     src_row: &Row,
     tgt_row: &Row,
-) -> Result<bool, StatusLine> {
+) -> Result<bool> {
     for (src_column, tgt_column) in relationship.column_mapping.iter() {
         let src_value = eval_column(src_row, src_column)?;
         let tgt_value = eval_column(tgt_row, tgt_column)?;
@@ -1694,7 +1874,7 @@ mod tests {
         ) -> Result<models::QueryResponse, Error> {
             Ok(post_query(State(self.state.clone()), Json(request))
                 .await
-                .map_err(|e| Error::OtherError(e.1.into()))?
+                .map_err(|(_, Json(err))| Error::ConnectorError(err))?
                 .0)
         }
     }
