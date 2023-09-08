@@ -64,7 +64,7 @@ pub struct MutationCapabilities {
 // ANCHOR_END: MutationCapabilities
 
 // ANCHOR: SchemaResponse
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct SchemaResponse {
     /// A list of scalar types which will be used as the types of collection columns
     pub scalar_types: BTreeMap<String, ScalarType>,
