@@ -157,18 +157,12 @@
                 for (field_name, field) in fields.iter() {
                     row.insert(
                         field_name.clone(),
-                        eval_field(
-                            collection_relationships,
-                            variables,
-                            state,
-                            field,
-                            item,
-                        )?,
+                        eval_field(collection_relationships, variables, state, field, item)?,
                     );
                 }
                 rows.push(row)
             }
-            Ok::&lt;_, StatusLine&gt;(rows)
+            Ok(rows)
         })
         .transpose()?;</code></pre>
 <p>The <code>eval_field</code> function works by pattern matching on the field type:</p>
@@ -182,7 +176,7 @@
     state: &amp;AppState,
     field: &amp;models::Field,
     item: &amp;Row,
-) -&gt; Result&lt;models::RowFieldValue, StatusLine&gt; {
+) -&gt; Result&lt;models::RowFieldValue&gt; {
     match field {
         models::Field::Column { column, .. } =&gt; {
             Ok(models::RowFieldValue(eval_column(item, column.as_str())?))
@@ -194,7 +188,10 @@
         } =&gt; {
             let relationship = collection_relationships.get(relationship.as_str()).ok_or((
                 StatusCode::BAD_REQUEST,
-                &quot;invalid relationship name in field&quot;,
+                Json(models::ErrorResponse {
+                    message: &quot; &quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
             ))?;
             let source = vec![item.clone()];
             let collection = eval_path_element(
@@ -216,8 +213,15 @@
                 Root::CurrentRow,
                 collection,
             )?;
-            let rows_json = serde_json::to_value(rows)
-                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, &quot;cannot encode rowset&quot;))?;
+            let rows_json = serde_json::to_value(rows).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: &quot;cannot encode rowset&quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
             Ok(models::RowFieldValue(rows_json))
         }
     }

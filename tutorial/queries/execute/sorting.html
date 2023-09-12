@@ -162,7 +162,7 @@
     state: &amp;AppState,
     collection: Vec&lt;Row&gt;,
     order_by: &amp;Option&lt;models::OrderBy&gt;,
-) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
     match order_by {
         None =&gt; Ok(collection),
         Some(order_by) =&gt; {
@@ -200,24 +200,12 @@
     order_by: &amp;models::OrderBy,
     t1: &amp;Row,
     t2: &amp;Row,
-) -&gt; Result&lt;Ordering, StatusLine&gt; {
+) -&gt; Result&lt;Ordering&gt; {
     let mut result = Ordering::Equal;
 
     for element in order_by.elements.iter() {
-        let v1 = eval_order_by_element(
-            collection_relationships,
-            variables,
-            state,
-            element,
-            t1,
-        )?;
-        let v2 = eval_order_by_element(
-            collection_relationships,
-            variables,
-            state,
-            element,
-            t2,
-        )?;
+        let v1 = eval_order_by_element(collection_relationships, variables, state, element, t1)?;
+        let v2 = eval_order_by_element(collection_relationships, variables, state, element, t2)?;
         let x = match element.order_direction {
             models::OrderDirection::Asc =&gt; compare(v1, v2)?,
             models::OrderDirection::Desc =&gt; compare(v2, v1)?,
@@ -238,18 +226,15 @@
     item: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     path: Vec&lt;models::PathElement&gt;,
     name: String,
-) -&gt; Result&lt;serde_json::Value, StatusLine&gt; {
-    let rows: Vec&lt;Row&gt; = eval_path(
-        collection_relationships,
-        variables,
-        state,
-        &amp;path,
-        item,
-    )?;
+) -&gt; Result&lt;serde_json::Value&gt; {
+    let rows: Vec&lt;Row&gt; = eval_path(collection_relationships, variables, state, &amp;path, item)?;
     if rows.len() &gt; 1 {
         return Err((
             StatusCode::BAD_REQUEST,
-            &quot;cannot order by column via array relationship&quot;,
+            Json(models::ErrorResponse {
+                message: &quot; &quot;.into(),
+                details: serde_json::Value::Null,
+            }),
         ));
     }
     match rows.first() {

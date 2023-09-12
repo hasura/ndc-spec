@@ -145,6 +145,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="error-handling"><a class="header" href="#error-handling">Error Handling</a></h1>
+<h2 id="status-codes"><a class="header" href="#status-codes">Status Codes</a></h2>
 <p>Data connectors should use standard HTTP error codes to signal error conditions back to the Hasura server. In particular, the following error codes should be used in the indicated scenarios:</p>
 <div class="table-wrapper"><table><thead><tr><th>Response Code</th><th>Meaning</th><th>Used when</th></tr></thead><tbody>
 <tr><td>200</td><td>OK</td><td>The request was handled successfully according to this specification .</td></tr>
@@ -155,6 +156,9 @@
 <tr><td>501</td><td>Not Supported</td><td>The request could not be handled because it relies on an unsupported <a href="capabilities.html">capability</a>. <em>Note</em>: this ought to indicate an error on the <em>caller</em> side, since the caller should not generate requests which are incompatible with the indicated capabilities.</td></tr>
 </tbody></table>
 </div>
+<h2 id="response-body"><a class="header" href="#response-body">Response Body</a></h2>
+<p>Data connectors should return an <a href="../reference/types.html#errorresponse"><code>ErrorResponse</code></a> as JSON in the response body, in the case of an error. </p>
+
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

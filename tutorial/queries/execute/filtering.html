@@ -147,19 +147,19 @@
                         <h1 id="filtering"><a class="header" href="#filtering">Filtering</a></h1>
 <p>The next step is to filter the rows based on the provided predicate expression:</p>
 <pre><code class="language-rust no_run noplayground">    let filtered: Vec&lt;Row&gt; = (match &amp;query.predicate {
-        None =&gt; Ok::&lt;_, StatusLine&gt;(sorted),
+        None =&gt; Ok(sorted),
         Some(expr) =&gt; {
             let mut filtered: Vec&lt;Row&gt; = vec![];
             for item in sorted.into_iter() {
                 let root = match root {
                     Root::CurrentRow =&gt; &amp;item,
-                    Root::ExplicitRow(root) =&gt; &amp;root,
+                    Root::ExplicitRow(root) =&gt; root,
                 };
                 if eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &amp;expr,
+                    expr,
                     root,
                     &amp;item,
                 )? {
@@ -179,7 +179,7 @@
     expr: &amp;models::Expression,
     root: &amp;Row,
     item: &amp;Row,
-) -&gt; Result&lt;bool, StatusLine&gt; {</code></pre>
+) -&gt; Result&lt;bool&gt; {</code></pre>
 <h3 id="logical-expressions"><a class="header" href="#logical-expressions">Logical expressions</a></h3>
 <p>The first category of expression types are the <em>logical expressions</em> - <em>and</em> (conjunction), <em>or</em> (disjunction) and <em>not</em> (negation) - whose evaluators are straightforward:</p>
 <ul>
@@ -216,13 +216,13 @@
         }</code></pre>
 <h3 id="unary-operators"><a class="header" href="#unary-operators">Unary Operators</a></h3>
 <p>The next category of expressions are the <em>unary operators</em>. The only unary operator is the <code>IsNull</code> operator, which is evaluated by evaluating the operator's <em>comparison target</em>, and then comparing the result to <code>null</code>:</p>
-<pre><code class="language-rust no_run noplayground">        models::Expression::UnaryComparisonOperator { column, operator } =&gt; match &amp;**operator {
+<pre><code class="language-rust no_run noplayground">        models::Expression::UnaryComparisonOperator { column, operator } =&gt; match operator {
             models::UnaryComparisonOperator::IsNull =&gt; {
                 let vals = eval_comparison_target(
                     collection_relationships,
                     variables,
                     state,
-                    &amp;*column,
+                    column,
                     root,
                     item,
                 )?;
@@ -241,7 +241,7 @@
     target: &amp;models::ComparisonTarget,
     root: &amp;Row,
     item: &amp;Row,
-) -&gt; Result&lt;Vec&lt;serde_json::Value&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Vec&lt;serde_json::Value&gt;&gt; {
     match target {
         models::ComparisonTarget::Column { name, path } =&gt; {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
@@ -266,13 +266,13 @@
             column,
             operator,
             value,
-        } =&gt; match &amp;**operator {
+        } =&gt; match operator {
             models::BinaryComparisonOperator::Equal =&gt; {
                 let left_vals = eval_comparison_target(
                     collection_relationships,
                     variables,
                     state,
-                    &amp;*column,
+                    column,
                     root,
                     item,
                 )?;
@@ -299,28 +299,32 @@
             column,
             operator,
             values,
-        } =&gt; match &amp;**operator {
+        } =&gt; match operator {
             models::BinaryArrayComparisonOperator::In =&gt; {
-                let left_val = eval_comparison_target(
+                let left_vals = eval_comparison_target(
                     collection_relationships,
                     variables,
                     state,
-                    &amp;*column,
+                    column,
                     root,
                     item,
                 )?;
 
-                for v in values.iter() {
-                    let right_val = eval_comparison_value(
+                for comparison_value in values.iter() {
+                    let right_vals = eval_comparison_value(
                         collection_relationships,
                         variables,
                         state,
-                        v,
+                        comparison_value,
                         root,
                         item,
                     )?;
-                    if left_val == right_val {
-                        return Ok(true);
+                    for left_val in left_vals.iter() {
+                        for right_val in right_vals.iter() {
+                            if left_val == right_val {
+                                return Ok(true);
+                            }
+                        }
                     }
                 }
                 Ok(false)
@@ -333,7 +337,7 @@
                         collection_relationships,
                         variables,
                         state,
-                        &amp;*column,
+                        column,
                         root,
                         item,
                     )?;
@@ -347,15 +351,28 @@
                     )?;
                     for column_val in column_vals.iter() {
                         for regex_val in regex_vals.iter() {
-                            let column_str = column_val
-                                .as_str()
-                                .ok_or((StatusCode::BAD_REQUEST, &quot;column is not a string&quot;))?;
+                            let column_str = column_val.as_str().ok_or((
+                                StatusCode::BAD_REQUEST,
+                                Json(models::ErrorResponse {
+                                    message: &quot;column is not a string&quot;.into(),
+                                    details: serde_json::Value::Null,
+                                }),
+                            ))?;
                             let regex_str = regex_val.as_str().ok_or((
                                 StatusCode::BAD_REQUEST,
-                                &quot;regular expression is not a string&quot;,
+                                Json(models::ErrorResponse {
+                                    message: &quot; &quot;.into(),
+                                    details: serde_json::Value::Null,
+                                }),
                             ))?;
-                            let regex = Regex::new(regex_str.into()).map_err(|_| {
-                                (StatusCode::BAD_REQUEST, &quot;invalid regular expression&quot;)
+                            let regex = Regex::new(regex_str).map_err(|_| {
+                                (
+                                    StatusCode::BAD_REQUEST,
+                                    Json(models::ErrorResponse {
+                                        message: &quot;invalid regular expression&quot;.into(),
+                                        details: serde_json::Value::Null,
+                                    }),
+                                )
                             })?;
                             if regex.is_match(column_str) {
                                 return Ok(true);
@@ -366,7 +383,10 @@
                 }
                 _ =&gt; Err((
                     StatusCode::BAD_REQUEST,
-                    &quot;invalid binary comparison operator&quot;,
+                    Json(models::ErrorResponse {
+                        message: &quot; &quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
                 )),
             },</code></pre>
 <h3 id="exists-expressions"><a class="header" href="#exists-expressions"><code>EXISTS</code> expressions</a></h3>
@@ -400,7 +420,10 @@
             )?;
             let rows: Vec&lt;IndexMap&lt;_, _&gt;&gt; = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                &quot;exists query returned no rows&quot;,
+                Json(models::ErrorResponse {
+                    message: &quot; &quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
             ))?;
             Ok(!rows.is_empty())</code></pre>
 

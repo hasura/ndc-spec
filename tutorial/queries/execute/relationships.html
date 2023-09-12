@@ -152,16 +152,20 @@
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
-    path: &amp;Vec&lt;models::PathElement&gt;,
+    path: &amp;[models::PathElement],
     item: &amp;Row,
-) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
     let mut result: Vec&lt;Row&gt; = vec![item.clone()];
 
     for path_element in path.iter() {
         let relationship_name = path_element.relationship.as_str();
-        let relationship = collection_relationships
-            .get(relationship_name)
-            .ok_or((StatusCode::BAD_REQUEST, &quot;invalid relationship name in path&quot;))?;
+        let relationship = collection_relationships.get(relationship_name).ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: &quot;invalid relationship name in path&quot;.into(),
+                details: serde_json::Value::Null,
+            }),
+        ))?;
         result = eval_path_element(
             collection_relationships,
             variables,
@@ -182,9 +186,9 @@
     state: &amp;AppState,
     relationship: &amp;models::Relationship,
     arguments: &amp;BTreeMap&lt;String, models::RelationshipArgument&gt;,
-    source: &amp;Vec&lt;Row&gt;,
+    source: &amp;[Row],
     predicate: &amp;models::Expression,
-) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
     let mut matching_rows: Vec&lt;Row&gt; = vec![];
 
     // Note: Join strategy
@@ -208,20 +212,38 @@
         let mut all_arguments = BTreeMap::new();
 
         for (argument_name, argument_value) in relationship.arguments.iter() {
-            if let Some(_) = all_arguments.insert(
-                argument_name.clone(),
-                eval_relationship_argument(variables, src_row, argument_value)?,
-            ) {
-                return Err((StatusCode::BAD_REQUEST, &quot;duplicate argument names&quot;));
+            if all_arguments
+                .insert(
+                    argument_name.clone(),
+                    eval_relationship_argument(variables, src_row, argument_value)?,
+                )
+                .is_some()
+            {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: &quot;duplicate argument names&quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ));
             }
         }
 
         for (argument_name, argument_value) in arguments.iter() {
-            if let Some(_) = all_arguments.insert(
-                argument_name.clone(),
-                eval_relationship_argument(variables, src_row, argument_value)?,
-            ) {
-                return Err((StatusCode::BAD_REQUEST, &quot;duplicate argument names&quot;));
+            if all_arguments
+                .insert(
+                    argument_name.clone(),
+                    eval_relationship_argument(variables, src_row, argument_value)?,
+                )
+                .is_some()
+            {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: &quot;duplicate argument names&quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ));
             }
         }
 
@@ -232,17 +254,17 @@
         )?;
 
         for tgt_row in target.iter() {
-            if eval_column_mapping(relationship, src_row, tgt_row)? {
-                if eval_expression(
+            if eval_column_mapping(relationship, src_row, tgt_row)?
+                &amp;&amp; eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &amp;predicate,
+                    predicate,
                     tgt_row,
                     tgt_row,
-                )? {
-                    matching_rows.push(tgt_row.clone());
-                }
+                )?
+            {
+                matching_rows.push(tgt_row.clone());
             }
         }
     }

@@ -204,6 +204,7 @@
 <p>This specification is versioned using semantic versioning, and a data connector claims compatibility with a <a href="https://semver.org">semantic version</a> range via its <a href="specification/capabilities.html">capabilities</a> endpoint.</p>
 <p>Non-breaking changes to the specification may be achieved via the addition of new capabilities, which a connector will be assumed not to implement if the corresponding field is not present in its capabilities endpoint.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="error-handling"><a class="header" href="#error-handling">Error Handling</a></h1>
+<h2 id="status-codes"><a class="header" href="#status-codes">Status Codes</a></h2>
 <p>Data connectors should use standard HTTP error codes to signal error conditions back to the Hasura server. In particular, the following error codes should be used in the indicated scenarios:</p>
 <div class="table-wrapper"><table><thead><tr><th>Response Code</th><th>Meaning</th><th>Used when</th></tr></thead><tbody>
 <tr><td>200</td><td>OK</td><td>The request was handled successfully according to this specification .</td></tr>
@@ -213,7 +214,10 @@
 <tr><td>500</td><td>Internal Server Error</td><td>The request could not be handled because of an error on the server</td></tr>
 <tr><td>501</td><td>Not Supported</td><td>The request could not be handled because it relies on an unsupported <a href="specification/capabilities.html">capability</a>. <em>Note</em>: this ought to indicate an error on the <em>caller</em> side, since the caller should not generate requests which are incompatible with the indicated capabilities.</td></tr>
 </tbody></table>
-</div><div style="break-before: page; page-break-before: always;"></div><h1 id="service-health"><a class="header" href="#service-health">Service Health</a></h1>
+</div>
+<h2 id="response-body"><a class="header" href="#response-body">Response Body</a></h2>
+<p>Data connectors should return an <a href="specification/../reference/types.html#errorresponse"><code>ErrorResponse</code></a> as JSON in the response body, in the case of an error. </p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="service-health"><a class="header" href="#service-health">Service Health</a></h1>
 <p>Data connectors should provide a <strong>health endpoint</strong> which can be used to indicate service health and readiness to any client applications.</p>
 <h2 id="request"><a class="header" href="#request">Request</a></h2>
 <pre><code>GET /healthz
@@ -399,7 +403,6 @@ mutation_total 5000 1685405427000
       &quot;fields&quot;: {
         &quot;author_id&quot;: {
           &quot;description&quot;: &quot;The article's author ID&quot;,
-          &quot;arguments&quot;: {},
           &quot;type&quot;: {
             &quot;type&quot;: &quot;named&quot;,
             &quot;name&quot;: &quot;Int&quot;
@@ -407,7 +410,6 @@ mutation_total 5000 1685405427000
         },
         &quot;id&quot;: {
           &quot;description&quot;: &quot;The article's primary key&quot;,
-          &quot;arguments&quot;: {},
           &quot;type&quot;: {
             &quot;type&quot;: &quot;named&quot;,
             &quot;name&quot;: &quot;Int&quot;
@@ -415,7 +417,6 @@ mutation_total 5000 1685405427000
         },
         &quot;title&quot;: {
           &quot;description&quot;: &quot;The article's title&quot;,
-          &quot;arguments&quot;: {},
           &quot;type&quot;: {
             &quot;type&quot;: &quot;named&quot;,
             &quot;name&quot;: &quot;String&quot;
@@ -428,7 +429,6 @@ mutation_total 5000 1685405427000
       &quot;fields&quot;: {
         &quot;first_name&quot;: {
           &quot;description&quot;: &quot;The author's first name&quot;,
-          &quot;arguments&quot;: {},
           &quot;type&quot;: {
             &quot;type&quot;: &quot;named&quot;,
             &quot;name&quot;: &quot;String&quot;
@@ -436,7 +436,6 @@ mutation_total 5000 1685405427000
         },
         &quot;id&quot;: {
           &quot;description&quot;: &quot;The author's primary key&quot;,
-          &quot;arguments&quot;: {},
           &quot;type&quot;: {
             &quot;type&quot;: &quot;named&quot;,
             &quot;name&quot;: &quot;Int&quot;
@@ -444,7 +443,6 @@ mutation_total 5000 1685405427000
         },
         &quot;last_name&quot;: {
           &quot;description&quot;: &quot;The author's last name&quot;,
-          &quot;arguments&quot;: {},
           &quot;type&quot;: {
             &quot;type&quot;: &quot;named&quot;,
             &quot;name&quot;: &quot;String&quot;
@@ -930,35 +928,73 @@ mutation_total 5000 1685405427000
 <p><code>equals</code> tests if a column value is equal to a scalar value, another column value, or a variable.</p>
 <p>See type <a href="specification/queries/../../reference/types.html#comparisonvalue"><code>ComparisonValue</code></a> for the valid inhabitants of the <code>value</code> field.</p>
 <pre><code class="language-json">{
-    &quot;type&quot;: &quot;binary_comparison_operator&quot;,
-    &quot;operator&quot;: {
-        &quot;type&quot;: &quot;equal&quot;
+    &quot;collection&quot;: &quot;articles&quot;,
+    &quot;arguments&quot;: {},
+    &quot;query&quot;: {
+        &quot;fields&quot;: {
+            &quot;id&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;id&quot;
+            },
+            &quot;title&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;title&quot;
+            }
+        },
+        &quot;where&quot;: {
+            &quot;type&quot;: &quot;binary_comparison_operator&quot;,
+            &quot;column&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;name&quot;: &quot;id&quot;,
+                &quot;path&quot;: []
+            },
+            &quot;operator&quot;: {
+                &quot;type&quot;: &quot;equal&quot;
+            },
+            &quot;value&quot;: {
+                &quot;type&quot;: &quot;scalar&quot;,
+                &quot;value&quot;: 1
+            }
+        }
     },
-    &quot;column&quot;: {
-        &quot;name&quot;: &quot;title&quot;
-    },
-    &quot;value&quot;: {
-        &quot;type&quot;: &quot;scalar&quot;,
-        &quot;value&quot;: &quot;The Next 700 Programming Languages&quot;
-    }
+    &quot;collection_relationships&quot;: {}
 }
 </code></pre>
 <h3 id="custom-binary-comparison-operators"><a class="header" href="#custom-binary-comparison-operators">Custom Binary Comparison Operators</a></h3>
 <p>Data connectors can also extend the expression grammar by defining comparison operators on each <a href="specification/queries/../schema/scalar-types.html">scalar type</a> in the schema response.</p>
 <p>For example, here is an expression which uses a custom <code>like</code> operator provided on the <code>String</code> type in the reference implementation:</p>
 <pre><code class="language-json">{
-    &quot;type&quot;: &quot;binary_comparison_operator&quot;,
-    &quot;operator&quot;: {
-        &quot;type&quot;: &quot;other&quot;,
-        &quot;name&quot;: &quot;like&quot;
+    &quot;collection&quot;: &quot;articles&quot;,
+    &quot;arguments&quot;: {},
+    &quot;query&quot;: {
+        &quot;fields&quot;: {
+            &quot;id&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;id&quot;
+            },
+            &quot;title&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;title&quot;
+            }
+        },
+        &quot;where&quot;: {
+            &quot;type&quot;: &quot;binary_comparison_operator&quot;,
+            &quot;column&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;name&quot;: &quot;title&quot;,
+                &quot;path&quot;: []
+            },
+            &quot;operator&quot;: {
+                &quot;type&quot;: &quot;other&quot;,
+                &quot;name&quot;: &quot;like&quot;
+            },
+            &quot;value&quot;: {
+                &quot;type&quot;: &quot;scalar&quot;,
+                &quot;value&quot;: &quot;Functional&quot;
+            }
+        }
     },
-    &quot;column&quot;: {
-        &quot;name&quot;: &quot;title&quot;
-    },
-    &quot;value&quot;: {
-        &quot;type&quot;: &quot;scalar&quot;,
-        &quot;value&quot;: &quot;^.*Functional Programming.*$&quot;
-    }
+    &quot;collection_relationships&quot;: {}
 }
 </code></pre>
 <h3 id="binary-array-valued-comparison-operators"><a class="header" href="#binary-array-valued-comparison-operators">Binary Array-Valued Comparison Operators</a></h3>
@@ -966,22 +1002,42 @@ mutation_total 5000 1685405427000
 <h4 id="in"><a class="header" href="#in"><code>in</code></a></h4>
 <p><code>in</code> tests if a column value is a member of an array of values, each of which can be a scalar value, another column value, or a variable.</p>
 <p>See type <a href="specification/queries/../../reference/types.html#comparisonvalue"><code>ComparisonValue</code></a> for the valid inhabitants of the <code>value</code> field.</p>
+<p><em>Note</em>: in general, <code>PathElement</code>s in a <code>ComparisonValue</code> can refer to <em>array</em> relationships. However, in the case of the <code>in</code> operator, such requests can be very difficult to implement, and for practical purposes, it is not very useful to express such queries. Therefore, in the case of the <code>in</code> operator, connectors can expect <code>PathElements</code> in <code>ComparisonValue</code>s to always only refer to <em>object</em> relationships, and fail with a <code>Bad Request</code> error otherwise.</p>
 <pre><code class="language-json">{
-    &quot;type&quot;: &quot;binary_array_comparison_operator&quot;,
-    &quot;operator&quot;: &quot;in&quot;,
-    &quot;column&quot;: {
-        &quot;name&quot;: &quot;id&quot;
-    },
-    &quot;values&quot;: [
-        {
-            &quot;type&quot;: &quot;scalar&quot;,
-            &quot;value&quot;: &quot;1&quot;
+    &quot;collection&quot;: &quot;articles&quot;,
+    &quot;arguments&quot;: {},
+    &quot;query&quot;: {
+        &quot;fields&quot;: {
+            &quot;id&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;id&quot;
+            },
+            &quot;title&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;title&quot;
+            }
         },
-        {
-            &quot;type&quot;: &quot;scalar&quot;,
-            &quot;value&quot;: &quot;2&quot;
+        &quot;where&quot;: {
+            &quot;type&quot;: &quot;binary_array_comparison_operator&quot;,
+            &quot;column&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;name&quot;: &quot;author_id&quot;,
+                &quot;path&quot;: []
+            },
+            &quot;operator&quot;: &quot;in&quot;,
+            &quot;values&quot;: [
+                {
+                    &quot;type&quot;: &quot;scalar&quot;,
+                    &quot;value&quot;: 1
+                },
+                {
+                    &quot;type&quot;: &quot;scalar&quot;,
+                    &quot;value&quot;: 2
+                }
+            ]
         }
-    ]
+    },
+    &quot;collection_relationships&quot;: {}
 }
 </code></pre>
 <h3 id="columns-in-operators"><a class="header" href="#columns-in-operators">Columns in Operators</a></h3>
@@ -2274,32 +2330,47 @@ docker run -it reference_connector
 <pre><code class="language-sh">ndc-test --endpoint &lt;ENDPOINT&gt;
 </code></pre>
 <p>For example, running the reference connector and passing its URL to <code>ndc-test</code>, we will see that it issues test queries against the <code>articles</code> and <code>authors</code> collections:</p>
-<pre><code class="language-text">ndc-test --ent http://localhost:8100
+<pre><code class="language-text">ndc-test test --endpoint http://localhost:8100
 
-Fetching /capabilities
-Validating capabilities
-Fetching /schemaValidating schema
-Validating object_types
-Validating collections
-Validating collection articles
-Validating columns
-Validating collection authors
-Validating columns
-Validating collection articles_by_author
-Validating columns
-Validating functions
-Validating function latest_article_id
-Validating procedures
-Validating procedure upsert_article
-Testing /query
-Testing simple queries
-Querying collection articles
-Querying collection authors
-Skipping parameterized collection articles_by_author
-Testing aggregate queries
-Querying collection articles
-Querying collection authors
-Skipping parameterized collection articles_by_author
+Capabilities
+├ Fetching /capabilities ... ... OK
+├ Validating capabilities ... OK
+Schema
+├ Fetching /schema ... OK
+├ Validating schema ...
+│ ├ object_types ... OK
+│ ├ Collections ...
+│ │ ├ articles ...
+│ │ │ ├ Arguments ... OK
+│ │ │ ├ Collection type ... OK
+│ │ ├ authors ...
+│ │ │ ├ Arguments ... OK
+│ │ │ ├ Collection type ... OK
+│ │ ├ articles_by_author ...
+│ │ │ ├ Arguments ... OK
+│ │ │ ├ Collection type ... OK
+│ ├ Functions ...
+│ │ ├ latest_article_id ...
+│ │ │ ├ Result type ... OK
+│ │ │ ├ Arguments ... OK
+│ │ ├ Procedures ...
+│ │ │ ├ upsert_article ...
+│ │ │ │ ├ Result type ... OK
+│ │ │ │ ├ Arguments ... OK
+Query
+├ articles ...
+│ ├ Simple queries ...
+│ │ ├ Select top N ... OK
+│ │ ├ Predicates ... OK
+│ ├ Aggregate queries ...
+│ │ ├ star_count ... OK
+├ authors ...
+│ ├ Simple queries ...
+│ │ ├ Select top N ... OK
+│ │ ├ Predicates ... OK
+│ ├ Aggregate queries ...
+│ │ ├ star_count ... OK
+├ articles_by_author ...
 </code></pre>
 <p>However, <code>ndc-test</code> cannot validate the entire schema. For example, it will not issue queries against the <code>articles_by_author</code> collection, because it does not have any way to synthesize inputs for its required collection argument.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
@@ -2452,7 +2523,6 @@ async fn main() {
                 &quot;id&quot;.into(),
                 models::ObjectField {
                     description: Some(&quot;The author's primary key&quot;.into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named { name: &quot;Int&quot;.into() },
                 },
             ),
@@ -2460,7 +2530,6 @@ async fn main() {
                 &quot;first_name&quot;.into(),
                 models::ObjectField {
                     description: Some(&quot;The author's first name&quot;.into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: &quot;String&quot;.into(),
                     },
@@ -2470,7 +2539,6 @@ async fn main() {
                 &quot;last_name&quot;.into(),
                 models::ObjectField {
                     description: Some(&quot;The author's last name&quot;.into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: &quot;String&quot;.into(),
                     },
@@ -2486,7 +2554,6 @@ async fn main() {
                 &quot;id&quot;.into(),
                 models::ObjectField {
                     description: Some(&quot;The article's primary key&quot;.into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named { name: &quot;Int&quot;.into() },
                 },
             ),
@@ -2494,7 +2561,6 @@ async fn main() {
                 &quot;title&quot;.into(),
                 models::ObjectField {
                     description: Some(&quot;The article's title&quot;.into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: &quot;String&quot;.into(),
                     },
@@ -2504,7 +2570,6 @@ async fn main() {
                 &quot;author_id&quot;.into(),
                 models::ObjectField {
                     description: Some(&quot;The article's author ID&quot;.into()),
-                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named { name: &quot;Int&quot;.into() },
                 },
             ),
@@ -2610,7 +2675,7 @@ async fn main() {
 <pre><code class="language-rust no_run noplayground">pub async fn post_query(
     State(state): State&lt;Arc&lt;Mutex&lt;AppState&gt;&gt;&gt;,
     Json(request): Json&lt;models::QueryRequest&gt;,
-) -&gt; Result&lt;Json&lt;models::QueryResponse&gt;, StatusLine&gt; {</code></pre>
+) -&gt; Result&lt;Json&lt;models::QueryResponse&gt;&gt; {</code></pre>
 <p>This function accepts a <a href="tutorial/queries/../../reference/types.html#queryrequest"><code>QueryRequest</code></a> and must produce a <a href="tutorial/queries/../../reference/types.html#queryresponse"><code>QueryResponse</code></a>.</p>
 <p>In the next section, we will start to break down this problem step-by-step.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="query-variables"><a class="header" href="#query-variables">Query Variables</a></h1>
@@ -2619,7 +2684,7 @@ async fn main() {
 <pre><code class="language-rust no_run noplayground">pub async fn post_query(
     State(state): State&lt;Arc&lt;Mutex&lt;AppState&gt;&gt;&gt;,
     Json(request): Json&lt;models::QueryRequest&gt;,
-) -&gt; Result&lt;Json&lt;models::QueryResponse&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Json&lt;models::QueryResponse&gt;&gt; {
     let state = state.lock().await;
 
     let variable_sets = request.variables.unwrap_or(vec![BTreeMap::new()]);
@@ -2642,38 +2707,47 @@ async fn main() {
 }</code></pre>
 <p>In order to compute the <code>RowSet</code> for a given set of variables, the function delegates to a function named <code>execute_query_with_variables</code>:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query_with_variables(
-    collection: &amp;String,
+    collection: &amp;str,
     arguments: &amp;BTreeMap&lt;String, models::Argument&gt;,
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
     query: &amp;models::Query,
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
-) -&gt; Result&lt;models::RowSet, StatusLine&gt; {</code></pre>
+) -&gt; Result&lt;models::RowSet&gt; {</code></pre>
 <p>In the next section, we will break down the implementation of this function.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="evaluating-arguments"><a class="header" href="#evaluating-arguments">Evaluating Arguments</a></h1>
 <p>Now that we have reduced the problem to a single set of query variables, we must evaluate any <a href="tutorial/queries/../../specification/queries/arguments.html">collection arguments</a>, and in turn, evaluate the <em>collection</em> of rows that we will be working with. </p>
 <p>From there, we will be able to apply predicates, sort and paginate rows. But one step at a time!</p>
 <p>The first step is to evaluate each argument, which the <code>execute_query_with_variables</code> function does by delegating to the <code>eval_argument</code> function:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query_with_variables(
-    collection: &amp;String,
+    collection: &amp;str,
     arguments: &amp;BTreeMap&lt;String, models::Argument&gt;,
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
     query: &amp;models::Query,
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
-) -&gt; Result&lt;models::RowSet, StatusLine&gt; {
+) -&gt; Result&lt;models::RowSet&gt; {
     let mut argument_values = BTreeMap::new();
 
     for (argument_name, argument_value) in arguments.iter() {
-        if let Some(_) = argument_values.insert(
-            argument_name.clone(),
-            eval_argument(variables, argument_value)?,
-        ) {
-            return Err((StatusCode::BAD_REQUEST, &quot;duplicate argument names&quot;));
+        if argument_values
+            .insert(
+                argument_name.clone(),
+                eval_argument(variables, argument_value)?,
+            )
+            .is_some()
+        {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: &quot;duplicate argument names&quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
+            ));
         }
     }
 
-    let collection = get_collection_by_name(collection.as_str(), &amp;argument_values, state)?;
+    let collection = get_collection_by_name(collection, &amp;argument_values, state)?;
 
     execute_query(
         collection_relationships,
@@ -2689,27 +2763,42 @@ async fn main() {
     collection_name: &amp;str,
     arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
-) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
     match collection_name {
         &quot;articles&quot; =&gt; Ok(state.articles.values().cloned().collect()),
         &quot;authors&quot; =&gt; Ok(state.authors.values().cloned().collect()),
         &quot;articles_by_author&quot; =&gt; {
-            let author_id = arguments
-                .get(&quot;author_id&quot;)
-                .ok_or((StatusCode::BAD_REQUEST, &quot;missing argument author_id&quot;))?;
-            let author_id_int = author_id
-                .as_i64()
-                .ok_or((StatusCode::BAD_REQUEST, &quot;author_id must be a string&quot;))?;
+            let author_id = arguments.get(&quot;author_id&quot;).ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: &quot;missing argument author_id&quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
+            let author_id_int = author_id.as_i64().ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: &quot;author_id must be a string&quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
 
             let mut articles_by_author = vec![];
 
             for (_id, article) in state.articles.iter() {
-                let article_author_id = article
-                    .get(&quot;author_id&quot;)
-                    .ok_or((StatusCode::INTERNAL_SERVER_ERROR, &quot;author_id not found&quot;))?;
+                let article_author_id = article.get(&quot;author_id&quot;).ok_or((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: &quot;author_id not found&quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
                 let article_author_id_int = article_author_id.as_i64().ok_or((
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    &quot;author_id must be a string&quot;,
+                    Json(models::ErrorResponse {
+                        message: &quot; &quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
                 ))?;
                 if article_author_id_int == author_id_int {
                     articles_by_author.push(article.clone())
@@ -2727,7 +2816,10 @@ async fn main() {
             let latest_id_value = serde_json::to_value(latest_id).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    &quot;cannot encode article id&quot;,
+                    Json(models::ErrorResponse {
+                        message: &quot; &quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
                 )
             })?;
             Ok(vec![BTreeMap::from_iter([(
@@ -2735,7 +2827,13 @@ async fn main() {
                 latest_id_value,
             )])])
         }
-        _ =&gt; Err((StatusCode::BAD_REQUEST, &quot;invalid collection name&quot;)),
+        _ =&gt; Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: &quot;invalid collection name&quot;.into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
     }
 }</code></pre>
 <p><em>Note 1</em>: the <code>articles_by_author</code> collection is the only example here which has to apply any arguments. It is provided as an example of a collection which accepts an <code>author_id</code> argument, and it must validate that the argument is present, and that it is an integer.</p>
@@ -2749,7 +2847,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     query: &amp;models::Query,
     root: Root,
     collection: Vec&lt;Row&gt;,
-) -&gt; Result&lt;models::RowSet, StatusLine&gt; {</code></pre>
+) -&gt; Result&lt;models::RowSet&gt; {</code></pre>
 <p>In the next section, we will break down the implementation of <code>execute_query</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="executing-queries"><a class="header" href="#executing-queries">Executing Queries</a></h1>
 <p>In this section, we will break down the implementation of the <code>execute_query</code> function:</p>
@@ -2760,7 +2858,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     query: &amp;models::Query,
     root: Root,
     collection: Vec&lt;Row&gt;,
-) -&gt; Result&lt;models::RowSet, StatusLine&gt; {</code></pre>
+) -&gt; Result&lt;models::RowSet&gt; {</code></pre>
 <p>At this point, we have already computed the full collection, which is passed via the <code>collection</code> argument. Now, we need to evaluate the <a href="tutorial/queries/execute/../../../reference/types.html#query"><code>Query</code></a> in the context of this collection.</p>
 <p>The <code>Query</code> describes the predicate whcih should be applied to all rows, the sort order, pagination options, along with any aggregates to compute and fields to return.</p>
 <p>The first step is to sort the collection. </p>
@@ -2783,7 +2881,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     state: &amp;AppState,
     collection: Vec&lt;Row&gt;,
     order_by: &amp;Option&lt;models::OrderBy&gt;,
-) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
     match order_by {
         None =&gt; Ok(collection),
         Some(order_by) =&gt; {
@@ -2821,24 +2919,12 @@ Once we have computed the full collection, we can move onto evaluating the query
     order_by: &amp;models::OrderBy,
     t1: &amp;Row,
     t2: &amp;Row,
-) -&gt; Result&lt;Ordering, StatusLine&gt; {
+) -&gt; Result&lt;Ordering&gt; {
     let mut result = Ordering::Equal;
 
     for element in order_by.elements.iter() {
-        let v1 = eval_order_by_element(
-            collection_relationships,
-            variables,
-            state,
-            element,
-            t1,
-        )?;
-        let v2 = eval_order_by_element(
-            collection_relationships,
-            variables,
-            state,
-            element,
-            t2,
-        )?;
+        let v1 = eval_order_by_element(collection_relationships, variables, state, element, t1)?;
+        let v2 = eval_order_by_element(collection_relationships, variables, state, element, t2)?;
         let x = match element.order_direction {
             models::OrderDirection::Asc =&gt; compare(v1, v2)?,
             models::OrderDirection::Desc =&gt; compare(v2, v1)?,
@@ -2859,18 +2945,15 @@ Once we have computed the full collection, we can move onto evaluating the query
     item: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     path: Vec&lt;models::PathElement&gt;,
     name: String,
-) -&gt; Result&lt;serde_json::Value, StatusLine&gt; {
-    let rows: Vec&lt;Row&gt; = eval_path(
-        collection_relationships,
-        variables,
-        state,
-        &amp;path,
-        item,
-    )?;
+) -&gt; Result&lt;serde_json::Value&gt; {
+    let rows: Vec&lt;Row&gt; = eval_path(collection_relationships, variables, state, &amp;path, item)?;
     if rows.len() &gt; 1 {
         return Err((
             StatusCode::BAD_REQUEST,
-            &quot;cannot order by column via array relationship&quot;,
+            Json(models::ErrorResponse {
+                message: &quot; &quot;.into(),
+                details: serde_json::Value::Null,
+            }),
         ));
     }
     match rows.first() {
@@ -2883,19 +2966,19 @@ Once we have computed the full collection, we can move onto evaluating the query
 <div style="break-before: page; page-break-before: always;"></div><h1 id="filtering-1"><a class="header" href="#filtering-1">Filtering</a></h1>
 <p>The next step is to filter the rows based on the provided predicate expression:</p>
 <pre><code class="language-rust no_run noplayground">    let filtered: Vec&lt;Row&gt; = (match &amp;query.predicate {
-        None =&gt; Ok::&lt;_, StatusLine&gt;(sorted),
+        None =&gt; Ok(sorted),
         Some(expr) =&gt; {
             let mut filtered: Vec&lt;Row&gt; = vec![];
             for item in sorted.into_iter() {
                 let root = match root {
                     Root::CurrentRow =&gt; &amp;item,
-                    Root::ExplicitRow(root) =&gt; &amp;root,
+                    Root::ExplicitRow(root) =&gt; root,
                 };
                 if eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &amp;expr,
+                    expr,
                     root,
                     &amp;item,
                 )? {
@@ -2915,7 +2998,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     expr: &amp;models::Expression,
     root: &amp;Row,
     item: &amp;Row,
-) -&gt; Result&lt;bool, StatusLine&gt; {</code></pre>
+) -&gt; Result&lt;bool&gt; {</code></pre>
 <h3 id="logical-expressions"><a class="header" href="#logical-expressions">Logical expressions</a></h3>
 <p>The first category of expression types are the <em>logical expressions</em> - <em>and</em> (conjunction), <em>or</em> (disjunction) and <em>not</em> (negation) - whose evaluators are straightforward:</p>
 <ul>
@@ -2952,13 +3035,13 @@ Once we have computed the full collection, we can move onto evaluating the query
         }</code></pre>
 <h3 id="unary-operators-1"><a class="header" href="#unary-operators-1">Unary Operators</a></h3>
 <p>The next category of expressions are the <em>unary operators</em>. The only unary operator is the <code>IsNull</code> operator, which is evaluated by evaluating the operator's <em>comparison target</em>, and then comparing the result to <code>null</code>:</p>
-<pre><code class="language-rust no_run noplayground">        models::Expression::UnaryComparisonOperator { column, operator } =&gt; match &amp;**operator {
+<pre><code class="language-rust no_run noplayground">        models::Expression::UnaryComparisonOperator { column, operator } =&gt; match operator {
             models::UnaryComparisonOperator::IsNull =&gt; {
                 let vals = eval_comparison_target(
                     collection_relationships,
                     variables,
                     state,
-                    &amp;*column,
+                    column,
                     root,
                     item,
                 )?;
@@ -2977,7 +3060,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     target: &amp;models::ComparisonTarget,
     root: &amp;Row,
     item: &amp;Row,
-) -&gt; Result&lt;Vec&lt;serde_json::Value&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Vec&lt;serde_json::Value&gt;&gt; {
     match target {
         models::ComparisonTarget::Column { name, path } =&gt; {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
@@ -3002,13 +3085,13 @@ Once we have computed the full collection, we can move onto evaluating the query
             column,
             operator,
             value,
-        } =&gt; match &amp;**operator {
+        } =&gt; match operator {
             models::BinaryComparisonOperator::Equal =&gt; {
                 let left_vals = eval_comparison_target(
                     collection_relationships,
                     variables,
                     state,
-                    &amp;*column,
+                    column,
                     root,
                     item,
                 )?;
@@ -3035,28 +3118,32 @@ Once we have computed the full collection, we can move onto evaluating the query
             column,
             operator,
             values,
-        } =&gt; match &amp;**operator {
+        } =&gt; match operator {
             models::BinaryArrayComparisonOperator::In =&gt; {
-                let left_val = eval_comparison_target(
+                let left_vals = eval_comparison_target(
                     collection_relationships,
                     variables,
                     state,
-                    &amp;*column,
+                    column,
                     root,
                     item,
                 )?;
 
-                for v in values.iter() {
-                    let right_val = eval_comparison_value(
+                for comparison_value in values.iter() {
+                    let right_vals = eval_comparison_value(
                         collection_relationships,
                         variables,
                         state,
-                        v,
+                        comparison_value,
                         root,
                         item,
                     )?;
-                    if left_val == right_val {
-                        return Ok(true);
+                    for left_val in left_vals.iter() {
+                        for right_val in right_vals.iter() {
+                            if left_val == right_val {
+                                return Ok(true);
+                            }
+                        }
                     }
                 }
                 Ok(false)
@@ -3069,7 +3156,7 @@ Once we have computed the full collection, we can move onto evaluating the query
                         collection_relationships,
                         variables,
                         state,
-                        &amp;*column,
+                        column,
                         root,
                         item,
                     )?;
@@ -3083,15 +3170,28 @@ Once we have computed the full collection, we can move onto evaluating the query
                     )?;
                     for column_val in column_vals.iter() {
                         for regex_val in regex_vals.iter() {
-                            let column_str = column_val
-                                .as_str()
-                                .ok_or((StatusCode::BAD_REQUEST, &quot;column is not a string&quot;))?;
+                            let column_str = column_val.as_str().ok_or((
+                                StatusCode::BAD_REQUEST,
+                                Json(models::ErrorResponse {
+                                    message: &quot;column is not a string&quot;.into(),
+                                    details: serde_json::Value::Null,
+                                }),
+                            ))?;
                             let regex_str = regex_val.as_str().ok_or((
                                 StatusCode::BAD_REQUEST,
-                                &quot;regular expression is not a string&quot;,
+                                Json(models::ErrorResponse {
+                                    message: &quot; &quot;.into(),
+                                    details: serde_json::Value::Null,
+                                }),
                             ))?;
-                            let regex = Regex::new(regex_str.into()).map_err(|_| {
-                                (StatusCode::BAD_REQUEST, &quot;invalid regular expression&quot;)
+                            let regex = Regex::new(regex_str).map_err(|_| {
+                                (
+                                    StatusCode::BAD_REQUEST,
+                                    Json(models::ErrorResponse {
+                                        message: &quot;invalid regular expression&quot;.into(),
+                                        details: serde_json::Value::Null,
+                                    }),
+                                )
                             })?;
                             if regex.is_match(column_str) {
                                 return Ok(true);
@@ -3102,7 +3202,10 @@ Once we have computed the full collection, we can move onto evaluating the query
                 }
                 _ =&gt; Err((
                     StatusCode::BAD_REQUEST,
-                    &quot;invalid binary comparison operator&quot;,
+                    Json(models::ErrorResponse {
+                        message: &quot; &quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
                 )),
             },</code></pre>
 <h3 id="exists-expressions-1"><a class="header" href="#exists-expressions-1"><code>EXISTS</code> expressions</a></h3>
@@ -3136,7 +3239,10 @@ Once we have computed the full collection, we can move onto evaluating the query
             )?;
             let rows: Vec&lt;IndexMap&lt;_, _&gt;&gt; = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                &quot;exists query returned no rows&quot;,
+                Json(models::ErrorResponse {
+                    message: &quot; &quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
             ))?;
             Ok(!rows.is_empty())</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pagination-1"><a class="header" href="#pagination-1">Pagination</a></h1>
@@ -3180,17 +3286,22 @@ Once we have computed the full collection, we can move onto evaluating the query
 <pre><code class="language-rust no_run noplayground">fn eval_aggregate(
     aggregate: &amp;models::Aggregate,
     paginated: &amp;Vec&lt;BTreeMap&lt;String, serde_json::Value&gt;&gt;,
-) -&gt; Result&lt;serde_json::Value, StatusLine&gt; {
+) -&gt; Result&lt;serde_json::Value&gt; {
     match aggregate {
         models::Aggregate::StarCount {} =&gt; Ok(serde_json::Value::from(paginated.len())),
         models::Aggregate::ColumnCount { column, distinct } =&gt; {
             let values = paginated
                 .iter()
                 .map(|row| {
-                    row.get(column)
-                        .ok_or((StatusCode::BAD_REQUEST, &quot;invalid column name&quot;))
+                    row.get(column).ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: &quot;invalid column name&quot;.into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))
                 })
-                .collect::&lt;Result&lt;Vec&lt;_&gt;, StatusLine&gt;&gt;()?;
+                .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
 
             let non_null_values = values.iter().filter(|value| !value.is_null());
 
@@ -3198,10 +3309,16 @@ Once we have computed the full collection, we can move onto evaluating the query
                 non_null_values
                     .map(|value| {
                         serde_json::to_string(value).map_err(|_| {
-                            (StatusCode::INTERNAL_SERVER_ERROR, &quot;unable to encode value&quot;)
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Json(models::ErrorResponse {
+                                    message: &quot;unable to encode value&quot;.into(),
+                                    details: serde_json::Value::Null,
+                                }),
+                            )
                         })
                     })
-                    .collect::&lt;HashSet&lt;_&gt;&gt;()
+                    .collect::&lt;Result&lt;HashSet&lt;_&gt;&gt;&gt;()?
                     .len()
             } else {
                 non_null_values.count()
@@ -3209,7 +3326,10 @@ Once we have computed the full collection, we can move onto evaluating the query
             serde_json::to_value(agg_value).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    &quot;unable to encode response&quot;,
+                    Json(models::ErrorResponse {
+                        message: &quot; &quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
                 )
             })
         }
@@ -3217,36 +3337,54 @@ Once we have computed the full collection, we can move onto evaluating the query
             let values = paginated
                 .iter()
                 .map(|row| {
-                    row.get(column)
-                        .ok_or((StatusCode::BAD_REQUEST, &quot;invalid column name&quot;))
+                    row.get(column).ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: &quot;invalid column name&quot;.into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))
                 })
-                .collect::&lt;Result&lt;Vec&lt;_&gt;, StatusLine&gt;&gt;()?;
+                .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
             eval_aggregate_function(function, values)
         }
     }
 }</code></pre>
 <p>The <code>eval_aggregate_function</code> function implements the custom aggregate operators <code>min</code> and <code>max</code>, which are provided for integer-valued columns:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_aggregate_function(
-    function: &amp;String,
+    function: &amp;str,
     values: Vec&lt;&amp;serde_json::Value&gt;,
-) -&gt; Result&lt;serde_json::Value, StatusLine&gt; {
+) -&gt; Result&lt;serde_json::Value&gt; {
     let int_values = values
         .iter()
         .map(|value| {
-            value
-                .as_i64()
-                .ok_or((StatusCode::BAD_REQUEST, &quot;column is not an integer&quot;))
+            value.as_i64().ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: &quot;column is not an integer&quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))
         })
-        .collect::&lt;Result&lt;Vec&lt;_&gt;, _&gt;&gt;()?;
-    let agg_value = match function.as_str() {
+        .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
+    let agg_value = match function {
         &quot;min&quot; =&gt; Ok(int_values.iter().min()),
         &quot;max&quot; =&gt; Ok(int_values.iter().max()),
-        _ =&gt; Err((StatusCode::BAD_REQUEST, &quot;invalid aggregation function&quot;)),
+        _ =&gt; Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: &quot;invalid aggregation function&quot;.into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
     }?;
     serde_json::to_value(agg_value).map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            &quot;unable to encode response&quot;,
+            Json(models::ErrorResponse {
+                message: &quot; &quot;.into(),
+                details: serde_json::Value::Null,
+            }),
         )
     })
 }</code></pre>
@@ -3263,18 +3401,12 @@ Once we have computed the full collection, we can move onto evaluating the query
                 for (field_name, field) in fields.iter() {
                     row.insert(
                         field_name.clone(),
-                        eval_field(
-                            collection_relationships,
-                            variables,
-                            state,
-                            field,
-                            item,
-                        )?,
+                        eval_field(collection_relationships, variables, state, field, item)?,
                     );
                 }
                 rows.push(row)
             }
-            Ok::&lt;_, StatusLine&gt;(rows)
+            Ok(rows)
         })
         .transpose()?;</code></pre>
 <p>The <code>eval_field</code> function works by pattern matching on the field type:</p>
@@ -3288,7 +3420,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     state: &amp;AppState,
     field: &amp;models::Field,
     item: &amp;Row,
-) -&gt; Result&lt;models::RowFieldValue, StatusLine&gt; {
+) -&gt; Result&lt;models::RowFieldValue&gt; {
     match field {
         models::Field::Column { column, .. } =&gt; {
             Ok(models::RowFieldValue(eval_column(item, column.as_str())?))
@@ -3300,7 +3432,10 @@ Once we have computed the full collection, we can move onto evaluating the query
         } =&gt; {
             let relationship = collection_relationships.get(relationship.as_str()).ok_or((
                 StatusCode::BAD_REQUEST,
-                &quot;invalid relationship name in field&quot;,
+                Json(models::ErrorResponse {
+                    message: &quot; &quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
             ))?;
             let source = vec![item.clone()];
             let collection = eval_path_element(
@@ -3322,8 +3457,15 @@ Once we have computed the full collection, we can move onto evaluating the query
                 Root::CurrentRow,
                 collection,
             )?;
-            let rows_json = serde_json::to_value(rows)
-                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, &quot;cannot encode rowset&quot;))?;
+            let rows_json = serde_json::to_value(rows).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: &quot;cannot encode rowset&quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
             Ok(models::RowFieldValue(rows_json))
         }
     }
@@ -3336,16 +3478,20 @@ Once we have computed the full collection, we can move onto evaluating the query
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
-    path: &amp;Vec&lt;models::PathElement&gt;,
+    path: &amp;[models::PathElement],
     item: &amp;Row,
-) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
     let mut result: Vec&lt;Row&gt; = vec![item.clone()];
 
     for path_element in path.iter() {
         let relationship_name = path_element.relationship.as_str();
-        let relationship = collection_relationships
-            .get(relationship_name)
-            .ok_or((StatusCode::BAD_REQUEST, &quot;invalid relationship name in path&quot;))?;
+        let relationship = collection_relationships.get(relationship_name).ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: &quot;invalid relationship name in path&quot;.into(),
+                details: serde_json::Value::Null,
+            }),
+        ))?;
         result = eval_path_element(
             collection_relationships,
             variables,
@@ -3366,9 +3512,9 @@ Once we have computed the full collection, we can move onto evaluating the query
     state: &amp;AppState,
     relationship: &amp;models::Relationship,
     arguments: &amp;BTreeMap&lt;String, models::RelationshipArgument&gt;,
-    source: &amp;Vec&lt;Row&gt;,
+    source: &amp;[Row],
     predicate: &amp;models::Expression,
-) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
     let mut matching_rows: Vec&lt;Row&gt; = vec![];
 
     // Note: Join strategy
@@ -3392,20 +3538,38 @@ Once we have computed the full collection, we can move onto evaluating the query
         let mut all_arguments = BTreeMap::new();
 
         for (argument_name, argument_value) in relationship.arguments.iter() {
-            if let Some(_) = all_arguments.insert(
-                argument_name.clone(),
-                eval_relationship_argument(variables, src_row, argument_value)?,
-            ) {
-                return Err((StatusCode::BAD_REQUEST, &quot;duplicate argument names&quot;));
+            if all_arguments
+                .insert(
+                    argument_name.clone(),
+                    eval_relationship_argument(variables, src_row, argument_value)?,
+                )
+                .is_some()
+            {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: &quot;duplicate argument names&quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ));
             }
         }
 
         for (argument_name, argument_value) in arguments.iter() {
-            if let Some(_) = all_arguments.insert(
-                argument_name.clone(),
-                eval_relationship_argument(variables, src_row, argument_value)?,
-            ) {
-                return Err((StatusCode::BAD_REQUEST, &quot;duplicate argument names&quot;));
+            if all_arguments
+                .insert(
+                    argument_name.clone(),
+                    eval_relationship_argument(variables, src_row, argument_value)?,
+                )
+                .is_some()
+            {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: &quot;duplicate argument names&quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ));
             }
         }
 
@@ -3416,17 +3580,17 @@ Once we have computed the full collection, we can move onto evaluating the query
         )?;
 
         for tgt_row in target.iter() {
-            if eval_column_mapping(relationship, src_row, tgt_row)? {
-                if eval_expression(
+            if eval_column_mapping(relationship, src_row, tgt_row)?
+                &amp;&amp; eval_expression(
                     collection_relationships,
                     variables,
                     state,
-                    &amp;predicate,
+                    predicate,
                     tgt_row,
                     tgt_row,
-                )? {
-                    matching_rows.push(tgt_row.clone());
-                }
+                )?
+            {
+                matching_rows.push(tgt_row.clone());
             }
         }
     }
@@ -3440,8 +3604,14 @@ Once we have computed the full collection, we can move onto evaluating the query
 <p>The <code>explain</code> capability is turned off in the <a href="tutorial/./capabilities.html">capabilities endpoint</a>, and the <code>/explain</code> endpoint throws an error:</p>
 <pre><code class="language-rust no_run noplayground">async fn post_explain(
     Json(_request): Json&lt;models::QueryRequest&gt;,
-) -&gt; Result&lt;Json&lt;models::ExplainResponse&gt;, StatusLine&gt; {
-    Err((StatusCode::NOT_IMPLEMENTED, &quot;explain is not supported&quot;))
+) -&gt; Result&lt;Json&lt;models::ExplainResponse&gt;&gt; {
+    Err((
+        StatusCode::NOT_IMPLEMENTED,
+        Json(models::ErrorResponse {
+            message: &quot;explain is not supported&quot;.into(),
+            details: serde_json::Value::Null,
+        }),
+    ))
 }</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="health-and-metrics"><a class="header" href="#health-and-metrics">Health and Metrics</a></h1>
 <h2 id="service-health-1"><a class="header" href="#service-health-1">Service Health</a></h2>
@@ -3457,12 +3627,15 @@ Once we have computed the full collection, we can move onto evaluating the query
 <li><code>metrics.active_requests</code> counts the number of requests <em>currently</em> being served.</li>
 </ul>
 <p>The <a href="tutorial/../specification/metrics.html">metrics endpoint</a> reports these metrics using the Rust <a href="https://docs.rs/prometheus/latest/prometheus/">prometheus</a> crate:</p>
-<pre><code class="language-rust no_run noplayground">async fn get_metrics(State(state): State&lt;Arc&lt;Mutex&lt;AppState&gt;&gt;&gt;) -&gt; Result&lt;String, StatusLine&gt; {
+<pre><code class="language-rust no_run noplayground">async fn get_metrics(State(state): State&lt;Arc&lt;Mutex&lt;AppState&gt;&gt;&gt;) -&gt; Result&lt;String&gt; {
     let state = state.lock().await;
-    state
-        .metrics
-        .as_text()
-        .ok_or((StatusCode::INTERNAL_SERVER_ERROR, &quot;cannot encode metrics&quot;))
+    state.metrics.as_text().ok_or((
+        StatusCode::INTERNAL_SERVER_ERROR,
+        Json(models::ErrorResponse {
+            message: &quot;cannot encode metrics&quot;.into(),
+            details: serde_json::Value::Null,
+        }),
+    ))
 }</code></pre>
 <p>To maintain these metrics, it uses a simple metrics middleware:</p>
 <pre><code class="language-rust no_run noplayground">async fn metrics_middleware&lt;T&gt;(
@@ -3487,6 +3660,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 <h2 id="aggregate"><a class="header" href="#aggregate"><code>Aggregate</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Aggregate&quot;)]
 pub enum Aggregate {
     // TODO: do we need aggregation row limits?
     ColumnCount {
@@ -3506,6 +3680,7 @@ pub enum Aggregate {
 <h2 id="aggregatefunctiondefinition"><a class="header" href="#aggregatefunctiondefinition"><code>AggregateFunctionDefinition</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an aggregation function on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Aggregate Function Definition&quot;)]
 pub struct AggregateFunctionDefinition {
     /// The scalar or object type of the result of this function
     pub result_type: Type,
@@ -3513,6 +3688,7 @@ pub struct AggregateFunctionDefinition {
 <h2 id="argument"><a class="header" href="#argument"><code>Argument</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Argument&quot;)]
 pub enum Argument {
     /// The argument is provided by reference to a variable
     Variable { name: String },
@@ -3522,6 +3698,7 @@ pub enum Argument {
 <h2 id="argumentinfo"><a class="header" href="#argumentinfo"><code>ArgumentInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Argument Info&quot;)]
 pub struct ArgumentInfo {
     /// Argument description
     pub description: Option&lt;String&gt;,
@@ -3533,6 +3710,7 @@ pub struct ArgumentInfo {
 <pre><code class="language-rust no_run noplayground">#[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(title = &quot;Binary Array Comparison Operator&quot;)]
 #[serde(rename_all = &quot;snake_case&quot;)]
 pub enum BinaryArrayComparisonOperator {
     In,
@@ -3542,6 +3720,7 @@ pub enum BinaryArrayComparisonOperator {
     Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Binary Comparison Operator&quot;)]
 pub enum BinaryComparisonOperator {
     Equal,
     // should we rename this? To what?
@@ -3551,6 +3730,7 @@ pub enum BinaryComparisonOperator {
 <pre><code class="language-rust no_run noplayground">/// Describes the features of the specification which a data connector implements.
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Capabilities&quot;)]
 pub struct Capabilities {
     pub query: Option&lt;QueryCapabilities&gt;,
     pub explain: Option&lt;serde_json::Value&gt;,
@@ -3560,6 +3740,7 @@ pub struct Capabilities {
 <h2 id="capabilitiesresponse"><a class="header" href="#capabilitiesresponse"><code>CapabilitiesResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Capabilities Response&quot;)]
 pub struct CapabilitiesResponse {
     pub versions: String,
     pub capabilities: Capabilities,
@@ -3567,6 +3748,7 @@ pub struct CapabilitiesResponse {
 <h2 id="procedureinfo"><a class="header" href="#procedureinfo"><code>ProcedureInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Procedure Info&quot;)]
 pub struct ProcedureInfo {
     /// The name of the procedure
     pub name: String,
@@ -3580,6 +3762,7 @@ pub struct ProcedureInfo {
 <h2 id="comparisonoperatordefinition"><a class="header" href="#comparisonoperatordefinition"><code>ComparisonOperatorDefinition</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of a comparison operator on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Comparison Operator Definition&quot;)]
 pub struct ComparisonOperatorDefinition {
     /// The type of the argument to this operator
     pub argument_type: Type,
@@ -3587,6 +3770,7 @@ pub struct ComparisonOperatorDefinition {
 <h2 id="comparisontarget"><a class="header" href="#comparisontarget"><code>ComparisonTarget</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Comparison Target&quot;)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
 pub enum ComparisonTarget {
     Column {
@@ -3603,14 +3787,26 @@ pub enum ComparisonTarget {
 <h2 id="comparisonvalue"><a class="header" href="#comparisonvalue"><code>ComparisonValue</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Comparison Value&quot;)]
 pub enum ComparisonValue {
-    Column { column: Box&lt;ComparisonTarget&gt; },
+    Column { column: ComparisonTarget },
     Scalar { value: serde_json::Value },
     Variable { name: String },
+}</code></pre>
+<h2 id="errorresponse"><a class="header" href="#errorresponse"><code>ErrorResponse</code></a></h2>
+<pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Error Response&quot;)]
+pub struct ErrorResponse {
+    /// A human-readable summary of the error
+    pub message: String,
+    /// Any additional structured information about the error
+    pub details: serde_json::Value,
 }</code></pre>
 <h2 id="existsincollection"><a class="header" href="#existsincollection"><code>ExistsInCollection</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Exists In Collection&quot;)]
 pub enum ExistsInCollection {
     Related {
         relationship: String,
@@ -3626,6 +3822,7 @@ pub enum ExistsInCollection {
 }</code></pre>
 <h2 id="explainresponse"><a class="header" href="#explainresponse"><code>ExplainResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Explain Response&quot;)]
 pub struct ExplainResponse {
     /// A list of human-readable key-value pairs describing
     /// a query execution plan. For example, a connector for
@@ -3638,6 +3835,7 @@ pub struct ExplainResponse {
 <h2 id="expression"><a class="header" href="#expression"><code>Expression</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Expression&quot;)]
 pub enum Expression {
     And {
         expressions: Vec&lt;Expression&gt;,
@@ -3649,21 +3847,21 @@ pub enum Expression {
         expression: Box&lt;Expression&gt;,
     },
     UnaryComparisonOperator {
-        column: Box&lt;ComparisonTarget&gt;,
-        operator: Box&lt;UnaryComparisonOperator&gt;,
+        column: ComparisonTarget,
+        operator: UnaryComparisonOperator,
     },
     BinaryComparisonOperator {
-        column: Box&lt;ComparisonTarget&gt;,
-        operator: Box&lt;BinaryComparisonOperator&gt;,
-        value: Box&lt;ComparisonValue&gt;,
+        column: ComparisonTarget,
+        operator: BinaryComparisonOperator,
+        value: ComparisonValue,
     },
     BinaryArrayComparisonOperator {
-        column: Box&lt;ComparisonTarget&gt;,
-        operator: Box&lt;BinaryArrayComparisonOperator&gt;,
+        column: ComparisonTarget,
+        operator: BinaryArrayComparisonOperator,
         values: Vec&lt;ComparisonValue&gt;,
     },
     Exists {
-        in_collection: Box&lt;ExistsInCollection&gt;,
+        in_collection: ExistsInCollection,
         #[serde(rename = &quot;where&quot;)]
         predicate: Box&lt;Expression&gt;,
     },
@@ -3671,6 +3869,7 @@ pub enum Expression {
 <h2 id="field"><a class="header" href="#field"><code>Field</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Field&quot;)]
 pub enum Field {
     Column {
         column: String,
@@ -3685,6 +3884,7 @@ pub enum Field {
 }</code></pre>
 <h2 id="foreignkeyconstraint"><a class="header" href="#foreignkeyconstraint"><code>ForeignKeyConstraint</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Foreign Key Constraint&quot;)]
 pub struct ForeignKeyConstraint {
     /// The columns on which you want want to define the foreign key.
     pub column_mapping: BTreeMap&lt;String, String&gt;,
@@ -3694,6 +3894,7 @@ pub struct ForeignKeyConstraint {
 <h2 id="functioninfo"><a class="header" href="#functioninfo"><code>FunctionInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Function Info&quot;)]
 pub struct FunctionInfo {
     /// The name of the function
     pub name: String,
@@ -3707,6 +3908,7 @@ pub struct FunctionInfo {
 <h2 id="insertfieldschema"><a class="header" href="#insertfieldschema"><code>InsertFieldSchema</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Insert Field Schema&quot;)]
 pub enum InsertFieldSchema {
     ArrayRelation {
         /// The name of the array relationship over which the related rows must be inserted
@@ -3725,6 +3927,7 @@ pub enum InsertFieldSchema {
 <h2 id="mutationcapabilities"><a class="header" href="#mutationcapabilities"><code>MutationCapabilities</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Mutation Capabilities&quot;)]
 pub struct MutationCapabilities {
     /// Whether or not nested inserts to related collections are supported
     pub nested_inserts: Option&lt;serde_json::Value&gt;,
@@ -3733,6 +3936,7 @@ pub struct MutationCapabilities {
 <h2 id="mutationoperation"><a class="header" href="#mutationoperation"><code>MutationOperation</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Mutation Operation&quot;)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
 pub enum MutationOperation {
     Delete {
@@ -3775,6 +3979,7 @@ pub enum MutationOperation {
 <h2 id="mutationoperationresults"><a class="header" href="#mutationoperationresults"><code>MutationOperationResults</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Mutation Operation Results&quot;)]
 pub struct MutationOperationResults {
     /// The number of rows affected by the mutation operation
     pub affected_rows: u32,
@@ -3783,6 +3988,7 @@ pub struct MutationOperationResults {
 }</code></pre>
 <h2 id="mutationrequest"><a class="header" href="#mutationrequest"><code>MutationRequest</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Mutation Request&quot;)]
 pub struct MutationRequest {
     /// The schema by which to interpret row data specified in any insert operations in this request
     pub insert_schema: Vec&lt;CollectionInsertSchema&gt;,
@@ -3793,6 +3999,7 @@ pub struct MutationRequest {
 }</code></pre>
 <h2 id="mutationresponse"><a class="header" href="#mutationresponse"><code>MutationResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Mutation Response&quot;)]
 pub struct MutationResponse {
     /// The results of each mutation operation, in the same order as they were received
     pub operation_results: Vec&lt;MutationOperationResults&gt;,
@@ -3801,11 +4008,10 @@ pub struct MutationResponse {
 <pre><code class="language-rust no_run noplayground">/// The definition of an object field
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Object Field&quot;)]
 pub struct ObjectField {
     /// Description of this field
     pub description: Option&lt;String&gt;,
-    /// Any arguments that this object field accepts
-    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
     /// The type of this field
     #[serde(rename = &quot;type&quot;)]
     pub r#type: Type,
@@ -3814,6 +4020,7 @@ pub struct ObjectField {
 <pre><code class="language-rust no_run noplayground">#[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(title = &quot;Object Relation Insertion Order&quot;)]
 #[serde(rename_all = &quot;snake_case&quot;)]
 pub enum ObjectRelationInsertionOrder {
     BeforeParent,
@@ -3823,6 +4030,7 @@ pub enum ObjectRelationInsertionOrder {
 <pre><code class="language-rust no_run noplayground">/// The definition of an object type
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Object Type&quot;)]
 pub struct ObjectType {
     /// Description of this type
     pub description: Option&lt;String&gt;,
@@ -3831,12 +4039,14 @@ pub struct ObjectType {
 }</code></pre>
 <h2 id="orderby"><a class="header" href="#orderby"><code>OrderBy</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Order By&quot;)]
 pub struct OrderBy {
     /// The elements to order by, in priority order
     pub elements: Vec&lt;OrderByElement&gt;,
 }</code></pre>
 <h2 id="orderbyelement"><a class="header" href="#orderbyelement"><code>OrderByElement</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Order By Element&quot;)]
 pub struct OrderByElement {
     pub order_direction: OrderDirection,
     pub target: OrderByTarget,
@@ -3844,6 +4054,7 @@ pub struct OrderByElement {
 <h2 id="orderbytarget"><a class="header" href="#orderbytarget"><code>OrderByTarget</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Order By Target&quot;)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
 pub enum OrderByTarget {
     Column {
@@ -3869,6 +4080,7 @@ pub enum OrderByTarget {
 <pre><code class="language-rust no_run noplayground">#[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(title = &quot;Order Direction&quot;)]
 #[serde(rename_all = &quot;snake_case&quot;)]
 pub enum OrderDirection {
     Asc,
@@ -3877,6 +4089,7 @@ pub enum OrderDirection {
 <h2 id="pathelement"><a class="header" href="#pathelement"><code>PathElement</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Path Element&quot;)]
 pub struct PathElement {
     /// The name of the relationship to follow
     pub relationship: String,
@@ -3888,6 +4101,7 @@ pub struct PathElement {
 <h2 id="query"><a class="header" href="#query"><code>Query</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Query&quot;)]
 pub struct Query {
     /// Aggregate fields of the query
     pub aggregates: Option&lt;IndexMap&lt;String, Aggregate&gt;&gt;,
@@ -3904,6 +4118,7 @@ pub struct Query {
 <h2 id="querycapabilities"><a class="header" href="#querycapabilities"><code>QueryCapabilities</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Query Capabilities&quot;)]
 pub struct QueryCapabilities {
     /// Does the agent support comparisons that involve related collections (ie. joins)?
     pub relation_comparisons: Option&lt;serde_json::Value&gt;,
@@ -3916,6 +4131,7 @@ pub struct QueryCapabilities {
 <pre><code class="language-rust no_run noplayground">/// This is the request body of the query POST endpoint
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Query Request&quot;)]
 pub struct QueryRequest {
     /// The name of a collection
     pub collection: String,
@@ -3932,11 +4148,13 @@ pub struct QueryRequest {
 <h2 id="queryresponse"><a class="header" href="#queryresponse"><code>QueryResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Query Response&quot;)]
 /// Query responses may return multiple RowSets when using foreach queries
 /// Else, there should always be exactly one RowSet
 pub struct QueryResponse(pub Vec&lt;RowSet&gt;);</code></pre>
 <h2 id="relationship"><a class="header" href="#relationship"><code>Relationship</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Relationship&quot;)]
 pub struct Relationship {
     /// A mapping between columns on the source collection to columns on the target collection
     pub column_mapping: BTreeMap&lt;String, String&gt;,
@@ -3948,10 +4166,30 @@ pub struct Relationship {
     /// Values to be provided to any collection arguments
     pub arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
 }</code></pre>
+<h2 id="relationshipargument"><a class="header" href="#relationshipargument"><code>RelationshipArgument</code></a></h2>
+<pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Relationship Argument&quot;)]
+#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+pub enum RelationshipArgument {
+    /// The argument is provided by reference to a variable
+    Variable {
+        name: String,
+    },
+    /// The argument is provided as a literal value
+    Literal {
+        value: serde_json::Value,
+    },
+    // The argument is provided based on a column of the source collection
+    Column {
+        name: String,
+    },
+}</code></pre>
 <h2 id="relationshiptype"><a class="header" href="#relationshiptype"><code>RelationshipType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(title = &quot;Relationship Type&quot;)]
 #[serde(rename_all = &quot;snake_case&quot;)]
 pub enum RelationshipType {
     Object,
@@ -3959,6 +4197,7 @@ pub enum RelationshipType {
 }</code></pre>
 <h2 id="rowfieldvalue"><a class="header" href="#rowfieldvalue"><code>RowFieldValue</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Row Field Value&quot;)]
 pub struct RowFieldValue(pub serde_json::Value);
 
 impl RowFieldValue {
@@ -3973,6 +4212,7 @@ impl RowFieldValue {
 <h2 id="rowset"><a class="header" href="#rowset"><code>RowSet</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Row Set&quot;)]
 pub struct RowSet {
     /// The results of the aggregates returned by the query
     pub aggregates: Option&lt;IndexMap&lt;String, serde_json::Value&gt;&gt;,
@@ -3982,6 +4222,7 @@ pub struct RowSet {
 <h2 id="rowupdate"><a class="header" href="#rowupdate"><code>RowUpdate</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Row Update&quot;)]
 pub enum RowUpdate {
     CustomOperator {
         /// The name of the column in the row
@@ -4000,6 +4241,7 @@ pub enum RowUpdate {
 <h2 id="scalartype"><a class="header" href="#scalartype"><code>ScalarType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of a scalar type, i.e. types that can be used as the types of columns.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Scalar Type&quot;)]
 pub struct ScalarType {
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap&lt;String, AggregateFunctionDefinition&gt;,
@@ -4009,12 +4251,13 @@ pub struct ScalarType {
     pub update_operators: BTreeMap&lt;String, UpdateOperatorDefinition&gt;,
 }</code></pre>
 <h2 id="schemaresponse"><a class="header" href="#schemaresponse"><code>SchemaResponse</code></a></h2>
-<pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+<pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Schema Response&quot;)]
 pub struct SchemaResponse {
     /// A list of scalar types which will be used as the types of collection columns
     pub scalar_types: BTreeMap&lt;String, ScalarType&gt;,
     /// A list of object types which can be used as the types of arguments, or return types of procedures.
-    /// Names should not overlap with collection names or scalar type names.
+    /// Names should not overlap with scalar type names.
     pub object_types: BTreeMap&lt;String, ObjectType&gt;,
     /// Collections which are available for queries and/or mutations
     pub collections: Vec&lt;CollectionInfo&gt;,
@@ -4026,6 +4269,7 @@ pub struct SchemaResponse {
 <h2 id="collectioninfo"><a class="header" href="#collectioninfo"><code>CollectionInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Collection Info&quot;)]
 pub struct CollectionInfo {
     /// The name of the collection
     ///
@@ -4052,6 +4296,7 @@ pub struct CollectionInfo {
 }</code></pre>
 <h2 id="collectioninsertschema"><a class="header" href="#collectioninsertschema"><code>CollectionInsertSchema</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Collection Insert Schema&quot;)]
 pub struct CollectionInsertSchema {
     /// The fields that will be found in the insert row data for the collection and the schema for each field
     pub fields: BTreeMap&lt;String, InsertFieldSchema&gt;,
@@ -4064,6 +4309,7 @@ pub struct CollectionInsertSchema {
     Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;Type&quot;)]
 pub enum Type {
     /// A named type
     Named {
@@ -4085,12 +4331,14 @@ pub enum Type {
 <pre><code class="language-rust no_run noplayground">#[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(title = &quot;Unary Comparison Operator&quot;)]
 #[serde(rename_all = &quot;snake_case&quot;)]
 pub enum UnaryComparisonOperator {
     IsNull,
 }</code></pre>
 <h2 id="uniquenessconstraint"><a class="header" href="#uniquenessconstraint"><code>UniquenessConstraint</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Uniqueness Constraint&quot;)]
 pub struct UniquenessConstraint {
     /// A list of columns which this constraint requires to be unique
     pub unique_columns: Vec&lt;String&gt;,
@@ -4098,6 +4346,7 @@ pub struct UniquenessConstraint {
 <h2 id="updateoperatordefinition"><a class="header" href="#updateoperatordefinition"><code>UpdateOperatorDefinition</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an update operator on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Update Operator Definition&quot;)]
 pub struct UpdateOperatorDefinition {
     /// The type of the argument to this operator
     pub argument_type: Type,
@@ -4106,7 +4355,7 @@ pub struct UpdateOperatorDefinition {
 <h2 id="capabilitiesresponse-1"><a class="header" href="#capabilitiesresponse-1"><code>CapabilitiesResponse</code></a></h2>
 <pre><code class="language-json">{
   &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
-  &quot;title&quot;: &quot;CapabilitiesResponse&quot;,
+  &quot;title&quot;: &quot;Capabilities Response&quot;,
   &quot;type&quot;: &quot;object&quot;,
   &quot;required&quot;: [
     &quot;capabilities&quot;,
@@ -4122,6 +4371,7 @@ pub struct UpdateOperatorDefinition {
   },
   &quot;definitions&quot;: {
     &quot;Capabilities&quot;: {
+      &quot;title&quot;: &quot;Capabilities&quot;,
       &quot;description&quot;: &quot;Describes the features of the specification which a data connector implements.&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {
@@ -4150,6 +4400,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;MutationCapabilities&quot;: {
+      &quot;title&quot;: &quot;Mutation Capabilities&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {
         &quot;nested_inserts&quot;: {
@@ -4159,6 +4410,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;QueryCapabilities&quot;: {
+      &quot;title&quot;: &quot;Query Capabilities&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {
         &quot;foreach&quot;: {
@@ -4175,10 +4427,30 @@ pub struct UpdateOperatorDefinition {
   }
 }
 </code></pre>
+<h2 id="errorresponse-1"><a class="header" href="#errorresponse-1"><code>ErrorResponse</code></a></h2>
+<pre><code class="language-json">{
+  &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
+  &quot;title&quot;: &quot;Error Response&quot;,
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;required&quot;: [
+    &quot;details&quot;,
+    &quot;message&quot;
+  ],
+  &quot;properties&quot;: {
+    &quot;details&quot;: {
+      &quot;description&quot;: &quot;Any additional structured information about the error&quot;
+    },
+    &quot;message&quot;: {
+      &quot;description&quot;: &quot;A human-readable summary of the error&quot;,
+      &quot;type&quot;: &quot;string&quot;
+    }
+  }
+}
+</code></pre>
 <h2 id="explainresponse-1"><a class="header" href="#explainresponse-1"><code>ExplainResponse</code></a></h2>
 <pre><code class="language-json">{
   &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
-  &quot;title&quot;: &quot;ExplainResponse&quot;,
+  &quot;title&quot;: &quot;Explain Response&quot;,
   &quot;type&quot;: &quot;object&quot;,
   &quot;required&quot;: [
     &quot;details&quot;
@@ -4197,7 +4469,7 @@ pub struct UpdateOperatorDefinition {
 <h2 id="mutationrequest-1"><a class="header" href="#mutationrequest-1"><code>MutationRequest</code></a></h2>
 <pre><code class="language-json">{
   &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
-  &quot;title&quot;: &quot;MutationRequest&quot;,
+  &quot;title&quot;: &quot;Mutation Request&quot;,
   &quot;type&quot;: &quot;object&quot;,
   &quot;required&quot;: [
     &quot;collection_relationships&quot;,
@@ -4229,6 +4501,7 @@ pub struct UpdateOperatorDefinition {
   },
   &quot;definitions&quot;: {
     &quot;Aggregate&quot;: {
+      &quot;title&quot;: &quot;Aggregate&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -4295,12 +4568,14 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;BinaryArrayComparisonOperator&quot;: {
+      &quot;title&quot;: &quot;Binary Array Comparison Operator&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;in&quot;
       ]
     },
     &quot;BinaryComparisonOperator&quot;: {
+      &quot;title&quot;: &quot;Binary Comparison Operator&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -4337,6 +4612,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;CollectionInsertSchema&quot;: {
+      &quot;title&quot;: &quot;Collection Insert Schema&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;collection&quot;,
@@ -4357,6 +4633,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;ComparisonTarget&quot;: {
+      &quot;title&quot;: &quot;Comparison Target&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -4407,6 +4684,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;ComparisonValue&quot;: {
+      &quot;title&quot;: &quot;Comparison Value&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -4463,6 +4741,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;ExistsInCollection&quot;: {
+      &quot;title&quot;: &quot;Exists In Collection&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -4520,6 +4799,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;Expression&quot;: {
+      &quot;title&quot;: &quot;Expression&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -4683,6 +4963,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;Field&quot;: {
+      &quot;title&quot;: &quot;Field&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -4736,6 +5017,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;InsertFieldSchema&quot;: {
+      &quot;title&quot;: &quot;Insert Field Schema&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -4801,6 +5083,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;MutationOperation&quot;: {
+      &quot;title&quot;: &quot;Mutation Operation&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -4984,6 +5267,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;ObjectRelationInsertionOrder&quot;: {
+      &quot;title&quot;: &quot;Object Relation Insertion Order&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;before_parent&quot;,
@@ -4991,6 +5275,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;OrderBy&quot;: {
+      &quot;title&quot;: &quot;Order By&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;elements&quot;
@@ -5006,6 +5291,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;OrderByElement&quot;: {
+      &quot;title&quot;: &quot;Order By Element&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;order_direction&quot;,
@@ -5021,6 +5307,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;OrderByTarget&quot;: {
+      &quot;title&quot;: &quot;Order By Target&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -5106,6 +5393,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;OrderDirection&quot;: {
+      &quot;title&quot;: &quot;Order Direction&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;asc&quot;,
@@ -5113,6 +5401,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;PathElement&quot;: {
+      &quot;title&quot;: &quot;Path Element&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
@@ -5142,6 +5431,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;Query&quot;: {
+      &quot;title&quot;: &quot;Query&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {
         &quot;aggregates&quot;: {
@@ -5205,6 +5495,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;Relationship&quot;: {
+      &quot;title&quot;: &quot;Relationship&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
@@ -5242,6 +5533,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;RelationshipArgument&quot;: {
+      &quot;title&quot;: &quot;Relationship Argument&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;description&quot;: &quot;The argument is provided by reference to a variable&quot;,
@@ -5300,6 +5592,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;RelationshipType&quot;: {
+      &quot;title&quot;: &quot;Relationship Type&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;object&quot;,
@@ -5307,6 +5600,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;RowUpdate&quot;: {
+      &quot;title&quot;: &quot;Row Update&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -5361,6 +5655,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;UnaryComparisonOperator&quot;: {
+      &quot;title&quot;: &quot;Unary Comparison Operator&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;is_null&quot;
@@ -5372,7 +5667,7 @@ pub struct UpdateOperatorDefinition {
 <h2 id="mutationresponse-1"><a class="header" href="#mutationresponse-1"><code>MutationResponse</code></a></h2>
 <pre><code class="language-json">{
   &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
-  &quot;title&quot;: &quot;MutationResponse&quot;,
+  &quot;title&quot;: &quot;Mutation Response&quot;,
   &quot;type&quot;: &quot;object&quot;,
   &quot;required&quot;: [
     &quot;operation_results&quot;
@@ -5388,6 +5683,7 @@ pub struct UpdateOperatorDefinition {
   },
   &quot;definitions&quot;: {
     &quot;MutationOperationResults&quot;: {
+      &quot;title&quot;: &quot;Mutation Operation Results&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;affected_rows&quot;
@@ -5414,14 +5710,16 @@ pub struct UpdateOperatorDefinition {
         }
       }
     },
-    &quot;RowFieldValue&quot;: true
+    &quot;RowFieldValue&quot;: {
+      &quot;title&quot;: &quot;Row Field Value&quot;
+    }
   }
 }
 </code></pre>
 <h2 id="queryrequest-1"><a class="header" href="#queryrequest-1"><code>QueryRequest</code></a></h2>
 <pre><code class="language-json">{
   &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
-  &quot;title&quot;: &quot;QueryRequest&quot;,
+  &quot;title&quot;: &quot;Query Request&quot;,
   &quot;description&quot;: &quot;This is the request body of the query POST endpoint&quot;,
   &quot;type&quot;: &quot;object&quot;,
   &quot;required&quot;: [
@@ -5471,6 +5769,7 @@ pub struct UpdateOperatorDefinition {
   },
   &quot;definitions&quot;: {
     &quot;Aggregate&quot;: {
+      &quot;title&quot;: &quot;Aggregate&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -5537,6 +5836,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;Argument&quot;: {
+      &quot;title&quot;: &quot;Argument&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;description&quot;: &quot;The argument is provided by reference to a variable&quot;,
@@ -5577,12 +5877,14 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;BinaryArrayComparisonOperator&quot;: {
+      &quot;title&quot;: &quot;Binary Array Comparison Operator&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;in&quot;
       ]
     },
     &quot;BinaryComparisonOperator&quot;: {
+      &quot;title&quot;: &quot;Binary Comparison Operator&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -5619,6 +5921,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;ComparisonTarget&quot;: {
+      &quot;title&quot;: &quot;Comparison Target&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -5669,6 +5972,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;ComparisonValue&quot;: {
+      &quot;title&quot;: &quot;Comparison Value&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -5725,6 +6029,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;ExistsInCollection&quot;: {
+      &quot;title&quot;: &quot;Exists In Collection&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -5782,6 +6087,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;Expression&quot;: {
+      &quot;title&quot;: &quot;Expression&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -5945,6 +6251,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;Field&quot;: {
+      &quot;title&quot;: &quot;Field&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -5998,6 +6305,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;OrderBy&quot;: {
+      &quot;title&quot;: &quot;Order By&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;elements&quot;
@@ -6013,6 +6321,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;OrderByElement&quot;: {
+      &quot;title&quot;: &quot;Order By Element&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;order_direction&quot;,
@@ -6028,6 +6337,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;OrderByTarget&quot;: {
+      &quot;title&quot;: &quot;Order By Target&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -6113,6 +6423,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;OrderDirection&quot;: {
+      &quot;title&quot;: &quot;Order Direction&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;asc&quot;,
@@ -6120,6 +6431,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;PathElement&quot;: {
+      &quot;title&quot;: &quot;Path Element&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
@@ -6149,6 +6461,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;Query&quot;: {
+      &quot;title&quot;: &quot;Query&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {
         &quot;aggregates&quot;: {
@@ -6212,6 +6525,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;Relationship&quot;: {
+      &quot;title&quot;: &quot;Relationship&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
@@ -6249,6 +6563,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;RelationshipArgument&quot;: {
+      &quot;title&quot;: &quot;Relationship Argument&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;description&quot;: &quot;The argument is provided by reference to a variable&quot;,
@@ -6307,6 +6622,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;RelationshipType&quot;: {
+      &quot;title&quot;: &quot;Relationship Type&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;object&quot;,
@@ -6314,6 +6630,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;UnaryComparisonOperator&quot;: {
+      &quot;title&quot;: &quot;Unary Comparison Operator&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;is_null&quot;
@@ -6325,15 +6642,18 @@ pub struct UpdateOperatorDefinition {
 <h2 id="queryresponse-1"><a class="header" href="#queryresponse-1"><code>QueryResponse</code></a></h2>
 <pre><code class="language-json">{
   &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
-  &quot;title&quot;: &quot;QueryResponse&quot;,
+  &quot;title&quot;: &quot;Query Response&quot;,
   &quot;description&quot;: &quot;Query responses may return multiple RowSets when using foreach queries Else, there should always be exactly one RowSet&quot;,
   &quot;type&quot;: &quot;array&quot;,
   &quot;items&quot;: {
     &quot;$ref&quot;: &quot;#/definitions/RowSet&quot;
   },
   &quot;definitions&quot;: {
-    &quot;RowFieldValue&quot;: true,
+    &quot;RowFieldValue&quot;: {
+      &quot;title&quot;: &quot;Row Field Value&quot;
+    },
     &quot;RowSet&quot;: {
+      &quot;title&quot;: &quot;Row Set&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {
         &quot;aggregates&quot;: {
@@ -6365,7 +6685,7 @@ pub struct UpdateOperatorDefinition {
 <h2 id="queryrequest-2"><a class="header" href="#queryrequest-2"><code>QueryRequest</code></a></h2>
 <pre><code class="language-json">{
   &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
-  &quot;title&quot;: &quot;QueryRequest&quot;,
+  &quot;title&quot;: &quot;Query Request&quot;,
   &quot;description&quot;: &quot;This is the request body of the query POST endpoint&quot;,
   &quot;type&quot;: &quot;object&quot;,
   &quot;required&quot;: [
@@ -6415,6 +6735,7 @@ pub struct UpdateOperatorDefinition {
   },
   &quot;definitions&quot;: {
     &quot;Aggregate&quot;: {
+      &quot;title&quot;: &quot;Aggregate&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -6481,6 +6802,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;Argument&quot;: {
+      &quot;title&quot;: &quot;Argument&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;description&quot;: &quot;The argument is provided by reference to a variable&quot;,
@@ -6521,12 +6843,14 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;BinaryArrayComparisonOperator&quot;: {
+      &quot;title&quot;: &quot;Binary Array Comparison Operator&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;in&quot;
       ]
     },
     &quot;BinaryComparisonOperator&quot;: {
+      &quot;title&quot;: &quot;Binary Comparison Operator&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -6563,6 +6887,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;ComparisonTarget&quot;: {
+      &quot;title&quot;: &quot;Comparison Target&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -6613,6 +6938,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;ComparisonValue&quot;: {
+      &quot;title&quot;: &quot;Comparison Value&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -6669,6 +6995,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;ExistsInCollection&quot;: {
+      &quot;title&quot;: &quot;Exists In Collection&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -6726,6 +7053,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;Expression&quot;: {
+      &quot;title&quot;: &quot;Expression&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -6889,6 +7217,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;Field&quot;: {
+      &quot;title&quot;: &quot;Field&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -6942,6 +7271,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;OrderBy&quot;: {
+      &quot;title&quot;: &quot;Order By&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;elements&quot;
@@ -6957,6 +7287,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;OrderByElement&quot;: {
+      &quot;title&quot;: &quot;Order By Element&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;order_direction&quot;,
@@ -6972,6 +7303,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;OrderByTarget&quot;: {
+      &quot;title&quot;: &quot;Order By Target&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;type&quot;: &quot;object&quot;,
@@ -7057,6 +7389,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;OrderDirection&quot;: {
+      &quot;title&quot;: &quot;Order Direction&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;asc&quot;,
@@ -7064,6 +7397,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;PathElement&quot;: {
+      &quot;title&quot;: &quot;Path Element&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
@@ -7093,6 +7427,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;Query&quot;: {
+      &quot;title&quot;: &quot;Query&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {
         &quot;aggregates&quot;: {
@@ -7156,6 +7491,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;Relationship&quot;: {
+      &quot;title&quot;: &quot;Relationship&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
@@ -7193,6 +7529,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;RelationshipArgument&quot;: {
+      &quot;title&quot;: &quot;Relationship Argument&quot;,
       &quot;oneOf&quot;: [
         {
           &quot;description&quot;: &quot;The argument is provided by reference to a variable&quot;,
@@ -7251,6 +7588,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;RelationshipType&quot;: {
+      &quot;title&quot;: &quot;Relationship Type&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;object&quot;,
@@ -7258,6 +7596,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;UnaryComparisonOperator&quot;: {
+      &quot;title&quot;: &quot;Unary Comparison Operator&quot;,
       &quot;type&quot;: &quot;string&quot;,
       &quot;enum&quot;: [
         &quot;is_null&quot;
@@ -7269,7 +7608,7 @@ pub struct UpdateOperatorDefinition {
 <h2 id="schemaresponse-1"><a class="header" href="#schemaresponse-1"><code>SchemaResponse</code></a></h2>
 <pre><code class="language-json">{
   &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;,
-  &quot;title&quot;: &quot;SchemaResponse&quot;,
+  &quot;title&quot;: &quot;Schema Response&quot;,
   &quot;type&quot;: &quot;object&quot;,
   &quot;required&quot;: [
     &quot;collections&quot;,
@@ -7294,7 +7633,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;object_types&quot;: {
-      &quot;description&quot;: &quot;A list of object types which can be used as the types of arguments, or return types of procedures. Names should not overlap with collection names or scalar type names.&quot;,
+      &quot;description&quot;: &quot;A list of object types which can be used as the types of arguments, or return types of procedures. Names should not overlap with scalar type names.&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;additionalProperties&quot;: {
         &quot;$ref&quot;: &quot;#/definitions/ObjectType&quot;
@@ -7317,6 +7656,7 @@ pub struct UpdateOperatorDefinition {
   },
   &quot;definitions&quot;: {
     &quot;AggregateFunctionDefinition&quot;: {
+      &quot;title&quot;: &quot;Aggregate Function Definition&quot;,
       &quot;description&quot;: &quot;The definition of an aggregation function on a scalar type&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
@@ -7334,6 +7674,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;ArgumentInfo&quot;: {
+      &quot;title&quot;: &quot;Argument Info&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;type&quot;
@@ -7357,6 +7698,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;CollectionInfo&quot;: {
+      &quot;title&quot;: &quot;Collection Info&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
@@ -7430,6 +7772,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;ComparisonOperatorDefinition&quot;: {
+      &quot;title&quot;: &quot;Comparison Operator Definition&quot;,
       &quot;description&quot;: &quot;The definition of a comparison operator on a scalar type&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
@@ -7447,6 +7790,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;ForeignKeyConstraint&quot;: {
+      &quot;title&quot;: &quot;Foreign Key Constraint&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;column_mapping&quot;,
@@ -7467,6 +7811,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;FunctionInfo&quot;: {
+      &quot;title&quot;: &quot;Function Info&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
@@ -7503,20 +7848,13 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;ObjectField&quot;: {
+      &quot;title&quot;: &quot;Object Field&quot;,
       &quot;description&quot;: &quot;The definition of an object field&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
-        &quot;arguments&quot;,
         &quot;type&quot;
       ],
       &quot;properties&quot;: {
-        &quot;arguments&quot;: {
-          &quot;description&quot;: &quot;Any arguments that this object field accepts&quot;,
-          &quot;type&quot;: &quot;object&quot;,
-          &quot;additionalProperties&quot;: {
-            &quot;$ref&quot;: &quot;#/definitions/ArgumentInfo&quot;
-          }
-        },
         &quot;description&quot;: {
           &quot;description&quot;: &quot;Description of this field&quot;,
           &quot;type&quot;: [
@@ -7535,6 +7873,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;ObjectType&quot;: {
+      &quot;title&quot;: &quot;Object Type&quot;,
       &quot;description&quot;: &quot;The definition of an object type&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
@@ -7558,6 +7897,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;ProcedureInfo&quot;: {
+      &quot;title&quot;: &quot;Procedure Info&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
@@ -7594,6 +7934,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;ScalarType&quot;: {
+      &quot;title&quot;: &quot;Scalar Type&quot;,
       &quot;description&quot;: &quot;The definition of a scalar type, i.e. types that can be used as the types of columns.&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
@@ -7626,6 +7967,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;Type&quot;: {
+      &quot;title&quot;: &quot;Type&quot;,
       &quot;description&quot;: &quot;Types track the valid representations of values as JSON&quot;,
       &quot;oneOf&quot;: [
         {
@@ -7699,6 +8041,7 @@ pub struct UpdateOperatorDefinition {
       ]
     },
     &quot;UniquenessConstraint&quot;: {
+      &quot;title&quot;: &quot;Uniqueness Constraint&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;unique_columns&quot;
@@ -7714,6 +8057,7 @@ pub struct UpdateOperatorDefinition {
       }
     },
     &quot;UpdateOperatorDefinition&quot;: {
+      &quot;title&quot;: &quot;Update Operator Definition&quot;,
       &quot;description&quot;: &quot;The definition of an update operator on a scalar type&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [

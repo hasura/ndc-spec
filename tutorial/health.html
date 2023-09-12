@@ -158,12 +158,15 @@
 <li><code>metrics.active_requests</code> counts the number of requests <em>currently</em> being served.</li>
 </ul>
 <p>The <a href="../specification/metrics.html">metrics endpoint</a> reports these metrics using the Rust <a href="https://docs.rs/prometheus/latest/prometheus/">prometheus</a> crate:</p>
-<pre><code class="language-rust no_run noplayground">async fn get_metrics(State(state): State&lt;Arc&lt;Mutex&lt;AppState&gt;&gt;&gt;) -&gt; Result&lt;String, StatusLine&gt; {
+<pre><code class="language-rust no_run noplayground">async fn get_metrics(State(state): State&lt;Arc&lt;Mutex&lt;AppState&gt;&gt;&gt;) -&gt; Result&lt;String&gt; {
     let state = state.lock().await;
-    state
-        .metrics
-        .as_text()
-        .ok_or((StatusCode::INTERNAL_SERVER_ERROR, &quot;cannot encode metrics&quot;))
+    state.metrics.as_text().ok_or((
+        StatusCode::INTERNAL_SERVER_ERROR,
+        Json(models::ErrorResponse {
+            message: &quot;cannot encode metrics&quot;.into(),
+            details: serde_json::Value::Null,
+        }),
+    ))
 }</code></pre>
 <p>To maintain these metrics, it uses a simple metrics middleware:</p>
 <pre><code class="language-rust no_run noplayground">async fn metrics_middleware&lt;T&gt;(

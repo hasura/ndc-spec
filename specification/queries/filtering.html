@@ -175,35 +175,73 @@
 <p><code>equals</code> tests if a column value is equal to a scalar value, another column value, or a variable.</p>
 <p>See type <a href="../../reference/types.html#comparisonvalue"><code>ComparisonValue</code></a> for the valid inhabitants of the <code>value</code> field.</p>
 <pre><code class="language-json">{
-    &quot;type&quot;: &quot;binary_comparison_operator&quot;,
-    &quot;operator&quot;: {
-        &quot;type&quot;: &quot;equal&quot;
+    &quot;collection&quot;: &quot;articles&quot;,
+    &quot;arguments&quot;: {},
+    &quot;query&quot;: {
+        &quot;fields&quot;: {
+            &quot;id&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;id&quot;
+            },
+            &quot;title&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;title&quot;
+            }
+        },
+        &quot;where&quot;: {
+            &quot;type&quot;: &quot;binary_comparison_operator&quot;,
+            &quot;column&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;name&quot;: &quot;id&quot;,
+                &quot;path&quot;: []
+            },
+            &quot;operator&quot;: {
+                &quot;type&quot;: &quot;equal&quot;
+            },
+            &quot;value&quot;: {
+                &quot;type&quot;: &quot;scalar&quot;,
+                &quot;value&quot;: 1
+            }
+        }
     },
-    &quot;column&quot;: {
-        &quot;name&quot;: &quot;title&quot;
-    },
-    &quot;value&quot;: {
-        &quot;type&quot;: &quot;scalar&quot;,
-        &quot;value&quot;: &quot;The Next 700 Programming Languages&quot;
-    }
+    &quot;collection_relationships&quot;: {}
 }
 </code></pre>
 <h3 id="custom-binary-comparison-operators"><a class="header" href="#custom-binary-comparison-operators">Custom Binary Comparison Operators</a></h3>
 <p>Data connectors can also extend the expression grammar by defining comparison operators on each <a href="../schema/scalar-types.html">scalar type</a> in the schema response.</p>
 <p>For example, here is an expression which uses a custom <code>like</code> operator provided on the <code>String</code> type in the reference implementation:</p>
 <pre><code class="language-json">{
-    &quot;type&quot;: &quot;binary_comparison_operator&quot;,
-    &quot;operator&quot;: {
-        &quot;type&quot;: &quot;other&quot;,
-        &quot;name&quot;: &quot;like&quot;
+    &quot;collection&quot;: &quot;articles&quot;,
+    &quot;arguments&quot;: {},
+    &quot;query&quot;: {
+        &quot;fields&quot;: {
+            &quot;id&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;id&quot;
+            },
+            &quot;title&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;title&quot;
+            }
+        },
+        &quot;where&quot;: {
+            &quot;type&quot;: &quot;binary_comparison_operator&quot;,
+            &quot;column&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;name&quot;: &quot;title&quot;,
+                &quot;path&quot;: []
+            },
+            &quot;operator&quot;: {
+                &quot;type&quot;: &quot;other&quot;,
+                &quot;name&quot;: &quot;like&quot;
+            },
+            &quot;value&quot;: {
+                &quot;type&quot;: &quot;scalar&quot;,
+                &quot;value&quot;: &quot;Functional&quot;
+            }
+        }
     },
-    &quot;column&quot;: {
-        &quot;name&quot;: &quot;title&quot;
-    },
-    &quot;value&quot;: {
-        &quot;type&quot;: &quot;scalar&quot;,
-        &quot;value&quot;: &quot;^.*Functional Programming.*$&quot;
-    }
+    &quot;collection_relationships&quot;: {}
 }
 </code></pre>
 <h3 id="binary-array-valued-comparison-operators"><a class="header" href="#binary-array-valued-comparison-operators">Binary Array-Valued Comparison Operators</a></h3>
@@ -211,22 +249,42 @@
 <h4 id="in"><a class="header" href="#in"><code>in</code></a></h4>
 <p><code>in</code> tests if a column value is a member of an array of values, each of which can be a scalar value, another column value, or a variable.</p>
 <p>See type <a href="../../reference/types.html#comparisonvalue"><code>ComparisonValue</code></a> for the valid inhabitants of the <code>value</code> field.</p>
+<p><em>Note</em>: in general, <code>PathElement</code>s in a <code>ComparisonValue</code> can refer to <em>array</em> relationships. However, in the case of the <code>in</code> operator, such requests can be very difficult to implement, and for practical purposes, it is not very useful to express such queries. Therefore, in the case of the <code>in</code> operator, connectors can expect <code>PathElements</code> in <code>ComparisonValue</code>s to always only refer to <em>object</em> relationships, and fail with a <code>Bad Request</code> error otherwise.</p>
 <pre><code class="language-json">{
-    &quot;type&quot;: &quot;binary_array_comparison_operator&quot;,
-    &quot;operator&quot;: &quot;in&quot;,
-    &quot;column&quot;: {
-        &quot;name&quot;: &quot;id&quot;
-    },
-    &quot;values&quot;: [
-        {
-            &quot;type&quot;: &quot;scalar&quot;,
-            &quot;value&quot;: &quot;1&quot;
+    &quot;collection&quot;: &quot;articles&quot;,
+    &quot;arguments&quot;: {},
+    &quot;query&quot;: {
+        &quot;fields&quot;: {
+            &quot;id&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;id&quot;
+            },
+            &quot;title&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;column&quot;: &quot;title&quot;
+            }
         },
-        {
-            &quot;type&quot;: &quot;scalar&quot;,
-            &quot;value&quot;: &quot;2&quot;
+        &quot;where&quot;: {
+            &quot;type&quot;: &quot;binary_array_comparison_operator&quot;,
+            &quot;column&quot;: {
+                &quot;type&quot;: &quot;column&quot;,
+                &quot;name&quot;: &quot;author_id&quot;,
+                &quot;path&quot;: []
+            },
+            &quot;operator&quot;: &quot;in&quot;,
+            &quot;values&quot;: [
+                {
+                    &quot;type&quot;: &quot;scalar&quot;,
+                    &quot;value&quot;: 1
+                },
+                {
+                    &quot;type&quot;: &quot;scalar&quot;,
+                    &quot;value&quot;: 2
+                }
+            ]
         }
-    ]
+    },
+    &quot;collection_relationships&quot;: {}
 }
 </code></pre>
 <h3 id="columns-in-operators"><a class="header" href="#columns-in-operators">Columns in Operators</a></h3>

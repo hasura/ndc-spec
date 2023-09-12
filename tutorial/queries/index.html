@@ -150,7 +150,7 @@
 <pre><code class="language-rust no_run noplayground">pub async fn post_query(
     State(state): State&lt;Arc&lt;Mutex&lt;AppState&gt;&gt;&gt;,
     Json(request): Json&lt;models::QueryRequest&gt;,
-) -&gt; Result&lt;Json&lt;models::QueryResponse&gt;, StatusLine&gt; {</code></pre>
+) -&gt; Result&lt;Json&lt;models::QueryResponse&gt;&gt; {</code></pre>
 <p>This function accepts a <a href="../../reference/types.html#queryrequest"><code>QueryRequest</code></a> and must produce a <a href="../../reference/types.html#queryresponse"><code>QueryResponse</code></a>.</p>
 <p>In the next section, we will start to break down this problem step-by-step.</p>
 

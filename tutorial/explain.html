@@ -149,8 +149,14 @@
 <p>The <code>explain</code> capability is turned off in the <a href="./capabilities.html">capabilities endpoint</a>, and the <code>/explain</code> endpoint throws an error:</p>
 <pre><code class="language-rust no_run noplayground">async fn post_explain(
     Json(_request): Json&lt;models::QueryRequest&gt;,
-) -&gt; Result&lt;Json&lt;models::ExplainResponse&gt;, StatusLine&gt; {
-    Err((StatusCode::NOT_IMPLEMENTED, &quot;explain is not supported&quot;))
+) -&gt; Result&lt;Json&lt;models::ExplainResponse&gt;&gt; {
+    Err((
+        StatusCode::NOT_IMPLEMENTED,
+        Json(models::ErrorResponse {
+            message: &quot;explain is not supported&quot;.into(),
+            details: serde_json::Value::Null,
+        }),
+    ))
 }</code></pre>
 
                     </main>

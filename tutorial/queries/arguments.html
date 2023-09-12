@@ -149,25 +149,34 @@
 <p>From there, we will be able to apply predicates, sort and paginate rows. But one step at a time!</p>
 <p>The first step is to evaluate each argument, which the <code>execute_query_with_variables</code> function does by delegating to the <code>eval_argument</code> function:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query_with_variables(
-    collection: &amp;String,
+    collection: &amp;str,
     arguments: &amp;BTreeMap&lt;String, models::Argument&gt;,
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
     query: &amp;models::Query,
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
-) -&gt; Result&lt;models::RowSet, StatusLine&gt; {
+) -&gt; Result&lt;models::RowSet&gt; {
     let mut argument_values = BTreeMap::new();
 
     for (argument_name, argument_value) in arguments.iter() {
-        if let Some(_) = argument_values.insert(
-            argument_name.clone(),
-            eval_argument(variables, argument_value)?,
-        ) {
-            return Err((StatusCode::BAD_REQUEST, &quot;duplicate argument names&quot;));
+        if argument_values
+            .insert(
+                argument_name.clone(),
+                eval_argument(variables, argument_value)?,
+            )
+            .is_some()
+        {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: &quot;duplicate argument names&quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
+            ));
         }
     }
 
-    let collection = get_collection_by_name(collection.as_str(), &amp;argument_values, state)?;
+    let collection = get_collection_by_name(collection, &amp;argument_values, state)?;
 
     execute_query(
         collection_relationships,
@@ -183,27 +192,42 @@
     collection_name: &amp;str,
     arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
-) -&gt; Result&lt;Vec&lt;Row&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
     match collection_name {
         &quot;articles&quot; =&gt; Ok(state.articles.values().cloned().collect()),
         &quot;authors&quot; =&gt; Ok(state.authors.values().cloned().collect()),
         &quot;articles_by_author&quot; =&gt; {
-            let author_id = arguments
-                .get(&quot;author_id&quot;)
-                .ok_or((StatusCode::BAD_REQUEST, &quot;missing argument author_id&quot;))?;
-            let author_id_int = author_id
-                .as_i64()
-                .ok_or((StatusCode::BAD_REQUEST, &quot;author_id must be a string&quot;))?;
+            let author_id = arguments.get(&quot;author_id&quot;).ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: &quot;missing argument author_id&quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
+            let author_id_int = author_id.as_i64().ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: &quot;author_id must be a string&quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
 
             let mut articles_by_author = vec![];
 
             for (_id, article) in state.articles.iter() {
-                let article_author_id = article
-                    .get(&quot;author_id&quot;)
-                    .ok_or((StatusCode::INTERNAL_SERVER_ERROR, &quot;author_id not found&quot;))?;
+                let article_author_id = article.get(&quot;author_id&quot;).ok_or((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: &quot;author_id not found&quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
                 let article_author_id_int = article_author_id.as_i64().ok_or((
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    &quot;author_id must be a string&quot;,
+                    Json(models::ErrorResponse {
+                        message: &quot; &quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
                 ))?;
                 if article_author_id_int == author_id_int {
                     articles_by_author.push(article.clone())
@@ -221,7 +245,10 @@
             let latest_id_value = serde_json::to_value(latest_id).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    &quot;cannot encode article id&quot;,
+                    Json(models::ErrorResponse {
+                        message: &quot; &quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
                 )
             })?;
             Ok(vec![BTreeMap::from_iter([(
@@ -229,7 +256,13 @@
                 latest_id_value,
             )])])
         }
-        _ =&gt; Err((StatusCode::BAD_REQUEST, &quot;invalid collection name&quot;)),
+        _ =&gt; Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: &quot;invalid collection name&quot;.into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
     }
 }</code></pre>
 <p><em>Note 1</em>: the <code>articles_by_author</code> collection is the only example here which has to apply any arguments. It is provided as an example of a collection which accepts an <code>author_id</code> argument, and it must validate that the argument is present, and that it is an integer.</p>
@@ -243,7 +276,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     query: &amp;models::Query,
     root: Root,
     collection: Vec&lt;Row&gt;,
-) -&gt; Result&lt;models::RowSet, StatusLine&gt; {</code></pre>
+) -&gt; Result&lt;models::RowSet&gt; {</code></pre>
 <p>In the next section, we will break down the implementation of <code>execute_query</code>.</p>
 
                     </main>

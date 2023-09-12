@@ -153,7 +153,7 @@
     query: &amp;models::Query,
     root: Root,
     collection: Vec&lt;Row&gt;,
-) -&gt; Result&lt;models::RowSet, StatusLine&gt; {</code></pre>
+) -&gt; Result&lt;models::RowSet&gt; {</code></pre>
 <p>At this point, we have already computed the full collection, which is passed via the <code>collection</code> argument. Now, we need to evaluate the <a href="../../../reference/types.html#query"><code>Query</code></a> in the context of this collection.</p>
 <p>The <code>Query</code> describes the predicate whcih should be applied to all rows, the sort order, pagination options, along with any aggregates to compute and fields to return.</p>
 <p>The first step is to sort the collection. </p>

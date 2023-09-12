@@ -150,7 +150,7 @@
 <pre><code class="language-rust no_run noplayground">pub async fn post_query(
     State(state): State&lt;Arc&lt;Mutex&lt;AppState&gt;&gt;&gt;,
     Json(request): Json&lt;models::QueryRequest&gt;,
-) -&gt; Result&lt;Json&lt;models::QueryResponse&gt;, StatusLine&gt; {
+) -&gt; Result&lt;Json&lt;models::QueryResponse&gt;&gt; {
     let state = state.lock().await;
 
     let variable_sets = request.variables.unwrap_or(vec![BTreeMap::new()]);
@@ -173,13 +173,13 @@
 }</code></pre>
 <p>In order to compute the <code>RowSet</code> for a given set of variables, the function delegates to a function named <code>execute_query_with_variables</code>:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query_with_variables(
-    collection: &amp;String,
+    collection: &amp;str,
     arguments: &amp;BTreeMap&lt;String, models::Argument&gt;,
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
     query: &amp;models::Query,
     variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     state: &amp;AppState,
-) -&gt; Result&lt;models::RowSet, StatusLine&gt; {</code></pre>
+) -&gt; Result&lt;models::RowSet&gt; {</code></pre>
 <p>In the next section, we will break down the implementation of this function.</p>
 
                     </main>

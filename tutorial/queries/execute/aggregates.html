@@ -170,17 +170,22 @@
 <pre><code class="language-rust no_run noplayground">fn eval_aggregate(
     aggregate: &amp;models::Aggregate,
     paginated: &amp;Vec&lt;BTreeMap&lt;String, serde_json::Value&gt;&gt;,
-) -&gt; Result&lt;serde_json::Value, StatusLine&gt; {
+) -&gt; Result&lt;serde_json::Value&gt; {
     match aggregate {
         models::Aggregate::StarCount {} =&gt; Ok(serde_json::Value::from(paginated.len())),
         models::Aggregate::ColumnCount { column, distinct } =&gt; {
             let values = paginated
                 .iter()
                 .map(|row| {
-                    row.get(column)
-                        .ok_or((StatusCode::BAD_REQUEST, &quot;invalid column name&quot;))
+                    row.get(column).ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: &quot;invalid column name&quot;.into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))
                 })
-                .collect::&lt;Result&lt;Vec&lt;_&gt;, StatusLine&gt;&gt;()?;
+                .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
 
             let non_null_values = values.iter().filter(|value| !value.is_null());
 
@@ -188,10 +193,16 @@
                 non_null_values
                     .map(|value| {
                         serde_json::to_string(value).map_err(|_| {
-                            (StatusCode::INTERNAL_SERVER_ERROR, &quot;unable to encode value&quot;)
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Json(models::ErrorResponse {
+                                    message: &quot;unable to encode value&quot;.into(),
+                                    details: serde_json::Value::Null,
+                                }),
+                            )
                         })
                     })
-                    .collect::&lt;HashSet&lt;_&gt;&gt;()
+                    .collect::&lt;Result&lt;HashSet&lt;_&gt;&gt;&gt;()?
                     .len()
             } else {
                 non_null_values.count()
@@ -199,7 +210,10 @@
             serde_json::to_value(agg_value).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    &quot;unable to encode response&quot;,
+                    Json(models::ErrorResponse {
+                        message: &quot; &quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
                 )
             })
         }
@@ -207,36 +221,54 @@
             let values = paginated
                 .iter()
                 .map(|row| {
-                    row.get(column)
-                        .ok_or((StatusCode::BAD_REQUEST, &quot;invalid column name&quot;))
+                    row.get(column).ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: &quot;invalid column name&quot;.into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))
                 })
-                .collect::&lt;Result&lt;Vec&lt;_&gt;, StatusLine&gt;&gt;()?;
+                .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
             eval_aggregate_function(function, values)
         }
     }
 }</code></pre>
 <p>The <code>eval_aggregate_function</code> function implements the custom aggregate operators <code>min</code> and <code>max</code>, which are provided for integer-valued columns:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_aggregate_function(
-    function: &amp;String,
+    function: &amp;str,
     values: Vec&lt;&amp;serde_json::Value&gt;,
-) -&gt; Result&lt;serde_json::Value, StatusLine&gt; {
+) -&gt; Result&lt;serde_json::Value&gt; {
     let int_values = values
         .iter()
         .map(|value| {
-            value
-                .as_i64()
-                .ok_or((StatusCode::BAD_REQUEST, &quot;column is not an integer&quot;))
+            value.as_i64().ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: &quot;column is not an integer&quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))
         })
-        .collect::&lt;Result&lt;Vec&lt;_&gt;, _&gt;&gt;()?;
-    let agg_value = match function.as_str() {
+        .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
+    let agg_value = match function {
         &quot;min&quot; =&gt; Ok(int_values.iter().min()),
         &quot;max&quot; =&gt; Ok(int_values.iter().max()),
-        _ =&gt; Err((StatusCode::BAD_REQUEST, &quot;invalid aggregation function&quot;)),
+        _ =&gt; Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: &quot;invalid aggregation function&quot;.into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
     }?;
     serde_json::to_value(agg_value).map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            &quot;unable to encode response&quot;,
+            Json(models::ErrorResponse {
+                message: &quot; &quot;.into(),
+                details: serde_json::Value::Null,
+            }),
         )
     })
 }</code></pre>
