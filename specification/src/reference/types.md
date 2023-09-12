@@ -228,6 +228,12 @@
 {{#include ../../../ndc-client/src/models.rs:Relationship}}
 ```
 
+## `RelationshipArgument`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:RelationshipArgument}}
+```
+
 ## `RelationshipType`
 
 ```rust,no_run,noplayground

@@ -5,9 +5,9 @@ use schemars::JsonSchema;
 use serde_with::skip_serializing_none;
 
 // ANCHOR: ErrorResponse
-/// # Error Response
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Error Response")]
 pub struct ErrorResponse {
     /// A human-readable summary of the error
     pub message: String,
@@ -18,9 +18,9 @@ pub struct ErrorResponse {
 
 // ANCHOR_END
 // ANCHOR: CapabilitiesResponse
-/// # Capabilities Response
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Capabilities Response")]
 pub struct CapabilitiesResponse {
     pub versions: String,
     pub capabilities: Capabilities,
@@ -28,10 +28,10 @@ pub struct CapabilitiesResponse {
 // ANCHOR_END: CapabilitiesResponse
 
 // ANCHOR: Capabilities
-/// # Capabilities
 /// Describes the features of the specification which a data connector implements.
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Capabilities")]
 pub struct Capabilities {
     pub query: Option<QueryCapabilities>,
     pub explain: Option<serde_json::Value>,
@@ -41,9 +41,9 @@ pub struct Capabilities {
 // ANCHOR_END: Capabilities
 
 // ANCHOR: QueryCapabilities
-/// # Query Capabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Query Capabilities")]
 pub struct QueryCapabilities {
     /// Does the agent support comparisons that involve related collections (ie. joins)?
     pub relation_comparisons: Option<serde_json::Value>,
@@ -55,9 +55,9 @@ pub struct QueryCapabilities {
 // ANCHOR_END: QueryCapabilities
 
 // ANCHOR: MutationCapabilities
-/// # Mutation Capabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Mutation Capabilities")]
 pub struct MutationCapabilities {
     /// Whether or not nested inserts to related collections are supported
     pub nested_inserts: Option<serde_json::Value>,
@@ -66,8 +66,8 @@ pub struct MutationCapabilities {
 // ANCHOR_END: MutationCapabilities
 
 // ANCHOR: SchemaResponse
-/// # Schema Response
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Schema Response")]
 pub struct SchemaResponse {
     /// A list of scalar types which will be used as the types of collection columns
     pub scalar_types: BTreeMap<String, ScalarType>,
@@ -84,9 +84,9 @@ pub struct SchemaResponse {
 // ANCHOR_END: SchemaResponse
 
 // ANCHOR: ScalarType
-/// # Scalar Type
 /// The definition of a scalar type, i.e. types that can be used as the types of columns.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Scalar Type")]
 pub struct ScalarType {
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap<String, AggregateFunctionDefinition>,
@@ -98,10 +98,10 @@ pub struct ScalarType {
 // ANCHOR_END: ScalarType
 
 // ANCHOR: ObjectType
-/// # Object Type
 /// The definition of an object type
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Object Type")]
 pub struct ObjectType {
     /// Description of this type
     pub description: Option<String>,
@@ -111,10 +111,10 @@ pub struct ObjectType {
 // ANCHOR_END: ObjectType
 
 // ANCHOR: ObjectField
-/// # Object Field
 /// The definition of an object field
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Object Field")]
 pub struct ObjectField {
     /// Description of this field
     pub description: Option<String>,
@@ -125,12 +125,12 @@ pub struct ObjectField {
 // ANCHOR_END: ObjectField
 
 // ANCHOR: Type
-/// # Type
 /// Types track the valid representations of values as JSON
 #[derive(
     Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Type")]
 pub enum Type {
     /// A named type
     Named {
@@ -151,9 +151,9 @@ pub enum Type {
 // ANCHOR_END: Type
 
 // ANCHOR: ComparisonOperatorDefinition
-/// # Comparison Operator Definition
 /// The definition of a comparison operator on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Comparison Operator Definition")]
 pub struct ComparisonOperatorDefinition {
     /// The type of the argument to this operator
     pub argument_type: Type,
@@ -161,9 +161,9 @@ pub struct ComparisonOperatorDefinition {
 // ANCHOR_END: ComparisonOperatorDefinition
 
 // ANCHOR: AggregateFunctionDefinition
-/// # Aggregate Function Definition
 /// The definition of an aggregation function on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Aggregate Function Definition")]
 pub struct AggregateFunctionDefinition {
     /// The scalar or object type of the result of this function
     pub result_type: Type,
@@ -171,9 +171,9 @@ pub struct AggregateFunctionDefinition {
 // ANCHOR_END: AggregateFunctionDefinition
 
 // ANCHOR: UpdateOperatorDefinition
-/// # Update Operator Definition
 /// The definition of an update operator on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Update Operator Definition")]
 pub struct UpdateOperatorDefinition {
     /// The type of the argument to this operator
     pub argument_type: Type,
@@ -181,9 +181,9 @@ pub struct UpdateOperatorDefinition {
 // ANCHOR_END: UpdateOperatorDefinition
 
 // ANCHOR: CollectionInfo
-/// # Collection Info
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Collection Info")]
 pub struct CollectionInfo {
     /// The name of the collection
     ///
@@ -211,9 +211,9 @@ pub struct CollectionInfo {
 // ANCHOR_END: CollectionInfo
 
 // ANCHOR: FunctionInfo
-/// # Function Info
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Function Info")]
 pub struct FunctionInfo {
     /// The name of the function
     pub name: String,
@@ -227,9 +227,9 @@ pub struct FunctionInfo {
 // ANCHOR_END: FunctionInfo
 
 // ANCHOR: ArgumentInfo
-/// # Argument Info
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Argument Info")]
 pub struct ArgumentInfo {
     /// Argument description
     pub description: Option<String>,
@@ -240,8 +240,8 @@ pub struct ArgumentInfo {
 // ANCHOR_END: ArgumentInfo
 
 // ANCHOR: UniquenessConstraint
-/// # Uniqueness Constraint
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Uniqueness Constraint")]
 pub struct UniquenessConstraint {
     /// A list of columns which this constraint requires to be unique
     pub unique_columns: Vec<String>,
@@ -249,8 +249,8 @@ pub struct UniquenessConstraint {
 // ANCHOR_END: UniquenessConstraint
 
 // ANCHOR: ForeignKeyConstraint
-/// # Foreign Key Constraint
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Foreign Key Constraint")]
 pub struct ForeignKeyConstraint {
     /// The columns on which you want want to define the foreign key.
     pub column_mapping: BTreeMap<String, String>,
@@ -260,9 +260,9 @@ pub struct ForeignKeyConstraint {
 // ANCHOR_END: ForeignKeyConstraint
 
 // ANCHOR: ProcedureInfo
-/// # Procedure Info
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Procedure Info")]
 pub struct ProcedureInfo {
     /// The name of the procedure
     pub name: String,
@@ -276,10 +276,10 @@ pub struct ProcedureInfo {
 // ANCHOR_END: ProcedureInfo
 
 // ANCHOR: QueryRequest
-/// # Query Request
 /// This is the request body of the query POST endpoint
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Query Request")]
 pub struct QueryRequest {
     /// The name of a collection
     pub collection: String,
@@ -296,9 +296,9 @@ pub struct QueryRequest {
 // ANCHOR_END: QueryRequest
 
 // ANCHOR: Argument
-/// # Argument
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Argument")]
 pub enum Argument {
     /// The argument is provided by reference to a variable
     Variable { name: String },
@@ -308,9 +308,9 @@ pub enum Argument {
 // ANCHOR_END: Argument
 
 // ANCHOR: Query
-/// # Query
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Query")]
 pub struct Query {
     /// Aggregate fields of the query
     pub aggregates: Option<IndexMap<String, Aggregate>>,
@@ -327,9 +327,9 @@ pub struct Query {
 // ANCHOR_END: Query
 
 // ANCHOR: Aggregate
-/// # Aggregate
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Aggregate")]
 pub enum Aggregate {
     // TODO: do we need aggregation row limits?
     ColumnCount {
@@ -349,9 +349,9 @@ pub enum Aggregate {
 // ANCHOR_END: Aggregate
 
 // ANCHOR: Field
-/// # Field
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Field")]
 pub enum Field {
     Column {
         column: String,
@@ -367,8 +367,8 @@ pub enum Field {
 // ANCHOR_END: Field
 
 // ANCHOR: OrderBy
-/// # Order By
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Order By")]
 pub struct OrderBy {
     /// The elements to order by, in priority order
     pub elements: Vec<OrderByElement>,
@@ -376,8 +376,8 @@ pub struct OrderBy {
 // ANCHOR_END: OrderBy
 
 // ANCHOR: OrderByElement
-/// # Order By Element
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Order By Element")]
 pub struct OrderByElement {
     pub order_direction: OrderDirection,
     pub target: OrderByTarget,
@@ -385,9 +385,9 @@ pub struct OrderByElement {
 // ANCHOR_END: OrderByElement
 
 // ANCHOR: OrderByTarget
-/// # Order By Target
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Order By Target")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum OrderByTarget {
     Column {
@@ -412,10 +412,10 @@ pub enum OrderByTarget {
 // ANCHOR_END: OrderByTarget
 
 // ANCHOR: OrderDirection
-/// # Order Direction
 #[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(title = "Order Direction")]
 #[serde(rename_all = "snake_case")]
 pub enum OrderDirection {
     Asc,
@@ -424,9 +424,9 @@ pub enum OrderDirection {
 // ANCHOR_END: OrderDirection
 
 // ANCHOR: Expression
-/// # Expression
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Expression")]
 pub enum Expression {
     And {
         expressions: Vec<Expression>,
@@ -460,10 +460,10 @@ pub enum Expression {
 // ANCHOR_END: Expression
 
 // ANCHOR: UnaryComparisonOperator
-/// # Unary Comparison Operator
 #[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(title = "Unary Comparison Operator")]
 #[serde(rename_all = "snake_case")]
 pub enum UnaryComparisonOperator {
     IsNull,
@@ -471,10 +471,10 @@ pub enum UnaryComparisonOperator {
 // ANCHOR_END: UnaryComparisonOperator
 
 // ANCHOR: BinaryArrayComparisonOperator
-/// # Binary Array Comparison Operator
 #[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(title = "Binary Array Comparison Operator")]
 #[serde(rename_all = "snake_case")]
 pub enum BinaryArrayComparisonOperator {
     In,
@@ -482,11 +482,11 @@ pub enum BinaryArrayComparisonOperator {
 // ANCHOR_END: BinaryArrayComparisonOperator
 
 // ANCHOR: BinaryComparisonOperator
-/// # Binary Comparison Operator
 #[derive(
     Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Binary Comparison Operator")]
 pub enum BinaryComparisonOperator {
     Equal,
     // should we rename this? To what?
@@ -495,9 +495,9 @@ pub enum BinaryComparisonOperator {
 // ANCHOR_END: BinaryComparisonOperator
 
 // ANCHOR: ComparisonTarget
-/// # Comparison Target
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Comparison Target")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ComparisonTarget {
     Column {
@@ -514,9 +514,9 @@ pub enum ComparisonTarget {
 // ANCHOR_END: ComparisonTarget
 
 // ANCHOR: PathElement
-/// # Path Element
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
+#[schemars(title = "Path Element")]
 pub struct PathElement {
     /// The name of the relationship to follow
     pub relationship: String,
@@ -528,9 +528,9 @@ pub struct PathElement {
 // ANCHOR_END: PathElement
 
 // ANCHOR: ComparisonValue
-/// # Comparison Value
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Comparison Value")]
 pub enum ComparisonValue {
     Column { column: ComparisonTarget },
     Scalar { value: serde_json::Value },
@@ -539,9 +539,9 @@ pub enum ComparisonValue {
 // ANCHOR_END: ComparisonValue
 
 // ANCHOR: ExistsInCollection
-/// # Exists In Collection
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Exists In Collection")]
 pub enum ExistsInCollection {
     Related {
         relationship: String,
@@ -558,18 +558,18 @@ pub enum ExistsInCollection {
 // ANCHOR_END: ExistsInCollection
 
 // ANCHOR: QueryResponse
-/// # Query Response
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Query Response")]
 /// Query responses may return multiple RowSets when using foreach queries
 /// Else, there should always be exactly one RowSet
 pub struct QueryResponse(pub Vec<RowSet>);
 // ANCHOR_END: QueryResponse
 
 // ANCHOR: RowSet
-/// # Row Set
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Row Set")]
 pub struct RowSet {
     /// The results of the aggregates returned by the query
     pub aggregates: Option<IndexMap<String, serde_json::Value>>,
@@ -579,8 +579,8 @@ pub struct RowSet {
 // ANCHOR_END: RowSet
 
 // ANCHOR: RowFieldValue
-/// # Row Field Value
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Row Field Value")]
 pub struct RowFieldValue(pub serde_json::Value);
 
 impl RowFieldValue {
@@ -595,8 +595,8 @@ impl RowFieldValue {
 // ANCHOR_END: RowFieldValue
 
 // ANCHOR: ExplainResponse
-/// # Explain Response
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Explain Response")]
 pub struct ExplainResponse {
     /// A list of human-readable key-value pairs describing
     /// a query execution plan. For example, a connector for
@@ -609,8 +609,8 @@ pub struct ExplainResponse {
 // ANCHOR_END: ExplainResponse
 
 // ANCHOR: MutationRequest
-/// # Mutation Request
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Mutation Request")]
 pub struct MutationRequest {
     /// The schema by which to interpret row data specified in any insert operations in this request
     pub insert_schema: Vec<CollectionInsertSchema>,
@@ -622,8 +622,8 @@ pub struct MutationRequest {
 // ANCHOR_END: MutationRequest
 
 // ANCHOR: CollectionInsertSchema
-/// # Collection Insert Schema
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Collection Insert Schema")]
 pub struct CollectionInsertSchema {
     /// The fields that will be found in the insert row data for the collection and the schema for each field
     pub fields: BTreeMap<String, InsertFieldSchema>,
@@ -633,9 +633,9 @@ pub struct CollectionInsertSchema {
 // ANCHOR_END: CollectionInsertSchema
 
 // ANCHOR: InsertFieldSchema
-/// # Insert Field Schema
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Insert Field Schema")]
 pub enum InsertFieldSchema {
     ArrayRelation {
         /// The name of the array relationship over which the related rows must be inserted
@@ -654,10 +654,10 @@ pub enum InsertFieldSchema {
 // ANCHOR_END: InsertFieldSchema
 
 // ANCHOR: ObjectRelationInsertionOrder
-/// # Object Relation Insertion Order
 #[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(title = "Object Relation Insertion Order")]
 #[serde(rename_all = "snake_case")]
 pub enum ObjectRelationInsertionOrder {
     BeforeParent,
@@ -666,9 +666,9 @@ pub enum ObjectRelationInsertionOrder {
 // ANCHOR_END: ObjectRelationInsertionOrder
 
 // ANCHOR: MutationOperation
-/// # Mutation Operation
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Mutation Operation")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MutationOperation {
     Delete {
@@ -711,9 +711,9 @@ pub enum MutationOperation {
 // ANCHOR_END: MutationOperation
 
 // ANCHOR: RowUpdate
-/// # Row Update
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Row Update")]
 pub enum RowUpdate {
     CustomOperator {
         /// The name of the column in the row
@@ -732,8 +732,8 @@ pub enum RowUpdate {
 // ANCHOR_END: RowUpdate
 
 // ANCHOR: Relationship
-/// # Relationship
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relationship")]
 pub struct Relationship {
     /// A mapping between columns on the source collection to columns on the target collection
     pub column_mapping: BTreeMap<String, String>,
@@ -748,9 +748,9 @@ pub struct Relationship {
 // ANCHOR_END: Relationship
 
 // ANCHOR: RelationshipArgument
-/// # Relationship Argument
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relationship Argument")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum RelationshipArgument {
     /// The argument is provided by reference to a variable
@@ -769,10 +769,10 @@ pub enum RelationshipArgument {
 // ANCHOR_END: RelationshipArgument
 
 // ANCHOR: RelationshipType
-/// # Relationship Type
 #[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[schemars(title = "Relationship Type")]
 #[serde(rename_all = "snake_case")]
 pub enum RelationshipType {
     Object,
@@ -781,8 +781,8 @@ pub enum RelationshipType {
 // ANCHOR_END: RelationshipType
 
 // ANCHOR: MutationResponse
-/// # Mutation Response
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Mutation Response")]
 pub struct MutationResponse {
     /// The results of each mutation operation, in the same order as they were received
     pub operation_results: Vec<MutationOperationResults>,
@@ -790,9 +790,9 @@ pub struct MutationResponse {
 // ANCHOR_END: MutationResponse
 
 // ANCHOR: MutationOperationResults
-/// # Mutation Operation Results
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Mutation Operation Results")]
 pub struct MutationOperationResults {
     /// The number of rows affected by the mutation operation
     pub affected_rows: u32,
