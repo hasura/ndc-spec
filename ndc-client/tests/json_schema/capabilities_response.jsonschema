@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "CapabilitiesResponse",
+  "title": "Capabilities Response",
   "type": "object",
   "required": [
     "capabilities",
@@ -16,6 +16,7 @@
   },
   "definitions": {
     "Capabilities": {
+      "title": "Capabilities",
       "description": "Describes the features of the specification which a data connector implements.",
       "type": "object",
       "properties": {
@@ -44,6 +45,7 @@
       }
     },
     "MutationCapabilities": {
+      "title": "Mutation Capabilities",
       "type": "object",
       "properties": {
         "nested_inserts": {
@@ -53,6 +55,7 @@
       }
     },
     "QueryCapabilities": {
+      "title": "Query Capabilities",
       "type": "object",
       "properties": {
         "foreach": {
