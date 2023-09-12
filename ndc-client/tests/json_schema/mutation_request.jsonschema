@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "MutationRequest",
+  "title": "Mutation Request",
   "type": "object",
   "required": [
     "collection_relationships",
@@ -32,6 +32,7 @@
   },
   "definitions": {
     "Aggregate": {
+      "title": "Aggregate",
       "oneOf": [
         {
           "type": "object",
@@ -98,12 +99,14 @@
       ]
     },
     "BinaryArrayComparisonOperator": {
+      "title": "Binary Array Comparison Operator",
       "type": "string",
       "enum": [
         "in"
       ]
     },
     "BinaryComparisonOperator": {
+      "title": "Binary Comparison Operator",
       "oneOf": [
         {
           "type": "object",
@@ -140,6 +143,7 @@
       ]
     },
     "CollectionInsertSchema": {
+      "title": "Collection Insert Schema",
       "type": "object",
       "required": [
         "collection",
@@ -160,6 +164,7 @@
       }
     },
     "ComparisonTarget": {
+      "title": "Comparison Target",
       "oneOf": [
         {
           "type": "object",
@@ -210,6 +215,7 @@
       ]
     },
     "ComparisonValue": {
+      "title": "Comparison Value",
       "oneOf": [
         {
           "type": "object",
@@ -266,6 +272,7 @@
       ]
     },
     "ExistsInCollection": {
+      "title": "Exists In Collection",
       "oneOf": [
         {
           "type": "object",
@@ -323,6 +330,7 @@
       ]
     },
     "Expression": {
+      "title": "Expression",
       "oneOf": [
         {
           "type": "object",
@@ -486,6 +494,7 @@
       ]
     },
     "Field": {
+      "title": "Field",
       "oneOf": [
         {
           "type": "object",
@@ -539,6 +548,7 @@
       ]
     },
     "InsertFieldSchema": {
+      "title": "Insert Field Schema",
       "oneOf": [
         {
           "type": "object",
@@ -604,6 +614,7 @@
       ]
     },
     "MutationOperation": {
+      "title": "Mutation Operation",
       "oneOf": [
         {
           "type": "object",
@@ -787,6 +798,7 @@
       ]
     },
     "ObjectRelationInsertionOrder": {
+      "title": "Object Relation Insertion Order",
       "type": "string",
       "enum": [
         "before_parent",
@@ -794,6 +806,7 @@
       ]
     },
     "OrderBy": {
+      "title": "Order By",
       "type": "object",
       "required": [
         "elements"
@@ -809,6 +822,7 @@
       }
     },
     "OrderByElement": {
+      "title": "Order By Element",
       "type": "object",
       "required": [
         "order_direction",
@@ -824,6 +838,7 @@
       }
     },
     "OrderByTarget": {
+      "title": "Order By Target",
       "oneOf": [
         {
           "type": "object",
@@ -909,6 +924,7 @@
       ]
     },
     "OrderDirection": {
+      "title": "Order Direction",
       "type": "string",
       "enum": [
         "asc",
@@ -916,6 +932,7 @@
       ]
     },
     "PathElement": {
+      "title": "Path Element",
       "type": "object",
       "required": [
         "arguments",
@@ -945,6 +962,7 @@
       }
     },
     "Query": {
+      "title": "Query",
       "type": "object",
       "properties": {
         "aggregates": {
@@ -1008,6 +1026,7 @@
       }
     },
     "Relationship": {
+      "title": "Relationship",
       "type": "object",
       "required": [
         "arguments",
@@ -1045,6 +1064,7 @@
       }
     },
     "RelationshipArgument": {
+      "title": "Relationship Argument",
       "oneOf": [
         {
           "description": "The argument is provided by reference to a variable",
@@ -1103,6 +1123,7 @@
       ]
     },
     "RelationshipType": {
+      "title": "Relationship Type",
       "type": "string",
       "enum": [
         "object",
@@ -1110,6 +1131,7 @@
       ]
     },
     "RowUpdate": {
+      "title": "Row Update",
       "oneOf": [
         {
           "type": "object",
@@ -1164,6 +1186,7 @@
       ]
     },
     "UnaryComparisonOperator": {
+      "title": "Unary Comparison Operator",
       "type": "string",
       "enum": [
         "is_null"
