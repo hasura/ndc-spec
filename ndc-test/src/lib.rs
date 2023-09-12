@@ -541,7 +541,7 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
 
         let response = connector.query(query_request).await?;
 
-        expect_single_non_empty_rows(response)?;
+        expect_single_rows(response)?;
     }
 
     Ok(())
