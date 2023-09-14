@@ -61,6 +61,13 @@ pub async fn capabilities_get(
                     .header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
+            if let Some(ref bearer_token) = configuration.bearer_access_token {
+                req_builder = req_builder.header(
+                    reqwest::header::AUTHORIZATION,
+                    "Bearer ".to_owned() + bearer_token.as_str(),
+                );
+            }
+
             let req = req_builder.build()?;
             let resp = client
                 .execute(req)
@@ -108,6 +115,14 @@ pub async fn explain_post(
                 req_builder = req_builder
                     .header(reqwest::header::USER_AGENT, user_agent.clone());
             }
+
+            if let Some(ref bearer_token) = configuration.bearer_access_token {
+                req_builder = req_builder.header(
+                    reqwest::header::AUTHORIZATION,
+                    "Bearer ".to_owned() + bearer_token.as_str(),
+                );
+            }
+
             req_builder = req_builder.json(&query_request);
 
             req_builder = inject_trace_context(req_builder);
@@ -159,6 +174,14 @@ pub async fn mutation_post(
                 req_builder = req_builder
                     .header(reqwest::header::USER_AGENT, user_agent.clone());
             }
+
+            if let Some(ref bearer_token) = configuration.bearer_access_token {
+                req_builder = req_builder.header(
+                    reqwest::header::AUTHORIZATION,
+                    "Bearer ".to_owned() + bearer_token.as_str(),
+                );
+            }
+
             req_builder = req_builder.json(&mutation_request);
 
             req_builder = inject_trace_context(req_builder);
@@ -268,6 +291,13 @@ pub async fn schema_get(
             if let Some(ref user_agent) = configuration.user_agent {
                 req_builder = req_builder
                     .header(reqwest::header::USER_AGENT, user_agent.clone());
+            }
+
+            if let Some(ref bearer_token) = configuration.bearer_access_token {
+                req_builder = req_builder.header(
+                    reqwest::header::AUTHORIZATION,
+                    "Bearer ".to_owned() + bearer_token.as_str(),
+                );
             }
 
             let req = req_builder.build()?;
