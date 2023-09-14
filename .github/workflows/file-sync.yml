@@ -1,4 +1,4 @@
-name: file sync
+name: sync response jsonschema
 
 on:
   push:
@@ -8,9 +8,9 @@ on:
       - ndc-client/tests/json_schema/schema_response.jsonschema
 
 jobs:
-  file_sync:
+  v3_console_sync:
     name: sync files with v3-console
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -20,7 +20,7 @@ jobs:
           repository: hasura/v3-console
           path: v3-console
           token: ${{ secrets.HASURA_BOT_TOKEN }}
-      - name: compare file hases
+      - name: compare file hashes
         id: compare
         run: |
           ndc_spec_file="ndc_spec/ndc-client/tests/json_schema/schema_response.jsonschema"
@@ -43,3 +43,6 @@ jobs:
           branch: sync/ndc-spec-response-schema-${{ steps.compare.outputs.ndc_spec_hash }}
           base: main
           title: sync response schema with ndc-spec
+          body: |
+            Originating commit: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+            Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
