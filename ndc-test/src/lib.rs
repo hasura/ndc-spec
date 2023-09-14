@@ -504,6 +504,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
             variables: None,
         };
 
+        println!("{:?}", query_request);
         let response = connector.query(query_request).await?;
 
         expect_single_non_empty_rows(response)?;
@@ -589,10 +590,12 @@ fn make_value_strategies(
         }
 
         for (field_name, field_value) in row {
-            values
-                .entry(field_name.clone())
-                .or_insert(vec![])
-                .push(field_value.0.clone());
+            if !field_value.0.is_null() {
+                values
+                    .entry(field_name.clone())
+                    .or_insert(vec![])
+                    .push(field_value.0.clone());
+            }
         }
     }
 
