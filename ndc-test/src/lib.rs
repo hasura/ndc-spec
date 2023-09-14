@@ -77,6 +77,8 @@ async fn test<A, F: Future<Output = Result<A, Error>>>(
     results: &RefCell<TestResults>,
     f: F,
 ) -> Option<A> {
+    use colored::Colorize;
+
     {
         let results = results.borrow();
         let level = results.path.len();
@@ -86,12 +88,12 @@ async fn test<A, F: Future<Output = Result<A, Error>>>(
 
     match f.await {
         Ok(result) => {
-            println!(" \x1b[1;32mOK\x1b[22;0m");
+            println!(" {}", "OK".green());
             Some(result)
         }
         Err(err) => {
             let mut results_mut = results.borrow_mut();
-            println!(" \x1b[1;31mFAIL\x1b[22;0m");
+            println!(" {}", "FAIL".red());
             let path = results_mut.path.clone();
             results_mut.failures.push(FailedTest {
                 path,
@@ -148,6 +150,26 @@ impl Connector for Configuration {
     }
 }
 
+pub fn report(results: TestResults) -> String {
+    use colored::Colorize;
+
+    let mut result = format!("Failed with {0} test failures:", results.failures.len())
+        .red()
+        .to_string();
+
+    let mut ix = 1;
+    for failure in results.failures {
+        result += format!("\n\n[{0}] {1}", ix, failure.name).as_str();
+        for path_element in failure.path {
+            result += format!("\n  in {0}", path_element).as_str();
+        }
+        result += format!("\nDetails: {0}", failure.error).as_str();
+        ix += 1;
+    }
+
+    result
+}
+
 pub async fn test_connector<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
@@ -179,7 +201,7 @@ async fn run_all_tests<C: Connector>(
 
     let capabilities = async {
         let capabilities = test(
-            "Fetching /capabilities ...",
+            "Fetching /capabilities",
             results,
             connector.get_capabilities(),
         )
