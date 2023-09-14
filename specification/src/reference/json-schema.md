@@ -6,6 +6,12 @@
 {{#include ../../../ndc-client/tests/json_schema/capabilities_response.jsonschema}}
 ```
 
+## `ErrorResponse`
+
+```json
+{{#include ../../../ndc-client/tests/json_schema/error_response.jsonschema}}
+```
+
 ## `ExplainResponse`
 
 ```json

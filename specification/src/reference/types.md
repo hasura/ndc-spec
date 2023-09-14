@@ -72,6 +72,12 @@
 {{#include ../../../ndc-client/src/models.rs:ComparisonValue}}
 ```
 
+## `ErrorResponse`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:ErrorResponse}}
+```
+
 ## `ExistsInCollection`
 
 ```rust,no_run,noplayground
@@ -220,6 +226,12 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-client/src/models.rs:Relationship}}
+```
+
+## `RelationshipArgument`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:RelationshipArgument}}
 ```
 
 ## `RelationshipType`

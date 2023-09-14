@@ -15,32 +15,47 @@ ndc-test --endpoint <ENDPOINT>
 For example, running the reference connector and passing its URL to `ndc-test`, we will see that it issues test queries against the `articles` and `authors` collections:
 
 ```text
-ndc-test --ent http://localhost:8100
+ndc-test test --endpoint http://localhost:8100
 
-Fetching /capabilities
-Validating capabilities
-Fetching /schemaValidating schema
-Validating object_types
-Validating collections
-Validating collection articles
-Validating columns
-Validating collection authors
-Validating columns
-Validating collection articles_by_author
-Validating columns
-Validating functions
-Validating function latest_article_id
-Validating procedures
-Validating procedure upsert_article
-Testing /query
-Testing simple queries
-Querying collection articles
-Querying collection authors
-Skipping parameterized collection articles_by_author
-Testing aggregate queries
-Querying collection articles
-Querying collection authors
-Skipping parameterized collection articles_by_author
+Capabilities
+├ Fetching /capabilities ... ... OK
+├ Validating capabilities ... OK
+Schema
+├ Fetching /schema ... OK
+├ Validating schema ...
+│ ├ object_types ... OK
+│ ├ Collections ...
+│ │ ├ articles ...
+│ │ │ ├ Arguments ... OK
+│ │ │ ├ Collection type ... OK
+│ │ ├ authors ...
+│ │ │ ├ Arguments ... OK
+│ │ │ ├ Collection type ... OK
+│ │ ├ articles_by_author ...
+│ │ │ ├ Arguments ... OK
+│ │ │ ├ Collection type ... OK
+│ ├ Functions ...
+│ │ ├ latest_article_id ...
+│ │ │ ├ Result type ... OK
+│ │ │ ├ Arguments ... OK
+│ │ ├ Procedures ...
+│ │ │ ├ upsert_article ...
+│ │ │ │ ├ Result type ... OK
+│ │ │ │ ├ Arguments ... OK
+Query
+├ articles ...
+│ ├ Simple queries ...
+│ │ ├ Select top N ... OK
+│ │ ├ Predicates ... OK
+│ ├ Aggregate queries ...
+│ │ ├ star_count ... OK
+├ authors ...
+│ ├ Simple queries ...
+│ │ ├ Select top N ... OK
+│ │ ├ Predicates ... OK
+│ ├ Aggregate queries ...
+│ │ ├ star_count ... OK
+├ articles_by_author ...
 ```
 
 However, `ndc-test` cannot validate the entire schema. For example, it will not issue queries against the `articles_by_author` collection, because it does not have any way to synthesize inputs for its required collection argument.
