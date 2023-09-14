@@ -211,6 +211,14 @@ pub async fn query_post(
                     req_builder = req_builder
                         .header(reqwest::header::USER_AGENT, user_agent.clone());
                 }
+
+                if let Some(ref bearer_token) = configuration.bearer_access_token {
+                    req_builder = req_builder.header(
+                        reqwest::header::AUTHORIZATION,
+                        "Bearer ".to_owned() + bearer_token.as_str(),
+                    );
+                }
+
                 req_builder = req_builder.json(&query_request);
 
                 req_builder = inject_trace_context(req_builder);
