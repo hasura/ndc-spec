@@ -62,10 +62,7 @@ pub async fn capabilities_get(
             }
 
             if let Some(ref bearer_token) = configuration.bearer_access_token {
-                req_builder = req_builder.header(
-                    reqwest::header::AUTHORIZATION,
-                    "Bearer ".to_owned() + bearer_token.as_str(),
-                );
+                req_builder = req_builder.bearer_auth(bearer_token.as_str());
             }
 
             let req = req_builder.build()?;
@@ -117,10 +114,7 @@ pub async fn explain_post(
             }
 
             if let Some(ref bearer_token) = configuration.bearer_access_token {
-                req_builder = req_builder.header(
-                    reqwest::header::AUTHORIZATION,
-                    "Bearer ".to_owned() + bearer_token.as_str(),
-                );
+                req_builder = req_builder.bearer_auth(bearer_token.as_str());
             }
 
             req_builder = req_builder.json(&query_request);
@@ -176,10 +170,7 @@ pub async fn mutation_post(
             }
 
             if let Some(ref bearer_token) = configuration.bearer_access_token {
-                req_builder = req_builder.header(
-                    reqwest::header::AUTHORIZATION,
-                    "Bearer ".to_owned() + bearer_token.as_str(),
-                );
+                req_builder = req_builder.bearer_auth(bearer_token.as_str());
             }
 
             req_builder = req_builder.json(&mutation_request);
@@ -236,10 +227,7 @@ pub async fn query_post(
                 }
 
                 if let Some(ref bearer_token) = configuration.bearer_access_token {
-                    req_builder = req_builder.header(
-                        reqwest::header::AUTHORIZATION,
-                        "Bearer ".to_owned() + bearer_token.as_str(),
-                    );
+                    req_builder = req_builder.bearer_auth(bearer_token.as_str());
                 }
 
                 req_builder = req_builder.json(&query_request);
@@ -294,10 +282,7 @@ pub async fn schema_get(
             }
 
             if let Some(ref bearer_token) = configuration.bearer_access_token {
-                req_builder = req_builder.header(
-                    reqwest::header::AUTHORIZATION,
-                    "Bearer ".to_owned() + bearer_token.as_str(),
-                );
+                req_builder = req_builder.bearer_auth(bearer_token.as_str());
             }
 
             let req = req_builder.build()?;
