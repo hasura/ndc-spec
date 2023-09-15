@@ -504,7 +504,6 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
             variables: None,
         };
 
-        println!("{:?}", query_request);
         let response = connector.query(query_request).await?;
 
         expect_single_non_empty_rows(response)?;
