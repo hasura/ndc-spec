@@ -190,6 +190,9 @@ pub async fn mutation_post(
                 .with_context(ctx)
                 .await?;
 
+            dbg!(&response_status);
+            dbg!(&response_content);
+
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
             } else {
@@ -199,6 +202,7 @@ pub async fn mutation_post(
                     status: response_status,
                     error_response,
                 };
+                dbg!(&connector_error);
                 Err(Error::ConnectorError(connector_error))
             }
         })
