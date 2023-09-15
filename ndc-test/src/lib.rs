@@ -611,10 +611,12 @@ fn make_value_strategies(
         }
 
         for (field_name, field_value) in row {
-            values
-                .entry(field_name.clone())
-                .or_insert(vec![])
-                .push(field_value.0.clone());
+            if !field_value.0.is_null() {
+                values
+                    .entry(field_name.clone())
+                    .or_insert(vec![])
+                    .push(field_value.0.clone());
+            }
         }
     }
 
