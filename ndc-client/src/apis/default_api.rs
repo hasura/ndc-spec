@@ -183,7 +183,9 @@ pub async fn mutation_post(
                 .with_traced_errors()
                 .await?;
 
+            dbg!(&resp);
             let response_status = resp.status();
+            dbg!(&response_status);
             let response_content = resp
                 .json()
                 .with_traced_errors()
