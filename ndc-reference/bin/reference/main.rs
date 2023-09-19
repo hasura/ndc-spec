@@ -753,10 +753,7 @@ fn get_collection_by_name(
                     None => {
                         let result = json!({"rows": null});
 
-                        Ok(vec![BTreeMap::from_iter([(
-                            "__value".into(),
-                            result,
-                        )])])
+                        Ok(vec![BTreeMap::from_iter([("__value".into(), result)])])
                     }
                     Some(_) => {
                         let rows = query
