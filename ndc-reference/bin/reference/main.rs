@@ -16,7 +16,6 @@ use indexmap::IndexMap;
 use ndc_client::models;
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
-use serde_json::json;
 use tokio::sync::Mutex;
 
 // ANCHOR: row-type
@@ -646,7 +645,6 @@ fn get_collection_by_name(
                     .as_ref()
                     .map(|fields| {
                         let mut row = IndexMap::new();
-                        let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
                         for item in latest_article.iter() {
                             for (field_name, field) in fields.iter() {
                                 row.insert(
@@ -661,17 +659,11 @@ fn get_collection_by_name(
                                 );
                             }
                         }
-                        rows.push(row);
-                        Ok(rows)
+                        Ok(row)
                     })
                     .transpose()?;
 
-                let row_set = models::RowSet {
-                    aggregates: None,
-                    rows,
-                };
-
-                let latest_article_value = serde_json::to_value(row_set).map_err(|_| {
+                let latest_article_value = serde_json::to_value(rows).map_err(|_| {
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
                         Json(models::ErrorResponse {
@@ -696,7 +688,6 @@ fn get_collection_by_name(
             }
         }
         "get_all_articles" => {
-            //let articles: Option<&BTreeMap<String, Value>>;
             let articles: Vec<Row> = state.articles.values().cloned().collect();
 
             let rows = query
@@ -718,12 +709,7 @@ fn get_collection_by_name(
                 })
                 .transpose()?;
 
-            let row_set = models::RowSet {
-                aggregates: None,
-                rows,
-            };
-
-            let articles_value = serde_json::to_value(row_set).map_err(|_| {
+            let articles_value = serde_json::to_value(rows).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
@@ -750,18 +736,16 @@ fn get_collection_by_name(
                 let article = state.articles.get(&id);
 
                 match article {
-                    None => {
-                        let result = json!({"rows": null});
-
-                        Ok(vec![BTreeMap::from_iter([("__value".into(), result)])])
-                    }
+                    None => Ok(vec![BTreeMap::from_iter([(
+                        "__value".into(),
+                        serde_json::Value::Null,
+                    )])]),
                     Some(_) => {
                         let rows = query
                             .fields
                             .as_ref()
                             .map(|fields| {
                                 let mut row = IndexMap::new();
-                                let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
                                 for item in article.iter() {
                                     for (field_name, field) in fields.iter() {
                                         row.insert(
@@ -776,17 +760,11 @@ fn get_collection_by_name(
                                         );
                                     }
                                 }
-                                rows.push(row);
-                                Ok(rows)
+                                Ok(row)
                             })
                             .transpose()?;
 
-                        let row_set = models::RowSet {
-                            aggregates: None,
-                            rows,
-                        };
-
-                        let article_value = serde_json::to_value(row_set).map_err(|_| {
+                        let article_value = serde_json::to_value(rows).map_err(|_| {
                             (
                                 StatusCode::INTERNAL_SERVER_ERROR,
                                 Json(models::ErrorResponse {
