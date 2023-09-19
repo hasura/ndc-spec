@@ -16,6 +16,7 @@ use indexmap::IndexMap;
 use ndc_client::models;
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
+use serde_json::json;
 use tokio::sync::Mutex;
 
 // ANCHOR: row-type
@@ -640,12 +641,12 @@ fn get_collection_by_name(
             if let Some(id) = latest_id {
                 let latest_article = state.articles.get(&id);
 
-                let return_object = query
+                let rows = query
                     .fields
                     .as_ref()
                     .map(|fields| {
                         let mut row = IndexMap::new();
-
+                        let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
                         for item in latest_article.iter() {
                             for (field_name, field) in fields.iter() {
                                 row.insert(
@@ -660,27 +661,38 @@ fn get_collection_by_name(
                                 );
                             }
                         }
-                        Ok(row)
+                        rows.push(row);
+                        Ok(rows)
                     })
                     .transpose()?;
 
-                let latest_article_value = serde_json::to_value(return_object)
-                    .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR,
+                let row_set = models::RowSet {
+                    aggregates: None,
+                    rows,
+                };
+
+                let latest_article_value = serde_json::to_value(row_set).map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
                         Json(models::ErrorResponse {
                             message: "unable to encode value".into(),
                             details: serde_json::Value::Null,
                         }),
-                    ))?;
+                    )
+                })?;
 
                 Ok(vec![BTreeMap::from_iter([(
                     "__value".into(),
                     latest_article_value,
                 )])])
             } else {
-                Err((StatusCode::INTERNAL_SERVER_ERROR, Json(models::ErrorResponse {
-                    message: "No max ID exists".into(),
-                    details: serde_json::Value::Null,
-                }),))
+                Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: "No max ID exists".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))
             }
         }
         "get_all_articles" => {
@@ -711,13 +723,15 @@ fn get_collection_by_name(
                 rows,
             };
 
-            let articles_value = serde_json::to_value(row_set)
-                .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR,
+            let articles_value = serde_json::to_value(row_set).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
                         message: "unable to encode value".into(),
                         details: serde_json::Value::Null,
                     }),
-                ))?;
+                )
+            })?;
 
             Ok(vec![BTreeMap::from_iter([(
                 "__value".into(),
@@ -725,54 +739,75 @@ fn get_collection_by_name(
             )])])
         }
         "get_article_by_id" => {
-            let id_value = arguments
-                .get("id")
-                .ok_or((StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: "missing argument id".into(),
-                        details: serde_json::Value::Null,
-                    }),))?;
+            let id_value = arguments.get("id").ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "missing argument id".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
             if let Some(id) = id_value.as_i64() {
                 let article = state.articles.get(&id);
 
-                let return_object = query
-                    .fields
-                    .as_ref()
-                    .map(|fields| {
-                        let mut row = IndexMap::new();
+                match article {
+                    None => {
+                        let result = json!({"rows": null});
 
-                        for item in article.iter() {
-                            for (field_name, field) in fields.iter() {
-                                row.insert(
-                                    field_name.clone(),
-                                    eval_field(
-                                        &BTreeMap::new(),
-                                        &BTreeMap::new(),
-                                        state,
-                                        field,
-                                        item,
-                                    )?,
-                                );
-                            }
-                        }
-                        Ok(row)
-                    })
-                    .transpose()?;
+                        Ok(vec![BTreeMap::from_iter([(
+                            "__value".into(),
+                            result,
+                        )])])
+                    }
+                    Some(_) => {
+                        let rows = query
+                            .fields
+                            .as_ref()
+                            .map(|fields| {
+                                let mut row = IndexMap::new();
+                                let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
+                                for item in article.iter() {
+                                    for (field_name, field) in fields.iter() {
+                                        row.insert(
+                                            field_name.clone(),
+                                            eval_field(
+                                                &BTreeMap::new(),
+                                                &BTreeMap::new(),
+                                                state,
+                                                field,
+                                                item,
+                                            )?,
+                                        );
+                                    }
+                                }
+                                rows.push(row);
+                                Ok(rows)
+                            })
+                            .transpose()?;
 
-                let article_value = serde_json::to_value(return_object)
-                    .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR,
-                        Json(models::ErrorResponse {
-                            message: "unable to encode value".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))?;
+                        let row_set = models::RowSet {
+                            aggregates: None,
+                            rows,
+                        };
 
-                Ok(vec![BTreeMap::from_iter([(
-                    "__value".into(),
-                    article_value,
-                )])])
+                        let article_value = serde_json::to_value(row_set).map_err(|_| {
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Json(models::ErrorResponse {
+                                    message: "unable to encode value".into(),
+                                    details: serde_json::Value::Null,
+                                }),
+                            )
+                        })?;
+
+                        Ok(vec![BTreeMap::from_iter([(
+                            "__value".into(),
+                            article_value,
+                        )])])
+                    }
+                }
             } else {
-                Err((StatusCode::INTERNAL_SERVER_ERROR,
+                Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
                         message: "incorrect type for id".into(),
                         details: serde_json::Value::Null,
@@ -780,12 +815,13 @@ fn get_collection_by_name(
                 ))
             }
         }
-        _ => Err((StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "invalid collection name".into(),
-                    details: serde_json::Value::Null,
-                }),
-            )),
+        _ => Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "invalid collection name".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
     }
 }
 // ANCHOR_END: get_collection_by_name
@@ -1971,14 +2007,13 @@ async fn execute_mutation_operation(
                         details: serde_json::Value::Null,
                     }),
                 ))?;
-                let id_int = id
-                    .as_i64()
-                    .ok_or((StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "argument 'id' is not an integer".into(),
-                            details: serde_json::Value::Null,
-                        })
-                    ))?;
+                let id_int = id.as_i64().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "argument 'id' is not an integer".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
 
                 let current_state = state.articles.clone();
                 let old_row = current_state.get(&id_int);
@@ -2014,15 +2049,17 @@ async fn execute_mutation_operation(
                             affected_rows: 1,
                             returning: Some(vec![IndexMap::from_iter([(
                                 "__value".into(),
-                                models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
-                                    (
-                                        StatusCode::INTERNAL_SERVER_ERROR,
-                                        Json(models::ErrorResponse {
-                                            message: "cannot encode response".into(),
-                                            details: serde_json::Value::Null,
-                                        }),
-                                    )
-                                })?),
+                                models::RowFieldValue(serde_json::to_value(returning).map_err(
+                                    |_| {
+                                        (
+                                            StatusCode::INTERNAL_SERVER_ERROR,
+                                            Json(models::ErrorResponse {
+                                                message: "cannot encode response".into(),
+                                                details: serde_json::Value::Null,
+                                            }),
+                                        )
+                                    },
+                                )?),
                             )])]),
                         })
                     }
@@ -2032,7 +2069,8 @@ async fn execute_mutation_operation(
                     }),
                 }
             }
-            _ => Err((StatusCode::BAD_REQUEST,
+            _ => Err((
+                StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
                     message: "invalid procedure name".into(),
                     details: serde_json::Value::Null,

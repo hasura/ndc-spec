@@ -1,0 +1,26 @@
+{
+    "collection": "get_article_by_id",
+    "arguments": {
+        "id": {
+            "type": "literal",
+            "value": 10
+        }
+    },
+    "query": {
+        "fields": {
+            "article_id": {
+                "type": "column",
+                "column": "id"
+            },
+            "title": {
+                "type": "column",
+                "column": "title"
+            },
+            "author_id": {
+                "type": "column",
+                "column": "author_id"
+            }
+        }
+    },
+    "collection_relationships": {}
+}

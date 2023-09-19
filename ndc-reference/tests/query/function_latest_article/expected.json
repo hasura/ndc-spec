@@ -3,9 +3,13 @@
     "rows": [
       {
         "__value": {
-          "article_id": 3,
-          "author_id": 2,
-          "title": "The Design And Implementation Of Programming Languages"
+          "rows": [
+            {
+              "article_id": 3,
+              "author_id": 2,
+              "title": "The Design And Implementation Of Programming Languages"
+            }
+          ]
         }
       }
     ]
