@@ -801,15 +801,37 @@ pub struct MutationOperationResults {
 }
 // ANCHOR_END: MutationOperationResults
 
+#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[serde(untagged)]
+#[schemars(title = "SecretOrLiteral")]
+/// Either a literal string or a reference to a Hasura secret
+pub enum SecretOrLiteral {
+    #[schemars(title = "ValueFromSecret")]
+    Secret {
+        #[serde(rename = "valueFromSecret")]
+        value_from_secret: String,
+    },
+    Literal(String),
+}
+
+pub fn secret_or_literal_reference(
+    _gen: &mut schemars::gen::SchemaGenerator,
+) -> schemars::schema::Schema {
+    schemars::schema::Schema::Object(schemars::schema::SchemaObject {
+        reference: Some("https://raw.githubusercontent.com/hasura/ndc-spec/main/ndc-client/tests/json_schema/secret_or_literal.jsonschema".into()),
+        ..Default::default()
+    })
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::models::{self};
+    use crate::models;
     use goldenfile::Mint;
     use schemars::schema_for;
     use std::{io::Write, path::PathBuf};
 
     #[test]
-    fn test_query_request_schema() {
+    fn test_json_schemas() {
         let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
 
         let mut mint = Mint::new(test_dir);
@@ -858,6 +880,12 @@ mod tests {
             &mut mint,
             schema_for!(models::MutationResponse),
             "mutation_response.jsonschema",
+        );
+
+        test_json_schema(
+            &mut mint,
+            schema_for!(models::SecretOrLiteral),
+            "secret_or_literal.jsonschema",
         );
     }
 

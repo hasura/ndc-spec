@@ -7,11 +7,11 @@
     "versions"
   ],
   "properties": {
-    "capabilities": {
-      "$ref": "#/definitions/Capabilities"
-    },
     "versions": {
       "type": "string"
+    },
+    "capabilities": {
+      "$ref": "#/definitions/Capabilities"
     }
   },
   "definitions": {
@@ -20,6 +20,16 @@
       "description": "Describes the features of the specification which a data connector implements.",
       "type": "object",
       "properties": {
+        "query": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/QueryCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "explain": true,
         "mutations": {
           "anyOf": [
@@ -31,17 +41,22 @@
             }
           ]
         },
-        "query": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/QueryCapabilities"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "relationships": true
+      }
+    },
+    "QueryCapabilities": {
+      "title": "Query Capabilities",
+      "type": "object",
+      "properties": {
+        "relation_comparisons": {
+          "description": "Does the agent support comparisons that involve related collections (ie. joins)?"
+        },
+        "order_by_aggregate": {
+          "description": "Does the agent support ordering by an aggregated array relationship?"
+        },
+        "foreach": {
+          "description": "Does the agent support foreach queries, i.e. queries with variables"
+        }
       }
     },
     "MutationCapabilities": {
@@ -52,21 +67,6 @@
           "description": "Whether or not nested inserts to related collections are supported"
         },
         "returning": true
-      }
-    },
-    "QueryCapabilities": {
-      "title": "Query Capabilities",
-      "type": "object",
-      "properties": {
-        "foreach": {
-          "description": "Does the agent support foreach queries, i.e. queries with variables"
-        },
-        "order_by_aggregate": {
-          "description": "Does the agent support ordering by an aggregated array relationship?"
-        },
-        "relation_comparisons": {
-          "description": "Does the agent support comparisons that involve related collections (ie. joins)?"
-        }
       }
     }
   }
