@@ -5,6 +5,7 @@
       "returning": [
         {
           "__value": {
+            "id": 2,
             "author": {
               "rows": [
                 {
@@ -12,8 +13,7 @@
                   "last_name": "Hughes"
                 }
               ]
-            },
-            "id": 2
+            }
           }
         }
       ]

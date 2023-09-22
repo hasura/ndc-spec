@@ -7,12 +7,12 @@
     "message"
   ],
   "properties": {
-    "details": {
-      "description": "Any additional structured information about the error"
-    },
     "message": {
       "description": "A human-readable summary of the error",
       "type": "string"
+    },
+    "details": {
+      "description": "Any additional structured information about the error"
     }
   }
 }

@@ -7,9 +7,6 @@
     "$ref": "#/definitions/RowSet"
   },
   "definitions": {
-    "RowFieldValue": {
-      "title": "Row Field Value"
-    },
     "RowSet": {
       "title": "Row Set",
       "type": "object",
@@ -36,6 +33,9 @@
           }
         }
       }
+    },
+    "RowFieldValue": {
+      "title": "Row Field Value"
     }
   }
 }
