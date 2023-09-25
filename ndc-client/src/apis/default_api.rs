@@ -61,8 +61,10 @@ pub async fn capabilities_get(
                     .header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
-            if let Some(ref bearer_token) = configuration.bearer_access_token {
-                req_builder = req_builder.bearer_auth(bearer_token.as_str());
+            if let Some(ref headers) = &configuration.headers {
+                for (key, value) in headers {
+                    req_builder = req_builder.header(key, value.to_header_string());
+                }
             }
 
             let req = req_builder.build()?;
@@ -113,8 +115,10 @@ pub async fn explain_post(
                     .header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
-            if let Some(ref bearer_token) = configuration.bearer_access_token {
-                req_builder = req_builder.bearer_auth(bearer_token.as_str());
+            if let Some(ref headers) = &configuration.headers {
+                for (key, value) in headers {
+                    req_builder = req_builder.header(key, value.to_header_string());
+                }
             }
 
             req_builder = req_builder.json(&query_request);
@@ -169,8 +173,10 @@ pub async fn mutation_post(
                     .header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
-            if let Some(ref bearer_token) = configuration.bearer_access_token {
-                req_builder = req_builder.bearer_auth(bearer_token.as_str());
+            if let Some(ref headers) = &configuration.headers {
+                for (key, value) in headers {
+                    req_builder = req_builder.header(key, value.to_header_string());
+                }
             }
 
             req_builder = req_builder.json(&mutation_request);
@@ -226,8 +232,10 @@ pub async fn query_post(
                         .header(reqwest::header::USER_AGENT, user_agent.clone());
                 }
 
-                if let Some(ref bearer_token) = configuration.bearer_access_token {
-                    req_builder = req_builder.bearer_auth(bearer_token.as_str());
+                if let Some(ref headers) = &configuration.headers {
+                    for (key, value) in headers {
+                        req_builder = req_builder.header(key, value.to_header_string());
+                    }
                 }
 
                 req_builder = req_builder.json(&query_request);
@@ -281,8 +289,10 @@ pub async fn schema_get(
                     .header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
-            if let Some(ref bearer_token) = configuration.bearer_access_token {
-                req_builder = req_builder.bearer_auth(bearer_token.as_str());
+            if let Some(ref headers) = &configuration.headers {
+                for (key, value) in headers {
+                    req_builder = req_builder.header(key, value.to_header_string());
+                }
             }
 
             let req = req_builder.build()?;

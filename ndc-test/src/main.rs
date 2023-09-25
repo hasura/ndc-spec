@@ -36,6 +36,7 @@ async fn main() {
                 oauth_access_token: None,
                 bearer_access_token: None,
                 api_key: None,
+                headers: None,
             };
 
             let results = ndc_test::test_connector(&test_configuration, &configuration).await;

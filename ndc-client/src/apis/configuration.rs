@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 #[derive(Debug, Clone)]
 pub struct Configuration {
     pub base_path: String,
@@ -7,6 +9,7 @@ pub struct Configuration {
     pub oauth_access_token: Option<String>,
     pub bearer_access_token: Option<String>,
     pub api_key: Option<ApiKey>,
+    pub headers: Option<HashMap<String, String>>,
 }
 
 pub type BasicAuth = (String, Option<String>);
