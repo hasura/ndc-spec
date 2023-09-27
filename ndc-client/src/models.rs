@@ -801,7 +801,7 @@ pub struct MutationOperationResults {
 }
 // ANCHOR_END: MutationOperationResults
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone, PartialEq, Eq)]
 #[serde(untagged)]
 #[schemars(title = "SecretOrLiteral")]
 /// Either a literal string or a reference to a Hasura secret
