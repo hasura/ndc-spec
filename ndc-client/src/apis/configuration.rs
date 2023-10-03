@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use reqwest::header::HeaderMap;
 
 #[derive(Debug, Clone)]
 pub struct Configuration {
@@ -9,7 +9,7 @@ pub struct Configuration {
     pub oauth_access_token: Option<String>,
     pub bearer_access_token: Option<String>,
     pub api_key: Option<ApiKey>,
-    pub headers: Option<HashMap<String, String>>,
+    pub headers: Option<HeaderMap>,
 }
 
 pub type BasicAuth = (String, Option<String>);
