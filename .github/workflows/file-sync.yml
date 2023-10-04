@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - ndc-client/tests/json_schema/schema_response.jsonschema
+      - .github/workflows/file-sync.yml
 
 jobs:
   v3_console_sync:
@@ -23,7 +24,7 @@ jobs:
       - name: compare file hashes
         id: compare
         run: |
-          ndc_spec_file="ndc_spec/ndc-client/tests/json_schema/schema_response.jsonschema"
+          ndc_spec_file="ndc-spec/ndc-client/tests/json_schema/schema_response.jsonschema"
           v3_console_file="v3-console/libs/shared/utils/ndc-types/src/schemaResponse.json"
           ndc_spec_hash=$(jq -rM '.' "${ndc_spec_file}" | md5sum | awk '{print $1}')
           v3_console_hash=$(jq -rM '.' "${v3_console_file}" | md5sum | awk '{print $1}')
