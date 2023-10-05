@@ -1,4 +1,4 @@
-use std::process::exit;
+use std::{process::exit, path::PathBuf};
 
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
@@ -19,14 +19,16 @@ enum Commands {
         endpoint: String,
         #[arg(long, value_name = "SEED")]
         seed: Option<String>,
+        #[arg(long, value_name = "PATH")]
+        snapshots_dir: Option<PathBuf>,
     },
 }
 
 #[tokio::main]
 async fn main() {
     match Options::parse().command {
-        Commands::Test { endpoint, seed } => {
-            let test_configuration = TestConfiguration { seed };
+        Commands::Test { endpoint, seed, snapshots_dir } => {
+            let test_configuration = TestConfiguration { seed, snapshots_dir };
 
             let configuration = Configuration {
                 base_path: endpoint,
