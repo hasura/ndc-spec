@@ -15,6 +15,7 @@ use proptest::prelude::Rng;
 use proptest::sample::select;
 use proptest::strategy::{Just, Strategy, Union, ValueTree};
 use proptest::test_runner::{Config, Reason, RngAlgorithm, TestRng, TestRunner};
+use serde::de::DeserializeOwned;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -144,25 +145,6 @@ async fn nest<A, F: Future<Output = A>>(name: &str, results: &RefCell<TestResult
     result
 }
 
-// fn snapshot_test_with_current_path<R>(
-//     snapshots_dir: &PathBuf,
-//     additional_names: Vec<String>,
-//     results: &RefCell<TestResults>,
-//     expected: &R,
-// ) -> Result<(), Error>
-// where
-//     R: serde::Serialize + serde::de::DeserializeOwned + PartialEq,
-// {
-//     let path = &results.borrow().path;
-//     let mut copy = snapshots_dir.clone();
-//     copy.extend(path);
-//     copy.extend(additional_names);
-//     let test_path = copy.as_path();
-//     let snapshot_path_buf = test_path.join("snapshot.json");
-//     let snapshot_path = snapshot_path_buf.as_path();
-//     snapshot_test(snapshot_path, expected)
-// }
-
 fn snapshot_test<R>(snapshot_path: &Path, expected: &R) -> Result<(), Error>
 where
     R: serde::Serialize + serde::de::DeserializeOwned + PartialEq,
@@ -206,6 +188,11 @@ pub trait Connector {
     async fn get_schema(&self) -> Result<models::SchemaResponse, Error>;
 
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse, Error>;
+
+    async fn mutation(
+        &self,
+        request: models::MutationRequest,
+    ) -> Result<models::MutationResponse, Error>;
 }
 
 #[async_trait]
@@ -220,6 +207,13 @@ impl Connector for Configuration {
 
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse, Error> {
         Ok(api::query_post(self, request).await?)
+    }
+
+    async fn mutation(
+        &self,
+        request: models::MutationRequest,
+    ) -> Result<models::MutationResponse, Error> {
+        Ok(api::mutation_post(self, request).await?)
     }
 }
 
@@ -691,14 +685,14 @@ async fn execute_and_snapshot_query<C: Connector>(
         let mut hasher = DefaultHasher::new();
         request_json.hash(&mut hasher);
         let hash = hasher.finish();
-        
+
         let snapshot_subdir = {
             let mut builder = snapshots_dir.clone();
             builder.extend(vec!["query", format!("{:x}", hash).as_str()]);
             builder
         };
 
-        snapshot_test(snapshot_subdir.join("snapshot.json").as_path(), &response)?;
+        snapshot_test(snapshot_subdir.join("expected.json").as_path(), &response)?;
 
         std::fs::write(snapshot_subdir.join("request.json").as_path(), request_json)
             .map_err(Error::CannotOpenSnapshotFile)?;
@@ -889,4 +883,81 @@ async fn test_star_count_aggregate<C: Connector>(
         return Err(Error::ExpectedSingleRowSet);
     }
     Ok(())
+}
+
+pub async fn test_snapshots_in_directory<C: Connector>(
+    connector: &C,
+    snapshots_dir: PathBuf,
+) -> TestResults {
+    let results = RefCell::new(TestResults {
+        path: vec![],
+        failures: vec![],
+    });
+
+    let _ = (|| async {
+        nest(
+            "Query",
+            &results,
+            test_snapshots_in_directory_with::<C, _, _, _, _>(
+                snapshots_dir.join("query"),
+                &results,
+                |req| connector.query(req),
+            ),
+        )
+        .await;
+
+        nest(
+            "Mutation",
+            &results,
+            test_snapshots_in_directory_with::<C, _, _, _, _>(
+                snapshots_dir.join("mutation"),
+                &results,
+                |req| connector.mutation(req),
+            ),
+        )
+        .await;
+
+        Some(())
+    })()
+    .await;
+
+    results.into_inner()
+}
+
+pub async fn test_snapshots_in_directory_with<
+    C: Connector,
+    Req: DeserializeOwned,
+    Res: DeserializeOwned + serde::Serialize + PartialEq,
+    E: std::error::Error + 'static,
+    F: Future<Output = Result<Res, E>>,
+>(
+    snapshots_dir: PathBuf,
+    results: &RefCell<TestResults>,
+    f: impl Fn(Req) -> F,
+) {
+    let dir = std::fs::read_dir(snapshots_dir).expect("Unable to read snapshot directory");
+
+    for entry in dir {
+        let entry = entry.expect("Error reading snapshot directory entry");
+
+        test(
+            entry.file_name().to_str().unwrap_or("{unknown}"),
+            results,
+            async {
+                let path = entry.path();
+
+                let snapshot_pathbuf = path.to_path_buf().join("expected.json");
+                let snapshot_path = snapshot_pathbuf.as_path();
+
+                let request_file =
+                    File::open(path.join("request.json")).map_err(Error::CannotOpenSnapshotFile)?;
+                let request = serde_json::from_reader(request_file).map_err(Error::SerdeError)?;
+
+                let response = f(request).await.map_err(|e| Error::OtherError(Box::new(e)))?;
+
+                snapshot_test(snapshot_path, &response)
+            },
+        )
+        .await;
+    }
 }

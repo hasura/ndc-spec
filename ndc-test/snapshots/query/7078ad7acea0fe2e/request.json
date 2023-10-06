@@ -1,0 +1,25 @@
+{
+  "collection": "articles",
+  "query": {
+    "fields": {
+      "author_id": {
+        "type": "column",
+        "column": "author_id"
+      },
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "title": {
+        "type": "column",
+        "column": "title"
+      }
+    },
+    "limit": 10,
+    "order_by": {
+      "elements": []
+    }
+  },
+  "arguments": {},
+  "collection_relationships": {}
+}

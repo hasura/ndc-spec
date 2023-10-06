@@ -1,0 +1,16 @@
+[
+  {
+    "rows": [
+      {
+        "author_id": 2,
+        "id": 2,
+        "title": "Why Functional Programming Matters"
+      },
+      {
+        "author_id": 2,
+        "id": 3,
+        "title": "The Design And Implementation Of Programming Languages"
+      }
+    ]
+  }
+]

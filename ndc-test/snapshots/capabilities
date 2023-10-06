@@ -1,0 +1,15 @@
+{
+  "versions": "^0.1.0",
+  "capabilities": {
+    "query": {
+      "relation_comparisons": {},
+      "order_by_aggregate": {},
+      "foreach": {}
+    },
+    "mutations": {
+      "nested_inserts": {},
+      "returning": {}
+    },
+    "relationships": {}
+  }
+}

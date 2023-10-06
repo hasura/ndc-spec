@@ -1,0 +1,25 @@
+{
+  "collection": "authors",
+  "query": {
+    "fields": {
+      "first_name": {
+        "type": "column",
+        "column": "first_name"
+      },
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "last_name": {
+        "type": "column",
+        "column": "last_name"
+      }
+    },
+    "limit": 10,
+    "order_by": {
+      "elements": []
+    }
+  },
+  "arguments": {},
+  "collection_relationships": {}
+}

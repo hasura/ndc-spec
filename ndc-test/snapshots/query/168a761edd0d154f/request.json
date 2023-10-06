@@ -1,0 +1,37 @@
+{
+  "collection": "authors",
+  "query": {
+    "fields": {
+      "first_name": {
+        "type": "column",
+        "column": "first_name"
+      },
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "last_name": {
+        "type": "column",
+        "column": "last_name"
+      }
+    },
+    "limit": 10,
+    "where": {
+      "type": "binary_comparison_operator",
+      "column": {
+        "type": "column",
+        "name": "first_name",
+        "path": []
+      },
+      "operator": {
+        "type": "equal"
+      },
+      "value": {
+        "type": "scalar",
+        "value": "Peter"
+      }
+    }
+  },
+  "arguments": {},
+  "collection_relationships": {}
+}
