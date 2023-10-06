@@ -704,7 +704,7 @@ async fn execute_and_snapshot_query<C: Connector>(
 fn expect_single_non_empty_rows(
     response: &models::QueryResponse,
 ) -> Result<Vec<IndexMap<String, models::RowFieldValue>>, Error> {
-    let rows = expect_single_rows(&response)?;
+    let rows = expect_single_rows(response)?;
 
     if rows.is_empty() {
         return Err(Error::ExpectedNonEmptyRows);
@@ -894,7 +894,7 @@ pub async fn test_snapshots_in_directory<C: Connector>(
         failures: vec![],
     });
 
-    let _ = (|| async {
+    let _ = async {
         nest(
             "Query",
             &results,
@@ -918,7 +918,7 @@ pub async fn test_snapshots_in_directory<C: Connector>(
         .await;
 
         Some(())
-    })()
+    }
     .await;
 
     results.into_inner()
@@ -953,7 +953,9 @@ pub async fn test_snapshots_in_directory_with<
                     File::open(path.join("request.json")).map_err(Error::CannotOpenSnapshotFile)?;
                 let request = serde_json::from_reader(request_file).map_err(Error::SerdeError)?;
 
-                let response = f(request).await.map_err(|e| Error::OtherError(Box::new(e)))?;
+                let response = f(request)
+                    .await
+                    .map_err(|e| Error::OtherError(Box::new(e)))?;
 
                 snapshot_test(snapshot_path, &response)
             },
