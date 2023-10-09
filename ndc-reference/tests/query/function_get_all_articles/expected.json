@@ -2,25 +2,23 @@
   {
     "rows": [
       {
-        "__value": {
-          "rows": [
-            {
-              "article_id": 1,
-              "author_id": 1,
-              "title": "The Next 700 Programming Languages"
-            },
-            {
-              "article_id": 2,
-              "author_id": 2,
-              "title": "Why Functional Programming Matters"
-            },
-            {
-              "article_id": 3,
-              "author_id": 2,
-              "title": "The Design And Implementation Of Programming Languages"
-            }
-          ]
-        }
+        "__value": [
+          {
+            "article_id": 1,
+            "author_id": 1,
+            "title": "The Next 700 Programming Languages"
+          },
+          {
+            "article_id": 2,
+            "author_id": 2,
+            "title": "Why Functional Programming Matters"
+          },
+          {
+            "article_id": 3,
+            "author_id": 2,
+            "title": "The Design And Implementation Of Programming Languages"
+          }
+        ]
       }
     ]
   }

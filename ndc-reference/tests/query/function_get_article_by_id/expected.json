@@ -3,13 +3,9 @@
     "rows": [
       {
         "__value": {
-          "rows": [
-            {
-              "article_id": 1,
-              "author_id": 1,
-              "title": "The Next 700 Programming Languages"
-            }
-          ]
+          "article_id": 1,
+          "author_id": 1,
+          "title": "The Next 700 Programming Languages"
         }
       }
     ]
