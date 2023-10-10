@@ -802,23 +802,18 @@ pub struct MutationOperationResults {
 // ANCHOR_END: MutationOperationResults
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
-#[serde(untagged)]
-#[schemars(title = "SecretOrLiteral")]
+#[schemars(title = "SecretableValue")]
 /// Either a literal string or a reference to a Hasura secret
-pub enum SecretOrLiteral {
-    #[schemars(title = "ValueFromSecret")]
-    Secret {
-        #[serde(rename = "valueFromSecret")]
-        value_from_secret: String,
-    },
-    Literal(String),
+pub enum SecretableValue {
+    Value(String),
+    StringValueFromSecret(String),
 }
 
-pub fn secret_or_literal_reference(
+pub fn secretable_value_reference(
     _gen: &mut schemars::gen::SchemaGenerator,
 ) -> schemars::schema::Schema {
     schemars::schema::Schema::Object(schemars::schema::SchemaObject {
-        reference: Some("https://raw.githubusercontent.com/hasura/ndc-spec/main/ndc-client/tests/json_schema/secret_or_literal.jsonschema".into()),
+        reference: Some("https://raw.githubusercontent.com/hasura/ndc-spec/main/ndc-client/tests/json_schema/secretable_value.jsonschema".into()),
         ..Default::default()
     })
 }
@@ -884,8 +879,8 @@ mod tests {
 
         test_json_schema(
             &mut mint,
-            schema_for!(models::SecretOrLiteral),
-            "secret_or_literal.jsonschema",
+            schema_for!(models::SecretableValue),
+            "secretable_value.jsonschema",
         );
     }
 
