@@ -802,6 +802,7 @@ pub struct MutationOperationResults {
 // ANCHOR_END: MutationOperationResults
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[schemars(title = "SecretableValue")]
 /// Either a literal string or a reference to a Hasura secret
 pub enum SecretableValue {
