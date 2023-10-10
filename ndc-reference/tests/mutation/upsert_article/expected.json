@@ -1,7 +1,7 @@
 {
-  "operation_results": [
+  "operationResults": [
     {
-      "affected_rows": 1,
+      "affectedRows": 1,
       "returning": [
         {
           "__value": null
@@ -9,7 +9,7 @@
       ]
     },
     {
-      "affected_rows": 1,
+      "affectedRows": 1,
       "returning": [
         {
           "__value": {

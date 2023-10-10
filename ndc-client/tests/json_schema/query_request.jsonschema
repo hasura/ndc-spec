@@ -6,7 +6,7 @@
   "required": [
     "arguments",
     "collection",
-    "collection_relationships",
+    "collectionRelationships",
     "query"
   ],
   "properties": {
@@ -29,7 +29,7 @@
         "$ref": "#/definitions/Argument"
       }
     },
-    "collection_relationships": {
+    "collectionRelationships": {
       "description": "Any relationships between collections involved in the query request",
       "type": "object",
       "additionalProperties": {
@@ -91,7 +91,7 @@
           "format": "uint32",
           "minimum": 0.0
         },
-        "order_by": {
+        "orderBy": {
           "anyOf": [
             {
               "$ref": "#/definitions/OrderBy"
@@ -127,7 +127,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "column_count"
+                "columnCount"
               ]
             },
             "column": {
@@ -151,7 +151,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "single_column"
+                "singleColumn"
               ]
             },
             "column": {
@@ -173,7 +173,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "star_count"
+                "starCount"
               ]
             }
           }
@@ -313,11 +313,11 @@
       "title": "Order By Element",
       "type": "object",
       "required": [
-        "order_direction",
+        "orderDirection",
         "target"
       ],
       "properties": {
-        "order_direction": {
+        "orderDirection": {
           "$ref": "#/definitions/OrderDirection"
         },
         "target": {
@@ -375,7 +375,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "single_column_aggregate"
+                "singleColumnAggregate"
               ]
             },
             "column": {
@@ -405,7 +405,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "star_count_aggregate"
+                "starCountAggregate"
               ]
             },
             "path": {
@@ -523,7 +523,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "unary_comparison_operator"
+                "unaryComparisonOperator"
               ]
             },
             "column": {
@@ -546,7 +546,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "binary_comparison_operator"
+                "binaryComparisonOperator"
               ]
             },
             "column": {
@@ -572,7 +572,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "binary_array_comparison_operator"
+                "binaryArrayComparisonOperator"
               ]
             },
             "column": {
@@ -653,7 +653,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "root_collection_column"
+                "rootCollectionColumn"
               ]
             },
             "name": {
@@ -668,7 +668,7 @@
       "title": "Unary Comparison Operator",
       "type": "string",
       "enum": [
-        "is_null"
+        "isNull"
       ]
     },
     "BinaryComparisonOperator": {
@@ -876,27 +876,27 @@
       "type": "object",
       "required": [
         "arguments",
-        "column_mapping",
-        "relationship_type",
-        "source_collection_or_type",
-        "target_collection"
+        "columnMapping",
+        "relationshipType",
+        "sourceType",
+        "targetCollection"
       ],
       "properties": {
-        "column_mapping": {
+        "columnMapping": {
           "description": "A mapping between columns on the source collection to columns on the target collection",
           "type": "object",
           "additionalProperties": {
             "type": "string"
           }
         },
-        "relationship_type": {
+        "relationshipType": {
           "$ref": "#/definitions/RelationshipType"
         },
-        "source_collection_or_type": {
+        "sourceType": {
           "description": "The name of the collection or object type which is the source of this relationship",
           "type": "string"
         },
-        "target_collection": {
+        "targetCollection": {
           "description": "The name of a collection",
           "type": "string"
         },

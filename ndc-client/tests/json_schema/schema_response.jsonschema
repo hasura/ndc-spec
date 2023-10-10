@@ -5,19 +5,19 @@
   "required": [
     "collections",
     "functions",
-    "object_types",
+    "objectTypes",
     "procedures",
-    "scalar_types"
+    "scalarTypes"
   ],
   "properties": {
-    "scalar_types": {
+    "scalarTypes": {
       "description": "A list of scalar types which will be used as the types of collection columns",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/ScalarType"
       }
     },
-    "object_types": {
+    "objectTypes": {
       "description": "A list of object types which can be used as the types of arguments, or return types of procedures. Names should not overlap with scalar type names.",
       "type": "object",
       "additionalProperties": {
@@ -52,26 +52,26 @@
       "description": "The definition of a scalar type, i.e. types that can be used as the types of columns.",
       "type": "object",
       "required": [
-        "aggregate_functions",
-        "comparison_operators",
-        "update_operators"
+        "aggregateFunctions",
+        "comparisonOperators",
+        "updateOperators"
       ],
       "properties": {
-        "aggregate_functions": {
+        "aggregateFunctions": {
           "description": "A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/AggregateFunctionDefinition"
           }
         },
-        "comparison_operators": {
+        "comparisonOperators": {
           "description": "A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ComparisonOperatorDefinition"
           }
         },
-        "update_operators": {
+        "updateOperators": {
           "description": "A map from update operator names to their definitions.",
           "type": "object",
           "additionalProperties": {
@@ -85,10 +85,10 @@
       "description": "The definition of an aggregation function on a scalar type",
       "type": "object",
       "required": [
-        "result_type"
+        "resultType"
       ],
       "properties": {
-        "result_type": {
+        "resultType": {
           "description": "The scalar or object type of the result of this function",
           "allOf": [
             {
@@ -177,10 +177,10 @@
       "description": "The definition of a comparison operator on a scalar type",
       "type": "object",
       "required": [
-        "argument_type"
+        "argumentType"
       ],
       "properties": {
-        "argument_type": {
+        "argumentType": {
           "description": "The type of the argument to this operator",
           "allOf": [
             {
@@ -195,10 +195,10 @@
       "description": "The definition of an update operator on a scalar type",
       "type": "object",
       "required": [
-        "argument_type"
+        "argumentType"
       ],
       "properties": {
-        "argument_type": {
+        "argumentType": {
           "description": "The type of the argument to this operator",
           "allOf": [
             {
@@ -263,10 +263,10 @@
       "required": [
         "arguments",
         "deletable",
-        "foreign_keys",
+        "foreignKeys",
         "name",
         "type",
-        "uniqueness_constraints"
+        "uniquenessConstraints"
       ],
       "properties": {
         "name": {
@@ -291,7 +291,7 @@
           "description": "The name of the collection's object type",
           "type": "string"
         },
-        "insertable_columns": {
+        "insertableColumns": {
           "description": "The set of names of insertable columns, or null if inserts are not supported",
           "type": [
             "array",
@@ -301,7 +301,7 @@
             "type": "string"
           }
         },
-        "updatable_columns": {
+        "updatableColumns": {
           "description": "The set of names of updateable columns, or null if updates are not supported",
           "type": [
             "array",
@@ -315,14 +315,14 @@
           "description": "Whether or not existing rows can be deleted from the collection",
           "type": "boolean"
         },
-        "uniqueness_constraints": {
+        "uniquenessConstraints": {
           "description": "Any uniqueness constraints enforced on this collection",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/UniquenessConstraint"
           }
         },
-        "foreign_keys": {
+        "foreignKeys": {
           "description": "Any foreign key constraints enforced on this collection",
           "type": "object",
           "additionalProperties": {
@@ -359,10 +359,10 @@
       "title": "Uniqueness Constraint",
       "type": "object",
       "required": [
-        "unique_columns"
+        "uniqueColumns"
       ],
       "properties": {
-        "unique_columns": {
+        "uniqueColumns": {
           "description": "A list of columns which this constraint requires to be unique",
           "type": "array",
           "items": {
@@ -375,18 +375,18 @@
       "title": "Foreign Key Constraint",
       "type": "object",
       "required": [
-        "column_mapping",
-        "foreign_collection"
+        "columnMapping",
+        "foreignCollection"
       ],
       "properties": {
-        "column_mapping": {
+        "columnMapping": {
           "description": "The columns on which you want want to define the foreign key.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
           }
         },
-        "foreign_collection": {
+        "foreignCollection": {
           "description": "The name of a collection",
           "type": "string"
         }
@@ -398,7 +398,7 @@
       "required": [
         "arguments",
         "name",
-        "result_type"
+        "resultType"
       ],
       "properties": {
         "name": {
@@ -419,7 +419,7 @@
             "$ref": "#/definitions/ArgumentInfo"
           }
         },
-        "result_type": {
+        "resultType": {
           "description": "The name of the function's result type",
           "allOf": [
             {
@@ -435,7 +435,7 @@
       "required": [
         "arguments",
         "name",
-        "result_type"
+        "resultType"
       ],
       "properties": {
         "name": {
@@ -456,7 +456,7 @@
             "$ref": "#/definitions/ArgumentInfo"
           }
         },
-        "result_type": {
+        "resultType": {
           "description": "The name of the result type",
           "allOf": [
             {

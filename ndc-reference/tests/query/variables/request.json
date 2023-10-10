@@ -14,7 +14,7 @@
             }
         },
         "where": {
-            "type": "binary_comparison_operator",
+            "type": "binaryComparisonOperator",
             "column": {
                 "type": "column",
                 "name": "id",
@@ -29,7 +29,7 @@
             }
         }
     },
-    "collection_relationships": {},
+    "collectionRelationships": {},
     "variables": [
         {
             "$article_id": 1

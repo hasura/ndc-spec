@@ -1,6 +1,6 @@
 {
     "$schema": "../../../../ndc-client/tests/json_schema/mutation_request.jsonschema",
-    "insert_schema": [],
+    "insertSchema": [],
     "operations": [
         {
             "type": "procedure",
@@ -37,5 +37,5 @@
             }
         }
     ],
-    "collection_relationships": {}
+    "collectionRelationships": {}
 }

@@ -5,16 +5,16 @@
     "query": {
         "aggregates": {
             "distinct_author_count": {
-                "type": "column_count",
+                "type": "columnCount",
                 "column": "author_id",
                 "distinct": true
             },
             "author_count": {
-                "type": "column_count",
+                "type": "columnCount",
                 "column": "author_id",
                 "distinct": false
             }
         }
     },
-    "collection_relationships": {}
+    "collectionRelationships": {}
 }

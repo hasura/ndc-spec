@@ -48,10 +48,10 @@
       "title": "Query Capabilities",
       "type": "object",
       "properties": {
-        "relation_comparisons": {
+        "relationComparisons": {
           "description": "Does the agent support comparisons that involve related collections (ie. joins)?"
         },
-        "order_by_aggregate": {
+        "orderByAggregate": {
           "description": "Does the agent support ordering by an aggregated array relationship?"
         },
         "foreach": {
@@ -63,7 +63,7 @@
       "title": "Mutation Capabilities",
       "type": "object",
       "properties": {
-        "nested_inserts": {
+        "nestedInserts": {
           "description": "Whether or not nested inserts to related collections are supported"
         },
         "returning": true

@@ -15,5 +15,5 @@
         "limit": 2,
         "offset": 1
     },
-    "collection_relationships": {}
+    "collectionRelationships": {}
 }

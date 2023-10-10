@@ -14,7 +14,7 @@
             }
         },
         "where": {
-            "type": "binary_array_comparison_operator",
+            "type": "binaryArrayComparisonOperator",
             "column": {
                 "type": "column",
                 "name": "id",
@@ -42,15 +42,15 @@
             ]
         }
     },
-    "collection_relationships": {
+    "collectionRelationships": {
         "article_author": {
             "arguments": {},
-            "column_mapping": {
+            "columnMapping": {
                 "author_id": "id"
             },
-            "relationship_type": "object",
-            "source_collection_or_type": "article",
-            "target_collection": "authors"
+            "relationshipType": "object",
+            "sourceType": "article",
+            "targetCollection": "authors"
         }
     }
 }

@@ -5,16 +5,16 @@
     "query": {
         "aggregates": {
             "min_id": {
-                "type": "single_column",
+                "type": "singleColumn",
                 "column": "id",
                 "function": "min"
             },
             "max_id": {
-                "type": "single_column",
+                "type": "singleColumn",
                 "column": "id",
                 "function": "max"
             }
         }
     },
-    "collection_relationships": {}
+    "collectionRelationships": {}
 }

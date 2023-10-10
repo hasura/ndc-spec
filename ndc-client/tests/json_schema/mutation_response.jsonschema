@@ -3,10 +3,10 @@
   "title": "Mutation Response",
   "type": "object",
   "required": [
-    "operation_results"
+    "operationResults"
   ],
   "properties": {
-    "operation_results": {
+    "operationResults": {
       "description": "The results of each mutation operation, in the same order as they were received",
       "type": "array",
       "items": {
@@ -19,10 +19,10 @@
       "title": "Mutation Operation Results",
       "type": "object",
       "required": [
-        "affected_rows"
+        "affectedRows"
       ],
       "properties": {
-        "affected_rows": {
+        "affectedRows": {
           "description": "The number of rows affected by the mutation operation",
           "type": "integer",
           "format": "uint32",

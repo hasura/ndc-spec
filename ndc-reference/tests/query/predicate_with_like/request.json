@@ -14,7 +14,7 @@
             }
         },
         "where": {
-            "type": "binary_comparison_operator",
+            "type": "binaryComparisonOperator",
             "column": {
                 "type": "column",
                 "name": "title",
@@ -30,5 +30,5 @@
             }
         }
     },
-    "collection_relationships": {}
+    "collectionRelationships": {}
 }

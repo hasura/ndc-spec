@@ -1,9 +1,9 @@
 {
-  "scalar_types": {
+  "scalarTypes": {
     "Int": {
-      "aggregate_functions": {
+      "aggregateFunctions": {
         "max": {
-          "result_type": {
+          "resultType": {
             "type": "nullable",
             "underlying_type": {
               "type": "named",
@@ -12,7 +12,7 @@
           }
         },
         "min": {
-          "result_type": {
+          "resultType": {
             "type": "nullable",
             "underlying_type": {
               "type": "named",
@@ -21,23 +21,23 @@
           }
         }
       },
-      "comparison_operators": {},
-      "update_operators": {}
+      "comparisonOperators": {},
+      "updateOperators": {}
     },
     "String": {
-      "aggregate_functions": {},
-      "comparison_operators": {
+      "aggregateFunctions": {},
+      "comparisonOperators": {
         "like": {
-          "argument_type": {
+          "argumentType": {
             "type": "named",
             "name": "String"
           }
         }
       },
-      "update_operators": {}
+      "updateOperators": {}
     }
   },
-  "object_types": {
+  "objectTypes": {
     "article": {
       "description": "An article",
       "fields": {
@@ -98,14 +98,14 @@
       "arguments": {},
       "type": "article",
       "deletable": false,
-      "uniqueness_constraints": {
+      "uniquenessConstraints": {
         "ArticleByID": {
-          "unique_columns": [
+          "uniqueColumns": [
             "id"
           ]
         }
       },
-      "foreign_keys": {}
+      "foreignKeys": {}
     },
     {
       "name": "authors",
@@ -113,14 +113,14 @@
       "arguments": {},
       "type": "author",
       "deletable": false,
-      "uniqueness_constraints": {
+      "uniquenessConstraints": {
         "AuthorByID": {
-          "unique_columns": [
+          "uniqueColumns": [
             "id"
           ]
         }
       },
-      "foreign_keys": {}
+      "foreignKeys": {}
     },
     {
       "name": "articles_by_author",
@@ -135,8 +135,8 @@
       },
       "type": "article",
       "deletable": false,
-      "uniqueness_constraints": {},
-      "foreign_keys": {}
+      "uniquenessConstraints": {},
+      "foreignKeys": {}
     }
   ],
   "functions": [
@@ -144,7 +144,7 @@
       "name": "latest_article_id",
       "description": "Get the ID of the most recent article",
       "arguments": {},
-      "result_type": {
+      "resultType": {
         "type": "nullable",
         "underlying_type": {
           "type": "named",
@@ -166,7 +166,7 @@
           }
         }
       },
-      "result_type": {
+      "resultType": {
         "type": "nullable",
         "underlying_type": {
           "type": "named",

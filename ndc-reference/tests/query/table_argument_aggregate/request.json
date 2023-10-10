@@ -24,20 +24,20 @@
                 "query": {
                     "aggregates": {
                         "count": {
-                            "type": "star_count"
+                            "type": "starCount"
                         }
                     }
                 }
             }
         }
     },
-    "collection_relationships": {
+    "collectionRelationships": {
         "author_articles": {
             "arguments": {},
-            "column_mapping": {},
-            "relationship_type": "array",
-            "source_collection_or_type": "author",
-            "target_collection": "articles_by_author"
+            "columnMapping": {},
+            "relationshipType": "array",
+            "sourceType": "author",
+            "targetCollection": "articles_by_author"
         }
     }
 }

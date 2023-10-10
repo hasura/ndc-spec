@@ -14,7 +14,7 @@
             }
         },
         "where": {
-            "type": "binary_array_comparison_operator",
+            "type": "binaryArrayComparisonOperator",
             "column": {
                 "type": "column",
                 "name": "author_id",
@@ -33,5 +33,5 @@
             ]
         }
     },
-    "collection_relationships": {}
+    "collectionRelationships": {}
 }

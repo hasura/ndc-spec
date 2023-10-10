@@ -46,7 +46,7 @@
                             "type": "and",
                             "expressions": [
                                 {
-                                    "type": "binary_comparison_operator",
+                                    "type": "binaryComparisonOperator",
                                     "column": {
                                         "type": "column",
                                         "name": "author_id",
@@ -58,13 +58,13 @@
                                     "value": {
                                         "type": "column",
                                         "column": {
-                                            "type": "root_collection_column",
+                                            "type": "rootCollectionColumn",
                                             "name": "id"
                                         }
                                     }
                                 },
                                 {
-                                    "type": "binary_comparison_operator",
+                                    "type": "binaryComparisonOperator",
                                     "column": {
                                         "type": "column",
                                         "name": "title",
@@ -87,24 +87,24 @@
             }
         }
     },
-    "collection_relationships": {
+    "collectionRelationships": {
         "author_articles": {
             "arguments": {},
-            "column_mapping": {
+            "columnMapping": {
                 "id": "author_id"
             },
-            "relationship_type": "array",
-            "source_collection_or_type": "author",
-            "target_collection": "articles"
+            "relationshipType": "array",
+            "sourceType": "author",
+            "targetCollection": "articles"
         },
         "article_author": {
             "arguments": {},
-            "column_mapping": {
+            "columnMapping": {
                 "author_id": "id"
             },
-            "relationship_type": "object",
-            "source_collection_or_type": "articles",
-            "target_collection": "authors"
+            "relationshipType": "object",
+            "sourceType": "articles",
+            "targetCollection": "authors"
         }
     }
 }

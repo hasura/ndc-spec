@@ -1,6 +1,6 @@
 {
     "$schema": "../../../../ndc-client/tests/json_schema/mutation_request.jsonschema",
-    "insert_schema": [],
+    "insertSchema": [],
     "operations": [
         {
             "type": "procedure",
@@ -37,15 +37,15 @@
             }
         }
     ],
-    "collection_relationships": {
+    "collectionRelationships": {
         "article_author": {
             "arguments": {},
-            "column_mapping": {
+            "columnMapping": {
                 "author_id": "id"
             },
-            "relationship_type": "object",
-            "source_collection_or_type": "article",
-            "target_collection": "authors"
+            "relationshipType": "object",
+            "sourceType": "article",
+            "targetCollection": "authors"
         }
     }
 }

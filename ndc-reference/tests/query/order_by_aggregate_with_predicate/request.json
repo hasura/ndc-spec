@@ -19,11 +19,11 @@
                 "query": {
                     "aggregates": {
                         "articles_with_numerals_count": {
-                            "type": "star_count"
+                            "type": "starCount"
                         }
                     },
                     "where": {
-                        "type": "binary_comparison_operator",
+                        "type": "binaryComparisonOperator",
                         "column": {
                             "type": "column",
                             "name": "title",
@@ -46,13 +46,13 @@
                 {
                     "order_direction": "desc",
                     "target": {
-                        "type": "star_count_aggregate",
+                        "type": "starCount_aggregate",
                         "path": [
                             {
                                 "arguments": {},
                                 "relationship": "author_articles",
                                 "predicate": {
-                                    "type": "binary_comparison_operator",
+                                    "type": "binaryComparisonOperator",
                                     "column": {
                                         "type": "column",
                                         "name": "title",
@@ -74,15 +74,15 @@
             ]
         }
     },
-    "collection_relationships": {
+    "collectionRelationships": {
         "author_articles": {
             "arguments": {},
-            "column_mapping": {
+            "columnMapping": {
                 "id": "author_id"
             },
-            "relationship_type": "array",
-            "source_collection_or_type": "author",
-            "target_collection": "articles"
+            "relationshipType": "array",
+            "sourceType": "author",
+            "targetCollection": "articles"
         }
     }
 }
