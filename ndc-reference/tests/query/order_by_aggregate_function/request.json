@@ -27,12 +27,12 @@
                 }
             }
         },
-        "order_by": {
+        "orderBy": {
             "elements": [
                 {
-                    "order_direction": "asc",
+                    "orderDirection": "asc",
                     "target": {
-                        "type": "singleColumn_aggregate",
+                        "type": "singleColumnAggregate",
                         "column": "id",
                         "function": "max",
                         "path": [

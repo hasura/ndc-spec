@@ -30,7 +30,7 @@
                 }
             }
         },
-        "order_by": {
+        "orderBy": {
             "elements": [
                 {
                     "target": {
@@ -47,7 +47,7 @@
                             }
                         ]
                     },
-                    "order_direction": "asc"
+                    "orderDirection": "asc"
                 },
                 {
                     "target": {
@@ -64,7 +64,7 @@
                             }
                         ]
                     },
-                    "order_direction": "asc"
+                    "orderDirection": "asc"
                 }
             ]
         }

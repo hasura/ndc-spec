@@ -13,7 +13,7 @@
                 "column": "title"
             }
         },
-        "order_by": {
+        "orderBy": {
             "elements": [
                 {
                     "target": {
@@ -21,7 +21,7 @@
                         "name": "title",
                         "path": []
                     },
-                    "order_direction": "desc"
+                    "orderDirection": "desc"
                 }
             ]
         }

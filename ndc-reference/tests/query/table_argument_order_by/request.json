@@ -9,12 +9,12 @@
                 "column": "id"
             }
         },
-        "order_by": {
+        "orderBy": {
             "elements": [
                 {
-                    "order_direction": "desc",
+                    "orderDirection": "desc",
                     "target": {
-                        "type": "starCount_aggregate",
+                        "type": "starCountAggregate",
                         "path": [
                             {
                                 "arguments": {
