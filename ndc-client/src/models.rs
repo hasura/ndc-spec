@@ -801,24 +801,6 @@ pub struct MutationOperationResults {
 }
 // ANCHOR_END: MutationOperationResults
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-#[schemars(title = "SecretableValue")]
-/// Either a literal string or a reference to a Hasura secret
-pub enum SecretableValue {
-    Value(String),
-    StringValueFromSecret(String),
-}
-
-pub fn secretable_value_reference(
-    _gen: &mut schemars::gen::SchemaGenerator,
-) -> schemars::schema::Schema {
-    schemars::schema::Schema::Object(schemars::schema::SchemaObject {
-        reference: Some("https://raw.githubusercontent.com/hasura/ndc-spec/main/ndc-client/tests/json_schema/secretable_value.jsonschema".into()),
-        ..Default::default()
-    })
-}
-
 #[cfg(test)]
 mod tests {
     use crate::models;
@@ -876,12 +858,6 @@ mod tests {
             &mut mint,
             schema_for!(models::MutationResponse),
             "mutation_response.jsonschema",
-        );
-
-        test_json_schema(
-            &mut mint,
-            schema_for!(models::SecretableValue),
-            "secretable_value.jsonschema",
         );
     }
 
