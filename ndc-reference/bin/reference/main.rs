@@ -1725,7 +1725,7 @@ mod tests {
     };
     use tokio::sync::Mutex;
 
-    use crate::{get_capabilities, get_schema, init_app_state, post_query};
+    use crate::{get_capabilities, get_schema, init_app_state, post_query, post_mutation};
 
     #[test]
     fn test_capabilities() {
@@ -1877,12 +1877,25 @@ mod tests {
                 .map_err(|(_, Json(err))| Error::ConnectorError(err))?
                 .0)
         }
+
+        async fn mutation(
+            &self,
+            request: models::MutationRequest,
+        ) -> Result<models::MutationResponse, Error> {
+            Ok(post_mutation(State(self.state.clone()), Json(request))
+                .await
+                .map_err(|(_, Json(err))| Error::ConnectorError(err))?
+                .0)
+        }
     }
 
     #[test]
     fn test_ndc_test() {
         tokio_test::block_on(async {
-            let configuration = TestConfiguration { seed: None };
+            let configuration = TestConfiguration {
+                seed: None,
+                snapshots_dir: None,
+            };
             let connector = Reference {
                 state: Arc::new(Mutex::new(init_app_state())),
             };

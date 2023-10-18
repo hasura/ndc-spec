@@ -1,6 +1,10 @@
 use std::cell::RefCell;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::hash_map::DefaultHasher;
+use std::collections::BTreeMap;
+use std::fs::File;
 use std::future::Future;
+use std::hash::Hasher;
+use std::path::{Path, PathBuf};
 
 use async_trait::async_trait;
 use indexmap::IndexMap;
@@ -11,6 +15,7 @@ use proptest::prelude::Rng;
 use proptest::sample::select;
 use proptest::strategy::{Just, Strategy, Union, ValueTree};
 use proptest::test_runner::{Config, Reason, RngAlgorithm, TestRng, TestRunner};
+use serde::de::DeserializeOwned;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -49,6 +54,12 @@ pub enum Error {
     MissingField(String),
     #[error("error response from connector: {0:?}")]
     ConnectorError(ndc_client::models::ErrorResponse),
+    #[error("cannot open snapshot file: {0:?}")]
+    CannotOpenSnapshotFile(std::io::Error),
+    #[error("error (de)serializing data structure: {0:?}")]
+    SerdeError(serde_json::Error),
+    #[error("snapshot did not match file {0}: {1}")]
+    ResponseDidNotMatchSnapshot(PathBuf, String),
     #[error("other error")]
     OtherError(#[from] Box<dyn std::error::Error>),
 }
@@ -76,24 +87,36 @@ async fn test<A, F: Future<Output = Result<A, Error>>>(
     name: &str,
     results: &RefCell<TestResults>,
     f: F,
-) -> Option<A> {
+) -> Option<A>
+where
+    A: serde::Serialize + serde::de::DeserializeOwned + PartialEq,
+{
     use colored::Colorize;
 
     {
-        let results = results.borrow();
-        let level = results.path.len();
+        let mut results_mut = results.borrow_mut();
+        let level = results_mut.path.len();
         let spaces = "│ ".repeat(level);
         print!("{spaces}├ {name} ...");
+        results_mut.path.push(name.into());
     }
 
-    match f.await {
+    let result = match f.await {
         Ok(result) => {
             println!(" {}", "OK".green());
-            Some(result)
+            Ok(result)
         }
         Err(err) => {
-            let mut results_mut = results.borrow_mut();
             println!(" {}", "FAIL".red());
+            Err(err)
+        }
+    };
+
+    let mut results_mut = results.borrow_mut();
+    results_mut.path.pop();
+
+    match result {
+        Err(err) => {
             let path = results_mut.path.clone();
             results_mut.failures.push(FailedTest {
                 path,
@@ -102,6 +125,7 @@ async fn test<A, F: Future<Output = Result<A, Error>>>(
             });
             None
         }
+        Ok(result) => Some(result),
     }
 }
 
@@ -121,9 +145,40 @@ async fn nest<A, F: Future<Output = A>>(name: &str, results: &RefCell<TestResult
     result
 }
 
+fn snapshot_test<R>(snapshot_path: &Path, expected: &R) -> Result<(), Error>
+where
+    R: serde::Serialize + serde::de::DeserializeOwned + PartialEq,
+{
+    if snapshot_path.exists() {
+        let snapshot_file = File::open(snapshot_path).map_err(Error::CannotOpenSnapshotFile)?;
+        let snapshot: R = serde_json::from_reader(snapshot_file).map_err(Error::SerdeError)?;
+
+        if snapshot != *expected {
+            let expected_json =
+                serde_json::to_string_pretty(&expected).map_err(Error::SerdeError)?;
+            return Err(Error::ResponseDidNotMatchSnapshot(
+                snapshot_path.into(),
+                expected_json,
+            ));
+        }
+    } else {
+        let parent = snapshot_path.parent().unwrap();
+        let snapshot_file = (|| {
+            std::fs::create_dir_all(parent)?;
+            File::create(snapshot_path)
+        })()
+        .map_err(Error::CannotOpenSnapshotFile)?;
+
+        serde_json::to_writer_pretty(snapshot_file, &expected).map_err(Error::SerdeError)?;
+    }
+
+    Ok(())
+}
+
 #[derive(Debug)]
 pub struct TestConfiguration {
     pub seed: Option<String>,
+    pub snapshots_dir: Option<PathBuf>,
 }
 
 #[async_trait]
@@ -133,6 +188,11 @@ pub trait Connector {
     async fn get_schema(&self) -> Result<models::SchemaResponse, Error>;
 
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse, Error>;
+
+    async fn mutation(
+        &self,
+        request: models::MutationRequest,
+    ) -> Result<models::MutationResponse, Error>;
 }
 
 #[async_trait]
@@ -147,6 +207,13 @@ impl Connector for Configuration {
 
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse, Error> {
         Ok(api::query_post(self, request).await?)
+    }
+
+    async fn mutation(
+        &self,
+        request: models::MutationRequest,
+    ) -> Result<models::MutationResponse, Error> {
+        Ok(api::mutation_post(self, request).await?)
     }
 }
 
@@ -187,24 +254,25 @@ pub async fn test_connector<C: Connector>(
         },
     );
 
-    let _ = run_all_tests(connector, &mut runner, &results).await;
+    let _ = run_all_tests(configuration, connector, &mut runner, &results).await;
 
     results.into_inner()
 }
 
 async fn run_all_tests<C: Connector>(
+    configuration: &TestConfiguration,
     connector: &C,
     runner: &mut TestRunner,
     results: &RefCell<TestResults>,
 ) -> Option<()> {
-    println!("Capabilities");
-
-    let capabilities = async {
-        let capabilities = test(
-            "Fetching /capabilities",
-            results,
-            connector.get_capabilities(),
-        )
+    let capabilities = nest("Capabilities", results, async {
+        let capabilities = test("Fetching /capabilities", results, async {
+            let response = connector.get_capabilities().await?;
+            for snapshots_dir in configuration.snapshots_dir.iter() {
+                snapshot_test(snapshots_dir.join("capabilities").as_path(), &response)?;
+            }
+            Ok(response)
+        })
         .await?;
 
         let _ = test("Validating capabilities", results, async {
@@ -213,12 +281,18 @@ async fn run_all_tests<C: Connector>(
         .await;
 
         Some(capabilities)
-    }
+    })
     .await?;
 
-    println!("Schema");
-    let schema = async {
-        let schema = test("Fetching /schema", results, connector.get_schema()).await?;
+    let schema = nest("Schema", results, async {
+        let schema = test("Fetching schema", results, async {
+            let response = connector.get_schema().await?;
+            for snapshots_dir in configuration.snapshots_dir.iter() {
+                snapshot_test(snapshots_dir.join("schema").as_path(), &response)?;
+            }
+            Ok(response)
+        })
+        .await?;
 
         nest("Validating schema", results, async {
             validate_schema(&schema, results).await
@@ -226,12 +300,22 @@ async fn run_all_tests<C: Connector>(
         .await?;
 
         Some(schema)
-    }
+    })
     .await?;
 
-    println!("Query");
-
-    test_query(connector, &capabilities, &schema, runner, results).await;
+    nest(
+        "Query",
+        results,
+        test_query(
+            configuration,
+            connector,
+            &capabilities,
+            &schema,
+            runner,
+            results,
+        ),
+    )
+    .await;
 
     Some(())
 }
@@ -381,6 +465,7 @@ pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> 
 }
 
 pub async fn test_query<C: Connector>(
+    configuration: &TestConfiguration,
     connector: &C,
     _capabilities: &models::CapabilitiesResponse,
     schema: &models::SchemaResponse,
@@ -391,12 +476,27 @@ pub async fn test_query<C: Connector>(
         nest(collection_info.name.as_str(), results, async {
             if collection_info.arguments.is_empty() {
                 nest("Simple queries", results, async {
-                    test_simple_queries(connector, runner, results, schema, collection_info).await
+                    test_simple_queries(
+                        configuration,
+                        connector,
+                        runner,
+                        results,
+                        schema,
+                        collection_info,
+                    )
+                    .await
                 })
                 .await;
 
                 nest("Aggregate queries", results, async {
-                    test_aggregate_queries(connector, schema, collection_info, results).await
+                    test_aggregate_queries(
+                        configuration,
+                        connector,
+                        schema,
+                        collection_info,
+                        results,
+                    )
+                    .await
                 })
                 .await;
             } else {
@@ -408,39 +508,45 @@ pub async fn test_query<C: Connector>(
 }
 
 async fn test_simple_queries<C: Connector>(
+    configuration: &TestConfiguration,
     connector: &C,
     runner: &mut TestRunner,
     results: &RefCell<TestResults>,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
 ) -> Option<()> {
-    let (collection_type, rows) = test("Select top N", results, async {
-        let collection_type = schema
-            .object_types
-            .get(collection_info.collection_type.as_str())
-            .ok_or(Error::CollectionTypeIsNotDefined(
-                collection_info.collection_type.clone(),
-            ))?;
+    let collection_type = schema
+        .object_types
+        .get(collection_info.collection_type.as_str())
+        .ok_or(Error::CollectionTypeIsNotDefined(
+            collection_info.collection_type.clone(),
+        ))
+        .ok()?;
 
-        let rows = test_select_top_n_rows(connector, collection_type, collection_info).await?;
-
-        Ok((collection_type, rows))
-    })
+    let rows = test(
+        "Select top N",
+        results,
+        test_select_top_n_rows(configuration, connector, collection_type, collection_info),
+    )
     .await?;
 
     test("Predicates", results, async {
         let value_strategies = make_value_strategies(rows, collection_type)?;
 
         if let Some(expression_strategy) = make_expression_strategies(value_strategies) {
-            for _ in 1..10 {
-                test_select_top_n_rows_with_predicate(
-                    connector,
-                    runner,
-                    &expression_strategy,
-                    collection_type,
-                    collection_info,
-                )
-                .await?;
+            for _ in 0..10 {
+                if let Ok(tree) = expression_strategy.new_tree(runner) {
+                    let predicate = tree.current();
+
+                    test_select_top_n_rows_with_predicate(
+                        configuration,
+                        connector,
+                        predicate,
+                        collection_type,
+                        collection_info,
+                    )
+                    .await?;
+                }
             }
         } else {
             eprintln!("Skipping empty collection {}", collection_info.name);
@@ -454,15 +560,18 @@ async fn test_simple_queries<C: Connector>(
         if let Some(order_by_elements_strategy) =
             make_order_by_elements_strategy(collection_type.clone())
         {
-            for _ in 1..10 {
-                test_select_top_n_rows_with_sort(
-                    connector,
-                    runner,
-                    &order_by_elements_strategy,
-                    collection_type,
-                    collection_info,
-                )
-                .await?;
+            for _ in 0..10 {
+                if let Ok(tree) = order_by_elements_strategy.new_tree(runner) {
+                    let elements = tree.current();
+                    test_select_top_n_rows_with_sort(
+                        configuration,
+                        connector,
+                        elements,
+                        collection_type,
+                        collection_info,
+                    )
+                    .await?;
+                }
             }
         } else {
             eprintln!("Skipping empty collection {}", collection_info.name);
@@ -474,6 +583,7 @@ async fn test_simple_queries<C: Connector>(
 }
 
 async fn test_select_top_n_rows<C: Connector>(
+    configuration: &TestConfiguration,
     connector: &C,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
@@ -494,83 +604,105 @@ async fn test_select_top_n_rows<C: Connector>(
         variables: None,
     };
 
-    let response = connector.query(query_request).await?;
+    let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
 
-    expect_single_rows(response)
+    expect_single_rows(&response)
 }
 
 async fn test_select_top_n_rows_with_predicate<C: Connector>(
+    configuration: &TestConfiguration,
     connector: &C,
-    runner: &mut TestRunner,
-    expression_strategy: &impl Strategy<Value = models::Expression>,
+    predicate: models::Expression,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
-) -> Result<(), Error> {
-    if let Ok(tree) = expression_strategy.new_tree(runner) {
-        let predicate = tree.current();
+) -> Result<ndc_client::models::QueryResponse, Error> {
+    let fields = select_all_columns(collection_type);
 
-        let fields = select_all_columns(collection_type);
+    let query_request = models::QueryRequest {
+        collection: collection_info.name.clone(),
+        query: models::Query {
+            aggregates: None,
+            fields: Some(fields),
+            limit: Some(10),
+            offset: None,
+            order_by: None,
+            predicate: Some(predicate),
+        },
+        arguments: BTreeMap::new(),
+        collection_relationships: BTreeMap::new(),
+        variables: None,
+    };
 
-        let query_request = models::QueryRequest {
-            collection: collection_info.name.clone(),
-            query: models::Query {
-                aggregates: None,
-                fields: Some(fields),
-                limit: Some(10),
-                offset: None,
-                order_by: None,
-                predicate: Some(predicate),
-            },
-            arguments: BTreeMap::new(),
-            collection_relationships: BTreeMap::new(),
-            variables: None,
-        };
+    let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
 
-        let response = connector.query(query_request).await?;
+    expect_single_non_empty_rows(&response)?;
 
-        expect_single_non_empty_rows(response)?;
-    }
-
-    Ok(())
+    Ok(response)
 }
 
 async fn test_select_top_n_rows_with_sort<C: Connector>(
+    configuration: &TestConfiguration,
     connector: &C,
-    runner: &mut TestRunner,
-    order_by_elements_strategy: &impl Strategy<Value = Vec<models::OrderByElement>>,
+    elements: Vec<models::OrderByElement>,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
-) -> Result<(), Error> {
-    if let Ok(tree) = order_by_elements_strategy.new_tree(runner) {
-        let elements = tree.current();
+) -> Result<ndc_client::models::QueryResponse, Error> {
+    let fields = select_all_columns(collection_type);
 
-        let fields = select_all_columns(collection_type);
+    let query_request = models::QueryRequest {
+        collection: collection_info.name.clone(),
+        query: models::Query {
+            aggregates: None,
+            fields: Some(fields),
+            limit: Some(10),
+            offset: None,
+            order_by: Some(models::OrderBy { elements }),
+            predicate: None,
+        },
+        arguments: BTreeMap::new(),
+        collection_relationships: BTreeMap::new(),
+        variables: None,
+    };
 
-        let query_request = models::QueryRequest {
-            collection: collection_info.name.clone(),
-            query: models::Query {
-                aggregates: None,
-                fields: Some(fields),
-                limit: Some(10),
-                offset: None,
-                order_by: Some(models::OrderBy { elements }),
-                predicate: None,
-            },
-            arguments: BTreeMap::new(),
-            collection_relationships: BTreeMap::new(),
-            variables: None,
+    let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
+
+    expect_single_rows(&response)?;
+
+    Ok(response)
+}
+
+async fn execute_and_snapshot_query<C: Connector>(
+    configuration: &TestConfiguration,
+    connector: &C,
+    query_request: models::QueryRequest,
+) -> Result<models::QueryResponse, Error> {
+    use std::hash::Hash;
+
+    let request_json = serde_json::to_string_pretty(&query_request).map_err(Error::SerdeError)?;
+    let response = connector.query(query_request).await?;
+
+    if let Some(snapshots_dir) = &configuration.snapshots_dir {
+        let mut hasher = DefaultHasher::new();
+        request_json.hash(&mut hasher);
+        let hash = hasher.finish();
+
+        let snapshot_subdir = {
+            let mut builder = snapshots_dir.clone();
+            builder.extend(vec!["query", format!("{:x}", hash).as_str()]);
+            builder
         };
 
-        let response = connector.query(query_request).await?;
+        snapshot_test(snapshot_subdir.join("expected.json").as_path(), &response)?;
 
-        expect_single_rows(response)?;
+        std::fs::write(snapshot_subdir.join("request.json").as_path(), request_json)
+            .map_err(Error::CannotOpenSnapshotFile)?;
     }
 
-    Ok(())
+    Ok(response)
 }
 
 fn expect_single_non_empty_rows(
-    response: models::QueryResponse,
+    response: &models::QueryResponse,
 ) -> Result<Vec<IndexMap<String, models::RowFieldValue>>, Error> {
     let rows = expect_single_rows(response)?;
 
@@ -582,7 +714,7 @@ fn expect_single_non_empty_rows(
 }
 
 fn expect_single_rows(
-    response: models::QueryResponse,
+    response: &models::QueryResponse,
 ) -> Result<Vec<IndexMap<String, models::RowFieldValue>>, Error> {
     if response.0.len() != 1 {
         return Err(Error::ExpectedSingleRowSet);
@@ -600,8 +732,8 @@ fn expect_single_rows(
 fn make_value_strategies(
     rows: Vec<IndexMap<String, models::RowFieldValue>>,
     collection_type: &models::ObjectType,
-) -> Result<HashMap<String, impl Strategy<Value = serde_json::Value>>, Error> {
-    let mut values: HashMap<String, Vec<serde_json::Value>> = HashMap::new();
+) -> Result<BTreeMap<String, impl Strategy<Value = serde_json::Value>>, Error> {
+    let mut values: BTreeMap<String, Vec<serde_json::Value>> = BTreeMap::new();
 
     for row in rows {
         for (field_name, _) in collection_type.fields.iter() {
@@ -623,13 +755,13 @@ fn make_value_strategies(
     let strategies = values
         .into_iter()
         .map(|(field_name, examples)| Ok((field_name, select(examples))))
-        .collect::<Result<HashMap<String, _>, Reason>>()?;
+        .collect::<Result<BTreeMap<String, _>, Reason>>()?;
 
     Ok(strategies)
 }
 
 fn make_expression_strategies<S: Strategy<Value = serde_json::Value>>(
-    value_strategies: HashMap<String, S>,
+    value_strategies: BTreeMap<String, S>,
 ) -> Option<impl Strategy<Value = models::Expression>> {
     let expression_strategies = value_strategies
         .into_iter()
@@ -704,6 +836,7 @@ fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, 
 }
 
 async fn test_aggregate_queries<C: Connector>(
+    _configuration: &TestConfiguration,
     connector: &C,
     _schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
@@ -750,4 +883,87 @@ async fn test_star_count_aggregate<C: Connector>(
         return Err(Error::ExpectedSingleRowSet);
     }
     Ok(())
+}
+
+pub async fn test_snapshots_in_directory<C: Connector>(
+    connector: &C,
+    snapshots_dir: PathBuf,
+) -> TestResults {
+    let results = RefCell::new(TestResults {
+        path: vec![],
+        failures: vec![],
+    });
+
+    let _ = async {
+        nest(
+            "Query",
+            &results,
+            test_snapshots_in_directory_with::<C, _, _, _, _>(
+                snapshots_dir.join("query"),
+                &results,
+                |req| connector.query(req),
+            ),
+        )
+        .await;
+
+        nest(
+            "Mutation",
+            &results,
+            test_snapshots_in_directory_with::<C, _, _, _, _>(
+                snapshots_dir.join("mutation"),
+                &results,
+                |req| connector.mutation(req),
+            ),
+        )
+        .await;
+
+        Some(())
+    }
+    .await;
+
+    results.into_inner()
+}
+
+pub async fn test_snapshots_in_directory_with<
+    C: Connector,
+    Req: DeserializeOwned,
+    Res: DeserializeOwned + serde::Serialize + PartialEq,
+    E: std::error::Error + 'static,
+    F: Future<Output = Result<Res, E>>,
+>(
+    snapshots_dir: PathBuf,
+    results: &RefCell<TestResults>,
+    f: impl Fn(Req) -> F,
+) {
+    match std::fs::read_dir(snapshots_dir) {
+        Ok(dir) => {
+            for entry in dir {
+                let entry = entry.expect("Error reading snapshot directory entry");
+
+                test(
+                    entry.file_name().to_str().unwrap_or("{unknown}"),
+                    results,
+                    async {
+                        let path = entry.path();
+
+                        let snapshot_pathbuf = path.to_path_buf().join("expected.json");
+                        let snapshot_path = snapshot_pathbuf.as_path();
+
+                        let request_file = File::open(path.join("request.json"))
+                            .map_err(Error::CannotOpenSnapshotFile)?;
+                        let request =
+                            serde_json::from_reader(request_file).map_err(Error::SerdeError)?;
+
+                        let response = f(request)
+                            .await
+                            .map_err(|e| Error::OtherError(Box::new(e)))?;
+
+                        snapshot_test(snapshot_path, &response)
+                    },
+                )
+                .await;
+            }
+        }
+        Err(e) => println!("Warning: a snapshot folder could not be found: {}", e),
+    }
 }
