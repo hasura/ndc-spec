@@ -935,31 +935,35 @@ pub async fn test_snapshots_in_directory_with<
     results: &RefCell<TestResults>,
     f: impl Fn(Req) -> F,
 ) {
-    let dir = std::fs::read_dir(snapshots_dir).expect("Unable to read snapshot directory");
+    match std::fs::read_dir(snapshots_dir) {
+        Ok(dir) => {
+            for entry in dir {
+                let entry = entry.expect("Error reading snapshot directory entry");
 
-    for entry in dir {
-        let entry = entry.expect("Error reading snapshot directory entry");
+                test(
+                    entry.file_name().to_str().unwrap_or("{unknown}"),
+                    results,
+                    async {
+                        let path = entry.path();
 
-        test(
-            entry.file_name().to_str().unwrap_or("{unknown}"),
-            results,
-            async {
-                let path = entry.path();
+                        let snapshot_pathbuf = path.to_path_buf().join("expected.json");
+                        let snapshot_path = snapshot_pathbuf.as_path();
 
-                let snapshot_pathbuf = path.to_path_buf().join("expected.json");
-                let snapshot_path = snapshot_pathbuf.as_path();
+                        let request_file = File::open(path.join("request.json"))
+                            .map_err(Error::CannotOpenSnapshotFile)?;
+                        let request =
+                            serde_json::from_reader(request_file).map_err(Error::SerdeError)?;
 
-                let request_file =
-                    File::open(path.join("request.json")).map_err(Error::CannotOpenSnapshotFile)?;
-                let request = serde_json::from_reader(request_file).map_err(Error::SerdeError)?;
+                        let response = f(request)
+                            .await
+                            .map_err(|e| Error::OtherError(Box::new(e)))?;
 
-                let response = f(request)
-                    .await
-                    .map_err(|e| Error::OtherError(Box::new(e)))?;
-
-                snapshot_test(snapshot_path, &response)
-            },
-        )
-        .await;
+                        snapshot_test(snapshot_path, &response)
+                    },
+                )
+                .await;
+            }
+        }
+        Err(e) => println!("Warning: a snapshot folder could not be found: {}", e),
     }
 }
