@@ -1,8 +1,8 @@
 [package]
 name = "ndc-client"
 description = "Protocol definitions and client library for the Hasura NDC specification"
-version.workspace = true
-edition.workspace = true
+version = "0.1.0"
+edition = "2021"
 
 [dependencies]
 async-trait = "^0.1.67"

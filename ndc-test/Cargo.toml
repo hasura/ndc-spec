@@ -1,8 +1,8 @@
 [package]
 name = "ndc-test"
 description = "A tool to verify that a data connector is somewhat compatible with the specification"
-version.workspace = true
-edition.workspace = true
+version = "0.1.0"
+edition = "2021"
 
 [dependencies]
 async-trait = "^0.1.67"
