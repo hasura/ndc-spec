@@ -878,7 +878,6 @@
         "arguments",
         "column_mapping",
         "relationship_type",
-        "source_collection_or_type",
         "target_collection"
       ],
       "properties": {
@@ -891,10 +890,6 @@
         },
         "relationship_type": {
           "$ref": "#/definitions/RelationshipType"
-        },
-        "source_collection_or_type": {
-          "description": "The name of the collection or object type which is the source of this relationship",
-          "type": "string"
         },
         "target_collection": {
           "description": "The name of a collection",
