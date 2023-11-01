@@ -13,7 +13,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use ndc_client::models;
+use ndc_client::models::{self, LeafCapability};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
@@ -161,21 +161,20 @@ async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String
 // ANCHOR_END: metrics
 // ANCHOR: capabilities
 async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
-    let empty = serde_json::to_value(BTreeMap::<String, ()>::new()).unwrap();
     Json(models::CapabilitiesResponse {
         versions: "^0.1.0".into(),
         capabilities: models::Capabilities {
             explain: None,
             query: Some(models::QueryCapabilities {
-                foreach: Some(empty.clone()),
-                order_by_aggregate: Some(empty.clone()),
-                relation_comparisons: Some(empty.clone()),
+                foreach: Some(LeafCapability {}),
+                order_by_aggregate: Some(LeafCapability {}),
+                relation_comparisons: Some(LeafCapability {}),
             }),
             mutations: Some(models::MutationCapabilities {
-                returning: Some(empty.clone()),
-                nested_inserts: Some(empty.clone()),
+                returning: Some(LeafCapability {}),
+                nested_inserts: Some(LeafCapability {}),
             }),
-            relationships: Some(empty),
+            relationships: Some(LeafCapability {}),
         },
     })
 }
@@ -1725,7 +1724,7 @@ mod tests {
     };
     use tokio::sync::Mutex;
 
-    use crate::{get_capabilities, get_schema, init_app_state, post_query, post_mutation};
+    use crate::{get_capabilities, get_schema, init_app_state, post_mutation, post_query};
 
     #[test]
     fn test_capabilities() {

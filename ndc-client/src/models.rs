@@ -27,6 +27,13 @@ pub struct CapabilitiesResponse {
 }
 // ANCHOR_END: CapabilitiesResponse
 
+// ANCHOR: LeafCapability
+/// A unit value to indicate a particular leaf capability is supported.
+/// This is an empty struct to allow for future sub-capabilities.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct LeafCapability {}
+// ANCHOR_END: LeafCapability
+
 // ANCHOR: Capabilities
 /// Describes the features of the specification which a data connector implements.
 #[skip_serializing_none]
@@ -34,9 +41,9 @@ pub struct CapabilitiesResponse {
 #[schemars(title = "Capabilities")]
 pub struct Capabilities {
     pub query: Option<QueryCapabilities>,
-    pub explain: Option<serde_json::Value>,
+    pub explain: Option<LeafCapability>,
     pub mutations: Option<MutationCapabilities>,
-    pub relationships: Option<serde_json::Value>,
+    pub relationships: Option<LeafCapability>,
 }
 // ANCHOR_END: Capabilities
 
@@ -46,11 +53,11 @@ pub struct Capabilities {
 #[schemars(title = "Query Capabilities")]
 pub struct QueryCapabilities {
     /// Does the agent support comparisons that involve related collections (ie. joins)?
-    pub relation_comparisons: Option<serde_json::Value>,
+    pub relation_comparisons: Option<LeafCapability>,
     /// Does the agent support ordering by an aggregated array relationship?
-    pub order_by_aggregate: Option<serde_json::Value>,
+    pub order_by_aggregate: Option<LeafCapability>,
     /// Does the agent support foreach queries, i.e. queries with variables
-    pub foreach: Option<serde_json::Value>,
+    pub foreach: Option<LeafCapability>,
 }
 // ANCHOR_END: QueryCapabilities
 
@@ -60,8 +67,8 @@ pub struct QueryCapabilities {
 #[schemars(title = "Mutation Capabilities")]
 pub struct MutationCapabilities {
     /// Whether or not nested inserts to related collections are supported
-    pub nested_inserts: Option<serde_json::Value>,
-    pub returning: Option<serde_json::Value>,
+    pub nested_inserts: Option<LeafCapability>,
+    pub returning: Option<LeafCapability>,
 }
 // ANCHOR_END: MutationCapabilities
 

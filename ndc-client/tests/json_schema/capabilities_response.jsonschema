@@ -30,7 +30,16 @@
             }
           ]
         },
-        "explain": true,
+        "explain": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "mutations": {
           "anyOf": [
             {
@@ -41,7 +50,16 @@
             }
           ]
         },
-        "relationships": true
+        "relationships": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
       }
     },
     "QueryCapabilities": {
@@ -49,24 +67,69 @@
       "type": "object",
       "properties": {
         "relation_comparisons": {
-          "description": "Does the agent support comparisons that involve related collections (ie. joins)?"
+          "description": "Does the agent support comparisons that involve related collections (ie. joins)?",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "order_by_aggregate": {
-          "description": "Does the agent support ordering by an aggregated array relationship?"
+          "description": "Does the agent support ordering by an aggregated array relationship?",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "foreach": {
-          "description": "Does the agent support foreach queries, i.e. queries with variables"
+          "description": "Does the agent support foreach queries, i.e. queries with variables",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
+    },
+    "LeafCapability": {
+      "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
+      "type": "object"
     },
     "MutationCapabilities": {
       "title": "Mutation Capabilities",
       "type": "object",
       "properties": {
         "nested_inserts": {
-          "description": "Whether or not nested inserts to related collections are supported"
+          "description": "Whether or not nested inserts to related collections are supported",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
-        "returning": true
+        "returning": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
       }
     }
   }

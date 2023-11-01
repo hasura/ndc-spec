@@ -48,12 +48,6 @@
 {{#include ../../../ndc-client/src/models.rs:CapabilitiesResponse}}
 ```
 
-## `ProcedureInfo`
-
-```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:ProcedureInfo}}
-```
-
 ## `ComparisonOperatorDefinition`
 
 ```rust,no_run,noplayground
@@ -118,6 +112,12 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-client/src/models.rs:InsertFieldSchema}}
+```
+
+## `LeafCapability`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:LeafCapability}}
 ```
 
 ## `MutationCapabilities`
@@ -196,6 +196,12 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-client/src/models.rs:PathElement}}
+```
+
+## `ProcedureInfo`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:ProcedureInfo}}
 ```
 
 ## `Query`
