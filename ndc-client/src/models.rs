@@ -32,7 +32,7 @@ pub struct CapabilitiesResponse {
 /// This is an empty struct to allow for future sub-capabilities.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct LeafCapability {}
-// ANCHOR_END: Capabilities
+// ANCHOR_END: LeafCapability
 
 // ANCHOR: Capabilities
 /// Describes the features of the specification which a data connector implements.
