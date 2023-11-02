@@ -307,7 +307,13 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         deletable: false,
         insertable_columns: None,
         updatable_columns: None,
-        foreign_keys: BTreeMap::new(),
+        foreign_keys: BTreeMap::from_iter([(
+            "Article_AuthorID".into(),
+            models::ForeignKeyConstraint {
+                foreign_collection: "authors".into(),
+                column_mapping: BTreeMap::from_iter([("author_id".into(), "id".into())]),
+            },
+        )]),
         uniqueness_constraints: BTreeMap::from_iter([(
             "ArticleByID".into(),
             models::UniquenessConstraint {
