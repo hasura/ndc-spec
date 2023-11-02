@@ -76,7 +76,8 @@ async fn main() {
                 api_key: None,
             };
 
-            let results = ndc_test::test_snapshots_in_directory(&configuration, snapshots_dir).await;
+            let results =
+                ndc_test::test_snapshots_in_directory(&configuration, snapshots_dir).await;
 
             if !results.failures.is_empty() {
                 println!();

@@ -51,14 +51,12 @@ pub async fn capabilities_get(
             let client = &configuration.client;
 
             let uri_str = format!("{}/capabilities", configuration.base_path);
-            let mut req_builder =
-                client.request(reqwest::Method::GET, uri_str.as_str());
+            let mut req_builder = client.request(reqwest::Method::GET, uri_str.as_str());
 
             req_builder = inject_trace_context(req_builder);
 
             if let Some(ref user_agent) = configuration.user_agent {
-                req_builder = req_builder
-                    .header(reqwest::header::USER_AGENT, user_agent.clone());
+                req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
             if let Some(ref bearer_token) = configuration.bearer_access_token {
@@ -66,17 +64,10 @@ pub async fn capabilities_get(
             }
 
             let req = req_builder.build()?;
-            let resp = client
-                .execute(req)
-                .with_traced_errors()
-                .await?;
+            let resp = client.execute(req).with_traced_errors().await?;
 
             let response_status = resp.status();
-            let response_content = resp
-                .json()
-                .with_traced_errors()
-                .with_context(ctx)
-                .await?;
+            let response_content = resp.json().with_traced_errors().with_context(ctx).await?;
 
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
@@ -105,12 +96,10 @@ pub async fn explain_post(
             let client = &configuration.client;
 
             let uri_str = format!("{}/explain", configuration.base_path);
-            let mut req_builder =
-                client.request(reqwest::Method::POST, uri_str.as_str());
+            let mut req_builder = client.request(reqwest::Method::POST, uri_str.as_str());
 
             if let Some(ref user_agent) = configuration.user_agent {
-                req_builder = req_builder
-                    .header(reqwest::header::USER_AGENT, user_agent.clone());
+                req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
             if let Some(ref bearer_token) = configuration.bearer_access_token {
@@ -122,17 +111,10 @@ pub async fn explain_post(
             req_builder = inject_trace_context(req_builder);
 
             let req = req_builder.build()?;
-            let resp = client
-                .execute(req)
-                .with_traced_errors()
-                .await?;
+            let resp = client.execute(req).with_traced_errors().await?;
 
             let response_status = resp.status();
-            let response_content = resp
-                .json()
-                .with_traced_errors()
-                .with_context(ctx)
-                .await?;
+            let response_content = resp.json().with_traced_errors().with_context(ctx).await?;
 
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
@@ -161,12 +143,10 @@ pub async fn mutation_post(
             let client = &configuration.client;
 
             let uri_str = format!("{}/mutation", configuration.base_path);
-            let mut req_builder =
-                client.request(reqwest::Method::POST, uri_str.as_str());
+            let mut req_builder = client.request(reqwest::Method::POST, uri_str.as_str());
 
             if let Some(ref user_agent) = configuration.user_agent {
-                req_builder = req_builder
-                    .header(reqwest::header::USER_AGENT, user_agent.clone());
+                req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
             if let Some(ref bearer_token) = configuration.bearer_access_token {
@@ -178,17 +158,10 @@ pub async fn mutation_post(
             req_builder = inject_trace_context(req_builder);
 
             let req = req_builder.build()?;
-            let resp = client
-                .execute(req)
-                .with_traced_errors()
-                .await?;
+            let resp = client.execute(req).with_traced_errors().await?;
 
             let response_status = resp.status();
-            let response_content = resp
-                .json()
-                .with_traced_errors()
-                .with_context(ctx)
-                .await?;
+            let response_content = resp.json().with_traced_errors().with_context(ctx).await?;
 
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
@@ -218,12 +191,11 @@ pub async fn query_post(
                 let client = &configuration.client;
 
                 let uri_str = format!("{}/query", configuration.base_path);
-                let mut req_builder =
-                    client.request(reqwest::Method::POST, uri_str.as_str());
+                let mut req_builder = client.request(reqwest::Method::POST, uri_str.as_str());
 
                 if let Some(ref user_agent) = configuration.user_agent {
-                    req_builder = req_builder
-                        .header(reqwest::header::USER_AGENT, user_agent.clone());
+                    req_builder =
+                        req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
                 }
 
                 if let Some(ref bearer_token) = configuration.bearer_access_token {
@@ -235,10 +207,7 @@ pub async fn query_post(
                 req_builder = inject_trace_context(req_builder);
 
                 let req = req_builder.build()?;
-                let resp = client
-                    .execute(req)
-                    .with_traced_errors()
-                    .await?;
+                let resp = client.execute(req).with_traced_errors().await?;
 
                 let response_status = resp.status();
                 let response_content = resp.json().with_traced_errors().await?;
@@ -271,14 +240,12 @@ pub async fn schema_get(
             let client = &configuration.client;
 
             let uri_str = format!("{}/schema", configuration.base_path);
-            let mut req_builder =
-                client.request(reqwest::Method::GET, uri_str.as_str());
+            let mut req_builder = client.request(reqwest::Method::GET, uri_str.as_str());
 
             req_builder = inject_trace_context(req_builder);
 
             if let Some(ref user_agent) = configuration.user_agent {
-                req_builder = req_builder
-                    .header(reqwest::header::USER_AGENT, user_agent.clone());
+                req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
             if let Some(ref bearer_token) = configuration.bearer_access_token {
@@ -286,17 +253,10 @@ pub async fn schema_get(
             }
 
             let req = req_builder.build()?;
-            let resp = client
-                .execute(req)
-                .with_traced_errors()
-                .await?;
+            let resp = client.execute(req).with_traced_errors().await?;
 
             let response_status = resp.status();
-            let response_content = resp
-                .json()
-                .with_traced_errors()
-                .with_context(ctx)
-                .await?;
+            let response_content = resp.json().with_traced_errors().with_context(ctx).await?;
 
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)

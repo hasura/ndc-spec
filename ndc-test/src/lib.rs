@@ -703,7 +703,7 @@ async fn test_relationship_queries<C: Connector>(
         .ok()?;
 
     for (foreign_key_name, foreign_key) in collection_info.foreign_keys.iter() {
-        nest(&foreign_key_name, results, async {
+        nest(foreign_key_name, results, async {
             let _ = test(
                 "Object relationship",
                 results,
@@ -713,8 +713,8 @@ async fn test_relationship_queries<C: Connector>(
                     collection_type,
                     collection_info,
                     schema,
-                    &foreign_key_name,
-                    &foreign_key,
+                    foreign_key_name,
+                    foreign_key,
                 ),
             )
             .await;
@@ -728,8 +728,8 @@ async fn test_relationship_queries<C: Connector>(
                     collection_type,
                     collection_info,
                     schema,
-                    &foreign_key_name,
-                    &foreign_key,
+                    foreign_key_name,
+                    foreign_key,
                 ),
             )
             .await;
