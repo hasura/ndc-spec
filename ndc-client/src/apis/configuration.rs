@@ -7,8 +7,7 @@ pub struct Configuration {
     pub client: reqwest::Client,
     pub basic_auth: Option<BasicAuth>,
     pub oauth_access_token: Option<String>,
-    pub bearer_access_token: Option<String>,
-    // TODO: should we remove other access tokens and basic_auth?
+    // TODO: should we remove oauth access tokens and basic_auth as well?
     pub headers: HeaderMap<HeaderValue>,
     pub api_key: Option<ApiKey>,
 }

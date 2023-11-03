@@ -50,7 +50,6 @@ async fn main() {
                 client: reqwest::Client::new(),
                 basic_auth: None,
                 oauth_access_token: None,
-                bearer_access_token: None,
                 headers: HeaderMap::new(),
                 api_key: None,
             };
@@ -74,7 +73,6 @@ async fn main() {
                 client: reqwest::Client::new(),
                 basic_auth: None,
                 oauth_access_token: None,
-                bearer_access_token: None,
                 headers: HeaderMap::new(),
                 api_key: None,
             };
