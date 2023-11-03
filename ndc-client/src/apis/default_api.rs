@@ -64,6 +64,8 @@ pub async fn capabilities_get(
             if let Some(ref bearer_token) = configuration.bearer_access_token {
                 req_builder = req_builder.bearer_auth(bearer_token.as_str());
             }
+            // Note: The headers will be merged in to any already set.
+            req_builder = req_builder.headers(configuration.headers.clone());
 
             let req = req_builder.build()?;
             let resp = client
@@ -116,6 +118,8 @@ pub async fn explain_post(
             if let Some(ref bearer_token) = configuration.bearer_access_token {
                 req_builder = req_builder.bearer_auth(bearer_token.as_str());
             }
+            // Note: The headers will be merged in to any already set.
+            req_builder = req_builder.headers(configuration.headers.clone());
 
             req_builder = req_builder.json(&query_request);
 
@@ -172,6 +176,8 @@ pub async fn mutation_post(
             if let Some(ref bearer_token) = configuration.bearer_access_token {
                 req_builder = req_builder.bearer_auth(bearer_token.as_str());
             }
+            // Note: The headers will be merged in to any already set.
+            req_builder = req_builder.headers(configuration.headers.clone());
 
             req_builder = req_builder.json(&mutation_request);
 
@@ -229,6 +235,8 @@ pub async fn query_post(
                 if let Some(ref bearer_token) = configuration.bearer_access_token {
                     req_builder = req_builder.bearer_auth(bearer_token.as_str());
                 }
+                // Note: The headers will be merged in to any already set.
+                req_builder = req_builder.headers(configuration.headers.clone());
 
                 req_builder = req_builder.json(&query_request);
 
@@ -284,6 +292,8 @@ pub async fn schema_get(
             if let Some(ref bearer_token) = configuration.bearer_access_token {
                 req_builder = req_builder.bearer_auth(bearer_token.as_str());
             }
+            // Note: The headers will be merged in to any already set.
+            req_builder = req_builder.headers(configuration.headers.clone());
 
             let req = req_builder.build()?;
             let resp = client

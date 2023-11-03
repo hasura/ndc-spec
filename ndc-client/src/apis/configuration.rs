@@ -1,3 +1,5 @@
+use reqwest::header::{HeaderMap, HeaderValue};
+
 #[derive(Debug, Clone)]
 pub struct Configuration {
     pub base_path: String,
@@ -6,6 +8,8 @@ pub struct Configuration {
     pub basic_auth: Option<BasicAuth>,
     pub oauth_access_token: Option<String>,
     pub bearer_access_token: Option<String>,
+    // TODO: should we remove other access tokens and basic_auth?
+    pub headers: HeaderMap<HeaderValue>,
     pub api_key: Option<ApiKey>,
 }
 

@@ -3,6 +3,7 @@ use std::{path::PathBuf, process::exit};
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
 use ndc_test::{report, TestConfiguration};
+use reqwest::header::HeaderMap;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -50,6 +51,7 @@ async fn main() {
                 basic_auth: None,
                 oauth_access_token: None,
                 bearer_access_token: None,
+                headers: HeaderMap::new(),
                 api_key: None,
             };
 
@@ -73,6 +75,7 @@ async fn main() {
                 basic_auth: None,
                 oauth_access_token: None,
                 bearer_access_token: None,
+                headers: HeaderMap::new(),
                 api_key: None,
             };
 
