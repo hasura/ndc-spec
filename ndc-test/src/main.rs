@@ -48,8 +48,6 @@ async fn main() {
                 base_path: endpoint,
                 user_agent: None,
                 client: reqwest::Client::new(),
-                basic_auth: None,
-                oauth_access_token: None,
                 headers: HeaderMap::new(),
                 api_key: None,
             };
@@ -71,8 +69,6 @@ async fn main() {
                 base_path: endpoint,
                 user_agent: None,
                 client: reqwest::Client::new(),
-                basic_auth: None,
-                oauth_access_token: None,
                 headers: HeaderMap::new(),
                 api_key: None,
             };
