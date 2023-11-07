@@ -47,7 +47,6 @@ async fn main() {
                 base_path: endpoint,
                 user_agent: None,
                 client: reqwest::Client::new(),
-                api_key: None,
             };
 
             let results = ndc_test::test_connector(&test_configuration, &configuration).await;
@@ -67,7 +66,6 @@ async fn main() {
                 base_path: endpoint,
                 user_agent: None,
                 client: reqwest::Client::new(),
-                api_key: None,
             };
 
             let results = ndc_test::test_snapshots_in_directory(&configuration, snapshots_dir).await;

@@ -1,4 +1,4 @@
-/// Configuration for the API.
+/// Configuration for the API client
 /// Contains all the information necessary to perform requests.
 /// 
 /// Please note that there is no headers field, headers (for authentication and custom headers) are supposed to be added
@@ -37,13 +37,4 @@ pub struct Configuration {
     pub base_path: String,
     pub user_agent: Option<String>,
     pub client: reqwest::Client,
-    pub api_key: Option<ApiKey>,
-}
-
-pub type BasicAuth = (String, Option<String>);
-
-#[derive(Debug, Clone)]
-pub struct ApiKey {
-    pub prefix: Option<String>,
-    pub key: String,
 }
