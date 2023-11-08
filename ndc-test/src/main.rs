@@ -47,10 +47,6 @@ async fn main() {
                 base_path: endpoint,
                 user_agent: None,
                 client: reqwest::Client::new(),
-                basic_auth: None,
-                oauth_access_token: None,
-                bearer_access_token: None,
-                api_key: None,
             };
 
             let results = ndc_test::test_connector(&test_configuration, &configuration).await;
@@ -70,10 +66,6 @@ async fn main() {
                 base_path: endpoint,
                 user_agent: None,
                 client: reqwest::Client::new(),
-                basic_auth: None,
-                oauth_access_token: None,
-                bearer_access_token: None,
-                api_key: None,
             };
 
             let results =
