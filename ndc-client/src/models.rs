@@ -745,8 +745,6 @@ pub struct Relationship {
     /// A mapping between columns on the source collection to columns on the target collection
     pub column_mapping: BTreeMap<String, String>,
     pub relationship_type: RelationshipType,
-    /// The name of the collection or object type which is the source of this relationship
-    pub source_collection_or_type: String,
     /// The name of a collection
     pub target_collection: String,
     /// Values to be provided to any collection arguments
