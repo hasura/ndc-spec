@@ -9,7 +9,11 @@ pub struct ConnectorError {
 
 impl fmt::Display for ConnectorError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ConnectorError {{ status: {0}, error_response.message: {1} }}", self.status, self.error_response.message)
+        write!(
+            f,
+            "ConnectorError {{ status: {0}, error_response.message: {1} }}",
+            self.status, self.error_response.message
+        )
     }
 }
 
