@@ -170,10 +170,6 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 order_by_aggregate: Some(LeafCapability {}),
                 relation_comparisons: Some(LeafCapability {}),
             }),
-            mutations: Some(models::MutationCapabilities {
-                returning: Some(LeafCapability {}),
-                nested_inserts: Some(LeafCapability {}),
-            }),
             relationships: Some(LeafCapability {}),
         },
     })
@@ -196,7 +192,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         },
                     },
                 )]),
-                update_operators: BTreeMap::new(),
             },
         ),
         (
@@ -225,7 +220,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     ),
                 ]),
                 comparison_operators: BTreeMap::from_iter([]),
-                update_operators: BTreeMap::new(),
             },
         ),
     ]);
@@ -304,9 +298,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         description: Some("A collection of articles".into()),
         collection_type: "article".into(),
         arguments: BTreeMap::new(),
-        deletable: false,
-        insertable_columns: None,
-        updatable_columns: None,
         foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::from_iter([(
             "ArticleByID".into(),
@@ -322,9 +313,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         description: Some("A collection of authors".into()),
         collection_type: "author".into(),
         arguments: BTreeMap::new(),
-        deletable: false,
-        insertable_columns: None,
-        updatable_columns: None,
         foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::from_iter([(
             "AuthorByID".into(),
@@ -346,9 +334,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 description: None,
             },
         )]),
-        deletable: false,
-        insertable_columns: None,
-        updatable_columns: None,
         foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::new(),
     };
@@ -1567,7 +1552,6 @@ async fn post_mutation(
     for operation in request.operations.iter() {
         let operation_result = execute_mutation_operation(
             &mut state,
-            &request.insert_schema,
             &request.collection_relationships,
             operation,
         )
@@ -1581,35 +1565,10 @@ async fn post_mutation(
 
 async fn execute_mutation_operation(
     state: &mut AppState,
-    _insert_schema: &[models::CollectionInsertSchema],
     collection_relationships: &BTreeMap<String, models::Relationship>,
     operation: &models::MutationOperation,
 ) -> Result<models::MutationOperationResults> {
     match operation {
-        models::MutationOperation::Insert {
-            post_insert_check: _,
-            returning_fields: _,
-            rows: _,
-            collection: _,
-        } => {
-            todo!()
-        }
-        models::MutationOperation::Delete {
-            returning_fields: _,
-            collection: _,
-            predicate: _,
-        } => {
-            todo!()
-        }
-        models::MutationOperation::Update {
-            post_update_check: _,
-            returning_fields: _,
-            collection: _,
-            updates: _,
-            r#where: _,
-        } => {
-            todo!()
-        }
         models::MutationOperation::Procedure {
             name,
             arguments,

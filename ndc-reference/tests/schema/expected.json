@@ -21,8 +21,7 @@
           }
         }
       },
-      "comparison_operators": {},
-      "update_operators": {}
+      "comparison_operators": {}
     },
     "String": {
       "aggregate_functions": {},
@@ -33,8 +32,7 @@
             "name": "String"
           }
         }
-      },
-      "update_operators": {}
+      }
     }
   },
   "object_types": {
@@ -97,7 +95,6 @@
       "description": "A collection of articles",
       "arguments": {},
       "type": "article",
-      "deletable": false,
       "uniqueness_constraints": {
         "ArticleByID": {
           "unique_columns": [
@@ -112,7 +109,6 @@
       "description": "A collection of authors",
       "arguments": {},
       "type": "author",
-      "deletable": false,
       "uniqueness_constraints": {
         "AuthorByID": {
           "unique_columns": [
@@ -134,7 +130,6 @@
         }
       },
       "type": "article",
-      "deletable": false,
       "uniqueness_constraints": {},
       "foreign_keys": {}
     }
