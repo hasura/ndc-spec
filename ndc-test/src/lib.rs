@@ -1071,19 +1071,20 @@ fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, 
 }
 
 async fn test_aggregate_queries<C: Connector>(
-    _configuration: &TestConfiguration,
+    configuration: &TestConfiguration,
     connector: &C,
     _schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
     results: &RefCell<TestResults>,
 ) -> Option<()> {
     test("star_count", results, async {
-        test_star_count_aggregate(connector, collection_info).await
+        test_star_count_aggregate(configuration, connector, collection_info).await
     })
     .await
 }
 
 async fn test_star_count_aggregate<C: Connector>(
+    configuration: &TestConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,
 ) -> Result<(), Error> {
@@ -1102,7 +1103,7 @@ async fn test_star_count_aggregate<C: Connector>(
         collection_relationships: BTreeMap::new(),
         variables: None,
     };
-    let response = connector.query(query_request).await.unwrap();
+    let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
     if let [row_set] = &*response.0 {
         if row_set.rows.is_some() {
             return Err(Error::RowsShouldBeNullInRowSet);
