@@ -68,7 +68,8 @@ async fn main() {
                 client: reqwest::Client::new(),
             };
 
-            let results = ndc_test::test_snapshots_in_directory(&configuration, snapshots_dir).await;
+            let results =
+                ndc_test::test_snapshots_in_directory(&configuration, snapshots_dir).await;
 
             if !results.failures.is_empty() {
                 println!();
