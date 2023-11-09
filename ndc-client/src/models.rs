@@ -318,7 +318,6 @@ pub struct Query {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate")]
 pub enum Aggregate {
-    // TODO: do we need aggregation row limits?
     ColumnCount {
         /// The column to apply the count aggregate function to
         column: String,
