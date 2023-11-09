@@ -30,6 +30,7 @@
   - [Relationships](specification/queries/relationships.md)
   - [Variables](specification/queries/variables.md)
 - [Mutations](specification/mutations/README.md)
+  - [Procedures](specification/mutations/procedures.md)
 - [Explain](specification/explain.md)
 
 # Tutorial
@@ -51,6 +52,8 @@
     - [Field Selection](tutorial/queries/execute/field-selection.md)
     - [Relationships](tutorial/queries/execute/relationships.md)
 - [Mutations](tutorial/mutations/README.md)
+  - [Handling Operations](tutorial/mutations/operations.md)
+  - [Procedures](tutorial/mutations/procedures.md)
 - [Explain](tutorial/explain.md)
 - [Health and Metrics](tutorial/health.md)
 

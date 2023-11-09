@@ -1546,30 +1546,28 @@ async fn post_explain(
     ))
 }
 // ANCHOR_END: explain
-// ANCHOR: mutation
+// ANCHOR: post_mutation_signature
 async fn post_mutation(
     State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<models::MutationRequest>,
 ) -> Result<Json<models::MutationResponse>> {
+    // ANCHOR_END: post_mutation_signature
+    // ANCHOR: post_mutation
     let mut state = state.lock().await;
 
     let mut operation_results = vec![];
 
     for operation in request.operations.iter() {
-        let operation_result = execute_mutation_operation(
-            &mut state,
-            &request.collection_relationships,
-            operation,
-        )
-        .await?;
+        let operation_result =
+            execute_mutation_operation(&mut state, &request.collection_relationships, operation)?;
         operation_results.push(operation_result);
     }
 
     Ok(Json(models::MutationResponse { operation_results }))
 }
-// ANCHOR_END: mutation
-
-async fn execute_mutation_operation(
+// ANCHOR_END: post_mutation
+// ANCHOR: execute_mutation_operation
+fn execute_mutation_operation(
     state: &mut AppState,
     collection_relationships: &BTreeMap<String, models::Relationship>,
     operation: &models::MutationOperation,
@@ -1579,85 +1577,110 @@ async fn execute_mutation_operation(
             name,
             arguments,
             fields,
-        } => match name.as_str() {
-            "upsert_article" => {
-                let article = arguments.get("article").ok_or((
-                    StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: " ".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
-                let article_obj = article.as_object().ok_or((
-                    StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: " ".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
-                let id = article_obj.get("id").ok_or((
-                    StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: " ".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
-                let id_int = id.as_i64().ok_or((
-                    StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: " ".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
-                let new_row =
-                    BTreeMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
-                let old_row = state.articles.insert(id_int, new_row);
-                let returning = old_row
-                    .map(|old_row| {
-                        let mut row = IndexMap::new();
-                        for fields in fields.iter() {
-                            for (field_name, field) in fields.iter() {
-                                row.insert(
-                                    field_name.clone(),
-                                    eval_field(
-                                        collection_relationships,
-                                        &BTreeMap::new(),
-                                        state,
-                                        field,
-                                        &old_row,
-                                    )?,
-                                );
-                            }
-                        }
-                        Ok(row)
-                    })
-                    .transpose()?;
-                Ok(models::MutationOperationResults {
-                    affected_rows: 1,
-                    returning: Some(vec![IndexMap::from_iter([(
-                        "__value".into(),
-                        models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
-                            (
-                                StatusCode::INTERNAL_SERVER_ERROR,
-                                Json(models::ErrorResponse {
-                                    message: "cannot encode response".into(),
-                                    details: serde_json::Value::Null,
-                                }),
-                            )
-                        })?),
-                    )])]),
-                })
-            }
-            _ => Err((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "unknown procedure".into(),
-                    details: serde_json::Value::Null,
-                }),
-            )),
-        },
+        } => execute_procedure(state, name, arguments, fields, collection_relationships),
     }
 }
+// ANCHOR_END: execute_mutation_operation
+// ANCHOR: execute_procedure_signature
+fn execute_procedure(
+    state: &mut AppState,
+    name: &String,
+    arguments: &BTreeMap<String, serde_json::Value>,
+    fields: &Option<IndexMap<String, models::Field>>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
+// ANCHOR_END: execute_procedure_signature
+// ANCHOR: execute_procedure_signature_impl
+{
+    match name.as_str() {
+        "upsert_article" => {
+            execute_upsert_article(state, arguments, fields, collection_relationships)
+        }
+        _ => Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "unknown procedure".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
+    }
+}
+// ANCHOR_END: execute_procedure_signature_impl
+// ANCHOR: execute_upsert_article
+fn execute_upsert_article(
+    state: &mut AppState,
+    arguments: &BTreeMap<String, serde_json::Value>,
+    fields: &Option<IndexMap<String, models::Field>>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
+{
+    let article = arguments.get("article").ok_or((
+        StatusCode::BAD_REQUEST,
+        Json(models::ErrorResponse {
+            message: " ".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))?;
+    let article_obj = article.as_object().ok_or((
+        StatusCode::BAD_REQUEST,
+        Json(models::ErrorResponse {
+            message: " ".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))?;
+    let id = article_obj.get("id").ok_or((
+        StatusCode::BAD_REQUEST,
+        Json(models::ErrorResponse {
+            message: " ".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))?;
+    let id_int = id.as_i64().ok_or((
+        StatusCode::BAD_REQUEST,
+        Json(models::ErrorResponse {
+            message: " ".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))?;
+    let new_row = BTreeMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
+    let old_row = state.articles.insert(id_int, new_row);
+    let returning = old_row
+        .map(|old_row| {
+            let mut row = IndexMap::new();
+            for fields in fields.iter() {
+                for (field_name, field) in fields.iter() {
+                    row.insert(
+                        field_name.clone(),
+                        eval_field(
+                            collection_relationships,
+                            &BTreeMap::new(),
+                            state,
+                            field,
+                            &old_row,
+                        )?,
+                    );
+                }
+            }
+            Ok(row)
+        })
+        .transpose()?;
+    Ok(models::MutationOperationResults {
+        affected_rows: 1,
+        returning: Some(vec![IndexMap::from_iter([(
+            "__value".into(),
+            models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: "cannot encode response".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?),
+        )])]),
+    })
+}
+// ANCHOR_END: execute_upsert_article
 
 fn eval_column_mapping(
     relationship: &models::Relationship,
