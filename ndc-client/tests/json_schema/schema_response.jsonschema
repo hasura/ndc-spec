@@ -25,7 +25,7 @@
       }
     },
     "collections": {
-      "description": "Collections which are available for queries",
+      "description": "Collections which are available for queries and/or mutations",
       "type": "array",
       "items": {
         "$ref": "#/definitions/CollectionInfo"
@@ -53,7 +53,8 @@
       "type": "object",
       "required": [
         "aggregate_functions",
-        "comparison_operators"
+        "comparison_operators",
+        "update_operators"
       ],
       "properties": {
         "aggregate_functions": {
@@ -68,6 +69,13 @@
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ComparisonOperatorDefinition"
+          }
+        },
+        "update_operators": {
+          "description": "A map from update operator names to their definitions.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/UpdateOperatorDefinition"
           }
         }
       }
@@ -182,6 +190,24 @@
         }
       }
     },
+    "UpdateOperatorDefinition": {
+      "title": "Update Operator Definition",
+      "description": "The definition of an update operator on a scalar type",
+      "type": "object",
+      "required": [
+        "argument_type"
+      ],
+      "properties": {
+        "argument_type": {
+          "description": "The type of the argument to this operator",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    },
     "ObjectType": {
       "title": "Object Type",
       "description": "The definition of an object type",
@@ -236,6 +262,7 @@
       "type": "object",
       "required": [
         "arguments",
+        "deletable",
         "foreign_keys",
         "name",
         "type",
@@ -263,6 +290,30 @@
         "type": {
           "description": "The name of the collection's object type",
           "type": "string"
+        },
+        "insertable_columns": {
+          "description": "The set of names of insertable columns, or null if inserts are not supported",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "updatable_columns": {
+          "description": "The set of names of updateable columns, or null if updates are not supported",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "deletable": {
+          "description": "Whether or not existing rows can be deleted from the collection",
+          "type": "boolean"
         },
         "uniqueness_constraints": {
           "description": "Any uniqueness constraints enforced on this collection",

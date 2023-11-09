@@ -4,9 +4,17 @@
   "type": "object",
   "required": [
     "collection_relationships",
+    "insert_schema",
     "operations"
   ],
   "properties": {
+    "insert_schema": {
+      "description": "The schema by which to interpret row data specified in any insert operations in this request",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CollectionInsertSchema"
+      }
+    },
     "operations": {
       "description": "The mutation operations to perform",
       "type": "array",
@@ -23,9 +31,248 @@
     }
   },
   "definitions": {
+    "CollectionInsertSchema": {
+      "title": "Collection Insert Schema",
+      "type": "object",
+      "required": [
+        "collection",
+        "fields"
+      ],
+      "properties": {
+        "fields": {
+          "description": "The fields that will be found in the insert row data for the collection and the schema for each field",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/InsertFieldSchema"
+          }
+        },
+        "collection": {
+          "description": "The name of a collection",
+          "type": "string"
+        }
+      }
+    },
+    "InsertFieldSchema": {
+      "title": "Insert Field Schema",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "relationship",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "array_relation"
+              ]
+            },
+            "relationship": {
+              "description": "The name of the array relationship over which the related rows must be inserted",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "column",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "column"
+              ]
+            },
+            "column": {
+              "description": "The name of the column that this field should be inserted into",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "insertion_order",
+            "relationship",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "object_relation"
+              ]
+            },
+            "insertion_order": {
+              "$ref": "#/definitions/ObjectRelationInsertionOrder"
+            },
+            "relationship": {
+              "description": "The name of the object relationship over which the related row must be inserted",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "ObjectRelationInsertionOrder": {
+      "title": "Object Relation Insertion Order",
+      "type": "string",
+      "enum": [
+        "before_parent",
+        "after_parent"
+      ]
+    },
     "MutationOperation": {
       "title": "Mutation Operation",
       "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "collection",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "delete"
+              ]
+            },
+            "returning_fields": {
+              "description": "The fields to return for the rows affected by this delete operation",
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": {
+                "$ref": "#/definitions/Field"
+              }
+            },
+            "collection": {
+              "description": "The name of a collection",
+              "type": "string"
+            },
+            "where": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Expression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "collection",
+            "rows",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "insert"
+              ]
+            },
+            "post_insert_check": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Expression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "returning_fields": {
+              "description": "The fields to return for the rows affected by this insert operation",
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": {
+                "$ref": "#/definitions/Field"
+              }
+            },
+            "rows": {
+              "description": "The rows to insert into the collection",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "collection": {
+              "description": "The name of a collection",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "collection",
+            "type",
+            "updates"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "update"
+              ]
+            },
+            "post_update_check": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Expression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "returning_fields": {
+              "description": "The fields to return for the rows affected by this update operation",
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": {
+                "$ref": "#/definitions/Field"
+              }
+            },
+            "collection": {
+              "description": "The name of a collection",
+              "type": "string"
+            },
+            "updates": {
+              "description": "The updates to make to the matched rows in the collection",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RowUpdate"
+              }
+            },
+            "where": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Expression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
         {
           "type": "object",
           "required": [
@@ -839,6 +1086,61 @@
               "additionalProperties": {
                 "$ref": "#/definitions/RelationshipArgument"
               }
+            }
+          }
+        }
+      ]
+    },
+    "RowUpdate": {
+      "title": "Row Update",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "column",
+            "operator_name",
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "custom_operator"
+              ]
+            },
+            "column": {
+              "description": "The name of the column in the row",
+              "type": "string"
+            },
+            "operator_name": {
+              "type": "string"
+            },
+            "value": {
+              "description": "The value to use with the column operator"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "column",
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "set"
+              ]
+            },
+            "column": {
+              "description": "The name of the column in the row",
+              "type": "string"
+            },
+            "value": {
+              "description": "The value to use with the column operator"
             }
           }
         }

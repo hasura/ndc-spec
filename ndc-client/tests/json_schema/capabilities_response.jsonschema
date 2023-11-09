@@ -40,6 +40,16 @@
             }
           ]
         },
+        "mutations": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/MutationCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "relationships": {
           "anyOf": [
             {
@@ -94,6 +104,33 @@
     "LeafCapability": {
       "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
       "type": "object"
+    },
+    "MutationCapabilities": {
+      "title": "Mutation Capabilities",
+      "type": "object",
+      "properties": {
+        "nested_inserts": {
+          "description": "Whether or not nested inserts to related collections are supported",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "returning": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
     }
   }
 }

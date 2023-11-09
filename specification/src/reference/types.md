@@ -108,10 +108,22 @@
 {{#include ../../../ndc-client/src/models.rs:FunctionInfo}}
 ```
 
+## `InsertFieldSchema`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:InsertFieldSchema}}
+```
+
 ## `LeafCapability`
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-client/src/models.rs:LeafCapability}}
+```
+
+## `MutationCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:MutationCapabilities}}
 ```
 
 ## `MutationOperation`
@@ -142,6 +154,12 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-client/src/models.rs:ObjectField}}
+```
+
+## `ObjectRelationInsertionOrder`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:ObjectRelationInsertionOrder}}
 ```
 
 ## `ObjectType`
@@ -240,6 +258,12 @@
 {{#include ../../../ndc-client/src/models.rs:RowSet}}
 ```
 
+## `RowUpdate`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:RowUpdate}}
+```
+
 ## `ScalarType`
 
 ```rust,no_run,noplayground
@@ -258,6 +282,12 @@
 {{#include ../../../ndc-client/src/models.rs:CollectionInfo}}
 ```
 
+## `CollectionInsertSchema`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:CollectionInsertSchema}}
+```
+
 ## `Type`
 
 ```rust,no_run,noplayground
@@ -274,4 +304,10 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-client/src/models.rs:UniquenessConstraint}}
+```
+
+## `UpdateOperatorDefinition`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:UpdateOperatorDefinition}}
 ```

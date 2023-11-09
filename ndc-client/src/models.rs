@@ -42,6 +42,7 @@ pub struct LeafCapability {}
 pub struct Capabilities {
     pub query: Option<QueryCapabilities>,
     pub explain: Option<LeafCapability>,
+    pub mutations: Option<MutationCapabilities>,
     pub relationships: Option<LeafCapability>,
 }
 // ANCHOR_END: Capabilities
@@ -60,6 +61,17 @@ pub struct QueryCapabilities {
 }
 // ANCHOR_END: QueryCapabilities
 
+// ANCHOR: MutationCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Mutation Capabilities")]
+pub struct MutationCapabilities {
+    /// Whether or not nested inserts to related collections are supported
+    pub nested_inserts: Option<LeafCapability>,
+    pub returning: Option<LeafCapability>,
+}
+// ANCHOR_END: MutationCapabilities
+
 // ANCHOR: SchemaResponse
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Schema Response")]
@@ -69,7 +81,7 @@ pub struct SchemaResponse {
     /// A list of object types which can be used as the types of arguments, or return types of procedures.
     /// Names should not overlap with scalar type names.
     pub object_types: BTreeMap<String, ObjectType>,
-    /// Collections which are available for queries
+    /// Collections which are available for queries and/or mutations
     pub collections: Vec<CollectionInfo>,
     /// Functions (i.e. collections which return a single column and row)
     pub functions: Vec<FunctionInfo>,
@@ -87,6 +99,8 @@ pub struct ScalarType {
     pub aggregate_functions: BTreeMap<String, AggregateFunctionDefinition>,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub comparison_operators: BTreeMap<String, ComparisonOperatorDefinition>,
+    /// A map from update operator names to their definitions.
+    pub update_operators: BTreeMap<String, UpdateOperatorDefinition>,
 }
 // ANCHOR_END: ScalarType
 
@@ -163,6 +177,16 @@ pub struct AggregateFunctionDefinition {
 }
 // ANCHOR_END: AggregateFunctionDefinition
 
+// ANCHOR: UpdateOperatorDefinition
+/// The definition of an update operator on a scalar type
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Update Operator Definition")]
+pub struct UpdateOperatorDefinition {
+    /// The type of the argument to this operator
+    pub argument_type: Type,
+}
+// ANCHOR_END: UpdateOperatorDefinition
+
 // ANCHOR: CollectionInfo
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -180,6 +204,12 @@ pub struct CollectionInfo {
     /// The name of the collection's object type
     #[serde(rename = "type")]
     pub collection_type: String,
+    /// The set of names of insertable columns, or null if inserts are not supported
+    pub insertable_columns: Option<Vec<String>>,
+    /// The set of names of updateable columns, or null if updates are not supported
+    pub updatable_columns: Option<Vec<String>>,
+    /// Whether or not existing rows can be deleted from the collection
+    pub deletable: bool,
     /// Any uniqueness constraints enforced on this collection
     pub uniqueness_constraints: BTreeMap<String, UniquenessConstraint>,
     /// Any foreign key constraints enforced on this collection
@@ -589,6 +619,8 @@ pub struct ExplainResponse {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Mutation Request")]
 pub struct MutationRequest {
+    /// The schema by which to interpret row data specified in any insert operations in this request
+    pub insert_schema: Vec<CollectionInsertSchema>,
     /// The mutation operations to perform
     pub operations: Vec<MutationOperation>,
     /// The relationships between collections involved in the entire mutation request
@@ -596,12 +628,84 @@ pub struct MutationRequest {
 }
 // ANCHOR_END: MutationRequest
 
+// ANCHOR: CollectionInsertSchema
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Collection Insert Schema")]
+pub struct CollectionInsertSchema {
+    /// The fields that will be found in the insert row data for the collection and the schema for each field
+    pub fields: BTreeMap<String, InsertFieldSchema>,
+    /// The name of a collection
+    pub collection: String,
+}
+// ANCHOR_END: CollectionInsertSchema
+
+// ANCHOR: InsertFieldSchema
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Insert Field Schema")]
+pub enum InsertFieldSchema {
+    ArrayRelation {
+        /// The name of the array relationship over which the related rows must be inserted
+        relationship: String,
+    },
+    Column {
+        /// The name of the column that this field should be inserted into
+        column: String,
+    },
+    ObjectRelation {
+        insertion_order: ObjectRelationInsertionOrder,
+        /// The name of the object relationship over which the related row must be inserted
+        relationship: String,
+    },
+}
+// ANCHOR_END: InsertFieldSchema
+
+// ANCHOR: ObjectRelationInsertionOrder
+#[derive(
+    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
+)]
+#[schemars(title = "Object Relation Insertion Order")]
+#[serde(rename_all = "snake_case")]
+pub enum ObjectRelationInsertionOrder {
+    BeforeParent,
+    AfterParent,
+}
+// ANCHOR_END: ObjectRelationInsertionOrder
+
 // ANCHOR: MutationOperation
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Mutation Operation")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MutationOperation {
+    Delete {
+        /// The fields to return for the rows affected by this delete operation
+        returning_fields: Option<IndexMap<String, Field>>,
+        /// The name of a collection
+        collection: String,
+        #[serde(rename = "where")]
+        predicate: Option<Expression>,
+    },
+    Insert {
+        post_insert_check: Option<Expression>,
+        /// The fields to return for the rows affected by this insert operation
+        returning_fields: Option<IndexMap<String, Field>>,
+        /// The rows to insert into the collection
+        rows: Vec<BTreeMap<String, serde_json::Value>>,
+        /// The name of a collection
+        collection: String,
+    },
+    Update {
+        post_update_check: Option<Expression>,
+        /// The fields to return for the rows affected by this update operation
+        returning_fields: Option<IndexMap<String, Field>>,
+        /// The name of a collection
+        collection: String,
+        /// The updates to make to the matched rows in the collection
+        updates: Vec<RowUpdate>,
+        #[serde(rename = "where")]
+        r#where: Option<Expression>,
+    },
     Procedure {
         /// The name of a procedure
         name: String,
@@ -612,6 +716,27 @@ pub enum MutationOperation {
     },
 }
 // ANCHOR_END: MutationOperation
+
+// ANCHOR: RowUpdate
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Row Update")]
+pub enum RowUpdate {
+    CustomOperator {
+        /// The name of the column in the row
+        column: String,
+        operator_name: String,
+        /// The value to use with the column operator
+        value: serde_json::Value,
+    },
+    Set {
+        /// The name of the column in the row
+        column: String,
+        /// The value to use with the column operator
+        value: serde_json::Value,
+    },
+}
+// ANCHOR_END: RowUpdate
 
 // ANCHOR: Relationship
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]

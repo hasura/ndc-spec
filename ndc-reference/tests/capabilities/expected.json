@@ -6,6 +6,10 @@
       "order_by_aggregate": {},
       "foreach": {}
     },
+    "mutations": {
+      "nested_inserts": {},
+      "returning": {}
+    },
     "relationships": {}
   }
 }
