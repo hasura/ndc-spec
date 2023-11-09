@@ -358,37 +358,12 @@ pub async fn validate_schema(
                 .await;
 
                 let _ = test("Collection type", results, async {
-                    let collection_type = schema
+                    let _ = schema
                         .object_types
                         .get(collection_info.collection_type.as_str())
                         .ok_or(Error::CollectionTypeIsNotDefined(
                             collection_info.collection_type.clone(),
                         ))?;
-
-                    if let Some(insertable_columns) = &collection_info.insertable_columns {
-                        for insertable_column in insertable_columns.iter() {
-                            if !collection_type
-                                .fields
-                                .contains_key(insertable_column.as_str())
-                            {
-                                return Err(Error::InsertableColumnNotDefined(
-                                    insertable_column.clone(),
-                                ));
-                            }
-                        }
-                    }
-                    if let Some(updatable_columns) = &collection_info.updatable_columns {
-                        for updatable_column in updatable_columns.iter() {
-                            if !collection_type
-                                .fields
-                                .contains_key(updatable_column.as_str())
-                            {
-                                return Err(Error::UpdatableColumnNotDefined(
-                                    updatable_column.clone(),
-                                ));
-                            }
-                        }
-                    }
 
                     Ok(())
                 })
