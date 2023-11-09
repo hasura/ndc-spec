@@ -13,7 +13,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use ndc_client::models::{self, LeafCapability};
+use ndc_client::models::{self, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
@@ -165,12 +165,14 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
         versions: "^0.1.0".into(),
         capabilities: models::Capabilities {
             explain: None,
-            query: Some(models::QueryCapabilities {
-                foreach: Some(LeafCapability {}),
+            query: models::QueryCapabilities {
+                aggregates: Some(LeafCapability {}),
+                variables: Some(LeafCapability {}),
+            },
+            relationships: Some(RelationshipCapabilities {
                 order_by_aggregate: Some(LeafCapability {}),
                 relation_comparisons: Some(LeafCapability {}),
             }),
-            relationships: Some(LeafCapability {}),
         },
     })
 }
@@ -1556,12 +1558,9 @@ async fn post_mutation(
     let mut operation_results = vec![];
 
     for operation in request.operations.iter() {
-        let operation_result = execute_mutation_operation(
-            &mut state,
-            &request.collection_relationships,
-            operation,
-        )
-        .await?;
+        let operation_result =
+            execute_mutation_operation(&mut state, &request.collection_relationships, operation)
+                .await?;
         operation_results.push(operation_result);
     }
 

@@ -12,7 +12,7 @@ cargo build
 cargo test
 ```
 
-### Run the reference agent
+### Run the reference connector
 
 ```sh
 (cd ndc-reference; cargo run)
@@ -25,13 +25,13 @@ docker build -t reference_connector .
 docker run -it --rm -p 8100:8100 reference_connector
 ```
 
-The reference agent runs on http://localhost:8100:
+The reference connector runs on http://localhost:8100:
 
 ```sh
 curl http://localhost:8100/schema | jq .
 ```
 
-### Test an agent
+### Test a connector
 
 ```sh
 cargo run --bin ndc-test -- test --endpoint http://localhost:8100
@@ -63,7 +63,7 @@ cargo run --bin ndc-test -- replay --endpoint http://localhost:8100 --snapshots-
 
 Connector developers can add custom query and mutation snapshot tests to the snapshot directory. The `test` command does not generate mutation tests by default, because it is up to the connector developer to ensure a reproducible test environment.
 
-For example, to run the existing suite of snapshot tests for `ndc-reference`, we can use the replay command (assuming the reference agent is running on port 8100):
+For example, to run the existing suite of snapshot tests for `ndc-reference`, we can use the replay command (assuming the reference connector is running on port 8100):
 
 ```sh
 cargo run --bin ndc-test -- replay --endpoint http://localhost:8100 --snapshots-dir ndc-reference/tests
