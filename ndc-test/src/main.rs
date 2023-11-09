@@ -3,6 +3,7 @@ use std::{path::PathBuf, process::exit};
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
 use ndc_test::{report, TestConfiguration};
+use reqwest::header::HeaderMap;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -47,6 +48,7 @@ async fn main() {
                 base_path: endpoint,
                 user_agent: None,
                 client: reqwest::Client::new(),
+                headers: HeaderMap::new(),
             };
 
             let results = ndc_test::test_connector(&test_configuration, &configuration).await;
@@ -66,6 +68,7 @@ async fn main() {
                 base_path: endpoint,
                 user_agent: None,
                 client: reqwest::Client::new(),
+                headers: HeaderMap::new(),
             };
 
             let results =

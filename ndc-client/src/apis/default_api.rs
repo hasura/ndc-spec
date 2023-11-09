@@ -59,6 +59,8 @@ pub async fn capabilities_get(
                 req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
+            // Note: The headers will be merged in to any already set.
+            req_builder = req_builder.headers(configuration.headers.clone());
 
             let req = req_builder.build()?;
             let resp = client.execute(req).with_traced_errors().await?;
@@ -99,6 +101,8 @@ pub async fn explain_post(
                 req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
+            // Note: The headers will be merged in to any already set.
+            req_builder = req_builder.headers(configuration.headers.clone());
 
             req_builder = req_builder.json(&query_request);
 
@@ -143,6 +147,8 @@ pub async fn mutation_post(
                 req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
+            // Note: The headers will be merged in to any already set.
+            req_builder = req_builder.headers(configuration.headers.clone());
 
             req_builder = req_builder.json(&mutation_request);
 
@@ -189,6 +195,8 @@ pub async fn query_post(
                         req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
                 }
 
+                // Note: The headers will be merged in to any already set.
+                req_builder = req_builder.headers(configuration.headers.clone());
 
                 req_builder = req_builder.json(&query_request);
 
@@ -236,6 +244,8 @@ pub async fn schema_get(
                 req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
             }
 
+            // Note: The headers will be merged in to any already set.
+            req_builder = req_builder.headers(configuration.headers.clone());
 
             let req = req_builder.build()?;
             let resp = client.execute(req).with_traced_errors().await?;
