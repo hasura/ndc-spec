@@ -172,7 +172,6 @@
                         },
                     },
                 )]),
-                update_operators: BTreeMap::new(),
             },
         ),
         (
@@ -201,7 +200,6 @@
                     ),
                 ]),
                 comparison_operators: BTreeMap::from_iter([]),
-                update_operators: BTreeMap::new(),
             },
         ),
     ]);</code></pre>
@@ -284,9 +282,6 @@
         description: Some(&quot;A collection of authors&quot;.into()),
         collection_type: &quot;author&quot;.into(),
         arguments: BTreeMap::new(),
-        deletable: false,
-        insertable_columns: None,
-        updatable_columns: None,
         foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::from_iter([(
             &quot;AuthorByID&quot;.into(),
@@ -301,10 +296,13 @@
         description: Some(&quot;A collection of articles&quot;.into()),
         collection_type: &quot;article&quot;.into(),
         arguments: BTreeMap::new(),
-        deletable: false,
-        insertable_columns: None,
-        updatable_columns: None,
-        foreign_keys: BTreeMap::new(),
+        foreign_keys: BTreeMap::from_iter([(
+            &quot;Article_AuthorID&quot;.into(),
+            models::ForeignKeyConstraint {
+                foreign_collection: &quot;authors&quot;.into(),
+                column_mapping: BTreeMap::from_iter([(&quot;author_id&quot;.into(), &quot;id&quot;.into())]),
+            },
+        )]),
         uniqueness_constraints: BTreeMap::from_iter([(
             &quot;ArticleByID&quot;.into(),
             models::UniquenessConstraint {
@@ -325,9 +323,6 @@
                 description: None,
             },
         )]),
-        deletable: false,
-        insertable_columns: None,
-        updatable_columns: None,
         foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::new(),
     };</code></pre>

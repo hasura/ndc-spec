@@ -148,21 +148,16 @@
 <p>The <a href="../specification/capabilities.html">capabilities endpoint</a> should return data describing which features the data connector can implement, along with a range of versions of this specification that the data connector claims to implement.</p>
 <p>The reference implementation returns a static <code>CapabilitiesResponse</code>:</p>
 <pre><code class="language-rust no_run noplayground">async fn get_capabilities() -&gt; Json&lt;models::CapabilitiesResponse&gt; {
-    let empty = serde_json::to_value(BTreeMap::&lt;String, ()&gt;::new()).unwrap();
     Json(models::CapabilitiesResponse {
         versions: &quot;^0.1.0&quot;.into(),
         capabilities: models::Capabilities {
             explain: None,
             query: Some(models::QueryCapabilities {
-                foreach: Some(empty.clone()),
-                order_by_aggregate: Some(empty.clone()),
-                relation_comparisons: Some(empty.clone()),
+                foreach: Some(LeafCapability {}),
+                order_by_aggregate: Some(LeafCapability {}),
+                relation_comparisons: Some(LeafCapability {}),
             }),
-            mutations: Some(models::MutationCapabilities {
-                returning: Some(empty.clone()),
-                nested_inserts: Some(empty.clone()),
-            }),
-            relationships: Some(empty),
+            relationships: Some(LeafCapability {}),
         },
     })
 }</code></pre>

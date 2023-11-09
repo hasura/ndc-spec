@@ -176,8 +176,7 @@
           }
         }
       },
-      &quot;comparison_operators&quot;: {},
-      &quot;update_operators&quot;: {}
+      &quot;comparison_operators&quot;: {}
     },
     &quot;String&quot;: {
       &quot;aggregate_functions&quot;: {},
@@ -188,8 +187,7 @@
             &quot;name&quot;: &quot;String&quot;
           }
         }
-      },
-      &quot;update_operators&quot;: {}
+      }
     }
   },
   &quot;object_types&quot;: {
@@ -252,7 +250,6 @@
       &quot;description&quot;: &quot;A collection of articles&quot;,
       &quot;arguments&quot;: {},
       &quot;type&quot;: &quot;article&quot;,
-      &quot;deletable&quot;: false,
       &quot;uniqueness_constraints&quot;: {
         &quot;ArticleByID&quot;: {
           &quot;unique_columns&quot;: [
@@ -260,14 +257,20 @@
           ]
         }
       },
-      &quot;foreign_keys&quot;: {}
+      &quot;foreign_keys&quot;: {
+        &quot;Article_AuthorID&quot;: {
+          &quot;column_mapping&quot;: {
+            &quot;author_id&quot;: &quot;id&quot;
+          },
+          &quot;foreign_collection&quot;: &quot;authors&quot;
+        }
+      }
     },
     {
       &quot;name&quot;: &quot;authors&quot;,
       &quot;description&quot;: &quot;A collection of authors&quot;,
       &quot;arguments&quot;: {},
       &quot;type&quot;: &quot;author&quot;,
-      &quot;deletable&quot;: false,
       &quot;uniqueness_constraints&quot;: {
         &quot;AuthorByID&quot;: {
           &quot;unique_columns&quot;: [
@@ -289,7 +292,6 @@
         }
       },
       &quot;type&quot;: &quot;article&quot;,
-      &quot;deletable&quot;: false,
       &quot;uniqueness_constraints&quot;: {},
       &quot;foreign_keys&quot;: {}
     }

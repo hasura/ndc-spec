@@ -221,9 +221,8 @@ pub enum BinaryComparisonOperator {
 #[schemars(title = &quot;Capabilities&quot;)]
 pub struct Capabilities {
     pub query: Option&lt;QueryCapabilities&gt;,
-    pub explain: Option&lt;serde_json::Value&gt;,
-    pub mutations: Option&lt;MutationCapabilities&gt;,
-    pub relationships: Option&lt;serde_json::Value&gt;,
+    pub explain: Option&lt;LeafCapability&gt;,
+    pub relationships: Option&lt;LeafCapability&gt;,
 }</code></pre>
 <h2 id="capabilitiesresponse"><a class="header" href="#capabilitiesresponse"><code>CapabilitiesResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -232,20 +231,6 @@ pub struct Capabilities {
 pub struct CapabilitiesResponse {
     pub versions: String,
     pub capabilities: Capabilities,
-}</code></pre>
-<h2 id="procedureinfo"><a class="header" href="#procedureinfo"><code>ProcedureInfo</code></a></h2>
-<pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Procedure Info&quot;)]
-pub struct ProcedureInfo {
-    /// The name of the procedure
-    pub name: String,
-    /// Column description
-    pub description: Option&lt;String&gt;,
-    /// Any arguments that this collection requires
-    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
-    /// The name of the result type
-    pub result_type: Type,
 }</code></pre>
 <h2 id="comparisonoperatordefinition"><a class="header" href="#comparisonoperatordefinition"><code>ComparisonOperatorDefinition</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of a comparison operator on a scalar type
@@ -393,68 +378,17 @@ pub struct FunctionInfo {
     /// The name of the function's result type
     pub result_type: Type,
 }</code></pre>
-<h2 id="insertfieldschema"><a class="header" href="#insertfieldschema"><code>InsertFieldSchema</code></a></h2>
-<pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Insert Field Schema&quot;)]
-pub enum InsertFieldSchema {
-    ArrayRelation {
-        /// The name of the array relationship over which the related rows must be inserted
-        relationship: String,
-    },
-    Column {
-        /// The name of the column that this field should be inserted into
-        column: String,
-    },
-    ObjectRelation {
-        insertion_order: ObjectRelationInsertionOrder,
-        /// The name of the object relationship over which the related row must be inserted
-        relationship: String,
-    },
-}</code></pre>
-<h2 id="mutationcapabilities"><a class="header" href="#mutationcapabilities"><code>MutationCapabilities</code></a></h2>
-<pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
+<h2 id="leafcapability"><a class="header" href="#leafcapability"><code>LeafCapability</code></a></h2>
+<pre><code class="language-rust no_run noplayground">/// A unit value to indicate a particular leaf capability is supported.
+/// This is an empty struct to allow for future sub-capabilities.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Mutation Capabilities&quot;)]
-pub struct MutationCapabilities {
-    /// Whether or not nested inserts to related collections are supported
-    pub nested_inserts: Option&lt;serde_json::Value&gt;,
-    pub returning: Option&lt;serde_json::Value&gt;,
-}</code></pre>
+pub struct LeafCapability {}</code></pre>
 <h2 id="mutationoperation"><a class="header" href="#mutationoperation"><code>MutationOperation</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = &quot;Mutation Operation&quot;)]
 #[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
 pub enum MutationOperation {
-    Delete {
-        /// The fields to return for the rows affected by this delete operation
-        returning_fields: Option&lt;IndexMap&lt;String, Field&gt;&gt;,
-        /// The name of a collection
-        collection: String,
-        #[serde(rename = &quot;where&quot;)]
-        predicate: Option&lt;Expression&gt;,
-    },
-    Insert {
-        post_insert_check: Option&lt;Expression&gt;,
-        /// The fields to return for the rows affected by this insert operation
-        returning_fields: Option&lt;IndexMap&lt;String, Field&gt;&gt;,
-        /// The rows to insert into the collection
-        rows: Vec&lt;BTreeMap&lt;String, serde_json::Value&gt;&gt;,
-        /// The name of a collection
-        collection: String,
-    },
-    Update {
-        post_update_check: Option&lt;Expression&gt;,
-        /// The fields to return for the rows affected by this update operation
-        returning_fields: Option&lt;IndexMap&lt;String, Field&gt;&gt;,
-        /// The name of a collection
-        collection: String,
-        /// The updates to make to the matched rows in the collection
-        updates: Vec&lt;RowUpdate&gt;,
-        #[serde(rename = &quot;where&quot;)]
-        r#where: Option&lt;Expression&gt;,
-    },
     Procedure {
         /// The name of a procedure
         name: String,
@@ -478,8 +412,6 @@ pub struct MutationOperationResults {
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = &quot;Mutation Request&quot;)]
 pub struct MutationRequest {
-    /// The schema by which to interpret row data specified in any insert operations in this request
-    pub insert_schema: Vec&lt;CollectionInsertSchema&gt;,
     /// The mutation operations to perform
     pub operations: Vec&lt;MutationOperation&gt;,
     /// The relationships between collections involved in the entire mutation request
@@ -503,16 +435,6 @@ pub struct ObjectField {
     /// The type of this field
     #[serde(rename = &quot;type&quot;)]
     pub r#type: Type,
-}</code></pre>
-<h2 id="objectrelationinsertionorder"><a class="header" href="#objectrelationinsertionorder"><code>ObjectRelationInsertionOrder</code></a></h2>
-<pre><code class="language-rust no_run noplayground">#[derive(
-    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
-)]
-#[schemars(title = &quot;Object Relation Insertion Order&quot;)]
-#[serde(rename_all = &quot;snake_case&quot;)]
-pub enum ObjectRelationInsertionOrder {
-    BeforeParent,
-    AfterParent,
 }</code></pre>
 <h2 id="objecttype"><a class="header" href="#objecttype"><code>ObjectType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an object type
@@ -586,6 +508,20 @@ pub struct PathElement {
     /// A predicate expression to apply to the target collection
     pub predicate: Box&lt;Expression&gt;,
 }</code></pre>
+<h2 id="procedureinfo"><a class="header" href="#procedureinfo"><code>ProcedureInfo</code></a></h2>
+<pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = &quot;Procedure Info&quot;)]
+pub struct ProcedureInfo {
+    /// The name of the procedure
+    pub name: String,
+    /// Column description
+    pub description: Option&lt;String&gt;,
+    /// Any arguments that this collection requires
+    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
+    /// The name of the result type
+    pub result_type: Type,
+}</code></pre>
 <h2 id="query"><a class="header" href="#query"><code>Query</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -609,11 +545,11 @@ pub struct Query {
 #[schemars(title = &quot;Query Capabilities&quot;)]
 pub struct QueryCapabilities {
     /// Does the agent support comparisons that involve related collections (ie. joins)?
-    pub relation_comparisons: Option&lt;serde_json::Value&gt;,
+    pub relation_comparisons: Option&lt;LeafCapability&gt;,
     /// Does the agent support ordering by an aggregated array relationship?
-    pub order_by_aggregate: Option&lt;serde_json::Value&gt;,
+    pub order_by_aggregate: Option&lt;LeafCapability&gt;,
     /// Does the agent support foreach queries, i.e. queries with variables
-    pub foreach: Option&lt;serde_json::Value&gt;,
+    pub foreach: Option&lt;LeafCapability&gt;,
 }</code></pre>
 <h2 id="queryrequest"><a class="header" href="#queryrequest"><code>QueryRequest</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// This is the request body of the query POST endpoint
@@ -647,8 +583,6 @@ pub struct Relationship {
     /// A mapping between columns on the source collection to columns on the target collection
     pub column_mapping: BTreeMap&lt;String, String&gt;,
     pub relationship_type: RelationshipType,
-    /// The name of the collection or object type which is the source of this relationship
-    pub source_collection_or_type: String,
     /// The name of a collection
     pub target_collection: String,
     /// Values to be provided to any collection arguments
@@ -707,25 +641,6 @@ pub struct RowSet {
     /// The rows returned by the query, corresponding to the query's fields
     pub rows: Option&lt;Vec&lt;IndexMap&lt;String, RowFieldValue&gt;&gt;&gt;,
 }</code></pre>
-<h2 id="rowupdate"><a class="header" href="#rowupdate"><code>RowUpdate</code></a></h2>
-<pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Row Update&quot;)]
-pub enum RowUpdate {
-    CustomOperator {
-        /// The name of the column in the row
-        column: String,
-        operator_name: String,
-        /// The value to use with the column operator
-        value: serde_json::Value,
-    },
-    Set {
-        /// The name of the column in the row
-        column: String,
-        /// The value to use with the column operator
-        value: serde_json::Value,
-    },
-}</code></pre>
 <h2 id="scalartype"><a class="header" href="#scalartype"><code>ScalarType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of a scalar type, i.e. types that can be used as the types of columns.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -735,8 +650,6 @@ pub struct ScalarType {
     pub aggregate_functions: BTreeMap&lt;String, AggregateFunctionDefinition&gt;,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub comparison_operators: BTreeMap&lt;String, ComparisonOperatorDefinition&gt;,
-    /// A map from update operator names to their definitions.
-    pub update_operators: BTreeMap&lt;String, UpdateOperatorDefinition&gt;,
 }</code></pre>
 <h2 id="schemaresponse"><a class="header" href="#schemaresponse"><code>SchemaResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -747,7 +660,7 @@ pub struct SchemaResponse {
     /// A list of object types which can be used as the types of arguments, or return types of procedures.
     /// Names should not overlap with scalar type names.
     pub object_types: BTreeMap&lt;String, ObjectType&gt;,
-    /// Collections which are available for queries and/or mutations
+    /// Collections which are available for queries
     pub collections: Vec&lt;CollectionInfo&gt;,
     /// Functions (i.e. collections which return a single column and row)
     pub functions: Vec&lt;FunctionInfo&gt;,
@@ -771,25 +684,10 @@ pub struct CollectionInfo {
     /// The name of the collection's object type
     #[serde(rename = &quot;type&quot;)]
     pub collection_type: String,
-    /// The set of names of insertable columns, or null if inserts are not supported
-    pub insertable_columns: Option&lt;Vec&lt;String&gt;&gt;,
-    /// The set of names of updateable columns, or null if updates are not supported
-    pub updatable_columns: Option&lt;Vec&lt;String&gt;&gt;,
-    /// Whether or not existing rows can be deleted from the collection
-    pub deletable: bool,
     /// Any uniqueness constraints enforced on this collection
     pub uniqueness_constraints: BTreeMap&lt;String, UniquenessConstraint&gt;,
     /// Any foreign key constraints enforced on this collection
     pub foreign_keys: BTreeMap&lt;String, ForeignKeyConstraint&gt;,
-}</code></pre>
-<h2 id="collectioninsertschema"><a class="header" href="#collectioninsertschema"><code>CollectionInsertSchema</code></a></h2>
-<pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Collection Insert Schema&quot;)]
-pub struct CollectionInsertSchema {
-    /// The fields that will be found in the insert row data for the collection and the schema for each field
-    pub fields: BTreeMap&lt;String, InsertFieldSchema&gt;,
-    /// The name of a collection
-    pub collection: String,
 }</code></pre>
 <h2 id="type"><a class="header" href="#type"><code>Type</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// Types track the valid representations of values as JSON
@@ -830,14 +728,6 @@ pub enum UnaryComparisonOperator {
 pub struct UniquenessConstraint {
     /// A list of columns which this constraint requires to be unique
     pub unique_columns: Vec&lt;String&gt;,
-}</code></pre>
-<h2 id="updateoperatordefinition"><a class="header" href="#updateoperatordefinition"><code>UpdateOperatorDefinition</code></a></h2>
-<pre><code class="language-rust no_run noplayground">/// The definition of an update operator on a scalar type
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Update Operator Definition&quot;)]
-pub struct UpdateOperatorDefinition {
-    /// The type of the argument to this operator
-    pub argument_type: Type,
 }</code></pre>
 
                     </main>

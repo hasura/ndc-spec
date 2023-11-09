@@ -160,24 +160,18 @@
       &quot;order_by_aggregate&quot;: {},
       &quot;foreach&quot;: {}
     },
-    &quot;mutations&quot;: {
-      &quot;nested_inserts&quot;: {},
-      &quot;returning&quot;: {}
-    },
     &quot;relationships&quot;: {}
   }
 }
 </code></pre>
 <h2 id="response-fields"><a class="header" href="#response-fields">Response Fields</a></h2>
-<p><em>TODO</em>: nested_inserts and relation_comparisons seem like special cases of relationships</p>
+<p><em>TODO</em>: relation_comparisons seem like special cases of relationships</p>
 <p><em>TODO</em>: the code doesn't actually follow this response format right now</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>versions</code></td><td>A <a href="https://semver.org">semantic versioning</a> range of API versions which the data connector claims to implement</td></tr>
 <tr><td><code>capabilities.query.foreach</code></td><td>Whether the data connector supports <a href="queries/foreach.html"><code>foreach</code> queries</a></td></tr>
 <tr><td><code>capabilities.query.relation_comparisons</code></td><td>Whether comparisons can include columns reachable via <a href="queries/relationships.html">relationships</a></td></tr>
 <tr><td><code>capabilities.query.order_by_aggregate</code></td><td>Whether order by clauses can include aggregates</td></tr>
-<tr><td><code>capabilities.mutations.nested_inserts</code></td><td>Whether nested insert mutations are supported</td></tr>
-<tr><td><code>capabilities.mutations.returning</code></td><td>Whether mutations return rows of modified data</td></tr>
 <tr><td><code>capabilities.explain</code></td><td>Whether the data connector is capable of describing query plans</td></tr>
 <tr><td><code>capabilities.relationships</code></td><td>Whether the data connector supports <a href="queries/relationships.html">relationships</a></td></tr>
 </tbody></table>
@@ -186,7 +180,6 @@
 <ul>
 <li>Type <a href="../reference/types.html#capabilities"><code>Capabilities</code></a></li>
 <li>Type <a href="../reference/types.html#capabilitiesresponse"><code>CapabilitiesResponse</code></a></li>
-<li>Type <a href="../reference/types.html#mutationcapabilities"><code>MutationCapabilities</code></a></li>
 <li>Type <a href="../reference/types.html#querycapabilities"><code>QueryCapabilities</code></a></li>
 </ul>
 

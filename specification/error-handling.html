@@ -154,6 +154,7 @@
 <tr><td>409</td><td>Conflict</td><td>The request could not be handled because it would create a conflicting state for the data source - for example, a mutation might fail because a foreign key constraint was not met.</td></tr>
 <tr><td>500</td><td>Internal Server Error</td><td>The request could not be handled because of an error on the server</td></tr>
 <tr><td>501</td><td>Not Supported</td><td>The request could not be handled because it relies on an unsupported <a href="capabilities.html">capability</a>. <em>Note</em>: this ought to indicate an error on the <em>caller</em> side, since the caller should not generate requests which are incompatible with the indicated capabilities.</td></tr>
+<tr><td>502</td><td>Bad Gateway</td><td>The request could not be handled because an upstream service was unavailable or returned an unexpected response, e.g., a connection to a database server failed</td></tr>
 </tbody></table>
 </div>
 <h2 id="response-body"><a class="header" href="#response-body">Response Body</a></h2>
