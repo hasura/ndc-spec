@@ -803,7 +803,6 @@ async fn select_top_n_using_foreign_key<C: Connector>(
                 models::Relationship {
                     column_mapping: foreign_key.column_mapping.clone(),
                     relationship_type: models::RelationshipType::Object,
-                    source_collection_or_type: "".into(),
                     target_collection: foreign_key.foreign_collection.clone(),
                     arguments: BTreeMap::new(),
                 },
@@ -888,7 +887,6 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
                 models::Relationship {
                     column_mapping,
                     relationship_type: models::RelationshipType::Array,
-                    source_collection_or_type: "".into(),
                     target_collection: collection_info.name.clone(),
                     arguments: BTreeMap::new(),
                 },
