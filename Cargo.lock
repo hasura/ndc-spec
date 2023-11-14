@@ -647,9 +647,9 @@ checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
 
 [[package]]
 name = "hashbrown"
-version = "0.14.0"
+version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c6201b9ff9fd90a5a3bac2e56a830d0caa509576f0e503818ee82c181b3437a"
+checksum = "f93e7192158dbcda357bdec5fb5788eebf8bbac027f3f33e719d29135ae84156"
 
 [[package]]
 name = "heck"
@@ -792,12 +792,13 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5477fe2230a79769d8dc68e0eabf5437907c0457a5614a9e8dddb67f65eb65d"
+checksum = "d530e1a18b1cb4c484e6e34556a0d948706958449fca0cab753d649f2bce3d1f"
 dependencies = [
  "equivalent",
- "hashbrown 0.14.0",
+ "hashbrown 0.14.2",
+ "serde",
 ]
 
 [[package]]
@@ -970,7 +971,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "goldenfile",
- "indexmap 1.9.3",
+ "indexmap 2.1.0",
  "opentelemetry",
  "reqwest",
  "schemars",
@@ -989,7 +990,7 @@ dependencies = [
  "axum",
  "csv",
  "goldenfile",
- "indexmap 1.9.3",
+ "indexmap 2.1.0",
  "ndc-client",
  "ndc-test",
  "prometheus",
@@ -1006,7 +1007,7 @@ dependencies = [
  "async-trait",
  "clap",
  "colored",
- "indexmap 1.9.3",
+ "indexmap 2.1.0",
  "ndc-client",
  "proptest",
  "reqwest",
@@ -1489,6 +1490,7 @@ checksum = "1f7b0ce13155372a76ee2e1c5ffba1fe61ede73fbea5630d61eee6fac4929c0c"
 dependencies = [
  "dyn-clone",
  "indexmap 1.9.3",
+ "indexmap 2.1.0",
  "schemars_derive",
  "serde",
  "serde_json",
@@ -1579,7 +1581,7 @@ version = "1.0.107"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b420ce6e3d8bd882e9b243c6eed35dbc9a6110c9769e74b584e0d68d1f20c65"
 dependencies = [
- "indexmap 2.0.0",
+ "indexmap 2.1.0",
  "itoa",
  "ryu",
  "serde",
