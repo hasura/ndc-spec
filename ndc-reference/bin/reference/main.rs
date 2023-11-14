@@ -1584,7 +1584,7 @@ fn execute_mutation_operation(
 // ANCHOR: execute_procedure_signature
 fn execute_procedure(
     state: &mut AppState,
-    name: &String,
+    name: &str,
     arguments: &BTreeMap<String, serde_json::Value>,
     fields: &Option<IndexMap<String, models::Field>>,
     collection_relationships: &BTreeMap<String, models::Relationship>,
@@ -1592,7 +1592,7 @@ fn execute_procedure(
 // ANCHOR_END: execute_procedure_signature
 // ANCHOR: execute_procedure_signature_impl
 {
-    match name.as_str() {
+    match name {
         "upsert_article" => {
             execute_upsert_article(state, arguments, fields, collection_relationships)
         }
@@ -1680,7 +1680,7 @@ fn execute_upsert_article(
         )])]),
     })
 }
-// ANCHOR_END: execute_upsert_article
+// ANCHOR_END: \
 
 fn eval_column_mapping(
     relationship: &models::Relationship,
