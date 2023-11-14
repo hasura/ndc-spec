@@ -1,6 +1,6 @@
 # Schema
 
-The [schema endpoint](../specification/schema/index.html) should return data describing the data connector's scalar and object types, along with any collections, functions and procedures which are exposed.
+The schema endpoint should return data describing the data connector's scalar and object types, along with any collections, functions and procedures which are exposed.
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema1}}
