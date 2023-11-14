@@ -41,6 +41,8 @@ For example:
 
 Aggregation functions extend the query AST with the ability to express new aggregates within the `aggregates` portion of a query.
 
+They also allow sorting the query results via the `order_by` query field.
+
 _Note_: data connectors are required to implement the _count_ and _count-distinct_ aggregations for columns of all scalar types, and those operator is distinguished in the query AST. There is no need to define these aggregates as aggregation functions.
 
 For example, a data connector might augment a `Float` scalar type with a `SUM` function which aggregates a sum of a collection of floating-point numbers.
@@ -74,4 +76,5 @@ For example:
 
 - Type [`ScalarType`](../../reference/types.md#scalartype)
 - [`Filtering`](../queries/filtering.md)
+- [`Sorting`](../queries/sorting.md)
 - [`Aggregates`](../queries/aggregates.md)
