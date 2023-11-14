@@ -27,5 +27,5 @@ See [`SchemaResponse`](../../reference/types.md#schemaresponse)
 | `scalar_types` | [Scalar Types](scalar-types.md) |
 | `object_types` | [Object Types](object-types.md) |
 | `collections` | [Collection](collections.md) |
-| `functions` | [Functions](Functions.md) |
+| `functions` | [Functions](functions.md) |
 | `procedures` | [Procedures](procedures.md) |
