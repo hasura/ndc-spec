@@ -8,7 +8,7 @@ In this section, we will break down the implementation of the `execute_query` fu
 
 At this point, we have already computed the full collection, which is passed via the `collection` argument. Now, we need to evaluate the [`Query`](../../../reference/types.md#query) in the context of this collection.
 
-The `Query` describes the predicate whcih should be applied to all rows, the sort order, pagination options, along with any aggregates to compute and fields to return.
+The `Query` describes the predicate which should be applied to all rows, the sort order, pagination options, along with any aggregates to compute and fields to return.
 
 The first step is to sort the collection. 
 
