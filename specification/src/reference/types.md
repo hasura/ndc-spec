@@ -222,6 +222,12 @@
 {{#include ../../../ndc-client/src/models.rs:RelationshipArgument}}
 ```
 
+## `RelationshipCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:RelationshipCapabilities}}
+```
+
 ## `RelationshipType`
 
 ```rust,no_run,noplayground

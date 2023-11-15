@@ -40,9 +40,9 @@ pub struct LeafCapability {}
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Capabilities")]
 pub struct Capabilities {
-    pub query: Option<QueryCapabilities>,
+    pub query: QueryCapabilities,
     pub explain: Option<LeafCapability>,
-    pub relationships: Option<LeafCapability>,
+    pub relationships: Option<RelationshipCapabilities>,
 }
 // ANCHOR_END: Capabilities
 
@@ -51,14 +51,24 @@ pub struct Capabilities {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Query Capabilities")]
 pub struct QueryCapabilities {
-    /// Does the agent support comparisons that involve related collections (ie. joins)?
-    pub relation_comparisons: Option<LeafCapability>,
-    /// Does the agent support ordering by an aggregated array relationship?
-    pub order_by_aggregate: Option<LeafCapability>,
-    /// Does the agent support foreach queries, i.e. queries with variables
-    pub foreach: Option<LeafCapability>,
+    /// Does the connector support aggregate queries
+    pub aggregates: Option<LeafCapability>,
+    /// Does the connector support queries which use variables
+    pub variables: Option<LeafCapability>,
 }
 // ANCHOR_END: QueryCapabilities
+
+// ANCHOR: RelationshipCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relationship Capabilities")]
+pub struct RelationshipCapabilities {
+    /// Does the connector support comparisons that involve related collections (ie. joins)?
+    pub relation_comparisons: Option<LeafCapability>,
+    /// Does the connector support ordering by an aggregated array relationship?
+    pub order_by_aggregate: Option<LeafCapability>,
+}
+// ANCHOR_END: RelationshipCapabilities
 
 // ANCHOR: SchemaResponse
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -308,7 +318,6 @@ pub struct Query {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate")]
 pub enum Aggregate {
-    // TODO: do we need aggregation row limits?
     ColumnCount {
         /// The column to apply the count aggregate function to
         column: String,
@@ -538,7 +547,7 @@ pub enum ExistsInCollection {
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Query Response")]
-/// Query responses may return multiple RowSets when using foreach queries
+/// Query responses may return multiple RowSets when using queries with variables.
 /// Else, there should always be exactly one RowSet
 pub struct QueryResponse(pub Vec<RowSet>);
 // ANCHOR_END: QueryResponse

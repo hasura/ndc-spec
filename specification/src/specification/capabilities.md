@@ -20,18 +20,15 @@ See [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 
 ## Response Fields
 
-_TODO_: relation_comparisons seem like special cases of relationships
-
-_TODO_: the code doesn't actually follow this response format right now
-
 | Name | Description |
 |------|-------------|
-| `versions` | A [semantic versioning](https://semver.org) range of API versions which the data connector claims to implement |
-| `capabilities.query.foreach` | Whether the data connector supports [`foreach` queries](queries/foreach.md) |
-| `capabilities.query.relation_comparisons` | Whether comparisons can include columns reachable via [relationships](queries/relationships.md) |
-| `capabilities.query.order_by_aggregate` | Whether order by clauses can include aggregates |
-| `capabilities.explain` | Whether the data connector is capable of describing query plans |
+| `versions` | A [semantic versioning](https://semver.org) range of API versions which the data connector 
+| `capabilities.explain` | Whether the data connector is capable of describing query plans |claims to implement |
+| `capabilities.query.aggregates` | Whether the data connector supports [aggregate queries](queries/aggregates.md) |
+| `capabilities.query.variables` | Whether the data connector supports [queries with variables](queries/variables.md) |
 | `capabilities.relationships` | Whether the data connector supports [relationships](queries/relationships.md) |
+| `capabilities.relationships.order_by_aggregate` | Whether order by clauses can include aggregates |
+| `capabilities.relationships.relation_comparisons` | Whether comparisons can include columns reachable via [relationships](queries/relationships.md) |
 
 ## See also
 

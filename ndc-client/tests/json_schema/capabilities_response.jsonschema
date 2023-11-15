@@ -19,16 +19,12 @@
       "title": "Capabilities",
       "description": "Describes the features of the specification which a data connector implements.",
       "type": "object",
+      "required": [
+        "query"
+      ],
       "properties": {
         "query": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/QueryCapabilities"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/definitions/QueryCapabilities"
         },
         "explain": {
           "anyOf": [
@@ -43,7 +39,7 @@
         "relationships": {
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/RelationshipCapabilities"
             },
             {
               "type": "null"
@@ -56,8 +52,8 @@
       "title": "Query Capabilities",
       "type": "object",
       "properties": {
-        "relation_comparisons": {
-          "description": "Does the agent support comparisons that involve related collections (ie. joins)?",
+        "aggregates": {
+          "description": "Does the connector support aggregate queries",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -67,19 +63,8 @@
             }
           ]
         },
-        "order_by_aggregate": {
-          "description": "Does the agent support ordering by an aggregated array relationship?",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "foreach": {
-          "description": "Does the agent support foreach queries, i.e. queries with variables",
+        "variables": {
+          "description": "Does the connector support queries which use variables",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -94,6 +79,34 @@
     "LeafCapability": {
       "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
       "type": "object"
+    },
+    "RelationshipCapabilities": {
+      "title": "Relationship Capabilities",
+      "type": "object",
+      "properties": {
+        "relation_comparisons": {
+          "description": "Does the connector support comparisons that involve related collections (ie. joins)?",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order_by_aggregate": {
+          "description": "Does the connector support ordering by an aggregated array relationship?",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
     }
   }
 }

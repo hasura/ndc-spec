@@ -12,11 +12,11 @@ Collection names are now single strings instead of arrays of strings. The array 
 
 ### No Configuration
 
-The configuration header convention was removed. Agents are now expected to manage their own configuration, and an agent URL fully represents that agent with its pre-specified configuration.
+The configuration header convention was removed. Connectors are now expected to manage their own configuration, and a connector URL fully represents that connector with its pre-specified configuration.
 
 ### No Database Concepts in GDC
 
-GDC no longer sends any metadata to indicate database-specific concepts. For example, a Collection used to indicate whether it was a Collection or view. Such metadata would be passed back in the query IR, to help the agent disambiguate which database object to query. When we proposed adding functions, we would have had to add a new type to disambiguate nullary functions from collections, etc. Instead, we now expect agents to understand their own schema, and understand the query IR that they receive, as long as it is compatible with their GDC schema.
+GDC no longer sends any metadata to indicate database-specific concepts. For example, a Collection used to indicate whether it was a Collection or view. Such metadata would be passed back in the query IR, to help the connector disambiguate which database object to query. When we proposed adding functions, we would have had to add a new type to disambiguate nullary functions from collections, etc. Instead, we now expect connectors to understand their own schema, and understand the query IR that they receive, as long as it is compatible with their GDC schema.
 
 Column types are no longer sent in the query and mutation requests.
 
@@ -38,7 +38,7 @@ Field arguments were added to fields in order to support use cases like computed
 
 The equality operator is now expected on every scalar type implicitly. 
 
-_Note_: it was already implicitly supported by any agent advertising the `foreach` capability, which imposes column equality constraints in each row set fetched in a forall query.
+_Note_: it was already implicitly supported by any connector advertising the `variables` capability, which imposes column equality constraints in each row set fetched in a forall query.
 
 The equality operator will have semantics assigned for the purposes of testing.
 
