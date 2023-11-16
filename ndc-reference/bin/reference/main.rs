@@ -1682,7 +1682,7 @@ fn execute_upsert_article(
         )])]),
     })
 }
-// ANCHOR_END: \
+// ANCHOR_END: execute_upsert_article
 
 fn eval_column_mapping(
     relationship: &models::Relationship,
