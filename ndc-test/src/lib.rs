@@ -62,6 +62,8 @@ pub enum Error {
     SerdeError(serde_json::Error),
     #[error("snapshot did not match file {0}: {1}")]
     ResponseDidNotMatchSnapshot(PathBuf, String),
+    #[error("response from connector does not satisfy requirement: {0}")]
+    ResponseDoesNotSatisfy(String),
     #[error("other error")]
     OtherError(#[from] Box<dyn std::error::Error>),
 }
@@ -1046,21 +1048,43 @@ fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, 
 async fn test_aggregate_queries<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    _schema: &models::SchemaResponse,
+    schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
     results: &RefCell<TestResults>,
 ) -> Option<()> {
-    test("star_count", results, async {
+    let collection_type = schema
+        .object_types
+        .get(collection_info.collection_type.as_str())
+        .ok_or(Error::CollectionTypeIsNotDefined(
+            collection_info.collection_type.clone(),
+        ))
+        .ok()?;
+
+    let total_count = test("star_count", results, async {
         test_star_count_aggregate(configuration, connector, collection_info).await
     })
-    .await
+    .await?;
+
+    let _ = test("column_count", results, async {
+        test_column_count_aggregate(
+            configuration,
+            connector,
+            collection_info,
+            &collection_type,
+            total_count,
+        )
+        .await
+    })
+    .await;
+
+    Some(())
 }
 
 async fn test_star_count_aggregate<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,
-) -> Result<(), Error> {
+) -> Result<u64, Error> {
     let aggregates = IndexMap::from([("count".into(), models::Aggregate::StarCount {})]);
     let query_request = models::QueryRequest {
         collection: collection_info.name.clone(),
@@ -1082,8 +1106,83 @@ async fn test_star_count_aggregate<C: Connector>(
             return Err(Error::RowsShouldBeNullInRowSet);
         }
         if let Some(aggregates) = &row_set.aggregates {
-            if !aggregates.contains_key("count") {
-                return Err(Error::MissingField("count".into()));
+            match aggregates.get("count").and_then(serde_json::Value::as_u64) {
+                None => {
+                    return Err(Error::MissingField("count".into()));
+                }
+                Some(count) => Ok(count),
+            }
+        } else {
+            return Err(Error::AggregatesShouldBeNonNullInRowSet);
+        }
+    } else {
+        return Err(Error::ExpectedSingleRowSet);
+    }
+}
+
+async fn test_column_count_aggregate<C: Connector>(
+    configuration: &TestConfiguration,
+    connector: &C,
+    collection_info: &models::CollectionInfo,
+    collection_type: &models::ObjectType,
+    total_count: u64,
+) -> Result<(), Error> {
+    let mut aggregates = IndexMap::new();
+
+    for field_name in collection_type.fields.keys() {
+        let aggregate = models::Aggregate::ColumnCount {
+            column: field_name.clone(),
+            distinct: false,
+        };
+        aggregates.insert(format!("{}_count", field_name), aggregate);
+
+        let aggregate = models::Aggregate::ColumnCount {
+            column: field_name.clone(),
+            distinct: true,
+        };
+        aggregates.insert(format!("{}_distinct_count", field_name), aggregate);
+    }
+
+    let query_request = models::QueryRequest {
+        collection: collection_info.name.clone(),
+        query: models::Query {
+            aggregates: Some(aggregates),
+            fields: None,
+            limit: Some(10),
+            offset: None,
+            order_by: None,
+            predicate: None,
+        },
+        arguments: BTreeMap::new(),
+        collection_relationships: BTreeMap::new(),
+        variables: None,
+    };
+    let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
+    if let [row_set] = &*response.0 {
+        if row_set.rows.is_some() {
+            return Err(Error::RowsShouldBeNullInRowSet);
+        }
+        if let Some(aggregates) = &row_set.aggregates {
+            for field_name in collection_type.fields.keys() {
+                let count_field = format!("{}_count", field_name);
+                let count = aggregates
+                    .get(count_field.as_str())
+                    .and_then(serde_json::Value::as_u64)
+                    .ok_or(Error::MissingField(count_field))?;
+
+                let distinct_field = format!("{}_distinct_count", field_name);
+                let distinct_count = aggregates
+                    .get(distinct_field.as_str())
+                    .and_then(serde_json::Value::as_u64)
+                    .ok_or(Error::MissingField(distinct_field))?;
+
+                if count > total_count {
+                    return Err(Error::ResponseDoesNotSatisfy(format!("star_count >= column_count({})", field_name)));
+                }
+                
+                if distinct_count > count {
+                    return Err(Error::ResponseDoesNotSatisfy(format!("column_count >= column_count(distinct {})", field_name)));
+                }
             }
         } else {
             return Err(Error::AggregatesShouldBeNonNullInRowSet);
