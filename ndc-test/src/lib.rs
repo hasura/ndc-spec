@@ -1070,7 +1070,7 @@ async fn test_aggregate_queries<C: Connector>(
             configuration,
             connector,
             collection_info,
-            &collection_type,
+            collection_type,
             total_count,
         )
         .await
@@ -1108,15 +1108,15 @@ async fn test_star_count_aggregate<C: Connector>(
         if let Some(aggregates) = &row_set.aggregates {
             match aggregates.get("count").and_then(serde_json::Value::as_u64) {
                 None => {
-                    return Err(Error::MissingField("count".into()));
+                    Err(Error::MissingField("count".into()))
                 }
                 Some(count) => Ok(count),
             }
         } else {
-            return Err(Error::AggregatesShouldBeNonNullInRowSet);
+            Err(Error::AggregatesShouldBeNonNullInRowSet)
         }
     } else {
-        return Err(Error::ExpectedSingleRowSet);
+        Err(Error::ExpectedSingleRowSet)
     }
 }
 
