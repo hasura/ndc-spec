@@ -2,7 +2,7 @@ use std::{
     cmp::Ordering,
     collections::{BTreeMap, HashSet},
     error::Error,
-    sync::Arc,
+    sync::Arc, ops::Deref,
 };
 
 use axum::{
@@ -1518,7 +1518,7 @@ fn eval_nested_field(
                 },
             )?))
         }
-        models::NestedField::Array(NestedArray { field }) => match field {
+        models::NestedField::Array(NestedArray { field }) => match field.deref() {
             None => Ok(models::RowFieldValue(value)),
             Some(field) => {
                 eval_nested_field(collection_relationships, variables, state, value, field)

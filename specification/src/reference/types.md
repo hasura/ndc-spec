@@ -138,6 +138,24 @@
 {{#include ../../../ndc-client/src/models.rs:MutationResponse}}
 ```
 
+## `NestedArray`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:NestedArray}}
+```
+
+## `NestedField`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:NestedField}}
+```
+
+## `NestedObject`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:NestedObject}}
+```
+
 ## `ObjectField`
 
 ```rust,no_run,noplayground
