@@ -13,9 +13,12 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use ndc_client::models::{self, LeafCapability, RelationshipCapabilities};
+use ndc_client::models::{
+    self, LeafCapability, NestedArray, NestedField, NestedObject, RelationshipCapabilities,
+};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
+use serde_json::Value;
 use tokio::sync::Mutex;
 
 // ANCHOR: row-type
@@ -1477,6 +1480,53 @@ fn eval_comparison_value(
     }
 }
 // ANCHOR_END: eval_comparison_value
+// ANCHOR: eval_nested_field
+fn eval_nested_field(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+    value: Value,
+    nested_field: &NestedField,
+) -> Result<models::RowFieldValue> {
+    match nested_field {
+        models::NestedField::Object(NestedObject { fields }) => {
+            let full_row: Row = serde_json::from_value(value).map_err(|_| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "Expected object".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
+            let mut row = IndexMap::new();
+            for (field_name, field) in fields.iter() {
+                row.insert(
+                    field_name,
+                    eval_field(collection_relationships, variables, state, field, &full_row)?,
+                );
+            }
+            Ok(models::RowFieldValue(serde_json::to_value(row).map_err(
+                |_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(models::ErrorResponse {
+                            message: "Cannot encode rowset".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                },
+            )?))
+        }
+        models::NestedField::Array(NestedArray { field }) => match field {
+            None => Ok(models::RowFieldValue(value)),
+            Some(field) => {
+                eval_nested_field(collection_relationships, variables, state, value, field)
+            }
+        },
+    }
+}
+// ANCHOR_END: eval_nested_field
 // ANCHOR: eval_field
 fn eval_field(
     collection_relationships: &BTreeMap<String, models::Relationship>,
@@ -1486,8 +1536,21 @@ fn eval_field(
     item: &Row,
 ) -> Result<models::RowFieldValue> {
     match field {
-        models::Field::Column { column, .. } => {
-            Ok(models::RowFieldValue(eval_column(item, column.as_str())?))
+        models::Field::Column {
+            column,
+            nested_field,
+        } => {
+            let col_val = eval_column(item, column.as_str())?;
+            match nested_field {
+                None => Ok(models::RowFieldValue(col_val)),
+                Some(nested_field) => eval_nested_field(
+                    collection_relationships,
+                    variables,
+                    state,
+                    col_val,
+                    nested_field,
+                ),
+            }
         }
         models::Field::Relationship {
             relationship,

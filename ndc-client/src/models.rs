@@ -334,6 +334,34 @@ pub enum Aggregate {
 }
 // ANCHOR_END: Aggregate
 
+// ANCHOR: NestedObject
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "NestedObject")]
+pub struct NestedObject {
+    pub fields: IndexMap<String, Field>,
+}
+// ANCHOR_END: NestedObject
+
+// ANCHOR: NestedArray
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "NestedArray")]
+pub struct NestedArray {
+    pub field: Option<Box<NestedField>>,
+}
+// ANCHOR_END: NestedArray
+
+// ANCHOR: NestedField
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "NestedField")]
+pub enum NestedField {
+    Object(NestedObject),
+    Array(NestedArray)
+}
+// ANCHOR_END: NestedField
+
 // ANCHOR: Field
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -341,6 +369,7 @@ pub enum Aggregate {
 pub enum Field {
     Column {
         column: String,
+        nested_field: Option<NestedField>
     },
     Relationship {
         query: Box<Query>,
