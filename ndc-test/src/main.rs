@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::exit};
+use std::{path::PathBuf, process::exit, str::FromStr};
 
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
@@ -45,7 +45,7 @@ async fn main() {
             };
 
             let configuration = Configuration {
-                base_path: endpoint,
+                base_path: reqwest::Url::from_str(&endpoint).unwrap(),
                 user_agent: None,
                 client: reqwest::Client::new(),
                 headers: HeaderMap::new(),
@@ -65,7 +65,7 @@ async fn main() {
             snapshots_dir,
         } => {
             let configuration = Configuration {
-                base_path: endpoint,
+                base_path: reqwest::Url::from_str(&endpoint).unwrap(),
                 user_agent: None,
                 client: reqwest::Client::new(),
                 headers: HeaderMap::new(),

@@ -23,6 +23,7 @@ pub enum Error {
     Serde(serde_json::Error),
     Io(std::io::Error),
     ConnectorError(ConnectorError),
+    InvalidConnectorUrl(url::ParseError),
 }
 
 impl fmt::Display for Error {
@@ -32,6 +33,7 @@ impl fmt::Display for Error {
             Error::Serde(e) => ("serde", e.to_string()),
             Error::Io(e) => ("IO", e.to_string()),
             Error::ConnectorError(e) => ("response", format!("status code {}", e.status)),
+            Error::InvalidConnectorUrl(e) => ("url-parse-error", e.to_string()),
         };
         write!(f, "error in {}: {}", module, e)
     }
@@ -44,6 +46,7 @@ impl error::Error for Error {
             Error::Serde(e) => e,
             Error::Io(e) => e,
             Error::ConnectorError(_) => return None,
+            Error::InvalidConnectorUrl(_) => return None,
         })
     }
 }

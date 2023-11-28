@@ -3,7 +3,7 @@ use reqwest::header::{HeaderMap, HeaderValue};
 /// Contains all the information necessary to perform requests.
 #[derive(Debug, Clone)]
 pub struct Configuration {
-    pub base_path: String,
+    pub base_path: reqwest::Url,
     pub user_agent: Option<String>,
     pub client: reqwest::Client,
     pub headers: HeaderMap<HeaderValue>,
