@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::exit, str::FromStr};
+use std::{path::PathBuf, process::exit};
 
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
@@ -17,7 +17,7 @@ struct Options {
 enum Commands {
     Test {
         #[arg(long, value_name = "ENDPOINT")]
-        endpoint: String,
+        endpoint: reqwest::Url,
         #[arg(long, value_name = "SEED")]
         seed: Option<String>,
         #[arg(long, value_name = "PATH")]
@@ -25,7 +25,7 @@ enum Commands {
     },
     Replay {
         #[arg(long, value_name = "ENDPOINT")]
-        endpoint: String,
+        endpoint: reqwest::Url,
         #[arg(long, value_name = "PATH")]
         snapshots_dir: PathBuf,
     },
@@ -45,7 +45,7 @@ async fn main() {
             };
 
             let configuration = Configuration {
-                base_path: reqwest::Url::from_str(&endpoint).unwrap(),
+                base_path: endpoint,
                 user_agent: None,
                 client: reqwest::Client::new(),
                 headers: HeaderMap::new(),
@@ -65,7 +65,7 @@ async fn main() {
             snapshots_dir,
         } => {
             let configuration = Configuration {
-                base_path: reqwest::Url::from_str(&endpoint).unwrap(),
+                base_path: endpoint,
                 user_agent: None,
                 client: reqwest::Client::new(),
                 headers: HeaderMap::new(),
