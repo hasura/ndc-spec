@@ -1,0 +1,27 @@
+{
+    "$schema": "../../../../ndc-client/tests/json_schema/query_request.jsonschema",
+    "collection": "universities",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id"
+            },
+            "location": {
+                "type": "column",
+                "column": "location",
+                "nested_field": {
+                    "type": "object",
+                    "fields": {
+                        "city": {
+                            "type": "column",
+                            "column": "city"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "collection_relationships": {}
+}

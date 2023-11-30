@@ -2,7 +2,10 @@ use std::{
     cmp::Ordering,
     collections::{BTreeMap, HashSet},
     error::Error,
-    sync::Arc, ops::Deref,
+    fs::File,
+    io::{self, BufRead},
+    ops::Deref,
+    sync::Arc,
 };
 
 use axum::{
@@ -29,6 +32,7 @@ type Row = BTreeMap<String, serde_json::Value>;
 pub struct AppState {
     pub articles: BTreeMap<i64, Row>,
     pub authors: BTreeMap<i64, Row>,
+    pub universities: BTreeMap<i64, Row>,
     pub metrics: Metrics,
 }
 // ANCHOR_END: app-state
@@ -48,6 +52,24 @@ fn read_csv(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Erro
     Ok(records)
 }
 // ANCHOR_END: read_csv
+
+// ANCHOR: read_json_lines
+fn read_json_lines(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
+    let file = File::open(path)?;
+    let lines = io::BufReader::new(file).lines();
+    let mut records: BTreeMap<i64, Row> = BTreeMap::new();
+    for line in lines {
+        let row: BTreeMap<String, serde_json::Value> = serde_json::from_str(&line?)?;
+        let id = row
+            .get("id")
+            .ok_or("'id' field not found in json file")?
+            .as_i64()
+            .ok_or("'id' field was not an integer in json file")?;
+        records.insert(id, row);
+    }
+    Ok(records)
+}
+// ANCHOR_END: read_json_lines
 
 #[derive(Debug, Clone)]
 pub struct Metrics {
@@ -106,12 +128,14 @@ fn init_app_state() -> AppState {
     // Read the CSV data files
     let articles = read_csv("articles.csv").unwrap();
     let authors = read_csv("authors.csv").unwrap();
+    let universities = read_json_lines("universities.json").unwrap();
 
     let metrics = Metrics::new().unwrap();
 
     AppState {
         articles,
         authors,
+        universities,
         metrics,
     }
 }
@@ -482,6 +506,7 @@ fn get_collection_by_name(
     match collection_name {
         "articles" => Ok(state.articles.values().cloned().collect()),
         "authors" => Ok(state.authors.values().cloned().collect()),
+        "universities" => Ok(state.universities.values().cloned().collect()),
         "articles_by_author" => {
             let author_id = arguments.get("author_id").ok_or((
                 StatusCode::BAD_REQUEST,
@@ -1518,12 +1543,40 @@ fn eval_nested_field(
                 },
             )?))
         }
-        models::NestedField::Array(NestedArray { field }) => match field.deref() {
-            None => Ok(models::RowFieldValue(value)),
-            Some(field) => {
-                eval_nested_field(collection_relationships, variables, state, value, field)
-            }
-        },
+        models::NestedField::Array(NestedArray { field }) => {
+            let array: Vec<Value> = serde_json::from_value(value).map_err(|_| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "Expected array".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
+            let result_array = match field.deref() {
+                None => array
+                    .into_iter()
+                    .map(models::RowFieldValue)
+                    .collect::<Vec<_>>(),
+                Some(field) => array
+                    .into_iter()
+                    .map(|value| {
+                        eval_nested_field(collection_relationships, variables, state, value, field)
+                    })
+                    .collect::<Result<Vec<_>>>()?,
+            };
+            Ok(models::RowFieldValue(
+                serde_json::to_value(result_array).map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(models::ErrorResponse {
+                            message: "Cannot encode rowset".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?,
+            ))
+        }
     }
 }
 // ANCHOR_END: eval_nested_field

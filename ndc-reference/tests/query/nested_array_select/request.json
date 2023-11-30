@@ -1,0 +1,30 @@
+{
+    "$schema": "../../../../ndc-client/tests/json_schema/query_request.jsonschema",
+    "collection": "universities",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id"
+            },
+            "professors": {
+                "type": "column",
+                "column": "professors",
+                "nested_field": {
+                    "type": "array",
+                    "field": {
+                        "type": "object",
+                        "fields": {
+                            "last_name": {
+                                "type": "column",
+                                "column": "last_name"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "collection_relationships": {}
+}
