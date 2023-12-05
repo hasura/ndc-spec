@@ -17,7 +17,7 @@ struct Options {
 enum Commands {
     Test {
         #[arg(long, value_name = "ENDPOINT")]
-        endpoint: String,
+        endpoint: reqwest::Url,
         #[arg(long, value_name = "SEED")]
         seed: Option<String>,
         #[arg(long, value_name = "PATH")]
@@ -25,7 +25,7 @@ enum Commands {
     },
     Replay {
         #[arg(long, value_name = "ENDPOINT")]
-        endpoint: String,
+        endpoint: reqwest::Url,
         #[arg(long, value_name = "PATH")]
         snapshots_dir: PathBuf,
     },

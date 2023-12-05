@@ -50,8 +50,11 @@ pub async fn capabilities_get(
 
             let client = &configuration.client;
 
-            let uri_str = format!("{}/capabilities", configuration.base_path);
-            let mut req_builder = client.request(reqwest::Method::GET, uri_str.as_str());
+            let uri = configuration
+                .base_path
+                .join("capabilities")
+                .map_err(Error::InvalidConnectorUrl)?;
+            let mut req_builder = client.request(reqwest::Method::GET, uri);
 
             req_builder = inject_trace_context(req_builder);
 
@@ -94,8 +97,11 @@ pub async fn explain_post(
 
             let client = &configuration.client;
 
-            let uri_str = format!("{}/explain", configuration.base_path);
-            let mut req_builder = client.request(reqwest::Method::POST, uri_str.as_str());
+            let uri = configuration
+                .base_path
+                .join("explain")
+                .map_err(Error::InvalidConnectorUrl)?;
+            let mut req_builder = client.request(reqwest::Method::POST, uri);
 
             if let Some(ref user_agent) = configuration.user_agent {
                 req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
@@ -140,8 +146,11 @@ pub async fn mutation_post(
 
             let client = &configuration.client;
 
-            let uri_str = format!("{}/mutation", configuration.base_path);
-            let mut req_builder = client.request(reqwest::Method::POST, uri_str.as_str());
+            let uri = configuration
+                .base_path
+                .join("mutation")
+                .map_err(Error::InvalidConnectorUrl)?;
+            let mut req_builder = client.request(reqwest::Method::POST, uri);
 
             if let Some(ref user_agent) = configuration.user_agent {
                 req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
@@ -187,8 +196,11 @@ pub async fn query_post(
 
                 let client = &configuration.client;
 
-                let uri_str = format!("{}/query", configuration.base_path);
-                let mut req_builder = client.request(reqwest::Method::POST, uri_str.as_str());
+                let uri = configuration
+                    .base_path
+                    .join("query")
+                    .map_err(Error::InvalidConnectorUrl)?;
+                let mut req_builder = client.request(reqwest::Method::POST, uri);
 
                 if let Some(ref user_agent) = configuration.user_agent {
                     req_builder =
@@ -235,8 +247,11 @@ pub async fn schema_get(
 
             let client = &configuration.client;
 
-            let uri_str = format!("{}/schema", configuration.base_path);
-            let mut req_builder = client.request(reqwest::Method::GET, uri_str.as_str());
+            let uri = configuration
+                .base_path
+                .join("schema")
+                .map_err(Error::InvalidConnectorUrl)?;
+            let mut req_builder = client.request(reqwest::Method::GET, uri);
 
             req_builder = inject_trace_context(req_builder);
 
