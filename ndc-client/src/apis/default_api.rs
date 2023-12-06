@@ -334,7 +334,8 @@ mod utils {
     }
 }
 
-mod test {
+#[cfg(test)]
+mod tests {
     #[test]
     fn test_append_path() {
         let url = reqwest::Url::parse("http://hasura.io").unwrap();

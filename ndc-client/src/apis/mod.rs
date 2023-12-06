@@ -48,7 +48,7 @@ impl fmt::Display for Error {
             Error::Serde(e) => ("serde", e.to_string()),
             Error::Io(e) => ("IO", e.to_string()),
             Error::ConnectorError(e) => ("response", format!("status code {}", e.status)),
-            Error::ConnectorURLError(e) => ("url-parse-error", format!("{}", e.to_string())),
+            Error::ConnectorURLError(e) => ("url-parse-error", e.to_string()),
         };
         write!(f, "error in {}: {}", module, e)
     }
