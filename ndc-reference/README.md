@@ -1,5 +1,7 @@
 # NDC Reference Connector
 
+The reference connector implements the features in the NDC specification against an in-memory database. It is intended to illustrate the concepts involved, and should be complete, in the sense that every specification feature is covered. It is not optimized and is not intended for production use, but might be useful for testing.
+
 ## Getting Started
 
 ### With Cargo
