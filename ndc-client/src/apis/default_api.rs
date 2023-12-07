@@ -3,7 +3,6 @@ use opentelemetry::{
     trace::{FutureExt, Tracer},
     Context,
 };
-use reqwest::{self, RequestBuilder};
 use serde_json as json;
 use std::collections::HashMap;
 
@@ -21,7 +20,7 @@ impl ToHeaderString for HashMap<String, json::Value> {
     }
 }
 
-fn inject_trace_context(builder: RequestBuilder) -> RequestBuilder {
+fn inject_trace_context(builder: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
     let ctx = Context::current();
     let mut trace_headers = HashMap::new();
     global::get_text_map_propagator(|propagator| {
@@ -74,13 +73,7 @@ pub async fn capabilities_get(
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
             } else {
-                let error_response: crate::models::ErrorResponse =
-                    serde_json::from_value(response_content)?;
-                let connector_error = super::ConnectorError {
-                    status: response_status,
-                    error_response,
-                };
-                Err(Error::ConnectorError(connector_error))
+                handle_error(response_status, response_content)
             }
         })
         .await
@@ -123,13 +116,7 @@ pub async fn explain_post(
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
             } else {
-                let error_response: crate::models::ErrorResponse =
-                    serde_json::from_value(response_content)?;
-                let connector_error = super::ConnectorError {
-                    status: response_status,
-                    error_response,
-                };
-                Err(Error::ConnectorError(connector_error))
+                handle_error(response_status, response_content)
             }
         })
         .await
@@ -172,13 +159,7 @@ pub async fn mutation_post(
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
             } else {
-                let error_response: crate::models::ErrorResponse =
-                    serde_json::from_value(response_content)?;
-                let connector_error = super::ConnectorError {
-                    status: response_status,
-                    error_response,
-                };
-                Err(Error::ConnectorError(connector_error))
+                handle_error(response_status, response_content)
             }
         })
         .await
@@ -223,13 +204,7 @@ pub async fn query_post(
                 if !response_status.is_client_error() && !response_status.is_server_error() {
                     serde_json::from_value(response_content).map_err(Error::from)
                 } else {
-                    let error_response: crate::models::ErrorResponse =
-                        serde_json::from_value(response_content)?;
-                    let connector_error = super::ConnectorError {
-                        status: response_status,
-                        error_response,
-                    };
-                    Err(Error::ConnectorError(connector_error))
+                    handle_error(response_status, response_content)
                 }
             }
             .with_context(ctx)
@@ -271,16 +246,24 @@ pub async fn schema_get(
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
             } else {
-                let error_response: crate::models::ErrorResponse =
-                    serde_json::from_value(response_content)?;
-                let connector_error = super::ConnectorError {
-                    status: response_status,
-                    error_response,
-                };
-                Err(Error::ConnectorError(connector_error))
+                handle_error(response_status, response_content)
             }
         })
         .await
+}
+
+fn handle_error<T>(
+    response_status: reqwest::StatusCode,
+    response_content: serde_json::Value,
+) -> Result<T, Error> {
+    // If we can't read the error response, discard it.
+    let error_response: Option<crate::models::ErrorResponse> =
+        serde_json::from_value(response_content).ok();
+    let connector_error = super::ConnectorError {
+        status: response_status,
+        error_response,
+    };
+    Err(Error::ConnectorError(connector_error))
 }
 
 mod utils {
