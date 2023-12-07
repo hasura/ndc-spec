@@ -361,9 +361,9 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             "article".into(),
             models::ArgumentInfo {
                 description: Some("The article to insert or update".into()),
-                argument_type: models::Type::Named {
+                argument_type: models::ProcedureArgumentType::Type(models::Type::Named {
                     name: "article".into(),
-                },
+                }),
             },
         )]),
         result_type: models::Type::Nullable {
@@ -1587,7 +1587,7 @@ fn execute_mutation_operation(
 fn execute_procedure(
     state: &mut AppState,
     name: &str,
-    arguments: &BTreeMap<String, serde_json::Value>,
+    arguments: &BTreeMap<String, models::MutationOperationArgument>,
     fields: &Option<IndexMap<String, models::Field>>,
     collection_relationships: &BTreeMap<String, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
@@ -1611,7 +1611,7 @@ fn execute_procedure(
 // ANCHOR: execute_upsert_article
 fn execute_upsert_article(
     state: &mut AppState,
-    arguments: &BTreeMap<String, serde_json::Value>,
+    arguments: &BTreeMap<String, models::MutationOperationArgument>,
     fields: &Option<IndexMap<String, models::Field>>,
     collection_relationships: &BTreeMap<String, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
@@ -1623,13 +1623,23 @@ fn execute_upsert_article(
             details: serde_json::Value::Null,
         }),
     ))?;
-    let article_obj = article.as_object().ok_or((
-        StatusCode::BAD_REQUEST,
-        Json(models::ErrorResponse {
-            message: " ".into(),
-            details: serde_json::Value::Null,
-        }),
-    ))?;
+    let article_obj = match article {
+        models::MutationOperationArgument::Expression(_) => Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: " ".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
+        models::MutationOperationArgument::Literal(article) => article.as_object().ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: " ".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
+    }?;
+
     let id = article_obj.get("id").ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {

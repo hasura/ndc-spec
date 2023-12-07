@@ -186,7 +186,7 @@ pub struct CollectionInfo {
     /// Description of the collection
     pub description: Option<String>,
     /// Any arguments that this collection requires
-    pub arguments: BTreeMap<String, ArgumentInfo>,
+    pub arguments: BTreeMap<String, ArgumentInfo<Type>>,
     /// The name of the collection's object type
     #[serde(rename = "type")]
     pub collection_type: String,
@@ -207,7 +207,7 @@ pub struct FunctionInfo {
     /// Description of the function
     pub description: Option<String>,
     /// Any arguments that this collection requires
-    pub arguments: BTreeMap<String, ArgumentInfo>,
+    pub arguments: BTreeMap<String, ArgumentInfo<Type>>,
     /// The name of the function's result type
     pub result_type: Type,
 }
@@ -217,7 +217,7 @@ pub struct FunctionInfo {
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Argument Info")]
-pub struct ArgumentInfo {
+pub struct ArgumentInfo<Type> {
     /// Argument description
     pub description: Option<String>,
     /// The name of the type of this argument
@@ -256,11 +256,21 @@ pub struct ProcedureInfo {
     /// Column description
     pub description: Option<String>,
     /// Any arguments that this collection requires
-    pub arguments: BTreeMap<String, ArgumentInfo>,
+    pub arguments: BTreeMap<String, ArgumentInfo<ProcedureArgumentType>>,
     /// The name of the result type
     pub result_type: Type,
 }
 // ANCHOR_END: ProcedureInfo
+
+// ANCHOR: ProcedureArgumentType
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Procedure Info")]
+pub enum ProcedureArgumentType {
+    Type(Type),
+    Expression,
+}
+// ANCHOR_END: ProcedureArgumentType
 
 // ANCHOR: QueryRequest
 /// This is the request body of the query POST endpoint
@@ -615,10 +625,21 @@ pub enum MutationOperation {
         /// The name of a procedure
         name: String,
         /// Any named procedure arguments
-        arguments: BTreeMap<String, serde_json::Value>,
+        arguments: BTreeMap<String, MutationOperationArgument>,
         /// The fields to return
         fields: Option<IndexMap<String, Field>>,
     },
+}
+// ANCHOR_END: MutationOperation
+
+// ANCHOR: MutationOperationArgument
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Mutation Operation")]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum MutationOperationArgument {
+    Literal(serde_json::Value),
+    Expression(Expression),
 }
 // ANCHOR_END: MutationOperation
 

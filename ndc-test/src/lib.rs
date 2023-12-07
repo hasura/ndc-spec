@@ -406,7 +406,7 @@ pub async fn validate_schema(
 
                     let _ = test("Arguments", results, async {
                         for (_arg_name, arg_info) in procedure_info.arguments.iter() {
-                            validate_type(schema, &arg_info.argument_type)?;
+                            validate_procedure_argument_type(schema, &arg_info.argument_type)?;
                         }
 
                         Ok(())
@@ -441,6 +441,16 @@ pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> 
     }
 
     Ok(())
+}
+
+pub fn validate_procedure_argument_type(
+    schema: &models::SchemaResponse,
+    proc_arg_type: &models::ProcedureArgumentType,
+) -> Result<(), Error> {
+    match proc_arg_type {
+        models::ProcedureArgumentType::Type(r#type) => validate_type(schema, r#type),
+        models::ProcedureArgumentType::Expression => Ok(()),
+    }
 }
 
 pub async fn test_query<C: Connector>(
@@ -1107,9 +1117,7 @@ async fn test_star_count_aggregate<C: Connector>(
         }
         if let Some(aggregates) = &row_set.aggregates {
             match aggregates.get("count").and_then(serde_json::Value::as_u64) {
-                None => {
-                    Err(Error::MissingField("count".into()))
-                }
+                None => Err(Error::MissingField("count".into())),
                 Some(count) => Ok(count),
             }
         } else {
@@ -1177,11 +1185,17 @@ async fn test_column_count_aggregate<C: Connector>(
                     .ok_or(Error::MissingField(distinct_field))?;
 
                 if count > total_count {
-                    return Err(Error::ResponseDoesNotSatisfy(format!("star_count >= column_count({})", field_name)));
+                    return Err(Error::ResponseDoesNotSatisfy(format!(
+                        "star_count >= column_count({})",
+                        field_name
+                    )));
                 }
-                
+
                 if distinct_count > count {
-                    return Err(Error::ResponseDoesNotSatisfy(format!("column_count >= column_count(distinct {})", field_name)));
+                    return Err(Error::ResponseDoesNotSatisfy(format!(
+                        "column_count >= column_count(distinct {})",
+                        field_name
+                    )));
                 }
             }
         } else {
