@@ -9,7 +9,7 @@ use std::collections::HashMap;
 
 use self::utils::FutureTracing;
 
-use super::{configuration, ConnectorURLError, Error};
+use super::{configuration, Error};
 
 trait ToHeaderString {
     fn to_header_string(self) -> String;
@@ -34,21 +34,10 @@ fn inject_trace_context(builder: RequestBuilder) -> RequestBuilder {
     req_builder
 }
 
-fn append_path(url: &reqwest::Url, path: &str) -> Result<reqwest::Url, ConnectorURLError> {
-    if url.path_segments().map_or(false, |mut s|
-        // It is safe to unwrap here as according to documentation of Url::path_segments()
-        // > When Some is returned, the iterator always contains at least one string (which may be empty).
-        s.next_back().unwrap() != "")
-    {
-        let mut url = url.clone();
-        // No trailing slash, add it
-        url.path_segments_mut()
-            .map_err(|_| ConnectorURLError::URLCannotBeABase())?
-            .push("");
-        url.join(path).map_err(ConnectorURLError::URLParseError)
-    } else {
-        url.join(path).map_err(ConnectorURLError::URLParseError)
-    }
+fn append_path(url: &reqwest::Url, path: &str) -> Result<reqwest::Url, ()> {
+    let mut url = url.clone();
+    url.path_segments_mut()?.pop_if_empty().push(path);
+    Ok(url)
 }
 
 impl ToHeaderString for &str {
@@ -68,7 +57,7 @@ pub async fn capabilities_get(
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, "capabilities")
-                .map_err(Error::ConnectorURLError)?;
+                .map_err(|_| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::GET, uri);
 
             req_builder = inject_trace_context(req_builder);
@@ -113,7 +102,7 @@ pub async fn explain_post(
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, "explain")
-                .map_err(Error::ConnectorURLError)?;
+                .map_err(|_| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::POST, uri);
 
             if let Some(ref user_agent) = configuration.user_agent {
@@ -160,7 +149,7 @@ pub async fn mutation_post(
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, "mutation")
-                .map_err(Error::ConnectorURLError)?;
+                .map_err(|_| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::POST, uri);
 
             if let Some(ref user_agent) = configuration.user_agent {
@@ -208,7 +197,7 @@ pub async fn query_post(
                 let client = &configuration.client;
 
                 let uri = append_path(&configuration.base_path, "query")
-                    .map_err(Error::ConnectorURLError)?;
+                    .map_err(|_| Error::InvalidBaseURL)?;
                 let mut req_builder = client.request(reqwest::Method::POST, uri);
 
                 if let Some(ref user_agent) = configuration.user_agent {
@@ -257,7 +246,7 @@ pub async fn schema_get(
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, "schema")
-                .map_err(Error::ConnectorURLError)?;
+                .map_err(|_| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::GET, uri);
 
             req_builder = inject_trace_context(req_builder);
