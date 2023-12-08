@@ -1206,7 +1206,7 @@ pub async fn test_snapshots_in_directory<C: Connector>(
         nest(
             "Query",
             &results,
-            test_snapshots_in_directory_with::<C, _, _, _, _>(
+            test_snapshots_in_directory_with::<C, _, _, _>(
                 snapshots_dir.join("query"),
                 &results,
                 |req| connector.query(req),
@@ -1217,7 +1217,7 @@ pub async fn test_snapshots_in_directory<C: Connector>(
         nest(
             "Mutation",
             &results,
-            test_snapshots_in_directory_with::<C, _, _, _, _>(
+            test_snapshots_in_directory_with::<C, _, _, _>(
                 snapshots_dir.join("mutation"),
                 &results,
                 |req| connector.mutation(req),
@@ -1236,8 +1236,7 @@ pub async fn test_snapshots_in_directory_with<
     C: Connector,
     Req: DeserializeOwned,
     Res: DeserializeOwned + serde::Serialize + PartialEq,
-    E: std::error::Error + 'static,
-    F: Future<Output = Result<Res, E>>,
+    F: Future<Output = Result<Res, Error>>,
 >(
     snapshots_dir: PathBuf,
     results: &RefCell<TestResults>,
@@ -1263,8 +1262,7 @@ pub async fn test_snapshots_in_directory_with<
                             serde_json::from_reader(request_file).map_err(Error::SerdeError)?;
 
                         let response = f(request)
-                            .await
-                            .map_err(|e| Error::OtherError(Box::new(e)))?;
+                            .await?;
 
                         snapshot_test(snapshot_path, &response)
                     },
