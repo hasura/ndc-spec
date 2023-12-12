@@ -1,0 +1,40 @@
+{
+    "$schema": "../../../../ndc-client/tests/json_schema/query_request.jsonschema",
+    "collection": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "first_name": {
+                "type": "column",
+                "column": "first_name"
+            },
+            "last_name": {
+                "type": "column",
+                "column": "last_name"
+            },
+            "articles": {
+                "type": "relationship",
+                "arguments": {},
+                "relationship": "author_articles",
+                "query": {
+                    "aggregates": {
+                        "count": {
+                            "type": "star_count"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "collection_relationships": {
+        "author_articles": {
+            "arguments": {},
+            "column_mapping": {
+                "id": "author_id"
+            },
+            "relationship_type": "array",
+            "source_collection_or_type": "author",
+            "target_collection": "articles"
+        }
+    }
+}
