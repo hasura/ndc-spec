@@ -981,7 +981,7 @@ fn make_expression_strategies<S: Strategy<Value = serde_json::Value>>(
                     name: field_name.clone(),
                     path: vec![],
                 },
-                operator: models::BinaryComparisonOperator::Equal,
+                operator: "eq".into(),
                 value: models::ComparisonValue::Scalar { value },
             })
         })
