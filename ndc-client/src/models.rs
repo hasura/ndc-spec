@@ -348,7 +348,7 @@ pub struct NestedObject {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "NestedArray")]
 pub struct NestedArray {
-    pub field: Box<Option<NestedField>>,
+    pub fields: Box<Option<NestedField>>,
 }
 // ANCHOR_END: NestedArray
 
@@ -369,7 +369,7 @@ pub enum NestedField {
 pub enum Field {
     Column {
         column: String,
-        nested_field: Option<NestedField>
+        fields: Option<NestedField>
     },
     Relationship {
         query: Box<Query>,

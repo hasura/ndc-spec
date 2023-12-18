@@ -11,7 +11,7 @@
             "location": {
                 "type": "column",
                 "column": "location",
-                "nested_field": {
+                "fields": {
                     "type": "object",
                     "fields": {
                         "city": {

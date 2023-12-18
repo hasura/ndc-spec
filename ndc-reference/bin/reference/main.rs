@@ -1543,7 +1543,7 @@ fn eval_nested_field(
                 },
             )?))
         }
-        models::NestedField::Array(NestedArray { field }) => {
+        models::NestedField::Array(NestedArray { fields }) => {
             let array: Vec<Value> = serde_json::from_value(value).map_err(|_| {
                 (
                     StatusCode::BAD_REQUEST,
@@ -1553,7 +1553,7 @@ fn eval_nested_field(
                     }),
                 )
             })?;
-            let result_array = match field.deref() {
+            let result_array = match fields.deref() {
                 None => array
                     .into_iter()
                     .map(models::RowFieldValue)
@@ -1591,10 +1591,10 @@ fn eval_field(
     match field {
         models::Field::Column {
             column,
-            nested_field,
+            fields,
         } => {
             let col_val = eval_column(item, column.as_str())?;
-            match nested_field {
+            match fields {
                 None => Ok(models::RowFieldValue(col_val)),
                 Some(nested_field) => eval_nested_field(
                     collection_relationships,

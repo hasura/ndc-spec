@@ -199,7 +199,7 @@
             "column": {
               "type": "string"
             },
-            "nested_field": {
+            "fields": {
               "anyOf": [
                 {
                   "$ref": "#/definitions/NestedField"
@@ -282,7 +282,7 @@
                 "array"
               ]
             },
-            "field": {
+            "fields": {
               "anyOf": [
                 {
                   "$ref": "#/definitions/NestedField"

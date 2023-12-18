@@ -11,9 +11,9 @@
             "professors": {
                 "type": "column",
                 "column": "professors",
-                "nested_field": {
+                "fields": {
                     "type": "array",
-                    "field": {
+                    "fields": {
                         "type": "object",
                         "fields": {
                             "last_name": {
