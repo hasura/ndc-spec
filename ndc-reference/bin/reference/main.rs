@@ -36,22 +36,6 @@ pub struct AppState {
     pub metrics: Metrics,
 }
 // ANCHOR_END: app-state
-// ANCHOR: read_csv
-fn read_csv(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
-    let mut rdr = csv::Reader::from_path(path)?;
-    let mut records: BTreeMap<i64, Row> = BTreeMap::new();
-    for row in rdr.deserialize() {
-        let row: BTreeMap<String, serde_json::Value> = row?;
-        let id = row
-            .get("id")
-            .ok_or("'id' field not found in csv file")?
-            .as_i64()
-            .ok_or("'id' field was not an integer in csv file")?;
-        records.insert(id, row);
-    }
-    Ok(records)
-}
-// ANCHOR_END: read_csv
 
 // ANCHOR: read_json_lines
 fn read_json_lines(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
@@ -125,9 +109,9 @@ async fn metrics_middleware<T>(
 // ANCHOR_END: metrics_middleware
 // ANCHOR: init_app_state
 fn init_app_state() -> AppState {
-    // Read the CSV data files
-    let articles = read_csv("articles.csv").unwrap();
-    let authors = read_csv("authors.csv").unwrap();
+    // Read the JSON data files
+    let articles = read_json_lines("articles.json").unwrap();
+    let authors = read_json_lines("authors.json").unwrap();
     let universities = read_json_lines("universities.json").unwrap();
 
     let metrics = Metrics::new().unwrap();
