@@ -662,13 +662,7 @@ fn execute_query(
         .map(|fields| {
             let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
             for item in paginated.iter() {
-                let mut row = IndexMap::new();
-                for (field_name, field) in fields.iter() {
-                    row.insert(
-                        field_name.clone(),
-                        eval_field(collection_relationships, variables, state, field, item)?,
-                    );
-                }
+                let row = eval_row(fields, collection_relationships, variables, state, item)?;
                 rows.push(row)
             }
             Ok(rows)
@@ -680,6 +674,24 @@ fn execute_query(
     // ANCHOR_END: execute_query_rowset
 }
 // ANCHOR_END: execute_query
+// ANCHOR: eval_row
+fn eval_row(
+    fields: &IndexMap<String, models::Field>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, Value>,
+    state: &AppState,
+    item: &BTreeMap<String, Value>,
+) -> Result<IndexMap<String, models::RowFieldValue>> {
+    let mut row = IndexMap::new();
+    for (field_name, field) in fields.iter() {
+        row.insert(
+            field_name.clone(),
+            eval_field(collection_relationships, variables, state, field, item)?,
+        );
+    }
+    Ok(row)
+}
+// ANCHOR_END: eval_row
 // ANCHOR: eval_aggregate
 fn eval_aggregate(
     aggregate: &models::Aggregate,
@@ -1524,13 +1536,7 @@ fn eval_nested_field(
                     }),
                 )
             })?;
-            let mut row = IndexMap::new();
-            for (field_name, field) in fields.iter() {
-                row.insert(
-                    field_name,
-                    eval_field(collection_relationships, variables, state, field, &full_row)?,
-                );
-            }
+            let row = eval_row(fields, collection_relationships, variables, state, &full_row)?;
             Ok(models::RowFieldValue(serde_json::to_value(row).map_err(
                 |_| {
                     (
@@ -1589,10 +1595,7 @@ fn eval_field(
     item: &Row,
 ) -> Result<models::RowFieldValue> {
     match field {
-        models::Field::Column {
-            column,
-            fields,
-        } => {
+        models::Field::Column { column, fields } => {
             let col_val = eval_column(item, column.as_str())?;
             match fields {
                 None => Ok(models::RowFieldValue(col_val)),
