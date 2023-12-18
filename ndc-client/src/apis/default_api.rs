@@ -34,6 +34,12 @@ fn inject_trace_context(builder: RequestBuilder) -> RequestBuilder {
     req_builder
 }
 
+fn append_path(url: &reqwest::Url, path: &str) -> Result<reqwest::Url, ()> {
+    let mut url = url.clone();
+    url.path_segments_mut()?.pop_if_empty().push(path);
+    Ok(url)
+}
+
 impl ToHeaderString for &str {
     fn to_header_string(self) -> String {
         self.to_string()
@@ -50,10 +56,8 @@ pub async fn capabilities_get(
 
             let client = &configuration.client;
 
-            let uri = configuration
-                .base_path
-                .join("capabilities")
-                .map_err(Error::InvalidConnectorUrl)?;
+            let uri = append_path(&configuration.base_path, "capabilities")
+                .map_err(|_| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::GET, uri);
 
             req_builder = inject_trace_context(req_builder);
@@ -97,10 +101,8 @@ pub async fn explain_post(
 
             let client = &configuration.client;
 
-            let uri = configuration
-                .base_path
-                .join("explain")
-                .map_err(Error::InvalidConnectorUrl)?;
+            let uri = append_path(&configuration.base_path, "explain")
+                .map_err(|_| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::POST, uri);
 
             if let Some(ref user_agent) = configuration.user_agent {
@@ -146,10 +148,8 @@ pub async fn mutation_post(
 
             let client = &configuration.client;
 
-            let uri = configuration
-                .base_path
-                .join("mutation")
-                .map_err(Error::InvalidConnectorUrl)?;
+            let uri = append_path(&configuration.base_path, "mutation")
+                .map_err(|_| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::POST, uri);
 
             if let Some(ref user_agent) = configuration.user_agent {
@@ -196,10 +196,8 @@ pub async fn query_post(
 
                 let client = &configuration.client;
 
-                let uri = configuration
-                    .base_path
-                    .join("query")
-                    .map_err(Error::InvalidConnectorUrl)?;
+                let uri = append_path(&configuration.base_path, "query")
+                    .map_err(|_| Error::InvalidBaseURL)?;
                 let mut req_builder = client.request(reqwest::Method::POST, uri);
 
                 if let Some(ref user_agent) = configuration.user_agent {
@@ -247,10 +245,8 @@ pub async fn schema_get(
 
             let client = &configuration.client;
 
-            let uri = configuration
-                .base_path
-                .join("schema")
-                .map_err(Error::InvalidConnectorUrl)?;
+            let uri = append_path(&configuration.base_path, "schema")
+                .map_err(|_| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::GET, uri);
 
             req_builder = inject_trace_context(req_builder);
@@ -324,5 +320,40 @@ mod utils {
                 description: e.to_string().into(),
             });
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_append_path() {
+        let url = reqwest::Url::parse("http://hasura.io").unwrap();
+        let path = "capabilities";
+        let result = crate::apis::default_api::append_path(&url, path).unwrap();
+        assert_eq!(result.as_str(), "http://hasura.io/capabilities");
+    }
+
+    #[test]
+    fn test_append_path_with_trailing_slash() {
+        let url = reqwest::Url::parse("http://hasura.io/").unwrap();
+        let path = "capabilities";
+        let result = crate::apis::default_api::append_path(&url, path).unwrap();
+        assert_eq!(result.as_str(), "http://hasura.io/capabilities");
+    }
+
+    #[test]
+    fn test_append_path_with_non_empty_path() {
+        let url = reqwest::Url::parse("http://hasura.io/ndc").unwrap();
+        let path = "capabilities";
+        let result = crate::apis::default_api::append_path(&url, path).unwrap();
+        assert_eq!(result.as_str(), "http://hasura.io/ndc/capabilities");
+    }
+
+    #[test]
+    fn test_append_path_with_non_empty_path_and_trailing_slash() {
+        let url = reqwest::Url::parse("http://hasura.io/ndc/").unwrap();
+        let path = "capabilities";
+        let result = crate::apis::default_api::append_path(&url, path).unwrap();
+        assert_eq!(result.as_str(), "http://hasura.io/ndc/capabilities");
     }
 }
