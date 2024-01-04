@@ -15,6 +15,7 @@ RUN cargo build --release --all-targets
 
 FROM debian:buster-slim as ndc-reference
 COPY --from=build /app/target/release/ndc-reference ./ndc-reference
-COPY --from=build /app/ndc-reference/articles.csv ./articles.csv
-COPY --from=build /app/ndc-reference/authors.csv ./authors.csv
+COPY --from=build /app/ndc-reference/articles.json ./articles.json
+COPY --from=build /app/ndc-reference/authors.json ./authors.json
+COPY --from=build /app/ndc-reference/universities.json ./universities.json
 CMD ["sh", "-c", "./ndc-reference"]

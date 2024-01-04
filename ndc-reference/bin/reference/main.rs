@@ -2,6 +2,9 @@ use std::{
     cmp::Ordering,
     collections::{BTreeMap, HashSet},
     error::Error,
+    fs::File,
+    io::{self, BufRead},
+    ops::Deref,
     sync::Arc,
 };
 
@@ -13,9 +16,12 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use ndc_client::models::{self, LeafCapability, RelationshipCapabilities};
+use ndc_client::models::{
+    self, LeafCapability, NestedArray, NestedField, NestedObject, RelationshipCapabilities,
+};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
+use serde_json::Value;
 use tokio::sync::Mutex;
 
 // ANCHOR: row-type
@@ -26,25 +32,28 @@ type Row = BTreeMap<String, serde_json::Value>;
 pub struct AppState {
     pub articles: BTreeMap<i64, Row>,
     pub authors: BTreeMap<i64, Row>,
+    pub universities: BTreeMap<i64, Row>,
     pub metrics: Metrics,
 }
 // ANCHOR_END: app-state
-// ANCHOR: read_csv
-fn read_csv(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
-    let mut rdr = csv::Reader::from_path(path)?;
+
+// ANCHOR: read_json_lines
+fn read_json_lines(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
+    let file = File::open(path)?;
+    let lines = io::BufReader::new(file).lines();
     let mut records: BTreeMap<i64, Row> = BTreeMap::new();
-    for row in rdr.deserialize() {
-        let row: BTreeMap<String, serde_json::Value> = row?;
+    for line in lines {
+        let row: BTreeMap<String, serde_json::Value> = serde_json::from_str(&line?)?;
         let id = row
             .get("id")
-            .ok_or("'id' field not found in csv file")?
+            .ok_or("'id' field not found in json file")?
             .as_i64()
-            .ok_or("'id' field was not an integer in csv file")?;
+            .ok_or("'id' field was not an integer in json file")?;
         records.insert(id, row);
     }
     Ok(records)
 }
-// ANCHOR_END: read_csv
+// ANCHOR_END: read_json_lines
 
 #[derive(Debug, Clone)]
 pub struct Metrics {
@@ -100,15 +109,17 @@ async fn metrics_middleware<T>(
 // ANCHOR_END: metrics_middleware
 // ANCHOR: init_app_state
 fn init_app_state() -> AppState {
-    // Read the CSV data files
-    let articles = read_csv("articles.csv").unwrap();
-    let authors = read_csv("authors.csv").unwrap();
+    // Read the JSON data files
+    let articles = read_json_lines("articles.json").unwrap();
+    let authors = read_json_lines("authors.json").unwrap();
+    let universities = read_json_lines("universities.json").unwrap();
 
     let metrics = Metrics::new().unwrap();
 
     AppState {
         articles,
         authors,
+        universities,
         metrics,
     }
 }
@@ -479,6 +490,7 @@ fn get_collection_by_name(
     match collection_name {
         "articles" => Ok(state.articles.values().cloned().collect()),
         "authors" => Ok(state.authors.values().cloned().collect()),
+        "universities" => Ok(state.universities.values().cloned().collect()),
         "articles_by_author" => {
             let author_id = arguments.get("author_id").ok_or((
                 StatusCode::BAD_REQUEST,
@@ -634,13 +646,7 @@ fn execute_query(
         .map(|fields| {
             let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
             for item in paginated.iter() {
-                let mut row = IndexMap::new();
-                for (field_name, field) in fields.iter() {
-                    row.insert(
-                        field_name.clone(),
-                        eval_field(collection_relationships, variables, state, field, item)?,
-                    );
-                }
+                let row = eval_row(fields, collection_relationships, variables, state, item)?;
                 rows.push(row)
             }
             Ok(rows)
@@ -652,6 +658,24 @@ fn execute_query(
     // ANCHOR_END: execute_query_rowset
 }
 // ANCHOR_END: execute_query
+// ANCHOR: eval_row
+fn eval_row(
+    fields: &IndexMap<String, models::Field>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, Value>,
+    state: &AppState,
+    item: &BTreeMap<String, Value>,
+) -> Result<IndexMap<String, models::RowFieldValue>> {
+    let mut row = IndexMap::new();
+    for (field_name, field) in fields.iter() {
+        row.insert(
+            field_name.clone(),
+            eval_field(collection_relationships, variables, state, field, item)?,
+        );
+    }
+    Ok(row)
+}
+// ANCHOR_END: eval_row
 // ANCHOR: eval_aggregate
 fn eval_aggregate(
     aggregate: &models::Aggregate,
@@ -1477,6 +1501,75 @@ fn eval_comparison_value(
     }
 }
 // ANCHOR_END: eval_comparison_value
+// ANCHOR: eval_nested_field
+fn eval_nested_field(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+    value: Value,
+    nested_field: &NestedField,
+) -> Result<models::RowFieldValue> {
+    match nested_field {
+        models::NestedField::Object(NestedObject { fields }) => {
+            let full_row: Row = serde_json::from_value(value).map_err(|_| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "Expected object".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
+            let row = eval_row(fields, collection_relationships, variables, state, &full_row)?;
+            Ok(models::RowFieldValue(serde_json::to_value(row).map_err(
+                |_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(models::ErrorResponse {
+                            message: "Cannot encode rowset".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                },
+            )?))
+        }
+        models::NestedField::Array(NestedArray { fields }) => {
+            let array: Vec<Value> = serde_json::from_value(value).map_err(|_| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "Expected array".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
+            let result_array = match fields.deref() {
+                None => array
+                    .into_iter()
+                    .map(models::RowFieldValue)
+                    .collect::<Vec<_>>(),
+                Some(field) => array
+                    .into_iter()
+                    .map(|value| {
+                        eval_nested_field(collection_relationships, variables, state, value, field)
+                    })
+                    .collect::<Result<Vec<_>>>()?,
+            };
+            Ok(models::RowFieldValue(
+                serde_json::to_value(result_array).map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(models::ErrorResponse {
+                            message: "Cannot encode rowset".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?,
+            ))
+        }
+    }
+}
+// ANCHOR_END: eval_nested_field
 // ANCHOR: eval_field
 fn eval_field(
     collection_relationships: &BTreeMap<String, models::Relationship>,
@@ -1486,8 +1579,18 @@ fn eval_field(
     item: &Row,
 ) -> Result<models::RowFieldValue> {
     match field {
-        models::Field::Column { column, .. } => {
-            Ok(models::RowFieldValue(eval_column(item, column.as_str())?))
+        models::Field::Column { column, fields } => {
+            let col_val = eval_column(item, column.as_str())?;
+            match fields {
+                None => Ok(models::RowFieldValue(col_val)),
+                Some(nested_field) => eval_nested_field(
+                    collection_relationships,
+                    variables,
+                    state,
+                    col_val,
+                    nested_field,
+                ),
+            }
         }
         models::Field::Relationship {
             relationship,

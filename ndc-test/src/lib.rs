@@ -1039,6 +1039,7 @@ fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, 
                 f.0.clone(),
                 models::Field::Column {
                     column: f.0.clone(),
+                    fields: None
                 },
             )
         })
