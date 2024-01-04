@@ -609,7 +609,7 @@ async fn test_select_top_n_rows<C: Connector>(
 async fn test_select_top_n_rows_with_predicate<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    predicate: models::Expression,
+    predicate: GeneratedExpression,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
 ) -> Result<ndc_client::models::QueryResponse, Error> {
@@ -623,7 +623,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
             limit: Some(10),
             offset: None,
             order_by: None,
-            predicate: Some(predicate),
+            predicate: Some(predicate.expr),
         },
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
@@ -632,7 +632,9 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
 
     let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
 
-    // expect_single_non_empty_rows(&response)?;
+    if predicate.expect_nonempty {
+        expect_single_non_empty_rows(&response)?;
+    }
 
     Ok(response)
 }
@@ -974,12 +976,18 @@ fn make_value_strategies(
     Ok(strategies)
 }
 
+#[derive(Clone, Debug)]
+struct GeneratedExpression {
+    expr: models::Expression,
+    expect_nonempty: bool,
+}
+
 fn make_expression_strategies(
     value_strategies: BTreeMap<String, BoxedStrategy<serde_json::Value>>,
     collection_type: &models::ObjectType,
     schema: &models::SchemaResponse,
-) -> Result<Option<Union<BoxedStrategy<models::Expression>>>, Error> {
-    let mut expression_strategies: Vec<BoxedStrategy<models::Expression>> = vec![];
+) -> Result<Option<Union<BoxedStrategy<GeneratedExpression>>>, Error> {
+    let mut expression_strategies: Vec<BoxedStrategy<GeneratedExpression>> = vec![];
 
     for (field_name, strategy) in value_strategies {
         let field_type = &collection_type
@@ -990,12 +998,15 @@ fn make_expression_strategies(
 
         if is_nullable_type(field_type) {
             expression_strategies.push(
-                Just(models::Expression::UnaryComparisonOperator {
-                    column: models::ComparisonTarget::Column {
-                        name: field_name.clone(),
-                        path: vec![],
+                Just(GeneratedExpression {
+                    expr: models::Expression::UnaryComparisonOperator {
+                        column: models::ComparisonTarget::Column {
+                            name: field_name.clone(),
+                            path: vec![],
+                        },
+                        operator: models::UnaryComparisonOperator::IsNull,
                     },
-                    operator: models::UnaryComparisonOperator::IsNull,
+                    expect_nonempty: false,
                 })
                 .boxed(),
             );
@@ -1009,13 +1020,16 @@ fn make_expression_strategies(
                             let closure = {
                                 let field_name = field_name.clone();
                                 let operator_name = operator_name.clone();
-                                move |value| models::Expression::BinaryComparisonOperator {
-                                    column: models::ComparisonTarget::Column {
-                                        name: field_name.clone(),
-                                        path: vec![],
+                                move |value| GeneratedExpression {
+                                    expr: models::Expression::BinaryComparisonOperator {
+                                        column: models::ComparisonTarget::Column {
+                                            name: field_name.clone(),
+                                            path: vec![],
+                                        },
+                                        operator: operator_name.clone(),
+                                        value: models::ComparisonValue::Scalar { value },
                                     },
-                                    operator: operator_name.clone(),
-                                    value: models::ComparisonValue::Scalar { value },
+                                    expect_nonempty: true,
                                 }
                             };
                             expression_strategies.push(strategy.clone().prop_map(closure).boxed());
@@ -1024,15 +1038,18 @@ fn make_expression_strategies(
                             let closure = {
                                 let field_name = field_name.clone();
                                 let operator_name = operator_name.clone();
-                                move |values| models::Expression::BinaryComparisonOperator {
-                                    column: models::ComparisonTarget::Column {
-                                        name: field_name.clone(),
-                                        path: vec![],
+                                move |values| GeneratedExpression {
+                                    expr: models::Expression::BinaryComparisonOperator {
+                                        column: models::ComparisonTarget::Column {
+                                            name: field_name.clone(),
+                                            path: vec![],
+                                        },
+                                        operator: operator_name.clone(),
+                                        value: models::ComparisonValue::Scalar {
+                                            value: serde_json::Value::Array(values),
+                                        },
                                     },
-                                    operator: operator_name.clone(),
-                                    value: models::ComparisonValue::Scalar {
-                                        value: serde_json::Value::Array(values),
-                                    },
+                                    expect_nonempty: true,
                                 }
                             };
                             expression_strategies.push(
@@ -1066,7 +1083,7 @@ fn is_nullable_type(ty: &models::Type) -> bool {
 fn get_named_type(ty: &models::Type) -> Option<&String> {
     match ty {
         models::Type::Named { name } => Some(name),
-        models::Type::Nullable { underlying_type } => get_named_type(&underlying_type),
+        models::Type::Nullable { underlying_type } => get_named_type(underlying_type),
         models::Type::Array { element_type: _ } => None,
     }
 }
