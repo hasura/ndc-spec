@@ -52,9 +52,7 @@
                                         "name": "author_id",
                                         "path": []
                                     },
-                                    "operator": {
-                                        "type": "equal"
-                                    },
+                                    "operator": "eq",
                                     "value": {
                                         "type": "column",
                                         "column": {
@@ -70,10 +68,7 @@
                                         "name": "title",
                                         "path": []
                                     },
-                                    "operator": {
-                                        "type": "other",
-                                        "name": "like"
-                                    },
+                                    "operator": "like",
                                     "value": {
                                         "type": "scalar",
                                         "value": "Functional"

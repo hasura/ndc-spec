@@ -21,12 +21,26 @@
           }
         }
       },
-      "comparison_operators": {}
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "in": {
+          "type": "in"
+        }
+      }
     },
     "String": {
       "aggregate_functions": {},
       "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "in": {
+          "type": "in"
+        },
         "like": {
+          "type": "custom",
           "argument_type": {
             "type": "named",
             "name": "String"

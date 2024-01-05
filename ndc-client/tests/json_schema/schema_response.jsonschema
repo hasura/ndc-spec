@@ -167,20 +167,59 @@
     "ComparisonOperatorDefinition": {
       "title": "Comparison Operator Definition",
       "description": "The definition of a comparison operator on a scalar type",
-      "type": "object",
-      "required": [
-        "argument_type"
-      ],
-      "properties": {
-        "argument_type": {
-          "description": "The type of the argument to this operator",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Type"
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "equal"
+              ]
             }
-          ]
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "in"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "argument_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "custom"
+              ]
+            },
+            "argument_type": {
+              "description": "The type of the argument to this operator",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Type"
+                }
+              ]
+            }
+          }
         }
-      }
+      ]
     },
     "ObjectType": {
       "title": "Object Type",

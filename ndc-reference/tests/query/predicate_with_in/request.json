@@ -14,23 +14,17 @@
             }
         },
         "where": {
-            "type": "binary_array_comparison_operator",
+            "type": "binary_comparison_operator",
             "column": {
                 "type": "column",
                 "name": "author_id",
                 "path": []
             },
             "operator": "in",
-            "values": [
-                {
-                    "type": "scalar",
-                    "value": 1
-                },
-                {
-                    "type": "scalar",
-                    "value": 2
-                }
-            ]
+            "value": {
+                "type": "scalar",
+                "value": [1, 2]
+            }
         }
     },
     "collection_relationships": {}
