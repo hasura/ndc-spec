@@ -4,7 +4,7 @@ use std::fmt;
 #[derive(Debug, Clone)]
 pub struct ConnectorError {
     pub status: reqwest::StatusCode,
-    pub error_response: crate::models::ErrorResponse,
+    pub error_response: Option<crate::models::ErrorResponse>,
 }
 
 impl fmt::Display for ConnectorError {
@@ -12,7 +12,11 @@ impl fmt::Display for ConnectorError {
         write!(
             f,
             "ConnectorError {{ status: {0}, error_response.message: {1} }}",
-            self.status, self.error_response.message
+            self.status,
+            self.error_response
+                .as_ref()
+                .map(|response| response.message.as_ref())
+                .unwrap_or("<none>")
         )
     }
 }
