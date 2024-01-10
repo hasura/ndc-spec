@@ -18,23 +18,6 @@
                     "column": "id"
                 }
             }
-        },
-        {
-            "type": "procedure",
-            "name": "upsert_article",
-            "arguments": {
-                "article": {
-                    "id": 2,
-                    "title": "QuickCheck: a lightweight tool for random testing of Haskell programs",
-                    "author_id": 2
-                }
-            },
-            "fields": {
-                "id": {
-                    "type": "column",
-                    "column": "id"
-                }
-            }
         }
     ],
     "collection_relationships": {}
