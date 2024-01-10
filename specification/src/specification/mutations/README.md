@@ -1,6 +1,6 @@
 # Mutations
 
-The mutation endpoint accepts a mutation request, containing a collection of mutation operations to be performed in the context the data source, and returns a response containing a result for each operation.
+The mutation endpoint accepts a mutation request, containing a collection of mutation operations to be performed transactionally in the context the data source, and returns a response containing a result for each operation.
 
 The structure and requirements for specific fields listed below will be covered in subsequent chapters.
 
