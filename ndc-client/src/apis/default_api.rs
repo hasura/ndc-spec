@@ -77,7 +77,7 @@ pub async fn capabilities_get(
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
             } else {
-                handle_error(response_status, response_content)
+                Err(construct_error(response_status, response_content))
             }
         })
         .await
@@ -118,7 +118,7 @@ pub async fn explain_post(
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
             } else {
-                handle_error(response_status, response_content)
+                Err(construct_error(response_status, response_content))
             }
         })
         .await
@@ -159,7 +159,7 @@ pub async fn mutation_post(
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
             } else {
-                handle_error(response_status, response_content)
+                Err(construct_error(response_status, response_content))
             }
         })
         .await
@@ -202,7 +202,7 @@ pub async fn query_post(
                 if !response_status.is_client_error() && !response_status.is_server_error() {
                     serde_json::from_value(response_content).map_err(Error::from)
                 } else {
-                    handle_error(response_status, response_content)
+                    Err(construct_error(response_status, response_content))
                 }
             }
             .with_context(ctx)
@@ -242,16 +242,16 @@ pub async fn schema_get(
             if !response_status.is_client_error() && !response_status.is_server_error() {
                 serde_json::from_value(response_content).map_err(Error::from)
             } else {
-                handle_error(response_status, response_content)
+                Err(construct_error(response_status, response_content))
             }
         })
         .await
 }
 
-fn handle_error<T>(
+fn construct_error(
     response_status: reqwest::StatusCode,
     response_content: serde_json::Value,
-) -> Result<T, Error> {
+) -> Error {
     // If we can't read the error response, discard it.
     let error_response: Option<crate::models::ErrorResponse> =
         serde_json::from_value(response_content).ok();
@@ -259,7 +259,7 @@ fn handle_error<T>(
         status: response_status,
         error_response,
     };
-    Err(Error::ConnectorError(connector_error))
+    Error::ConnectorError(connector_error)
 }
 
 mod utils {
