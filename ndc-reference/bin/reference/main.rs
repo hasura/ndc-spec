@@ -169,9 +169,9 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
             },
-            mutation: Some(models::MutationCapabilities {
+            mutation: models::MutationCapabilities {
                 transactional: None,
-            }),
+            },
             relationships: Some(RelationshipCapabilities {
                 order_by_aggregate: Some(LeafCapability {}),
                 relation_comparisons: Some(LeafCapability {}),

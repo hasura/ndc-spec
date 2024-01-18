@@ -42,7 +42,7 @@ pub struct LeafCapability {}
 pub struct Capabilities {
     pub query: QueryCapabilities,
     pub explain: Option<LeafCapability>,
-    pub mutation: Option<MutationCapabilities>,
+    pub mutation: MutationCapabilities,
     pub relationships: Option<RelationshipCapabilities>,
 }
 // ANCHOR_END: Capabilities
