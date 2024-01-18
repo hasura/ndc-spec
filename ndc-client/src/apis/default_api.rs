@@ -253,7 +253,7 @@ fn construct_error(
     response_status: reqwest::StatusCode,
     response_content: serde_json::Value,
 ) -> Error {
-    // If we can't read the error response, discard it.
+    // If we can't read the error response, wrap it so it conforms to the schema instead.
     let error_response = crate::models::ErrorResponse::deserialize(&response_content)
         .unwrap_or_else(|_| crate::models::ErrorResponse {
             message: "<unknown error>".to_string(),
