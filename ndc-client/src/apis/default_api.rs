@@ -1,13 +1,14 @@
+use std::collections::HashMap;
+
 use opentelemetry::{
     global,
     trace::{FutureExt, Tracer},
     Context,
 };
+use serde::Deserialize;
 use serde_json as json;
-use std::collections::HashMap;
 
 use self::utils::FutureTracing;
-
 use super::{configuration, Error};
 
 trait ToHeaderString {
@@ -253,8 +254,11 @@ fn construct_error(
     response_content: serde_json::Value,
 ) -> Error {
     // If we can't read the error response, discard it.
-    let error_response: Option<crate::models::ErrorResponse> =
-        serde_json::from_value(response_content).ok();
+    let error_response = crate::models::ErrorResponse::deserialize(&response_content)
+        .unwrap_or_else(|_| crate::models::ErrorResponse {
+            message: "<unknown error>".to_string(),
+            details: response_content,
+        });
     let connector_error = super::ConnectorError {
         status: response_status,
         error_response,
