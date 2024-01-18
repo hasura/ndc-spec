@@ -20,6 +20,7 @@
       "description": "Describes the features of the specification which a data connector implements.",
       "type": "object",
       "required": [
+        "mutation",
         "query"
       ],
       "properties": {
@@ -37,14 +38,7 @@
           ]
         },
         "mutation": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/MutationCapabilities"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/definitions/MutationCapabilities"
         },
         "relationships": {
           "anyOf": [
