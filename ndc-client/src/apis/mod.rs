@@ -17,12 +17,29 @@ impl fmt::Display for ConnectorError {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct InvalidConnectorError {
+    pub status: reqwest::StatusCode,
+    pub content: serde_json::Value,
+}
+
+impl fmt::Display for InvalidConnectorError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "ConnectorError {{ status: {0}, content: {1} }}",
+            self.status, self.content
+        )
+    }
+}
+
 #[derive(Debug)]
 pub enum Error {
     Reqwest(reqwest::Error),
     Serde(serde_json::Error),
     Io(std::io::Error),
     ConnectorError(ConnectorError),
+    InvalidConnectorError(InvalidConnectorError),
     InvalidBaseURL,
 }
 
@@ -33,6 +50,7 @@ impl fmt::Display for Error {
             Error::Serde(e) => ("serde", e.to_string()),
             Error::Io(e) => ("IO", e.to_string()),
             Error::ConnectorError(e) => ("response", format!("status code {}", e.status)),
+            Error::InvalidConnectorError(e) => ("response", format!("status code {}", e.status)),
             Error::InvalidBaseURL => ("url", "invalid base URL".into()),
         };
         write!(f, "error in {}: {}", module, e)
@@ -41,13 +59,14 @@ impl fmt::Display for Error {
 
 impl error::Error for Error {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
-        Some(match self {
-            Error::Reqwest(e) => e,
-            Error::Serde(e) => e,
-            Error::Io(e) => e,
-            Error::ConnectorError(_) => return None,
-            Error::InvalidBaseURL => return None,
-        })
+        match self {
+            Error::Reqwest(e) => Some(e),
+            Error::Serde(e) => Some(e),
+            Error::Io(e) => Some(e),
+            Error::ConnectorError(_) | Error::InvalidConnectorError(_) | Error::InvalidBaseURL => {
+                None
+            }
+        }
     }
 }
 

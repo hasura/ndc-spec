@@ -253,17 +253,20 @@ fn construct_error(
     response_status: reqwest::StatusCode,
     response_content: serde_json::Value,
 ) -> Error {
-    // If we can't read the error response, wrap it so it conforms to the schema instead.
-    let error_response = crate::models::ErrorResponse::deserialize(&response_content)
-        .unwrap_or_else(|_| crate::models::ErrorResponse {
-            message: "<unknown error>".to_string(),
-            details: response_content,
-        });
-    let connector_error = super::ConnectorError {
-        status: response_status,
-        error_response,
-    };
-    Error::ConnectorError(connector_error)
+    match crate::models::ErrorResponse::deserialize(&response_content) {
+        Ok(error_response) => {
+            let connector_error = super::ConnectorError {
+                status: response_status,
+                error_response,
+            };
+            Error::ConnectorError(connector_error)
+        }
+        // If we can't read the error response, respond as-is.
+        Err(_) => Error::InvalidConnectorError(super::InvalidConnectorError {
+            status: response_status,
+            content: response_content,
+        }),
+    }
 }
 
 mod utils {
