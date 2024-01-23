@@ -24,18 +24,6 @@
 {{#include ../../../ndc-client/src/models.rs:ArgumentInfo}}
 ```
 
-## `BinaryArrayComparisonOperator`
-
-```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:BinaryArrayComparisonOperator}}
-```
-
-## `BinaryComparisonOperator`
-
-```rust,no_run,noplayground
-{{#include ../../../ndc-client/src/models.rs:BinaryComparisonOperator}}
-```
-
 ## `Capabilities`
 
 ```rust,no_run,noplayground
