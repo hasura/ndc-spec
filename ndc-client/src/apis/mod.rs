@@ -27,7 +27,7 @@ impl fmt::Display for InvalidConnectorError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "ConnectorError {{ status: {0}, content: {1} }}",
+            "InvalidConnectorError {{ status: {0}, content: {1} }}",
             self.status, self.content
         )
     }
