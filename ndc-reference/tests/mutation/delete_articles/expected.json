@@ -1,0 +1,21 @@
+{
+  "operation_results": [
+    {
+      "affected_rows": 1,
+      "returning": [
+        {
+          "__value": [
+            {
+              "id": 2,
+              "title": "Why Functional Programming Matters"
+            },
+            {
+              "id": 3,
+              "title": "The Design And Implementation Of Programming Languages"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

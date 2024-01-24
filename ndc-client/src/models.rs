@@ -150,6 +150,11 @@ pub enum Type {
         /// The type of the elements of the array
         element_type: Box<Type>,
     },
+    /// A predicate type for a given collection
+    Predicate {
+        /// The collection name
+        collection_name: String,
+    }
 }
 // ANCHOR_END: Type
 

@@ -161,6 +161,26 @@
               ]
             }
           }
+        },
+        {
+          "description": "A predicate type for a given collection",
+          "type": "object",
+          "required": [
+            "collection_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "predicate"
+              ]
+            },
+            "collection_name": {
+              "description": "The collection name",
+              "type": "string"
+            }
+          }
         }
       ]
     },

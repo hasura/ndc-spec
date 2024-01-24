@@ -373,8 +373,28 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         },
     };
     // ANCHOR_END: schema_procedure_upsert_article
+    // ANCHOR: schema_procedure_delete_articles
+    let delete_articles = models::ProcedureInfo {
+        name: "delete_articles".into(),
+        description: Some("Delete articles which match a predicate".into()),
+        arguments: BTreeMap::from_iter([(
+            "where".into(),
+            models::ArgumentInfo {
+                description: Some("The predicate".into()),
+                argument_type: models::Type::Predicate {
+                    collection_name: "articles".into(),
+                },
+            },
+        )]),
+        result_type: models::Type::Array {
+            element_type: Box::new(models::Type::Named {
+                name: "article".into(),
+            }),
+        },
+    };
+    // ANCHOR_END: schema_procedure_delete_article
     // ANCHOR: schema_procedures
-    let procedures = vec![upsert_article];
+    let procedures = vec![upsert_article, delete_articles];
     // ANCHOR_END: schema_procedures
     // ANCHOR: schema_function_latest_article_id
     let latest_article_id_function = models::FunctionInfo {
@@ -1598,6 +1618,9 @@ fn execute_procedure(
         "upsert_article" => {
             execute_upsert_article(state, arguments, fields, collection_relationships)
         }
+        "delete_articles" => {
+            execute_delete_articles(state, arguments, fields, collection_relationships)
+        }
         _ => Err((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
@@ -1619,7 +1642,7 @@ fn execute_upsert_article(
     let article = arguments.get("article").ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
-            message: " ".into(),
+            message: "Expected argument 'article'".into(),
             details: serde_json::Value::Null,
         }),
     ))?;
@@ -1683,6 +1706,88 @@ fn execute_upsert_article(
     })
 }
 // ANCHOR_END: execute_upsert_article
+// ANCHOR: execute_delete_articles
+fn execute_delete_articles(
+    state: &mut AppState,
+    arguments: &BTreeMap<String, serde_json::Value>,
+    fields: &Option<IndexMap<String, models::Field>>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
+{
+    let predicate_value = arguments.get("where").ok_or((
+        StatusCode::BAD_REQUEST,
+        Json(models::ErrorResponse {
+            message: "Expected argument 'where'".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))?;
+    let predicate: models::Expression =
+        serde_json::from_value(predicate_value.clone()).map_err(|_| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "Bad predicate".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )
+        })?;
+
+    let mut removed: Vec<Row> = vec![];
+
+    let state_snapshot = state.clone();
+
+    for (_article_id, article) in state.articles.iter_mut() {
+        if eval_expression(
+            &BTreeMap::new(),
+            &BTreeMap::new(),
+            &state_snapshot,
+            &predicate,
+            &article,
+            &article,
+        )? {
+            removed.push(article.clone());
+        }
+    }
+
+    let returning = removed
+        .iter()
+        .map(|old_row| {
+            let mut row = IndexMap::new();
+            for fields in fields.iter() {
+                for (field_name, field) in fields.iter() {
+                    row.insert(
+                        field_name.clone(),
+                        eval_field(
+                            collection_relationships,
+                            &BTreeMap::new(),
+                            state,
+                            field,
+                            &old_row,
+                        )?,
+                    );
+                }
+            }
+            Ok(row)
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    Ok(models::MutationOperationResults {
+        affected_rows: 1,
+        returning: Some(vec![IndexMap::from_iter([(
+            "__value".into(),
+            models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: "cannot encode response".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?),
+        )])]),
+    })
+}
+// ANCHOR_END: execute_delete_articles
 
 fn eval_column_mapping(
     relationship: &models::Relationship,

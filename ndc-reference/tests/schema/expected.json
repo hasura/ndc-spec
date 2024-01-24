@@ -175,6 +175,26 @@
           "name": "article"
         }
       }
+    },
+    {
+      "name": "delete_articles",
+      "description": "Delete articles which match a predicate",
+      "arguments": {
+        "where": {
+          "description": "The predicate",
+          "type": {
+            "type": "predicate",
+            "collection_name": "articles"
+          }
+        }
+      },
+      "result_type": {
+        "type": "array",
+        "element_type": {
+          "type": "named",
+          "name": "article"
+        }
+      }
     }
   ]
 }

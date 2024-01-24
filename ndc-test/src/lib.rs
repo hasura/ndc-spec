@@ -438,6 +438,15 @@ pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> 
         models::Type::Nullable { underlying_type } => {
             validate_type(schema, underlying_type)?;
         }
+        models::Type::Predicate { collection_name } => {
+            if !schema
+                .collections
+                .iter()
+                .any(|c| c.name == collection_name.as_str())
+            {
+                return Err(Error::CollectionIsNotDefined(collection_name.clone()));
+            }
+        }
     }
 
     Ok(())
@@ -1107,9 +1116,7 @@ async fn test_star_count_aggregate<C: Connector>(
         }
         if let Some(aggregates) = &row_set.aggregates {
             match aggregates.get("count").and_then(serde_json::Value::as_u64) {
-                None => {
-                    Err(Error::MissingField("count".into()))
-                }
+                None => Err(Error::MissingField("count".into())),
                 Some(count) => Ok(count),
             }
         } else {
@@ -1177,11 +1184,17 @@ async fn test_column_count_aggregate<C: Connector>(
                     .ok_or(Error::MissingField(distinct_field))?;
 
                 if count > total_count {
-                    return Err(Error::ResponseDoesNotSatisfy(format!("star_count >= column_count({})", field_name)));
+                    return Err(Error::ResponseDoesNotSatisfy(format!(
+                        "star_count >= column_count({})",
+                        field_name
+                    )));
                 }
-                
+
                 if distinct_count > count {
-                    return Err(Error::ResponseDoesNotSatisfy(format!("column_count >= column_count(distinct {})", field_name)));
+                    return Err(Error::ResponseDoesNotSatisfy(format!(
+                        "column_count >= column_count(distinct {})",
+                        field_name
+                    )));
                 }
             }
         } else {
@@ -1261,8 +1274,7 @@ pub async fn test_snapshots_in_directory_with<
                         let request =
                             serde_json::from_reader(request_file).map_err(Error::SerdeError)?;
 
-                        let response = f(request)
-                            .await?;
+                        let response = f(request).await?;
 
                         snapshot_test(snapshot_path, &response)
                     },
