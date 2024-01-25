@@ -336,7 +336,7 @@ pub enum Aggregate {
 
 // ANCHOR: NestedObject
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 #[schemars(title = "NestedObject")]
 pub struct NestedObject {
     pub fields: IndexMap<String, Field>,
@@ -345,7 +345,7 @@ pub struct NestedObject {
 
 // ANCHOR: NestedArray
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 #[schemars(title = "NestedArray")]
 pub struct NestedArray {
     pub fields: Box<Option<NestedField>>,
