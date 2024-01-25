@@ -369,6 +369,10 @@ pub enum NestedField {
 pub enum Field {
     Column {
         column: String,
+        /// When the type of the column is a (possibly-nullable) array or object,
+        /// the caller can request a subset of the complete column data,
+        /// by specifying fields to fetch here.
+        /// If omitted, the column data will be fetched in full.
         fields: Option<NestedField>
     },
     Relationship {
