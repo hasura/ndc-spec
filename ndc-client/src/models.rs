@@ -42,6 +42,7 @@ pub struct LeafCapability {}
 pub struct Capabilities {
     pub query: QueryCapabilities,
     pub explain: Option<LeafCapability>,
+    pub mutation: MutationCapabilities,
     pub relationships: Option<RelationshipCapabilities>,
 }
 // ANCHOR_END: Capabilities
@@ -57,6 +58,16 @@ pub struct QueryCapabilities {
     pub variables: Option<LeafCapability>,
 }
 // ANCHOR_END: QueryCapabilities
+
+// ANCHOR: MutationCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Mutation Capabilities")]
+pub struct MutationCapabilities {
+    /// Does the connector support executing multiple mutations in a transaction.
+    pub transactional: Option<LeafCapability>,
+}
+// ANCHOR_END: MutationCapabilities
 
 // ANCHOR: RelationshipCapabilities
 #[skip_serializing_none]

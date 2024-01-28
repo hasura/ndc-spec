@@ -169,6 +169,9 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
             },
+            mutation: models::MutationCapabilities {
+                transactional: None,
+            },
             relationships: Some(RelationshipCapabilities {
                 order_by_aggregate: Some(LeafCapability {}),
                 relation_comparisons: Some(LeafCapability {}),
@@ -1555,17 +1558,30 @@ async fn post_mutation(
 ) -> Result<Json<models::MutationResponse>> {
     // ANCHOR_END: post_mutation_signature
     // ANCHOR: post_mutation
-    let mut state = state.lock().await;
+    if request.operations.len() > 1 {
+        Err((
+            StatusCode::NOT_IMPLEMENTED,
+            Json(models::ErrorResponse {
+                message: "transactional mutations are not supported".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))
+    } else {
+        let mut state = state.lock().await;
 
-    let mut operation_results = vec![];
+        let mut operation_results = vec![];
 
-    for operation in request.operations.iter() {
-        let operation_result =
-            execute_mutation_operation(&mut state, &request.collection_relationships, operation)?;
-        operation_results.push(operation_result);
+        for operation in request.operations.iter() {
+            let operation_result = execute_mutation_operation(
+                &mut state,
+                &request.collection_relationships,
+                operation,
+            )?;
+            operation_results.push(operation_result);
+        }
+
+        Ok(Json(models::MutationResponse { operation_results }))
     }
-
-    Ok(Json(models::MutationResponse { operation_results }))
 }
 // ANCHOR_END: post_mutation
 // ANCHOR: execute_mutation_operation
