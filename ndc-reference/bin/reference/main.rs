@@ -1784,7 +1784,7 @@ fn execute_delete_articles(
                         eval_field(
                             collection_relationships,
                             &BTreeMap::new(),
-                            state,
+                            &state_snapshot,
                             field,
                             old_row,
                         )?,
@@ -1796,7 +1796,15 @@ fn execute_delete_articles(
         .collect::<Result<Vec<_>>>()?;
 
     Ok(models::MutationOperationResults {
-        affected_rows: 1,
+        affected_rows: removed.len().try_into().map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(models::ErrorResponse {
+                    message: "Unable to convert integer".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )
+        })?,
         returning: Some(vec![IndexMap::from_iter([(
             "__value".into(),
             models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
