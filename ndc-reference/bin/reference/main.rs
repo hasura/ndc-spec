@@ -1766,8 +1766,8 @@ fn execute_delete_articles(
             &BTreeMap::new(),
             &state_snapshot,
             &predicate,
-            &article,
-            &article,
+            article,
+            article,
         )? {
             removed.push(article.clone());
         }
@@ -1786,7 +1786,7 @@ fn execute_delete_articles(
                             &BTreeMap::new(),
                             state,
                             field,
-                            &old_row,
+                            old_row,
                         )?,
                     );
                 }

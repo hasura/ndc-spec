@@ -1086,6 +1086,7 @@ fn is_nullable_type(ty: &models::Type) -> bool {
         models::Type::Named { name: _ } => false,
         models::Type::Nullable { underlying_type: _ } => true,
         models::Type::Array { element_type: _ } => false,
+        models::Type::Predicate { collection_name: _ } => false
     }
 }
 
@@ -1094,6 +1095,7 @@ fn get_named_type(ty: &models::Type) -> Option<&String> {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => get_named_type(underlying_type),
         models::Type::Array { element_type: _ } => None,
+        models::Type::Predicate { collection_name: _ } => None
     }
 }
 
