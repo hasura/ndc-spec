@@ -16,9 +16,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use ndc_client::models::{
-    self, LeafCapability, NestedArray, NestedField, NestedObject, RelationshipCapabilities,
-};
+use ndc_client::models::{self, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use serde_json::Value;
@@ -1507,10 +1505,10 @@ fn eval_nested_field(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     value: Value,
-    nested_field: &NestedField,
+    nested_field: &models::NestedField,
 ) -> Result<models::RowFieldValue> {
     match nested_field {
-        models::NestedField::Object(NestedObject { fields }) => {
+        models::NestedField::Object(models::NestedObject { fields }) => {
             let full_row: Row = serde_json::from_value(value).map_err(|_| {
                 (
                     StatusCode::BAD_REQUEST,
@@ -1520,7 +1518,13 @@ fn eval_nested_field(
                     }),
                 )
             })?;
-            let row = eval_row(fields, collection_relationships, variables, state, &full_row)?;
+            let row = eval_row(
+                fields,
+                collection_relationships,
+                variables,
+                state,
+                &full_row,
+            )?;
             Ok(models::RowFieldValue(serde_json::to_value(row).map_err(
                 |_| {
                     (
@@ -1533,7 +1537,7 @@ fn eval_nested_field(
                 },
             )?))
         }
-        models::NestedField::Array(NestedArray { fields }) => {
+        models::NestedField::Array(models::NestedArray { fields }) => {
             let array: Vec<Value> = serde_json::from_value(value).map_err(|_| {
                 (
                     StatusCode::BAD_REQUEST,
