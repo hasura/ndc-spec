@@ -13,7 +13,7 @@ use ndc_client::apis::default_api as api;
 use ndc_client::models::{self, OrderDirection};
 use proptest::prelude::Rng;
 use proptest::sample::select;
-use proptest::strategy::{Just, Strategy, Union, ValueTree};
+use proptest::strategy::{BoxedStrategy, Just, Strategy, Union, ValueTree};
 use proptest::test_runner::{Config, Reason, RngAlgorithm, TestRng, TestRunner};
 use serde::de::DeserializeOwned;
 use thiserror::Error;
@@ -54,6 +54,8 @@ pub enum Error {
     ExpectedNonEmptyRows,
     #[error("requested field {0} was missing in response")]
     MissingField(String),
+    #[error("field {0} was not expected in response")]
+    UnexpectedField(String),
     #[error("error response from connector: {0:?}")]
     ConnectorError(ndc_client::models::ErrorResponse),
     #[error("cannot open snapshot file: {0:?}")]
@@ -526,7 +528,9 @@ async fn test_simple_queries<C: Connector>(
     test("Predicates", results, async {
         let value_strategies = make_value_strategies(rows, collection_type)?;
 
-        if let Some(expression_strategy) = make_expression_strategies(value_strategies) {
+        if let Some(expression_strategy) =
+            make_expression_strategies(value_strategies, collection_type, schema)?
+        {
             for _ in 0..10 {
                 if let Ok(tree) = expression_strategy.new_tree(runner) {
                     let predicate = tree.current();
@@ -605,7 +609,7 @@ async fn test_select_top_n_rows<C: Connector>(
 async fn test_select_top_n_rows_with_predicate<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    predicate: models::Expression,
+    predicate: GeneratedExpression,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
 ) -> Result<ndc_client::models::QueryResponse, Error> {
@@ -619,7 +623,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
             limit: Some(10),
             offset: None,
             order_by: None,
-            predicate: Some(predicate),
+            predicate: Some(predicate.expr),
         },
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
@@ -628,7 +632,9 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
 
     let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
 
-    expect_single_non_empty_rows(&response)?;
+    if predicate.expect_nonempty {
+        expect_single_non_empty_rows(&response)?;
+    }
 
     Ok(response)
 }
@@ -942,7 +948,7 @@ fn expect_single_rows(
 fn make_value_strategies(
     rows: Vec<IndexMap<String, models::RowFieldValue>>,
     collection_type: &models::ObjectType,
-) -> Result<BTreeMap<String, impl Strategy<Value = serde_json::Value>>, Error> {
+) -> Result<BTreeMap<String, BoxedStrategy<serde_json::Value>>, Error> {
     let mut values: BTreeMap<String, Vec<serde_json::Value>> = BTreeMap::new();
 
     for row in rows {
@@ -964,33 +970,121 @@ fn make_value_strategies(
 
     let strategies = values
         .into_iter()
-        .map(|(field_name, examples)| Ok((field_name, select(examples))))
+        .map(|(field_name, examples)| Ok((field_name, select(examples).boxed())))
         .collect::<Result<BTreeMap<String, _>, Reason>>()?;
 
     Ok(strategies)
 }
 
-fn make_expression_strategies<S: Strategy<Value = serde_json::Value>>(
-    value_strategies: BTreeMap<String, S>,
-) -> Option<impl Strategy<Value = models::Expression>> {
-    let expression_strategies = value_strategies
-        .into_iter()
-        .map(|(field_name, strategy)| {
-            strategy.prop_map(move |value| models::Expression::BinaryComparisonOperator {
-                column: models::ComparisonTarget::Column {
-                    name: field_name.clone(),
-                    path: vec![],
-                },
-                operator: models::BinaryComparisonOperator::Equal,
-                value: models::ComparisonValue::Scalar { value },
-            })
-        })
-        .collect::<Vec<_>>();
+#[derive(Clone, Debug)]
+struct GeneratedExpression {
+    expr: models::Expression,
+    expect_nonempty: bool,
+}
 
-    if expression_strategies.is_empty() {
+fn make_expression_strategies(
+    value_strategies: BTreeMap<String, BoxedStrategy<serde_json::Value>>,
+    collection_type: &models::ObjectType,
+    schema: &models::SchemaResponse,
+) -> Result<Option<Union<BoxedStrategy<GeneratedExpression>>>, Error> {
+    let mut expression_strategies: Vec<BoxedStrategy<GeneratedExpression>> = vec![];
+
+    for (field_name, strategy) in value_strategies {
+        let field_type = &collection_type
+            .fields
+            .get(field_name.as_str())
+            .ok_or(Error::UnexpectedField(field_name.clone()))?
+            .r#type;
+
+        if is_nullable_type(field_type) {
+            expression_strategies.push(
+                Just(GeneratedExpression {
+                    expr: models::Expression::UnaryComparisonOperator {
+                        column: models::ComparisonTarget::Column {
+                            name: field_name.clone(),
+                            path: vec![],
+                        },
+                        operator: models::UnaryComparisonOperator::IsNull,
+                    },
+                    expect_nonempty: false,
+                })
+                .boxed(),
+            );
+        }
+
+        if let Some(field_type_name) = get_named_type(field_type) {
+            if let Some(field_scalar_type) = schema.scalar_types.get(field_type_name.as_str()) {
+                for (operator_name, operator) in field_scalar_type.comparison_operators.iter() {
+                    match operator {
+                        models::ComparisonOperatorDefinition::Equal => {
+                            let closure = {
+                                let field_name = field_name.clone();
+                                let operator_name = operator_name.clone();
+                                move |value| GeneratedExpression {
+                                    expr: models::Expression::BinaryComparisonOperator {
+                                        column: models::ComparisonTarget::Column {
+                                            name: field_name.clone(),
+                                            path: vec![],
+                                        },
+                                        operator: operator_name.clone(),
+                                        value: models::ComparisonValue::Scalar { value },
+                                    },
+                                    expect_nonempty: true,
+                                }
+                            };
+                            expression_strategies.push(strategy.clone().prop_map(closure).boxed());
+                        }
+                        models::ComparisonOperatorDefinition::In => {
+                            let closure = {
+                                let field_name = field_name.clone();
+                                let operator_name = operator_name.clone();
+                                move |values| GeneratedExpression {
+                                    expr: models::Expression::BinaryComparisonOperator {
+                                        column: models::ComparisonTarget::Column {
+                                            name: field_name.clone(),
+                                            path: vec![],
+                                        },
+                                        operator: operator_name.clone(),
+                                        value: models::ComparisonValue::Scalar {
+                                            value: serde_json::Value::Array(values),
+                                        },
+                                    },
+                                    expect_nonempty: true,
+                                }
+                            };
+                            expression_strategies.push(
+                                proptest::collection::vec(strategy.clone(), (1, 3))
+                                    .prop_map(closure)
+                                    .boxed(),
+                            );
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(if expression_strategies.is_empty() {
         None
     } else {
         Some(Union::new(expression_strategies))
+    })
+}
+
+fn is_nullable_type(ty: &models::Type) -> bool {
+    match ty {
+        models::Type::Named { name: _ } => false,
+        models::Type::Nullable { underlying_type: _ } => true,
+        models::Type::Array { element_type: _ } => false,
+    }
+}
+
+fn get_named_type(ty: &models::Type) -> Option<&String> {
+    match ty {
+        models::Type::Named { name } => Some(name),
+        models::Type::Nullable { underlying_type } => get_named_type(underlying_type),
+        models::Type::Array { element_type: _ } => None,
     }
 }
 
@@ -1107,9 +1201,7 @@ async fn test_star_count_aggregate<C: Connector>(
         }
         if let Some(aggregates) = &row_set.aggregates {
             match aggregates.get("count").and_then(serde_json::Value::as_u64) {
-                None => {
-                    Err(Error::MissingField("count".into()))
-                }
+                None => Err(Error::MissingField("count".into())),
                 Some(count) => Ok(count),
             }
         } else {
@@ -1177,11 +1269,17 @@ async fn test_column_count_aggregate<C: Connector>(
                     .ok_or(Error::MissingField(distinct_field))?;
 
                 if count > total_count {
-                    return Err(Error::ResponseDoesNotSatisfy(format!("star_count >= column_count({})", field_name)));
+                    return Err(Error::ResponseDoesNotSatisfy(format!(
+                        "star_count >= column_count({})",
+                        field_name
+                    )));
                 }
-                
+
                 if distinct_count > count {
-                    return Err(Error::ResponseDoesNotSatisfy(format!("column_count >= column_count(distinct {})", field_name)));
+                    return Err(Error::ResponseDoesNotSatisfy(format!(
+                        "column_count >= column_count(distinct {})",
+                        field_name
+                    )));
                 }
             }
         } else {
@@ -1261,8 +1359,7 @@ pub async fn test_snapshots_in_directory_with<
                         let request =
                             serde_json::from_reader(request_file).map_err(Error::SerdeError)?;
 
-                        let response = f(request)
-                            .await?;
+                        let response = f(request).await?;
 
                         snapshot_test(snapshot_path, &response)
                     },
