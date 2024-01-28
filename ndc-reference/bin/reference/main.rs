@@ -180,6 +180,9 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
             },
+            mutation: models::MutationCapabilities {
+                transactional: None,
+            },
             relationships: Some(RelationshipCapabilities {
                 order_by_aggregate: Some(LeafCapability {}),
                 relation_comparisons: Some(LeafCapability {}),
@@ -197,14 +200,18 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             "String".into(),
             models::ScalarType {
                 aggregate_functions: BTreeMap::new(),
-                comparison_operators: BTreeMap::from_iter([(
-                    "like".into(),
-                    models::ComparisonOperatorDefinition {
-                        argument_type: models::Type::Named {
-                            name: "String".into(),
+                comparison_operators: BTreeMap::from_iter([
+                    ("eq".into(), models::ComparisonOperatorDefinition::Equal),
+                    ("in".into(), models::ComparisonOperatorDefinition::In),
+                    (
+                        "like".into(),
+                        models::ComparisonOperatorDefinition::Custom {
+                            argument_type: models::Type::Named {
+                                name: "String".into(),
+                            },
                         },
-                    },
-                )]),
+                    ),
+                ]),
             },
         ),
         (
@@ -232,7 +239,10 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         },
                     ),
                 ]),
-                comparison_operators: BTreeMap::from_iter([]),
+                comparison_operators: BTreeMap::from_iter([
+                    ("eq".into(), models::ComparisonOperatorDefinition::Equal),
+                    ("in".into(), models::ComparisonOperatorDefinition::In),
+                ]),
             },
         ),
     ]);
@@ -1215,8 +1225,8 @@ fn eval_expression(
             column,
             operator,
             value,
-        } => match operator {
-            models::BinaryComparisonOperator::Equal => {
+        } => match operator.as_str() {
+            "eq" => {
                 let left_vals = eval_comparison_target(
                     collection_relationships,
                     variables,
@@ -1245,73 +1255,57 @@ fn eval_expression(
             }
             // ANCHOR_END: eval_expression_binary_operators
             // ANCHOR: eval_expression_custom_binary_operators
-            models::BinaryComparisonOperator::Other { name } => match name.as_str() {
-                "like" => {
-                    let column_vals = eval_comparison_target(
-                        collection_relationships,
-                        variables,
-                        state,
-                        column,
-                        root,
-                        item,
-                    )?;
-                    let regex_vals = eval_comparison_value(
-                        collection_relationships,
-                        variables,
-                        state,
-                        value,
-                        root,
-                        item,
-                    )?;
-                    for column_val in column_vals.iter() {
-                        for regex_val in regex_vals.iter() {
-                            let column_str = column_val.as_str().ok_or((
+            "like" => {
+                let column_vals = eval_comparison_target(
+                    collection_relationships,
+                    variables,
+                    state,
+                    column,
+                    root,
+                    item,
+                )?;
+                let regex_vals = eval_comparison_value(
+                    collection_relationships,
+                    variables,
+                    state,
+                    value,
+                    root,
+                    item,
+                )?;
+                for column_val in column_vals.iter() {
+                    for regex_val in regex_vals.iter() {
+                        let column_str = column_val.as_str().ok_or((
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "column is not a string".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        ))?;
+                        let regex_str = regex_val.as_str().ok_or((
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: " ".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        ))?;
+                        let regex = Regex::new(regex_str).map_err(|_| {
+                            (
                                 StatusCode::BAD_REQUEST,
                                 Json(models::ErrorResponse {
-                                    message: "column is not a string".into(),
+                                    message: "invalid regular expression".into(),
                                     details: serde_json::Value::Null,
                                 }),
-                            ))?;
-                            let regex_str = regex_val.as_str().ok_or((
-                                StatusCode::BAD_REQUEST,
-                                Json(models::ErrorResponse {
-                                    message: " ".into(),
-                                    details: serde_json::Value::Null,
-                                }),
-                            ))?;
-                            let regex = Regex::new(regex_str).map_err(|_| {
-                                (
-                                    StatusCode::BAD_REQUEST,
-                                    Json(models::ErrorResponse {
-                                        message: "invalid regular expression".into(),
-                                        details: serde_json::Value::Null,
-                                    }),
-                                )
-                            })?;
-                            if regex.is_match(column_str) {
-                                return Ok(true);
-                            }
+                            )
+                        })?;
+                        if regex.is_match(column_str) {
+                            return Ok(true);
                         }
                     }
-                    Ok(false)
                 }
-                _ => Err((
-                    StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: " ".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                )),
-            },
-            // ANCHOR_END: eval_expression_custom_binary_operators
-        },
-        // ANCHOR: eval_expression_binary_array_operators
-        models::Expression::BinaryArrayComparisonOperator {
-            column,
-            operator,
-            values,
-        } => match operator {
-            models::BinaryArrayComparisonOperator::In => {
+                Ok(false)
+            }
+            // ANCHOR: eval_expression_binary_array_operators
+            "in" => {
                 let left_vals = eval_comparison_target(
                     collection_relationships,
                     variables,
@@ -1321,15 +1315,24 @@ fn eval_expression(
                     item,
                 )?;
 
-                for comparison_value in values.iter() {
-                    let right_vals = eval_comparison_value(
-                        collection_relationships,
-                        variables,
-                        state,
-                        comparison_value,
-                        root,
-                        item,
-                    )?;
+                let right_val_sets = eval_comparison_value(
+                    collection_relationships,
+                    variables,
+                    state,
+                    value,
+                    root,
+                    item,
+                )?;
+
+                for comparison_value in right_val_sets.iter() {
+                    let right_vals = comparison_value.as_array().ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "expected array".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))?;
+
                     for left_val in left_vals.iter() {
                         for right_val in right_vals.iter() {
                             if left_val == right_val {
@@ -1340,8 +1343,16 @@ fn eval_expression(
                 }
                 Ok(false)
             }
+            // ANCHOR_END: eval_expression_binary_array_operators
+            _ => Err((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: " ".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )),
+            // ANCHOR_END: eval_expression_custom_binary_operators
         },
-        // ANCHOR_END: eval_expression_binary_array_operators
         // ANCHOR: eval_expression_exists
         models::Expression::Exists {
             in_collection,
@@ -1658,17 +1669,30 @@ async fn post_mutation(
 ) -> Result<Json<models::MutationResponse>> {
     // ANCHOR_END: post_mutation_signature
     // ANCHOR: post_mutation
-    let mut state = state.lock().await;
+    if request.operations.len() > 1 {
+        Err((
+            StatusCode::NOT_IMPLEMENTED,
+            Json(models::ErrorResponse {
+                message: "transactional mutations are not supported".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))
+    } else {
+        let mut state = state.lock().await;
 
-    let mut operation_results = vec![];
+        let mut operation_results = vec![];
 
-    for operation in request.operations.iter() {
-        let operation_result =
-            execute_mutation_operation(&mut state, &request.collection_relationships, operation)?;
-        operation_results.push(operation_result);
+        for operation in request.operations.iter() {
+            let operation_result = execute_mutation_operation(
+                &mut state,
+                &request.collection_relationships,
+                operation,
+            )?;
+            operation_results.push(operation_result);
+        }
+
+        Ok(Json(models::MutationResponse { operation_results }))
     }
-
-    Ok(Json(models::MutationResponse { operation_results }))
 }
 // ANCHOR_END: post_mutation
 // ANCHOR: execute_mutation_operation

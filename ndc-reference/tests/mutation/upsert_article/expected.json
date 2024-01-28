@@ -7,16 +7,6 @@
           "__value": null
         }
       ]
-    },
-    {
-      "affected_rows": 1,
-      "returning": [
-        {
-          "__value": {
-            "id": 2
-          }
-        }
-      ]
     }
   ]
 }

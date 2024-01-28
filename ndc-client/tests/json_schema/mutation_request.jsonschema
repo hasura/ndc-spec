@@ -629,39 +629,10 @@
               "$ref": "#/definitions/ComparisonTarget"
             },
             "operator": {
-              "$ref": "#/definitions/BinaryComparisonOperator"
+              "type": "string"
             },
             "value": {
               "$ref": "#/definitions/ComparisonValue"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "column",
-            "operator",
-            "type",
-            "values"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "binary_array_comparison_operator"
-              ]
-            },
-            "column": {
-              "$ref": "#/definitions/ComparisonTarget"
-            },
-            "operator": {
-              "$ref": "#/definitions/BinaryArrayComparisonOperator"
-            },
-            "values": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ComparisonValue"
-              }
             }
           }
         },
@@ -747,43 +718,6 @@
         "is_null"
       ]
     },
-    "BinaryComparisonOperator": {
-      "title": "Binary Comparison Operator",
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "equal"
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "other"
-              ]
-            },
-            "name": {
-              "type": "string"
-            }
-          }
-        }
-      ]
-    },
     "ComparisonValue": {
       "title": "Comparison Value",
       "oneOf": [
@@ -839,13 +773,6 @@
             }
           }
         }
-      ]
-    },
-    "BinaryArrayComparisonOperator": {
-      "title": "Binary Array Comparison Operator",
-      "type": "string",
-      "enum": [
-        "in"
       ]
     },
     "ExistsInCollection": {
