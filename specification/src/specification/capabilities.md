@@ -22,8 +22,9 @@ See [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 
 | Name | Description |
 |------|-------------|
-| `versions` | A [semantic versioning](https://semver.org) range of API versions which the data connector 
-| `capabilities.explain` | Whether the data connector is capable of describing query plans |claims to implement |
+| `versions` | A [semantic versioning](https://semver.org) range of API versions which the data connector |
+| `capabilities.explain` | Whether the data connector is capable of describing query plans |
+| `capabilities.mutation.transactional` | Whether the data connector is capable of executing multiple mutations in a transaction |
 | `capabilities.query.aggregates` | Whether the data connector supports [aggregate queries](queries/aggregates.md) |
 | `capabilities.query.variables` | Whether the data connector supports [queries with variables](queries/variables.md) |
 | `capabilities.relationships` | Whether the data connector supports [relationships](queries/relationships.md) |
@@ -35,3 +36,4 @@ See [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 - Type [`Capabilities`](../reference/types.md#capabilities)
 - Type [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 - Type [`QueryCapabilities`](../reference/types.md#querycapabilities)
+- Type [`MutationCapabilities`](../reference/types.md#mutationcapabilities)

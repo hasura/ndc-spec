@@ -34,47 +34,35 @@ The only supported unary operator currently is `is_null`, which return `true` wh
 
 Binary comparison operators are denoted by expressions with a `type` field of `binary_comparison_operator`. 
 
-The set of available operators depends on the type of the column involved in the expression. The `equal` operator should be implemented for all types of columns. 
+The set of available operators depends on the type of the column involved in the expression. The `operator` property should specify the name of one of the binary operators from the field's [scalar type](../schema/scalar-types.md) definition. 
 
-See type [`BinaryComparisonOperator`](../../reference/types.md#binarycomparisonoperator).
+The type [`ComparisonValue`](../../reference/types.md#comparisonvalue) describes the valid inhabitants of the `value` field. The `value` field should be an expression which evaluates to a value whose type is compatible with the definition of the comparison operator.
 
-#### `equals`
+#### Equality Operators
 
-`equals` tests if a column value is equal to a scalar value, another column value, or a variable.
-
-See type [`ComparisonValue`](../../reference/types.md#comparisonvalue) for the valid inhabitants of the `value` field.
+This example makes use of an `eq` operator, which is defined using the `equal` semantics, to test a single column for equality with a scalar value:
 
 ```json
 {{#include ../../../../ndc-reference/tests/query/predicate_with_eq/request.json:1 }}
 {{#include ../../../../ndc-reference/tests/query/predicate_with_eq/request.json:3: }}
 ```
 
-### Custom Binary Comparison Operators
+#### Set Membership Operators
 
-Data connectors can also extend the expression grammar by defining comparison operators on each [scalar type](../schema/scalar-types.md) in the schema response.
-
-For example, here is an expression which uses a custom `like` operator provided on the `String` type in the reference implementation:
-
-```json
-{{#include ../../../../ndc-reference/tests/query/predicate_with_like/request.json:1 }}
-{{#include ../../../../ndc-reference/tests/query/predicate_with_like/request.json:3: }}
-```
-
-### Binary Array-Valued Comparison Operators
-
-Binary comparison operators are denoted by expressions with a `type` field of `binary_array_comparison_operator`. 
-
-#### `in`
-
-`in` tests if a column value is a member of an array of values, each of which can be a scalar value, another column value, or a variable.
-
-See type [`ComparisonValue`](../../reference/types.md#comparisonvalue) for the valid inhabitants of the `value` field.
-
-_Note_: in general, `PathElement`s in a `ComparisonValue` can refer to _array_ relationships. However, in the case of the `in` operator, such requests can be very difficult to implement, and for practical purposes, it is not very useful to express such queries. Therefore, in the case of the `in` operator, connectors can expect `PathElements` in `ComparisonValue`s to always only refer to _object_ relationships, and fail with a `Bad Request` error otherwise.
+This example uses an `in` operator, which is defined using the `in` semantics, to test a single column for membership in a set of values:
 
 ```json
 {{#include ../../../../ndc-reference/tests/query/predicate_with_in/request.json:1 }}
 {{#include ../../../../ndc-reference/tests/query/predicate_with_in/request.json:3: }}
+```
+
+#### Custom Operators
+
+This example uses a custom `like` operator:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/predicate_with_like/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_like/request.json:3: }}
 ```
 
 ### Columns in Operators
