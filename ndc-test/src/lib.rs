@@ -27,9 +27,9 @@ pub enum Error {
     #[error("error parsing semver range: {0}")]
     SemverError(#[from] semver::Error),
     #[error(
-        "capabilities.versions does not include the current version of the specification: {0}"
+        "capabilities.version ({0}) is not compatible with the current version of the specification ({1})"
     )]
-    IncompatibleSpecification(semver::VersionReq),
+    IncompatibleSpecification(semver::Version, semver::VersionReq),
     #[error("collection {0} is not a defined collection")]
     CollectionIsNotDefined(String),
     #[error("collection type {0} is not a defined object type")]
@@ -325,10 +325,11 @@ async fn run_all_tests<C: Connector>(
 }
 
 pub fn validate_capabilities(capabilities: &models::CapabilitiesResponse) -> Result<(), Error> {
-    let spec_version = semver::Version::parse(env!("CARGO_PKG_VERSION"))?;
-    let claimed_range = semver::VersionReq::parse(capabilities.versions.as_str())?;
-    if !claimed_range.matches(&spec_version) {
-        return Err(Error::IncompatibleSpecification(claimed_range));
+    let pkg_version = env!("CARGO_PKG_VERSION");
+    let spec_version = semver::VersionReq::parse(format!("^{}", pkg_version).as_str())?;
+    let claimed_version = semver::Version::parse(capabilities.version.as_str())?;
+    if !spec_version.matches(&claimed_version) {
+        return Err(Error::IncompatibleSpecification(claimed_version, spec_version));
     }
 
     Ok(())

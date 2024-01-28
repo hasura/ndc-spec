@@ -22,7 +22,7 @@ See [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 
 | Name | Description |
 |------|-------------|
-| `versions` | A [semantic versioning](https://semver.org) range of API versions which the data connector 
+| `version` | A [semantic version number](https://semver.org) of this specification which the data connector claims to implement |
 | `capabilities.explain` | Whether the data connector is capable of describing query plans |claims to implement |
 | `capabilities.query.aggregates` | Whether the data connector supports [aggregate queries](queries/aggregates.md) |
 | `capabilities.query.variables` | Whether the data connector supports [queries with variables](queries/variables.md) |

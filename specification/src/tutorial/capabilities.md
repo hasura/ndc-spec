@@ -1,6 +1,6 @@
 # Capabilities
 
-The [capabilities endpoint](../specification/capabilities.md) should return data describing which features the data connector can implement, along with a range of versions of this specification that the data connector claims to implement.
+The [capabilities endpoint](../specification/capabilities.md) should return data describing which features the data connector can implement, along with the version of this specification that the data connector claims to implement.
 
 The reference implementation returns a static `CapabilitiesResponse`:
 
