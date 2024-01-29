@@ -18,7 +18,7 @@
             }
         },
         "where": {
-            "type": "binary_array_comparison_operator",
+            "type": "binary_comparison_operator",
             "column": {
                 "type": "column",
                 "name": "title",
@@ -34,16 +34,13 @@
                 ]
             },
             "operator": "in",
-            "values": [
-                {
-                    "type": "scalar",
-                    "value": "The Next 700 Programming Languages"
-                },
-                {
-                    "type": "scalar",
-                    "value": "Why Functional Programming Matters"
-                }
-            ]
+            "value": {
+                "type": "scalar",
+                "value": [
+                    "The Next 700 Programming Languages",
+                    "Why Functional Programming Matters"
+                ]
+            }
         }
     },
     "collection_relationships": {

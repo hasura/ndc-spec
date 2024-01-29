@@ -42,6 +42,7 @@ pub struct LeafCapability {}
 pub struct Capabilities {
     pub query: QueryCapabilities,
     pub explain: Option<LeafCapability>,
+    pub mutation: MutationCapabilities,
     pub relationships: Option<RelationshipCapabilities>,
 }
 // ANCHOR_END: Capabilities
@@ -57,6 +58,16 @@ pub struct QueryCapabilities {
     pub variables: Option<LeafCapability>,
 }
 // ANCHOR_END: QueryCapabilities
+
+// ANCHOR: MutationCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Mutation Capabilities")]
+pub struct MutationCapabilities {
+    /// Does the connector support executing multiple mutations in a transaction.
+    pub transactional: Option<LeafCapability>,
+}
+// ANCHOR_END: MutationCapabilities
 
 // ANCHOR: RelationshipCapabilities
 #[skip_serializing_none]
@@ -156,10 +167,15 @@ pub enum Type {
 // ANCHOR: ComparisonOperatorDefinition
 /// The definition of a comparison operator on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Comparison Operator Definition")]
-pub struct ComparisonOperatorDefinition {
-    /// The type of the argument to this operator
-    pub argument_type: Type,
+pub enum ComparisonOperatorDefinition {
+    Equal,
+    In,
+    Custom {
+        /// The type of the argument to this operator
+        argument_type: Type,
+    },
 }
 // ANCHOR_END: ComparisonOperatorDefinition
 
@@ -462,13 +478,8 @@ pub enum Expression {
     },
     BinaryComparisonOperator {
         column: ComparisonTarget,
-        operator: BinaryComparisonOperator,
+        operator: String,
         value: ComparisonValue,
-    },
-    BinaryArrayComparisonOperator {
-        column: ComparisonTarget,
-        operator: BinaryArrayComparisonOperator,
-        values: Vec<ComparisonValue>,
     },
     Exists {
         in_collection: ExistsInCollection,
@@ -488,30 +499,6 @@ pub enum UnaryComparisonOperator {
     IsNull,
 }
 // ANCHOR_END: UnaryComparisonOperator
-
-// ANCHOR: BinaryArrayComparisonOperator
-#[derive(
-    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
-)]
-#[schemars(title = "Binary Array Comparison Operator")]
-#[serde(rename_all = "snake_case")]
-pub enum BinaryArrayComparisonOperator {
-    In,
-}
-// ANCHOR_END: BinaryArrayComparisonOperator
-
-// ANCHOR: BinaryComparisonOperator
-#[derive(
-    Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
-)]
-#[serde(tag = "type", rename_all = "snake_case")]
-#[schemars(title = "Binary Comparison Operator")]
-pub enum BinaryComparisonOperator {
-    Equal,
-    // should we rename this? To what?
-    Other { name: String },
-}
-// ANCHOR_END: BinaryComparisonOperator
 
 // ANCHOR: ComparisonTarget
 #[skip_serializing_none]
