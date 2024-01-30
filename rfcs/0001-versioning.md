@@ -15,7 +15,7 @@ This document exists to specify the way in which this NDC specification ought to
   - For clarity: if a connector claims compatibility with a particular version, then any client should be able to use this connector, as long as the client is using a specification version which is compatible with the connector specification version, according to the semantic versioning specification.
 - A client can depend on a particular specification version by either:
   - using the Rust client library provided in this repository, at the same _Git revision_.
-    - Note: the semantic versioning of the reposity tracks the _specification version_, and not the Rust library versions. While we will try to not introduce unnecessary breaking changes between major specification revisions, we can't guarantee that, and the user should be careful to depend on these Rust libraries at the correct version.
+    - Note: the semantic versioning of the repository tracks the _specification version_, and not the Rust library versions. While we will try to not introduce unnecessary breaking changes between major specification revisions, we can't guarantee that, and the user should be careful to depend on these Rust libraries at the correct version.
   - using the generated JSON schema files at the same _Git revision_.
 
 ## Changes Required
