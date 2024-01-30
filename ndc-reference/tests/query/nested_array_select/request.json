@@ -8,9 +8,9 @@
                 "type": "column",
                 "column": "id"
             },
-            "professors": {
+            "staff": {
                 "type": "column",
-                "column": "professors",
+                "column": "staff",
                 "fields": {
                     "type": "array",
                     "fields": {

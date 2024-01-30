@@ -3,7 +3,7 @@
     "rows": [
       {
         "id": 1,
-        "professors": [
+        "staff": [
           {
             "last_name": "Landin"
           }
@@ -11,7 +11,7 @@
       },
       {
         "id": 2,
-        "professors": [
+        "staff": [
           {
             "last_name": "Hughes"
           },
