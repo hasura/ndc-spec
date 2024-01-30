@@ -496,6 +496,7 @@ pub struct PathElement {
     /// Values to be provided to any collection arguments
     pub arguments: BTreeMap<String, RelationshipArgument>,
     /// A predicate expression to apply to the target collection
+    #[serde(rename = "where")]
     pub predicate: Box<Expression>,
 }
 // ANCHOR_END: PathElement
