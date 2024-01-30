@@ -17,5 +17,5 @@ FROM debian:buster-slim as ndc-reference
 COPY --from=build /app/target/release/ndc-reference ./ndc-reference
 COPY --from=build /app/ndc-reference/articles.json ./articles.json
 COPY --from=build /app/ndc-reference/authors.json ./authors.json
-COPY --from=build /app/ndc-reference/universities.json ./universities.json
+COPY --from=build /app/ndc-reference/institutions.json ./institutions.json
 CMD ["sh", "-c", "./ndc-reference"]

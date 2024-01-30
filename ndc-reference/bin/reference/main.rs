@@ -30,7 +30,7 @@ type Row = BTreeMap<String, serde_json::Value>;
 pub struct AppState {
     pub articles: BTreeMap<i64, Row>,
     pub authors: BTreeMap<i64, Row>,
-    pub universities: BTreeMap<i64, Row>,
+    pub institutions: BTreeMap<i64, Row>,
     pub metrics: Metrics,
 }
 // ANCHOR_END: app-state
@@ -110,14 +110,14 @@ fn init_app_state() -> AppState {
     // Read the JSON data files
     let articles = read_json_lines("articles.json").unwrap();
     let authors = read_json_lines("authors.json").unwrap();
-    let universities = read_json_lines("universities.json").unwrap();
+    let institutions = read_json_lines("institutions.json").unwrap();
 
     let metrics = Metrics::new().unwrap();
 
     AppState {
         articles,
         authors,
-        universities,
+        institutions,
         metrics,
     }
 }
@@ -498,7 +498,7 @@ fn get_collection_by_name(
     match collection_name {
         "articles" => Ok(state.articles.values().cloned().collect()),
         "authors" => Ok(state.authors.values().cloned().collect()),
-        "universities" => Ok(state.universities.values().cloned().collect()),
+        "institutions" => Ok(state.institutions.values().cloned().collect()),
         "articles_by_author" => {
             let author_id = arguments.get("author_id").ok_or((
                 StatusCode::BAD_REQUEST,

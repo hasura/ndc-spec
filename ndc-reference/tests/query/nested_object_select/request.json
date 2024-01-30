@@ -1,6 +1,6 @@
 {
     "$schema": "../../../../ndc-client/tests/json_schema/query_request.jsonschema",
-    "collection": "universities",
+    "collection": "institutions",
     "arguments": {},
     "query": {
         "fields": {
