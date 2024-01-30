@@ -5,6 +5,7 @@
       "aggregates": {},
       "variables": {}
     },
+    "mutation": {},
     "relationships": {
       "relation_comparisons": {},
       "order_by_aggregate": {}
