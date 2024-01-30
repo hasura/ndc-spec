@@ -19,9 +19,23 @@
                             "last_name": {
                                 "type": "column",
                                 "column": "last_name"
+                            },
+                            "fields": {
+                                "type": "column",
+                                "column": "fields",
+                                "fields": {
+                                    "type": "array"
+                                }
                             }
                         }
                     }
+                }
+            },
+            "departments": {
+                "type":"column",
+                "column": "departments",
+                "fields": {
+                    "type": "array"
                 }
             }
         }

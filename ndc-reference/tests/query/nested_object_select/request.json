@@ -17,9 +17,20 @@
                         "city": {
                             "type": "column",
                             "column": "city"
+                        },
+                        "campuses": {
+                            "type": "column",
+                            "column": "campuses",
+                            "fields": {
+                                "type": "array"
+                            }
                         }
                     }
                 }
+            },
+            "location_all": {
+                "type": "column",
+                "column": "location"
             }
         }
     },
