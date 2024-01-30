@@ -48,7 +48,7 @@
                             {
                                 "arguments": {},
                                 "relationship": "author_articles",
-                                "predicate": {
+                                "where": {
                                     "type": "binary_comparison_operator",
                                     "column": {
                                         "type": "column",
