@@ -30,14 +30,14 @@
                 }
             }
         },
-        "where": {
+        "predicate": {
             "type": "exists",
             "in_collection": {
                 "type": "related",
                 "arguments": {},
                 "relationship": "author_articles"
             },
-            "where": {
+            "predicate": {
                 "type": "binary_comparison_operator",
                 "column": {
                     "type": "column",
