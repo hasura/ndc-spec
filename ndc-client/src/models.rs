@@ -568,6 +568,23 @@ impl RowFieldValue {
 }
 // ANCHOR_END: RowFieldValue
 
+// ANCHOR: ExplainRequest
+/// This is the request body of the explain POST endpoint
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Explain Request")]
+pub enum ExplainRequest {
+    Query {
+        /// explain a query request
+        request: QueryRequest,
+    },
+    Mutation {
+        /// explain a mutation request
+        request: MutationRequest,
+    },
+}
+// ANCHOR_END: ExplainRequest
+
 // ANCHOR: ExplainResponse
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Explain Response")]

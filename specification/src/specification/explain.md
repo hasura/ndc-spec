@@ -1,6 +1,6 @@
 # Explain
 
-The explain endpoint accepts a [query](./queries/README.md) request, but without actually executing the query, returns a representation of the _execution plan_.
+The explain endpoint accepts an explain request, which is either a [query](./queries/README.md) request or a [mutation](./mutation/README.md) request, returns a representation of the _execution plan_ without actually executing the query or mutation.
 
 ## Request
 
@@ -8,9 +8,7 @@ The explain endpoint accepts a [query](./queries/README.md) request, but without
 POST /explain
 ```
 
-## Request
-
-See [`QueryRequest`](../reference/types.md#queryrequest)
+See [`ExplainRequest`](../reference/types.md#explainrequest)
 
 ## Response
 

@@ -1548,7 +1548,7 @@ fn eval_field(
 // ANCHOR_END: eval_field
 // ANCHOR: explain
 async fn post_explain(
-    Json(_request): Json<models::QueryRequest>,
+    Json(_request): Json<models::ExplainRequest>,
 ) -> Result<Json<models::ExplainResponse>> {
     Err((
         StatusCode::NOT_IMPLEMENTED,
