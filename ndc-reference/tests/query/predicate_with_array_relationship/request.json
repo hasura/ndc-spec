@@ -38,7 +38,7 @@
                 "path": [{
                     "arguments": {},
                     "relationship": "author_articles",
-                    "predicate": {
+                    "where": {
                         "type": "and",
                         "expressions": []
                     }

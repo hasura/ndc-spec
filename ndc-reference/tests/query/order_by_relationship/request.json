@@ -40,7 +40,7 @@
                             {
                                 "arguments": {},
                                 "relationship": "article_author",
-                                "predicate": {
+                                "where": {
                                     "type": "and",
                                     "expressions": []
                                 }
@@ -57,7 +57,7 @@
                             {
                                 "arguments": {},
                                 "relationship": "article_author",
-                                "predicate": {
+                                "where": {
                                     "type": "and",
                                     "expressions": []
                                 }

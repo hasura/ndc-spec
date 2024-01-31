@@ -170,7 +170,7 @@ async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String
 // ANCHOR: capabilities
 async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
     Json(models::CapabilitiesResponse {
-        versions: "^0.1.0".into(),
+        version: "0.1.0".into(),
         capabilities: models::Capabilities {
             explain: None,
             query: models::QueryCapabilities {
