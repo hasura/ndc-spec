@@ -594,7 +594,7 @@ fn execute_query(
     )?;
     // ANCHOR_END: execute_query_sort
     // ANCHOR: execute_query_filter
-    let filtered: Vec<Row> = (match &query.predicate {
+    let filtered: Vec<Row> = (match &query.r#where {
         None => Ok(sorted),
         Some(expr) => {
             let mut filtered: Vec<Row> = vec![];
@@ -992,7 +992,7 @@ fn eval_path(
             relationship,
             &path_element.arguments,
             &result,
-            &path_element.predicate,
+            &path_element.r#where,
         )?;
     }
 
@@ -1332,7 +1332,7 @@ fn eval_expression(
         // ANCHOR: eval_expression_exists
         models::Expression::Exists {
             in_collection,
-            predicate,
+            r#where,
         } => {
             let query = models::Query {
                 aggregates: None,
@@ -1340,7 +1340,7 @@ fn eval_expression(
                 limit: None,
                 offset: None,
                 order_by: None,
-                predicate: Some(*predicate.clone()),
+                r#where: Some(*r#where.clone()),
             };
             let collection = eval_in_collection(
                 collection_relationships,
