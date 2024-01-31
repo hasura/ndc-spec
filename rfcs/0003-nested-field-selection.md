@@ -8,7 +8,7 @@ Field selection is useful in a variety of contexts:
 - Many relational databases also have semi-structured datatypes like `json(b)`.
 - The TypeScript connector can return object and array types, and we can pass along the selection set and only return the requested data.
 
-This proposal is a non-breaking, minimal addition to the specification, which adds _selection_ for nested structures. Aadditional operations on this sort of data (filtering, sorting, aggregation, etc.) will be covered in later proposals.
+This proposal is a non-breaking, minimal addition to the specification, which adds _selection_ for nested structures. Additional operations on this sort of data (filtering, sorting, aggregation, etc.) will be covered in later proposals.
 
 ## Proposal 
 
