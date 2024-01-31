@@ -364,7 +364,7 @@ pub struct NestedObject {
 #[serde(rename_all = "snake_case")]
 #[schemars(title = "NestedArray")]
 pub struct NestedArray {
-    pub fields: Box<Option<NestedField>>,
+    pub fields: Box<NestedField>,
 }
 // ANCHOR_END: NestedArray
 

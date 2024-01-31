@@ -4,7 +4,6 @@ use std::{
     error::Error,
     fs::File,
     io::{self, BufRead},
-    ops::Deref,
     sync::Arc,
 };
 
@@ -1558,18 +1557,12 @@ fn eval_nested_field(
                     }),
                 )
             })?;
-            let result_array = match fields.deref() {
-                None => array
-                    .into_iter()
-                    .map(models::RowFieldValue)
-                    .collect::<Vec<_>>(),
-                Some(field) => array
-                    .into_iter()
-                    .map(|value| {
-                        eval_nested_field(collection_relationships, variables, state, value, field)
-                    })
-                    .collect::<Result<Vec<_>>>()?,
-            };
+            let result_array = array
+                .into_iter()
+                .map(|value| {
+                    eval_nested_field(collection_relationships, variables, state, value, fields)
+                })
+                .collect::<Result<Vec<_>>>()?;
             Ok(models::RowFieldValue(
                 serde_json::to_value(result_array).map_err(|_| {
                     (

@@ -274,6 +274,7 @@
           "title": "NestedArray",
           "type": "object",
           "required": [
+            "fields",
             "type"
           ],
           "properties": {
@@ -284,14 +285,7 @@
               ]
             },
             "fields": {
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/NestedField"
-                },
-                {
-                  "type": "null"
-                }
-              ]
+              "$ref": "#/definitions/NestedField"
             }
           }
         }

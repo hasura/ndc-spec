@@ -22,10 +22,7 @@
                             },
                             "fields": {
                                 "type": "column",
-                                "column": "fields",
-                                "fields": {
-                                    "type": "array"
-                                }
+                                "column": "fields"
                             }
                         }
                     }
@@ -33,10 +30,7 @@
             },
             "departments": {
                 "type":"column",
-                "column": "departments",
-                "fields": {
-                    "type": "array"
-                }
+                "column": "departments"
             }
         }
     },
