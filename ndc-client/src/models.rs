@@ -22,7 +22,7 @@ pub struct ErrorResponse {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Capabilities Response")]
 pub struct CapabilitiesResponse {
-    pub versions: String,
+    pub version: String,
     pub capabilities: Capabilities,
 }
 // ANCHOR_END: CapabilitiesResponse
