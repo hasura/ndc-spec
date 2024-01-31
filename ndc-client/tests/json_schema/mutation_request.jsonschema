@@ -442,8 +442,8 @@
       "type": "object",
       "required": [
         "arguments",
-        "predicate",
-        "relationship"
+        "relationship",
+        "where"
       ],
       "properties": {
         "relationship": {
@@ -457,7 +457,7 @@
             "$ref": "#/definitions/RelationshipArgument"
           }
         },
-        "predicate": {
+        "where": {
           "description": "A predicate expression to apply to the target collection",
           "allOf": [
             {

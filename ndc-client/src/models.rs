@@ -22,7 +22,7 @@ pub struct ErrorResponse {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Capabilities Response")]
 pub struct CapabilitiesResponse {
-    pub versions: String,
+    pub version: String,
     pub capabilities: Capabilities,
 }
 // ANCHOR_END: CapabilitiesResponse
@@ -529,6 +529,7 @@ pub struct PathElement {
     /// Values to be provided to any collection arguments
     pub arguments: BTreeMap<String, RelationshipArgument>,
     /// A predicate expression to apply to the target collection
+    #[serde(rename = "where")]
     pub predicate: Box<Expression>,
 }
 // ANCHOR_END: PathElement
