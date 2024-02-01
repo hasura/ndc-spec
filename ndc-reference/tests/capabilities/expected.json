@@ -5,6 +5,7 @@
       "aggregates": {},
       "variables": {}
     },
+    "explain": {},
     "mutation": {},
     "relationships": {
       "relation_comparisons": {},

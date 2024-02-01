@@ -20,6 +20,7 @@
       "description": "Describes the features of the specification which a data connector implements.",
       "type": "object",
       "required": [
+        "explain",
         "mutation",
         "query"
       ],
@@ -28,14 +29,7 @@
           "$ref": "#/definitions/QueryCapabilities"
         },
         "explain": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/definitions/ExplainCapabilities"
         },
         "mutation": {
           "$ref": "#/definitions/MutationCapabilities"
@@ -83,6 +77,34 @@
     "LeafCapability": {
       "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
       "type": "object"
+    },
+    "ExplainCapabilities": {
+      "title": "Explain Capabilities",
+      "type": "object",
+      "properties": {
+        "query": {
+          "description": "Does the connector support explaining query",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mutation": {
+          "description": "Does the connector support explaining mutations",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
     },
     "MutationCapabilities": {
       "title": "Mutation Capabilities",

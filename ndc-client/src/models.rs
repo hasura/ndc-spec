@@ -41,7 +41,7 @@ pub struct LeafCapability {}
 #[schemars(title = "Capabilities")]
 pub struct Capabilities {
     pub query: QueryCapabilities,
-    pub explain: Option<LeafCapability>,
+    pub explain: ExplainCapabilities,
     pub mutation: MutationCapabilities,
     pub relationships: Option<RelationshipCapabilities>,
 }
@@ -58,6 +58,18 @@ pub struct QueryCapabilities {
     pub variables: Option<LeafCapability>,
 }
 // ANCHOR_END: QueryCapabilities
+
+// ANCHOR: ExplainCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Explain Capabilities")]
+pub struct ExplainCapabilities {
+    /// Does the connector support explaining query
+    pub query: Option<LeafCapability>,
+    /// Does the connector support explaining mutations
+    pub mutation: Option<LeafCapability>,
+}
+// ANCHOR_END: ExplainCapabilities
 
 // ANCHOR: MutationCapabilities
 #[skip_serializing_none]
@@ -567,23 +579,6 @@ impl RowFieldValue {
     }
 }
 // ANCHOR_END: RowFieldValue
-
-// ANCHOR: ExplainRequest
-/// This is the request body of the explain POST endpoint
-#[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = "Explain Request")]
-pub enum ExplainRequest {
-    Query {
-        /// explain a query request
-        request: QueryRequest,
-    },
-    Mutation {
-        /// explain a mutation request
-        request: MutationRequest,
-    },
-}
-// ANCHOR_END: ExplainRequest
 
 // ANCHOR: ExplainResponse
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]

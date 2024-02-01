@@ -129,6 +129,7 @@ async fn main() {
         .route("/query", post(post_query))
         .route("/mutation", post(post_mutation))
         .route("/explain", post(post_explain))
+        .route("/explain/mutation", post(post_explain_mutation))
         .layer(axum::middleware::from_fn_with_state(
             app_state.clone(),
             metrics_middleware,
@@ -164,7 +165,10 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
     Json(models::CapabilitiesResponse {
         version: "0.1.0".into(),
         capabilities: models::Capabilities {
-            explain: None,
+            explain: models::ExplainCapabilities {
+                query: None,
+                mutation: None,
+            },
             query: models::QueryCapabilities {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
@@ -1548,7 +1552,7 @@ fn eval_field(
 // ANCHOR_END: eval_field
 // ANCHOR: explain
 async fn post_explain(
-    Json(_request): Json<models::ExplainRequest>,
+    Json(_request): Json<models::QueryRequest>,
 ) -> Result<Json<models::ExplainResponse>> {
     Err((
         StatusCode::NOT_IMPLEMENTED,
@@ -1559,6 +1563,19 @@ async fn post_explain(
     ))
 }
 // ANCHOR_END: explain
+// ANCHOR: explain_mutation
+async fn post_explain_mutation(
+    Json(_request): Json<models::MutationRequest>,
+) -> Result<Json<models::ExplainResponse>> {
+    Err((
+        StatusCode::NOT_IMPLEMENTED,
+        Json(models::ErrorResponse {
+            message: "explain is not supported".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))
+}
+// ANCHOR_END: explain_mutation
 // ANCHOR: post_mutation_signature
 async fn post_mutation(
     State(state): State<Arc<Mutex<AppState>>>,
