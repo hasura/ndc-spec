@@ -41,7 +41,6 @@ pub struct LeafCapability {}
 #[schemars(title = "Capabilities")]
 pub struct Capabilities {
     pub query: QueryCapabilities,
-    pub explain: Option<LeafCapability>,
     pub mutation: MutationCapabilities,
     pub relationships: Option<RelationshipCapabilities>,
 }
@@ -56,6 +55,8 @@ pub struct QueryCapabilities {
     pub aggregates: Option<LeafCapability>,
     /// Does the connector support queries which use variables
     pub variables: Option<LeafCapability>,
+    /// Does the connector support explaining queries
+    pub explain: Option<LeafCapability>,
 }
 // ANCHOR_END: QueryCapabilities
 
@@ -66,6 +67,8 @@ pub struct QueryCapabilities {
 pub struct MutationCapabilities {
     /// Does the connector support executing multiple mutations in a transaction.
     pub transactional: Option<LeafCapability>,
+    /// Does the connector support explaining mutations
+    pub explain: Option<LeafCapability>,
 }
 // ANCHOR_END: MutationCapabilities
 

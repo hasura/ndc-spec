@@ -1097,6 +1097,7 @@ fn as_named_type(ty: &models::Type) -> Option<&String> {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => as_named_type(underlying_type),
         models::Type::Array { element_type: _ } => None,
+        models::Type::Predicate { object_type_name: _ } => None,
     }
 }
 

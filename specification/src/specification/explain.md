@@ -1,16 +1,27 @@
 # Explain
 
-The explain endpoint accepts a [query](./queries/README.md) request, but without actually executing the query, returns a representation of the _execution plan_.
+There are two endpoints related to explain:
+
+- The `/query/explain` endpoint, which accepts a [query](./queries/README.md) request.
+- The `/mutation/explain` endpoint, which accepts a [mutation](./mutation/README.md) request.
+
+Both endpoints return a representation of the _execution plan_ without actually executing the query or mutation.
 
 ## Request
 
 ```
-POST /explain
+POST /query/explain
 ```
-
-## Request
 
 See [`QueryRequest`](../reference/types.md#queryrequest)
+
+## Request
+
+```
+POST /mutation/explain
+```
+
+See [`MutationRequest`](../reference/types.md#mutationrequest)
 
 ## Response
 

@@ -27,16 +27,6 @@
         "query": {
           "$ref": "#/definitions/QueryCapabilities"
         },
-        "explain": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "mutation": {
           "$ref": "#/definitions/MutationCapabilities"
         },
@@ -77,6 +67,17 @@
               "type": "null"
             }
           ]
+        },
+        "explain": {
+          "description": "Does the connector support explaining queries",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -90,6 +91,17 @@
       "properties": {
         "transactional": {
           "description": "Does the connector support executing multiple mutations in a transaction.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "explain": {
+          "description": "Does the connector support explaining mutations",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
