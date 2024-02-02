@@ -50,7 +50,7 @@ Here is an example of a query which selects some columns from a nested array ins
 {{#include ../../../../ndc-reference/tests/query/nested_array_select/request.json:3:}}
 ```
 
-Notice that the `staff` column is fetched using a `fields` property of type `array`. For each staff member in each institution row, we apply the selection function denoted by its `fields` property (of type `object`). Specifically, the `last_name` and `fields` properties are selected for each staff member.
+Notice that the `staff` column is fetched using a `fields` property of type `array`. For each staff member in each institution row, we apply the selection function denoted by its `fields` property (of type `object`). Specifically, the `last_name` and `specialities` properties are selected for each staff member.
 
 
 ## Requirements
