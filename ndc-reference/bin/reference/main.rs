@@ -306,10 +306,139 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         ]),
     };
     // ANCHOR_END: schema_object_type_author
+    // ANCHOR: schema_object_type_institution
+    let institution_type = models::ObjectType {
+        description: Some("An institution".into()),
+        fields: BTreeMap::from_iter([
+            (
+                "id".into(),
+                models::ObjectField {
+                    description: Some("The institution's primary key".into()),
+                    r#type: models::Type::Named { name: "Int".into() },
+                },
+            ),
+            (
+                "name".into(),
+                models::ObjectField {
+                    description: Some("The institution's name".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "location".into(),
+                models::ObjectField {
+                    description: Some("The institution's location".into()),
+                    r#type: models::Type::Named {
+                        name: "location".into(),
+                    },
+                },
+            ),
+            (
+                "staff".into(),
+                models::ObjectField {
+                    description: Some("The institution's staff".into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: "staff_member".into(),
+                        }),
+                    },
+                },
+            ),
+            (
+                "departments".into(),
+                models::ObjectField {
+                    description: Some("The institution's departments".into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: "String".into(),
+                        }),
+                    },
+                },
+            ),
+        ]),
+    };
+    // ANCHOR_END: schema_object_type_institution
+    // ANCHOR: schema_object_type_location
+    let location_type = models::ObjectType {
+        description: Some("A location".into()),
+        fields: BTreeMap::from_iter([
+            (
+                "city".into(),
+                models::ObjectField {
+                    description: Some("The location's city".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "country".into(),
+                models::ObjectField {
+                    description: Some("The location's country".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "campuses".into(),
+                models::ObjectField {
+                    description: Some("The location's campuses".into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: "String".into(),
+                        }),
+                    },
+                },
+            ),
+        ]),
+    };
+    // ANCHOR_END: schema_object_type_location
+    // ANCHOR: schema_object_type_staff_member
+    let staff_member_type = models::ObjectType {
+        description: Some("A staff member".into()),
+        fields: BTreeMap::from_iter([
+            (
+                "first_name".into(),
+                models::ObjectField {
+                    description: Some("The staff member's first name".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "last_name".into(),
+                models::ObjectField {
+                    description: Some("The staff member's last name".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "fields".into(),
+                models::ObjectField {
+                    description: Some("The staff member's fields of research".into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: "String".into(),
+                        }),
+                    },
+                },
+            ),
+        ]),
+    };
+    // ANCHOR_END: schema_object_type_staff_member
     // ANCHOR: schema_object_types
     let object_types = BTreeMap::from_iter([
         ("article".into(), article_type),
         ("author".into(), author_type),
+        ("institution".into(), institution_type),
+        ("location".into(), location_type),
+        ("staff_member".into(), staff_member_type),
     ]);
     // ANCHOR_END: schema_object_types
     // ANCHOR: schema_collection_article
@@ -348,6 +477,21 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         )]),
     };
     // ANCHOR_END: schema_collection_author
+    // ANCHOR: schema_collection_institution
+    let institutions_collection = models::CollectionInfo {
+        name: "institutions".into(),
+        description: Some("A collection of institutions".into()),
+        collection_type: "institution".into(),
+        arguments: BTreeMap::new(),
+        foreign_keys: BTreeMap::new(),
+        uniqueness_constraints: BTreeMap::from_iter([(
+            "InstitutionByID".into(),
+            models::UniquenessConstraint {
+                unique_columns: vec!["id".into()],
+            },
+        )]),
+    };
+    // ANCHOR_END: schema_collection_institution
     // ANCHOR: schema_collection_articles_by_author
     let articles_by_author_collection = models::CollectionInfo {
         name: "articles_by_author".into(),
@@ -368,6 +512,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     let collections = vec![
         articles_collection,
         authors_collection,
+        institutions_collection,
         articles_by_author_collection,
     ];
     // ANCHOR_END: schema_collections
