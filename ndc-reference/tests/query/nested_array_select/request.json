@@ -20,9 +20,9 @@
                                 "type": "column",
                                 "column": "last_name"
                             },
-                            "fields": {
+                            "fields_of_study": {
                                 "type": "column",
-                                "column": "fields"
+                                "column": "specialities"
                             }
                         }
                     }

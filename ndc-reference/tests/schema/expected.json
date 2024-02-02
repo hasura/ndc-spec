@@ -180,16 +180,6 @@
     "staff_member": {
       "description": "A staff member",
       "fields": {
-        "fields": {
-          "description": "The staff member's fields of research",
-          "type": {
-            "type": "array",
-            "element_type": {
-              "type": "named",
-              "name": "String"
-            }
-          }
-        },
         "first_name": {
           "description": "The staff member's first name",
           "type": {
@@ -202,6 +192,16 @@
           "type": {
             "type": "named",
             "name": "String"
+          }
+        },
+        "specialities": {
+          "description": "The staff member's specialities",
+          "type": {
+            "type": "array",
+            "element_type": {
+              "type": "named",
+              "name": "String"
+            }
           }
         }
       }

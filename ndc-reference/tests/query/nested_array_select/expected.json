@@ -6,7 +6,7 @@
         "staff": [
           {
             "last_name": "Landin",
-            "fields": [
+            "fields_of_study": [
               "Computer Science",
               "Education"
             ]
@@ -23,7 +23,7 @@
         "staff": [
           {
             "last_name": "Hughes",
-            "fields": [
+            "fields_of_study": [
               "Computer Science",
               "Functional Programming",
               "Software Testing"
@@ -31,7 +31,7 @@
           },
           {
             "last_name": "Claessen",
-            "fields": [
+            "fields_of_study": [
               "Computer Science",
               "Functional Programming",
               "Automated Reasoning"

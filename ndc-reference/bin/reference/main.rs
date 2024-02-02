@@ -419,9 +419,9 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
             (
-                "fields".into(),
+                "specialities".into(),
                 models::ObjectField {
-                    description: Some("The staff member's fields of research".into()),
+                    description: Some("The staff member's specialities".into()),
                     r#type: models::Type::Array {
                         element_type: Box::new(models::Type::Named {
                             name: "String".into(),
