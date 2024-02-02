@@ -22,7 +22,7 @@
                             "type": "star_count"
                         }
                     },
-                    "where": {
+                    "predicate": {
                         "type": "binary_comparison_operator",
                         "column": {
                             "type": "column",
@@ -48,7 +48,7 @@
                             {
                                 "arguments": {},
                                 "relationship": "author_articles",
-                                "where": {
+                                "predicate": {
                                     "type": "binary_comparison_operator",
                                     "column": {
                                         "type": "column",

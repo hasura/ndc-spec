@@ -39,7 +39,7 @@
                             {
                                 "arguments": {},
                                 "relationship": "author_articles",
-                                "where": {
+                                "predicate": {
                                     "type": "and",
                                     "expressions": []
                                 }

@@ -327,7 +327,6 @@ pub struct Query {
     /// Optionally offset from the Nth result
     pub offset: Option<u32>,
     pub order_by: Option<OrderBy>,
-    #[serde(rename = "where")]
     pub predicate: Option<Expression>,
 }
 // ANCHOR_END: Query
@@ -453,8 +452,7 @@ pub enum Expression {
     },
     Exists {
         in_collection: ExistsInCollection,
-        #[serde(rename = "where")]
-        predicate: Box<Expression>,
+        predicate: Option<Box<Expression>>,
     },
 }
 // ANCHOR_END: Expression
@@ -499,8 +497,7 @@ pub struct PathElement {
     /// Values to be provided to any collection arguments
     pub arguments: BTreeMap<String, RelationshipArgument>,
     /// A predicate expression to apply to the target collection
-    #[serde(rename = "where")]
-    pub predicate: Box<Expression>,
+    pub predicate: Option<Box<Expression>>,
 }
 // ANCHOR_END: PathElement
 
