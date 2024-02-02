@@ -169,7 +169,7 @@
             }
           ]
         },
-        "where": {
+        "predicate": {
           "anyOf": [
             {
               "$ref": "#/definitions/Expression"
@@ -379,8 +379,7 @@
       "type": "object",
       "required": [
         "arguments",
-        "relationship",
-        "where"
+        "relationship"
       ],
       "properties": {
         "relationship": {
@@ -394,11 +393,14 @@
             "$ref": "#/definitions/RelationshipArgument"
           }
         },
-        "where": {
+        "predicate": {
           "description": "A predicate expression to apply to the target collection",
-          "allOf": [
+          "anyOf": [
             {
               "$ref": "#/definitions/Expression"
+            },
+            {
+              "type": "null"
             }
           ]
         }
@@ -578,8 +580,7 @@
           "type": "object",
           "required": [
             "in_collection",
-            "type",
-            "where"
+            "type"
           ],
           "properties": {
             "type": {
@@ -591,8 +592,15 @@
             "in_collection": {
               "$ref": "#/definitions/ExistsInCollection"
             },
-            "where": {
-              "$ref": "#/definitions/Expression"
+            "predicate": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Expression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           }
         }
