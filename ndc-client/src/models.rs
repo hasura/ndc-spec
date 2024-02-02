@@ -161,6 +161,11 @@ pub enum Type {
         /// The type of the elements of the array
         element_type: Box<Type>,
     },
+    /// A predicate type for a given object type
+    Predicate {
+        /// The object type name
+        object_type_name: String,
+    }
 }
 // ANCHOR_END: Type
 

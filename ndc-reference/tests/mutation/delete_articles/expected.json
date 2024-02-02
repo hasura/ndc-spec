@@ -1,0 +1,17 @@
+{
+  "operation_results": [
+    {
+      "affected_rows": 1,
+      "returning": [
+        {
+          "__value": [
+            {
+              "id": 1,
+              "title": "The Next 700 Programming Languages"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

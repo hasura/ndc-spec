@@ -36,6 +36,8 @@ pub enum Error {
     CollectionTypeIsNotDefined(String),
     #[error("named type {0} is not a defined object or scalar type")]
     NamedTypeIsNotDefined(String),
+    #[error("object type {0} is not a defined object or scalar type")]
+    ObjectTypeIsNotDefined(String),
     #[error("insertable column {0} is not defined on collection type")]
     InsertableColumnNotDefined(String),
     #[error("updatable column {0} is not defined on collection type")]
@@ -440,6 +442,14 @@ pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> 
         }
         models::Type::Nullable { underlying_type } => {
             validate_type(schema, underlying_type)?;
+        }
+        models::Type::Predicate { object_type_name } => {
+            if !schema
+                .object_types
+                .contains_key(object_type_name.as_str())
+            {
+                return Err(Error::ObjectTypeIsNotDefined(object_type_name.clone()));
+            }
         }
     }
 
@@ -1078,6 +1088,7 @@ fn is_nullable_type(ty: &models::Type) -> bool {
         models::Type::Named { name: _ } => false,
         models::Type::Nullable { underlying_type: _ } => true,
         models::Type::Array { element_type: _ } => false,
+        models::Type::Predicate { object_type_name: _ } => false
     }
 }
 
@@ -1094,6 +1105,7 @@ fn get_named_type(ty: &models::Type) -> Option<&String> {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => get_named_type(underlying_type),
         models::Type::Array { element_type: _ } => None,
+        models::Type::Predicate { object_type_name: _ } => None
     }
 }
 
