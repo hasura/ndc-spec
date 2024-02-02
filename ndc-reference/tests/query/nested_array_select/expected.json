@@ -1,0 +1,51 @@
+[
+  {
+    "rows": [
+      {
+        "id": 1,
+        "staff": [
+          {
+            "last_name": "Landin",
+            "fields_of_study": [
+              "Computer Science",
+              "Education"
+            ]
+          }
+        ],
+        "departments": [
+          "Humanities and Social Sciences",
+          "Science and Engineering",
+          "Medicine and Dentistry"
+        ]
+      },
+      {
+        "id": 2,
+        "staff": [
+          {
+            "last_name": "Hughes",
+            "fields_of_study": [
+              "Computer Science",
+              "Functional Programming",
+              "Software Testing"
+            ]
+          },
+          {
+            "last_name": "Claessen",
+            "fields_of_study": [
+              "Computer Science",
+              "Functional Programming",
+              "Automated Reasoning"
+            ]
+          }
+        ],
+        "departments": [
+          "Architecture and Civil Engineering",
+          "Computer Science and Engineering",
+          "Electrical Engineering",
+          "Physics",
+          "Industrial and Materials Science"
+        ]
+      }
+    ]
+  }
+]

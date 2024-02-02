@@ -198,6 +198,17 @@
             },
             "column": {
               "type": "string"
+            },
+            "fields": {
+              "description": "When the type of the column is a (possibly-nullable) array or object, the caller can request a subset of the complete column data, by specifying fields to fetch here. If omitted, the column data will be fetched in full.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/NestedField"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           }
         },
@@ -229,6 +240,52 @@
               "additionalProperties": {
                 "$ref": "#/definitions/RelationshipArgument"
               }
+            }
+          }
+        }
+      ]
+    },
+    "NestedField": {
+      "title": "NestedField",
+      "oneOf": [
+        {
+          "title": "NestedObject",
+          "type": "object",
+          "required": [
+            "fields",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "object"
+              ]
+            },
+            "fields": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Field"
+              }
+            }
+          }
+        },
+        {
+          "title": "NestedArray",
+          "type": "object",
+          "required": [
+            "fields",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "array"
+              ]
+            },
+            "fields": {
+              "$ref": "#/definitions/NestedField"
             }
           }
         }
