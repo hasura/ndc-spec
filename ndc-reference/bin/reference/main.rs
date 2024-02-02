@@ -2,6 +2,8 @@ use std::{
     cmp::Ordering,
     collections::{BTreeMap, HashSet},
     error::Error,
+    fs::File,
+    io::{self, BufRead},
     sync::Arc,
 };
 
@@ -16,6 +18,7 @@ use indexmap::IndexMap;
 use ndc_client::models::{self, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
+use serde_json::Value;
 use tokio::sync::Mutex;
 
 // ANCHOR: row-type
@@ -26,25 +29,28 @@ type Row = BTreeMap<String, serde_json::Value>;
 pub struct AppState {
     pub articles: BTreeMap<i64, Row>,
     pub authors: BTreeMap<i64, Row>,
+    pub institutions: BTreeMap<i64, Row>,
     pub metrics: Metrics,
 }
 // ANCHOR_END: app-state
-// ANCHOR: read_csv
-fn read_csv(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
-    let mut rdr = csv::Reader::from_path(path)?;
+
+// ANCHOR: read_json_lines
+fn read_json_lines(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
+    let file = File::open(path)?;
+    let lines = io::BufReader::new(file).lines();
     let mut records: BTreeMap<i64, Row> = BTreeMap::new();
-    for row in rdr.deserialize() {
-        let row: BTreeMap<String, serde_json::Value> = row?;
+    for line in lines {
+        let row: BTreeMap<String, serde_json::Value> = serde_json::from_str(&line?)?;
         let id = row
             .get("id")
-            .ok_or("'id' field not found in csv file")?
+            .ok_or("'id' field not found in json file")?
             .as_i64()
-            .ok_or("'id' field was not an integer in csv file")?;
+            .ok_or("'id' field was not an integer in json file")?;
         records.insert(id, row);
     }
     Ok(records)
 }
-// ANCHOR_END: read_csv
+// ANCHOR_END: read_json_lines
 
 #[derive(Debug, Clone)]
 pub struct Metrics {
@@ -100,15 +106,17 @@ async fn metrics_middleware<T>(
 // ANCHOR_END: metrics_middleware
 // ANCHOR: init_app_state
 fn init_app_state() -> AppState {
-    // Read the CSV data files
-    let articles = read_csv("articles.csv").unwrap();
-    let authors = read_csv("authors.csv").unwrap();
+    // Read the JSON data files
+    let articles = read_json_lines("articles.json").unwrap();
+    let authors = read_json_lines("authors.json").unwrap();
+    let institutions = read_json_lines("institutions.json").unwrap();
 
     let metrics = Metrics::new().unwrap();
 
     AppState {
         articles,
         authors,
+        institutions,
         metrics,
     }
 }
@@ -300,10 +308,139 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         ]),
     };
     // ANCHOR_END: schema_object_type_author
+    // ANCHOR: schema_object_type_institution
+    let institution_type = models::ObjectType {
+        description: Some("An institution".into()),
+        fields: BTreeMap::from_iter([
+            (
+                "id".into(),
+                models::ObjectField {
+                    description: Some("The institution's primary key".into()),
+                    r#type: models::Type::Named { name: "Int".into() },
+                },
+            ),
+            (
+                "name".into(),
+                models::ObjectField {
+                    description: Some("The institution's name".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "location".into(),
+                models::ObjectField {
+                    description: Some("The institution's location".into()),
+                    r#type: models::Type::Named {
+                        name: "location".into(),
+                    },
+                },
+            ),
+            (
+                "staff".into(),
+                models::ObjectField {
+                    description: Some("The institution's staff".into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: "staff_member".into(),
+                        }),
+                    },
+                },
+            ),
+            (
+                "departments".into(),
+                models::ObjectField {
+                    description: Some("The institution's departments".into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: "String".into(),
+                        }),
+                    },
+                },
+            ),
+        ]),
+    };
+    // ANCHOR_END: schema_object_type_institution
+    // ANCHOR: schema_object_type_location
+    let location_type = models::ObjectType {
+        description: Some("A location".into()),
+        fields: BTreeMap::from_iter([
+            (
+                "city".into(),
+                models::ObjectField {
+                    description: Some("The location's city".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "country".into(),
+                models::ObjectField {
+                    description: Some("The location's country".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "campuses".into(),
+                models::ObjectField {
+                    description: Some("The location's campuses".into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: "String".into(),
+                        }),
+                    },
+                },
+            ),
+        ]),
+    };
+    // ANCHOR_END: schema_object_type_location
+    // ANCHOR: schema_object_type_staff_member
+    let staff_member_type = models::ObjectType {
+        description: Some("A staff member".into()),
+        fields: BTreeMap::from_iter([
+            (
+                "first_name".into(),
+                models::ObjectField {
+                    description: Some("The staff member's first name".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "last_name".into(),
+                models::ObjectField {
+                    description: Some("The staff member's last name".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "specialities".into(),
+                models::ObjectField {
+                    description: Some("The staff member's specialities".into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: "String".into(),
+                        }),
+                    },
+                },
+            ),
+        ]),
+    };
+    // ANCHOR_END: schema_object_type_staff_member
     // ANCHOR: schema_object_types
     let object_types = BTreeMap::from_iter([
         ("article".into(), article_type),
         ("author".into(), author_type),
+        ("institution".into(), institution_type),
+        ("location".into(), location_type),
+        ("staff_member".into(), staff_member_type),
     ]);
     // ANCHOR_END: schema_object_types
     // ANCHOR: schema_collection_article
@@ -342,6 +479,21 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         )]),
     };
     // ANCHOR_END: schema_collection_author
+    // ANCHOR: schema_collection_institution
+    let institutions_collection = models::CollectionInfo {
+        name: "institutions".into(),
+        description: Some("A collection of institutions".into()),
+        collection_type: "institution".into(),
+        arguments: BTreeMap::new(),
+        foreign_keys: BTreeMap::new(),
+        uniqueness_constraints: BTreeMap::from_iter([(
+            "InstitutionByID".into(),
+            models::UniquenessConstraint {
+                unique_columns: vec!["id".into()],
+            },
+        )]),
+    };
+    // ANCHOR_END: schema_collection_institution
     // ANCHOR: schema_collection_articles_by_author
     let articles_by_author_collection = models::CollectionInfo {
         name: "articles_by_author".into(),
@@ -362,6 +514,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     let collections = vec![
         articles_collection,
         authors_collection,
+        institutions_collection,
         articles_by_author_collection,
     ];
     // ANCHOR_END: schema_collections
@@ -385,8 +538,28 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         },
     };
     // ANCHOR_END: schema_procedure_upsert_article
+    // ANCHOR: schema_procedure_delete_articles
+    let delete_articles = models::ProcedureInfo {
+        name: "delete_articles".into(),
+        description: Some("Delete articles which match a predicate".into()),
+        arguments: BTreeMap::from_iter([(
+            "where".into(),
+            models::ArgumentInfo {
+                description: Some("The predicate".into()),
+                argument_type: models::Type::Predicate {
+                    object_type_name: "article".into(),
+                },
+            },
+        )]),
+        result_type: models::Type::Array {
+            element_type: Box::new(models::Type::Named {
+                name: "article".into(),
+            }),
+        },
+    };
+    // ANCHOR_END: schema_procedure_delete_article
     // ANCHOR: schema_procedures
-    let procedures = vec![upsert_article];
+    let procedures = vec![upsert_article, delete_articles];
     // ANCHOR_END: schema_procedures
     // ANCHOR: schema_function_latest_article_id
     let latest_article_id_function = models::FunctionInfo {
@@ -491,6 +664,7 @@ fn get_collection_by_name(
     match collection_name {
         "articles" => Ok(state.articles.values().cloned().collect()),
         "authors" => Ok(state.authors.values().cloned().collect()),
+        "institutions" => Ok(state.institutions.values().cloned().collect()),
         "articles_by_author" => {
             let author_id = arguments.get("author_id").ok_or((
                 StatusCode::BAD_REQUEST,
@@ -646,13 +820,7 @@ fn execute_query(
         .map(|fields| {
             let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
             for item in paginated.iter() {
-                let mut row = IndexMap::new();
-                for (field_name, field) in fields.iter() {
-                    row.insert(
-                        field_name.clone(),
-                        eval_field(collection_relationships, variables, state, field, item)?,
-                    );
-                }
+                let row = eval_row(fields, collection_relationships, variables, state, item)?;
                 rows.push(row)
             }
             Ok(rows)
@@ -664,6 +832,24 @@ fn execute_query(
     // ANCHOR_END: execute_query_rowset
 }
 // ANCHOR_END: execute_query
+// ANCHOR: eval_row
+fn eval_row(
+    fields: &IndexMap<String, models::Field>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, Value>,
+    state: &AppState,
+    item: &BTreeMap<String, Value>,
+) -> Result<IndexMap<String, models::RowFieldValue>> {
+    let mut row = IndexMap::new();
+    for (field_name, field) in fields.iter() {
+        row.insert(
+            field_name.clone(),
+            eval_field(collection_relationships, variables, state, field, item)?,
+        );
+    }
+    Ok(row)
+}
+// ANCHOR_END: eval_row
 // ANCHOR: eval_aggregate
 fn eval_aggregate(
     aggregate: &models::Aggregate,
@@ -1492,6 +1678,75 @@ fn eval_comparison_value(
     }
 }
 // ANCHOR_END: eval_comparison_value
+// ANCHOR: eval_nested_field
+fn eval_nested_field(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+    value: Value,
+    nested_field: &models::NestedField,
+) -> Result<models::RowFieldValue> {
+    match nested_field {
+        models::NestedField::Object(models::NestedObject { fields }) => {
+            let full_row: Row = serde_json::from_value(value).map_err(|_| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "Expected object".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
+            let row = eval_row(
+                fields,
+                collection_relationships,
+                variables,
+                state,
+                &full_row,
+            )?;
+            Ok(models::RowFieldValue(serde_json::to_value(row).map_err(
+                |_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(models::ErrorResponse {
+                            message: "Cannot encode rowset".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                },
+            )?))
+        }
+        models::NestedField::Array(models::NestedArray { fields }) => {
+            let array: Vec<Value> = serde_json::from_value(value).map_err(|_| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "Expected array".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
+            let result_array = array
+                .into_iter()
+                .map(|value| {
+                    eval_nested_field(collection_relationships, variables, state, value, fields)
+                })
+                .collect::<Result<Vec<_>>>()?;
+            Ok(models::RowFieldValue(
+                serde_json::to_value(result_array).map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(models::ErrorResponse {
+                            message: "Cannot encode rowset".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?,
+            ))
+        }
+    }
+}
+// ANCHOR_END: eval_nested_field
 // ANCHOR: eval_field
 fn eval_field(
     collection_relationships: &BTreeMap<String, models::Relationship>,
@@ -1501,8 +1756,18 @@ fn eval_field(
     item: &Row,
 ) -> Result<models::RowFieldValue> {
     match field {
-        models::Field::Column { column, .. } => {
-            Ok(models::RowFieldValue(eval_column(item, column.as_str())?))
+        models::Field::Column { column, fields } => {
+            let col_val = eval_column(item, column.as_str())?;
+            match fields {
+                None => Ok(models::RowFieldValue(col_val)),
+                Some(nested_field) => eval_nested_field(
+                    collection_relationships,
+                    variables,
+                    state,
+                    col_val,
+                    nested_field,
+                ),
+            }
         }
         models::Field::Relationship {
             relationship,
@@ -1637,6 +1902,9 @@ fn execute_procedure(
         "upsert_article" => {
             execute_upsert_article(state, arguments, fields, collection_relationships)
         }
+        "delete_articles" => {
+            execute_delete_articles(state, arguments, fields, collection_relationships)
+        }
         _ => Err((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
@@ -1658,7 +1926,7 @@ fn execute_upsert_article(
     let article = arguments.get("article").ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
-            message: " ".into(),
+            message: "Expected argument 'article'".into(),
             details: serde_json::Value::Null,
         }),
     ))?;
@@ -1722,6 +1990,96 @@ fn execute_upsert_article(
     })
 }
 // ANCHOR_END: execute_upsert_article
+// ANCHOR: execute_delete_articles
+fn execute_delete_articles(
+    state: &mut AppState,
+    arguments: &BTreeMap<String, serde_json::Value>,
+    fields: &Option<IndexMap<String, models::Field>>,
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
+{
+    let predicate_value = arguments.get("where").ok_or((
+        StatusCode::BAD_REQUEST,
+        Json(models::ErrorResponse {
+            message: "Expected argument 'where'".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))?;
+    let predicate: models::Expression =
+        serde_json::from_value(predicate_value.clone()).map_err(|_| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "Bad predicate".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )
+        })?;
+
+    let mut removed: Vec<Row> = vec![];
+
+    let state_snapshot = state.clone();
+
+    for (_article_id, article) in state.articles.iter_mut() {
+        if eval_expression(
+            &BTreeMap::new(),
+            &BTreeMap::new(),
+            &state_snapshot,
+            &predicate,
+            article,
+            article,
+        )? {
+            removed.push(article.clone());
+        }
+    }
+
+    let returning = removed
+        .iter()
+        .map(|old_row| {
+            let mut row = IndexMap::new();
+            for fields in fields.iter() {
+                for (field_name, field) in fields.iter() {
+                    row.insert(
+                        field_name.clone(),
+                        eval_field(
+                            collection_relationships,
+                            &BTreeMap::new(),
+                            &state_snapshot,
+                            field,
+                            old_row,
+                        )?,
+                    );
+                }
+            }
+            Ok(row)
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    Ok(models::MutationOperationResults {
+        affected_rows: removed.len().try_into().map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(models::ErrorResponse {
+                    message: "Unable to convert integer".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )
+        })?,
+        returning: Some(vec![IndexMap::from_iter([(
+            "__value".into(),
+            models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: "cannot encode response".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?),
+        )])]),
+    })
+}
+// ANCHOR_END: execute_delete_articles
 
 fn eval_column_mapping(
     relationship: &models::Relationship,

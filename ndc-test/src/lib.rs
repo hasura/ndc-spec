@@ -36,6 +36,8 @@ pub enum Error {
     CollectionTypeIsNotDefined(String),
     #[error("named type {0} is not a defined object or scalar type")]
     NamedTypeIsNotDefined(String),
+    #[error("object type {0} is not a defined object or scalar type")]
+    ObjectTypeIsNotDefined(String),
     #[error("insertable column {0} is not defined on collection type")]
     InsertableColumnNotDefined(String),
     #[error("updatable column {0} is not defined on collection type")]
@@ -441,6 +443,14 @@ pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> 
         models::Type::Nullable { underlying_type } => {
             validate_type(schema, underlying_type)?;
         }
+        models::Type::Predicate { object_type_name } => {
+            if !schema
+                .object_types
+                .contains_key(object_type_name.as_str())
+            {
+                return Err(Error::ObjectTypeIsNotDefined(object_type_name.clone()));
+            }
+        }
     }
 
     Ok(())
@@ -556,7 +566,7 @@ async fn test_simple_queries<C: Connector>(
 
     test("Sorting", results, async {
         if let Some(order_by_elements_strategy) =
-            make_order_by_elements_strategy(collection_type.clone())
+            make_order_by_elements_strategy(collection_type.clone(), schema)
         {
             for _ in 0..10 {
                 if let Ok(tree) = order_by_elements_strategy.new_tree(runner) {
@@ -1078,6 +1088,15 @@ fn is_nullable_type(ty: &models::Type) -> bool {
         models::Type::Named { name: _ } => false,
         models::Type::Nullable { underlying_type: _ } => true,
         models::Type::Array { element_type: _ } => false,
+        models::Type::Predicate { object_type_name: _ } => false
+    }
+}
+
+fn as_named_type(ty: &models::Type) -> Option<&String> {
+    match ty {
+        models::Type::Named { name } => Some(name),
+        models::Type::Nullable { underlying_type } => as_named_type(underlying_type),
+        models::Type::Array { element_type: _ } => None,
     }
 }
 
@@ -1086,17 +1105,29 @@ fn get_named_type(ty: &models::Type) -> Option<&String> {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => get_named_type(underlying_type),
         models::Type::Array { element_type: _ } => None,
+        models::Type::Predicate { object_type_name: _ } => None
     }
 }
 
 fn make_order_by_elements_strategy(
     collection_type: models::ObjectType,
+    schema: &models::SchemaResponse,
 ) -> Option<impl Strategy<Value = Vec<models::OrderByElement>>> {
-    if collection_type.fields.is_empty() {
+    let mut sortable_fields = BTreeMap::new();
+    
+    for (field_name, field) in collection_type.fields.into_iter() {
+        if let Some(name) = as_named_type(&field.r#type) {
+            if schema.scalar_types.contains_key(name) {
+                sortable_fields.insert(field_name, field);
+            }
+        }
+    }
+
+    if sortable_fields.is_empty() {
         None
     } else {
         let random_fields =
-            Just(collection_type.fields.keys().cloned().collect::<Vec<_>>()).prop_shuffle();
+            Just(sortable_fields.keys().cloned().collect::<Vec<_>>()).prop_shuffle();
         let strategy = random_fields.prop_perturb(|fields, mut rng| {
             let mut elements = vec![];
 
@@ -1134,6 +1165,7 @@ fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, 
                 f.0.clone(),
                 models::Field::Column {
                     column: f.0.clone(),
+                    fields: None
                 },
             )
         })

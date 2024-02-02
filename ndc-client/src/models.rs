@@ -164,6 +164,11 @@ pub enum Type {
         /// The type of the elements of the array
         element_type: Box<Type>,
     },
+    /// A predicate type for a given object type
+    Predicate {
+        /// The object type name
+        object_type_name: String,
+    }
 }
 // ANCHOR_END: Type
 
@@ -352,6 +357,34 @@ pub enum Aggregate {
 }
 // ANCHOR_END: Aggregate
 
+// ANCHOR: NestedObject
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+#[schemars(title = "NestedObject")]
+pub struct NestedObject {
+    pub fields: IndexMap<String, Field>,
+}
+// ANCHOR_END: NestedObject
+
+// ANCHOR: NestedArray
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+#[schemars(title = "NestedArray")]
+pub struct NestedArray {
+    pub fields: Box<NestedField>,
+}
+// ANCHOR_END: NestedArray
+
+// ANCHOR: NestedField
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "NestedField")]
+pub enum NestedField {
+    Object(NestedObject),
+    Array(NestedArray)
+}
+// ANCHOR_END: NestedField
+
 // ANCHOR: Field
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -359,6 +392,11 @@ pub enum Aggregate {
 pub enum Field {
     Column {
         column: String,
+        /// When the type of the column is a (possibly-nullable) array or object,
+        /// the caller can request a subset of the complete column data,
+        /// by specifying fields to fetch here.
+        /// If omitted, the column data will be fetched in full.
+        fields: Option<NestedField>
     },
     Relationship {
         query: Box<Query>,

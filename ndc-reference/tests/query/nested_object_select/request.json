@@ -1,0 +1,35 @@
+{
+    "$schema": "../../../../ndc-client/tests/json_schema/query_request.jsonschema",
+    "collection": "institutions",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id"
+            },
+            "location": {
+                "type": "column",
+                "column": "location",
+                "fields": {
+                    "type": "object",
+                    "fields": {
+                        "city": {
+                            "type": "column",
+                            "column": "city"
+                        },
+                        "campuses": {
+                            "type": "column",
+                            "column": "campuses"
+                        }
+                    }
+                }
+            },
+            "location_all": {
+                "type": "column",
+                "column": "location"
+            }
+        }
+    },
+    "collection_relationships": {}
+}

@@ -20,7 +20,7 @@ We define two scalar types: `String` and `Int`.
 
 ## Object Types
 
-For each collection, we define an object type for its rows:
+For each collection, we define an object type for its rows. In addition, we define object types for any nested types which we use:
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_object_types}}
@@ -36,6 +36,12 @@ For each collection, we define an object type for its rows:
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_object_type_article}}
+```
+
+### Institution
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-reference/bin/reference/main.rs:schema_object_type_institution}}
 ```
 
 ## Collections
@@ -64,6 +70,12 @@ We define one additional collection, `articles_by_author`, which is provided as 
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_collection_articles_by_author}}
+```
+
+### Institution
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-reference/bin/reference/main.rs:schema_collection_institution}}
 ```
 
 ## Functions

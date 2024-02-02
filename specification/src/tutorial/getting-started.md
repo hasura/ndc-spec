@@ -1,8 +1,8 @@
 # Getting Started
 
-The reference implementation will serve queries and mutations based on in-memory data read from CSV files.
+The reference implementation will serve queries and mutations based on in-memory data read from newline-delimited JSON files.
 
-First, we will define some types to represent the data in the CSV files. Rows of CSV data will be stored in memory as ordered maps:
+First, we will define some types to represent the data in the newline-delimited JSON files. Rows of JSON data will be stored in memory as ordered maps:
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:row-type}}
@@ -14,7 +14,7 @@ Our application state will consist of collections of various types of rows:
 {{#include ../../../ndc-reference/bin/reference/main.rs:app-state}}
 ```
 
-In our `main` function, the data connector reads the initial data from the CSV files, and creates the `AppState`:
+In our `main` function, the data connector reads the initial data from the newline-delimited JSON files, and creates the `AppState`:
 
 ```rust,no-run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:init_app_state}}

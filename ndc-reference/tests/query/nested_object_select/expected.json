@@ -1,0 +1,46 @@
+[
+  {
+    "rows": [
+      {
+        "id": 1,
+        "location": {
+          "city": "London",
+          "campuses": [
+            "Mile End",
+            "Whitechapel",
+            "Charterhouse Square",
+            "West Smithfield"
+          ]
+        },
+        "location_all": {
+          "city": "London",
+          "country": "UK",
+          "campuses": [
+            "Mile End",
+            "Whitechapel",
+            "Charterhouse Square",
+            "West Smithfield"
+          ]
+        }
+      },
+      {
+        "id": 2,
+        "location": {
+          "city": "Gothenburg",
+          "campuses": [
+            "Johanneberg",
+            "Lindholmen"
+          ]
+        },
+        "location_all": {
+          "city": "Gothenburg",
+          "country": "Sweden",
+          "campuses": [
+            "Johanneberg",
+            "Lindholmen"
+          ]
+        }
+      }
+    ]
+  }
+]
