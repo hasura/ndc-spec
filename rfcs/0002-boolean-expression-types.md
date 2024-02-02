@@ -6,7 +6,7 @@ In order to implement useful permissions, it is desirable to be able to provide 
 
 ## Proposal
 
-- The `Type` enum will be extended with a new constructor `Predicate { collection_name: String }`, which will refer to the predicate type for the named collection. The value-level representation of these predicates is already defined by the spec, and can be reused.
+- The `Type` enum will be extended with a new constructor `Predicate { object_type_name: String }`, which will refer to the predicate type for the named object type. The value-level representation of these predicates is already defined by the spec (for collection types, at least), and can be reused.
 - An input argument with a predicate type can use the existing client types to parse its input value.
 - This extends the usefulness of functions and procedures, but even a function supporting predicate arguments is still more general than a full collection, because a collection requires ordering and pagination, which a source may not support. Thus, functions can now implement a wider variety of sources in a way which supports a useful notion of permissions.
 

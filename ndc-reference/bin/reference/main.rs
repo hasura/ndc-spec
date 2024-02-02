@@ -392,7 +392,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             models::ArgumentInfo {
                 description: Some("The predicate".into()),
                 argument_type: models::Type::Predicate {
-                    collection_name: "articles".into(),
+                    object_type_name: "article".into(),
                 },
             },
         )]),

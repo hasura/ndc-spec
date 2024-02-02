@@ -163,10 +163,10 @@
           }
         },
         {
-          "description": "A predicate type for a given collection",
+          "description": "A predicate type for a given object type",
           "type": "object",
           "required": [
-            "collection_name",
+            "object_type_name",
             "type"
           ],
           "properties": {
@@ -176,8 +176,8 @@
                 "predicate"
               ]
             },
-            "collection_name": {
-              "description": "The collection name",
+            "object_type_name": {
+              "description": "The object type name",
               "type": "string"
             }
           }
