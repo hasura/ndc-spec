@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -10,7 +10,7 @@
         
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff">
+        <meta name="theme-color" content="#ffffff" />
 
         <link rel="icon" href="../favicon.svg">
         <link rel="shortcut icon" href="../favicon.png">
@@ -31,7 +31,7 @@
         <!-- Custom theme stylesheets -->
 
     </head>
-    <body class="sidebar-visible no-js">
+    <body>
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -61,71 +61,42 @@
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
+            html.classList.remove('no-js')
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add('js');
         </script>
-
-        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
+            var html = document.querySelector('html');
             var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
             }
-            sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded affix "><a href="../overview.html">Overview</a></li><li class="chapter-item expanded affix "><li class="part-title">API Specification</li><li class="chapter-item expanded "><a href="../specification/index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../specification/changelog.html"><strong aria-hidden="true">2.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="../specification/basics.html"><strong aria-hidden="true">3.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../specification/versioning.html"><strong aria-hidden="true">4.</strong> Versioning</a></li><li class="chapter-item expanded "><a href="../specification/error-handling.html"><strong aria-hidden="true">5.</strong> Error Handling</a></li><li class="chapter-item expanded "><a href="../specification/health.html"><strong aria-hidden="true">6.</strong> Service Health</a></li><li class="chapter-item expanded "><a href="../specification/metrics.html"><strong aria-hidden="true">7.</strong> Metrics</a></li><li class="chapter-item expanded "><a href="../specification/telemetry.html"><strong aria-hidden="true">8.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../specification/capabilities.html"><strong aria-hidden="true">9.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../specification/types.html"><strong aria-hidden="true">10.</strong> Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/index.html"><strong aria-hidden="true">11.</strong> Schema</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/schema/scalar-types.html"><strong aria-hidden="true">11.1.</strong> Scalar Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/object-types.html"><strong aria-hidden="true">11.2.</strong> Object Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/collections.html"><strong aria-hidden="true">11.3.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../specification/schema/functions.html"><strong aria-hidden="true">11.4.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../specification/schema/procedures.html"><strong aria-hidden="true">11.5.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/queries/index.html"><strong aria-hidden="true">12.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/queries/field-selection.html"><strong aria-hidden="true">12.1.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../specification/queries/filtering.html"><strong aria-hidden="true">12.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../specification/queries/sorting.html"><strong aria-hidden="true">12.3.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../specification/queries/pagination.html"><strong aria-hidden="true">12.4.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../specification/queries/aggregates.html"><strong aria-hidden="true">12.5.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../specification/queries/arguments.html"><strong aria-hidden="true">12.6.</strong> Arguments</a></li><li class="chapter-item expanded "><a href="../specification/queries/relationships.html"><strong aria-hidden="true">12.7.</strong> Relationships</a></li><li class="chapter-item expanded "><a href="../specification/queries/variables.html"><strong aria-hidden="true">12.8.</strong> Variables</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/mutations/index.html"><strong aria-hidden="true">13.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/mutations/procedures.html"><strong aria-hidden="true">13.1.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/explain.html"><strong aria-hidden="true">14.</strong> Explain</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorial</li><li class="chapter-item expanded "><a href="../tutorial/index.html"><strong aria-hidden="true">15.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../tutorial/setup.html"><strong aria-hidden="true">16.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../tutorial/testing.html"><strong aria-hidden="true">17.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../tutorial/getting-started.html"><strong aria-hidden="true">18.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../tutorial/capabilities.html"><strong aria-hidden="true">19.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../tutorial/schema.html"><strong aria-hidden="true">20.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/index.html"><strong aria-hidden="true">21.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/queries/variables.html"><strong aria-hidden="true">21.1.</strong> Query Variables</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/arguments.html"><strong aria-hidden="true">21.2.</strong> Evaluating Arguments</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/index.html"><strong aria-hidden="true">21.3.</strong> Executing Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/queries/execute/sorting.html"><strong aria-hidden="true">21.3.1.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/filtering.html"><strong aria-hidden="true">21.3.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/pagination.html"><strong aria-hidden="true">21.3.3.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/aggregates.html"><strong aria-hidden="true">21.3.4.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/field-selection.html"><strong aria-hidden="true">21.3.5.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/relationships.html"><strong aria-hidden="true">21.3.6.</strong> Relationships</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../tutorial/mutations/index.html"><strong aria-hidden="true">22.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/mutations/operations.html"><strong aria-hidden="true">22.1.</strong> Handling Operations</a></li><li class="chapter-item expanded "><a href="../tutorial/mutations/procedures.html"><strong aria-hidden="true">22.2.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorial/explain.html"><strong aria-hidden="true">23.</strong> Explain</a></li><li class="chapter-item expanded "><a href="../tutorial/health.html"><strong aria-hidden="true">24.</strong> Health and Metrics</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/types.html" class="active"><strong aria-hidden="true">25.</strong> Types</a></li><li class="chapter-item expanded "><a href="../reference/json-schema.html"><strong aria-hidden="true">26.</strong> JSON Schema</a></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
-                <div class="sidebar-resize-indicator"></div>
-            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
-
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
                                 <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky">
+                <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
-                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
-                        </label>
+                        </button>
                         <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -222,26 +193,6 @@ pub struct ArgumentInfo {
     #[serde(rename = &quot;type&quot;)]
     pub argument_type: Type,
 }</code></pre>
-<h2 id="binaryarraycomparisonoperator"><a class="header" href="#binaryarraycomparisonoperator"><code>BinaryArrayComparisonOperator</code></a></h2>
-<pre><code class="language-rust no_run noplayground">#[derive(
-    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
-)]
-#[schemars(title = &quot;Binary Array Comparison Operator&quot;)]
-#[serde(rename_all = &quot;snake_case&quot;)]
-pub enum BinaryArrayComparisonOperator {
-    In,
-}</code></pre>
-<h2 id="binarycomparisonoperator"><a class="header" href="#binarycomparisonoperator"><code>BinaryComparisonOperator</code></a></h2>
-<pre><code class="language-rust no_run noplayground">#[derive(
-    Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
-)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Binary Comparison Operator&quot;)]
-pub enum BinaryComparisonOperator {
-    Equal,
-    // should we rename this? To what?
-    Other { name: String },
-}</code></pre>
 <h2 id="capabilities"><a class="header" href="#capabilities"><code>Capabilities</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// Describes the features of the specification which a data connector implements.
 #[skip_serializing_none]
@@ -249,7 +200,7 @@ pub enum BinaryComparisonOperator {
 #[schemars(title = &quot;Capabilities&quot;)]
 pub struct Capabilities {
     pub query: QueryCapabilities,
-    pub explain: Option&lt;LeafCapability&gt;,
+    pub mutation: MutationCapabilities,
     pub relationships: Option&lt;RelationshipCapabilities&gt;,
 }</code></pre>
 <h2 id="capabilitiesresponse"><a class="header" href="#capabilitiesresponse"><code>CapabilitiesResponse</code></a></h2>
@@ -257,16 +208,21 @@ pub struct Capabilities {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = &quot;Capabilities Response&quot;)]
 pub struct CapabilitiesResponse {
-    pub versions: String,
+    pub version: String,
     pub capabilities: Capabilities,
 }</code></pre>
 <h2 id="comparisonoperatordefinition"><a class="header" href="#comparisonoperatordefinition"><code>ComparisonOperatorDefinition</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of a comparison operator on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
 #[schemars(title = &quot;Comparison Operator Definition&quot;)]
-pub struct ComparisonOperatorDefinition {
-    /// The type of the argument to this operator
-    pub argument_type: Type,
+pub enum ComparisonOperatorDefinition {
+    Equal,
+    In,
+    Custom {
+        /// The type of the argument to this operator
+        argument_type: Type,
+    },
 }</code></pre>
 <h2 id="comparisontarget"><a class="header" href="#comparisontarget"><code>ComparisonTarget</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -353,18 +309,12 @@ pub enum Expression {
     },
     BinaryComparisonOperator {
         column: ComparisonTarget,
-        operator: BinaryComparisonOperator,
+        operator: String,
         value: ComparisonValue,
-    },
-    BinaryArrayComparisonOperator {
-        column: ComparisonTarget,
-        operator: BinaryArrayComparisonOperator,
-        values: Vec&lt;ComparisonValue&gt;,
     },
     Exists {
         in_collection: ExistsInCollection,
-        #[serde(rename = &quot;where&quot;)]
-        predicate: Box&lt;Expression&gt;,
+        predicate: Option&lt;Box&lt;Expression&gt;&gt;,
     },
 }</code></pre>
 <h2 id="field"><a class="header" href="#field"><code>Field</code></a></h2>
@@ -374,6 +324,11 @@ pub enum Expression {
 pub enum Field {
     Column {
         column: String,
+        /// When the type of the column is a (possibly-nullable) array or object,
+        /// the caller can request a subset of the complete column data,
+        /// by specifying fields to fetch here.
+        /// If omitted, the column data will be fetched in full.
+        fields: Option&lt;NestedField&gt;
     },
     Relationship {
         query: Box&lt;Query&gt;,
@@ -451,6 +406,28 @@ pub struct MutationRequest {
 pub struct MutationResponse {
     /// The results of each mutation operation, in the same order as they were received
     pub operation_results: Vec&lt;MutationOperationResults&gt;,
+}</code></pre>
+<h2 id="nestedarray"><a class="header" href="#nestedarray"><code>NestedArray</code></a></h2>
+<pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;NestedArray&quot;)]
+pub struct NestedArray {
+    pub fields: Box&lt;NestedField&gt;,
+}</code></pre>
+<h2 id="nestedfield"><a class="header" href="#nestedfield"><code>NestedField</code></a></h2>
+<pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;NestedField&quot;)]
+pub enum NestedField {
+    Object(NestedObject),
+    Array(NestedArray)
+}</code></pre>
+<h2 id="nestedobject"><a class="header" href="#nestedobject"><code>NestedObject</code></a></h2>
+<pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = &quot;snake_case&quot;)]
+#[schemars(title = &quot;NestedObject&quot;)]
+pub struct NestedObject {
+    pub fields: IndexMap&lt;String, Field&gt;,
 }</code></pre>
 <h2 id="objectfield"><a class="header" href="#objectfield"><code>ObjectField</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an object field
@@ -534,7 +511,7 @@ pub struct PathElement {
     /// Values to be provided to any collection arguments
     pub arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
     /// A predicate expression to apply to the target collection
-    pub predicate: Box&lt;Expression&gt;,
+    pub predicate: Option&lt;Box&lt;Expression&gt;&gt;,
 }</code></pre>
 <h2 id="procedureinfo"><a class="header" href="#procedureinfo"><code>ProcedureInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -564,7 +541,6 @@ pub struct Query {
     /// Optionally offset from the Nth result
     pub offset: Option&lt;u32&gt;,
     pub order_by: Option&lt;OrderBy&gt;,
-    #[serde(rename = &quot;where&quot;)]
     pub predicate: Option&lt;Expression&gt;,
 }</code></pre>
 <h2 id="querycapabilities"><a class="header" href="#querycapabilities"><code>QueryCapabilities</code></a></h2>
@@ -576,6 +552,8 @@ pub struct QueryCapabilities {
     pub aggregates: Option&lt;LeafCapability&gt;,
     /// Does the connector support queries which use variables
     pub variables: Option&lt;LeafCapability&gt;,
+    /// Does the connector support explaining queries
+    pub explain: Option&lt;LeafCapability&gt;,
 }</code></pre>
 <h2 id="queryrequest"><a class="header" href="#queryrequest"><code>QueryRequest</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// This is the request body of the query POST endpoint
@@ -748,6 +726,11 @@ pub enum Type {
         /// The type of the elements of the array
         element_type: Box&lt;Type&gt;,
     },
+    /// A predicate type for a given object type
+    Predicate {
+        /// The object type name
+        object_type_name: String,
+    }
 }</code></pre>
 <h2 id="unarycomparisonoperator"><a class="header" href="#unarycomparisonoperator"><code>UnaryComparisonOperator</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(
@@ -774,7 +757,7 @@ pub struct UniquenessConstraint {
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../reference/json-schema.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../reference/json-schema.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -788,7 +771,7 @@ pub struct UniquenessConstraint {
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../reference/json-schema.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../reference/json-schema.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

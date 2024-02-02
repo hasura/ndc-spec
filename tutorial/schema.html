@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -10,7 +10,7 @@
         
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff">
+        <meta name="theme-color" content="#ffffff" />
 
         <link rel="icon" href="../favicon.svg">
         <link rel="shortcut icon" href="../favicon.png">
@@ -31,7 +31,7 @@
         <!-- Custom theme stylesheets -->
 
     </head>
-    <body class="sidebar-visible no-js">
+    <body>
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -61,71 +61,42 @@
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
+            html.classList.remove('no-js')
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add('js');
         </script>
-
-        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
+            var html = document.querySelector('html');
             var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
             }
-            sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded affix "><a href="../overview.html">Overview</a></li><li class="chapter-item expanded affix "><li class="part-title">API Specification</li><li class="chapter-item expanded "><a href="../specification/index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../specification/changelog.html"><strong aria-hidden="true">2.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="../specification/basics.html"><strong aria-hidden="true">3.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../specification/versioning.html"><strong aria-hidden="true">4.</strong> Versioning</a></li><li class="chapter-item expanded "><a href="../specification/error-handling.html"><strong aria-hidden="true">5.</strong> Error Handling</a></li><li class="chapter-item expanded "><a href="../specification/health.html"><strong aria-hidden="true">6.</strong> Service Health</a></li><li class="chapter-item expanded "><a href="../specification/metrics.html"><strong aria-hidden="true">7.</strong> Metrics</a></li><li class="chapter-item expanded "><a href="../specification/telemetry.html"><strong aria-hidden="true">8.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../specification/capabilities.html"><strong aria-hidden="true">9.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../specification/types.html"><strong aria-hidden="true">10.</strong> Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/index.html"><strong aria-hidden="true">11.</strong> Schema</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/schema/scalar-types.html"><strong aria-hidden="true">11.1.</strong> Scalar Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/object-types.html"><strong aria-hidden="true">11.2.</strong> Object Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/collections.html"><strong aria-hidden="true">11.3.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../specification/schema/functions.html"><strong aria-hidden="true">11.4.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../specification/schema/procedures.html"><strong aria-hidden="true">11.5.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/queries/index.html"><strong aria-hidden="true">12.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/queries/field-selection.html"><strong aria-hidden="true">12.1.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../specification/queries/filtering.html"><strong aria-hidden="true">12.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../specification/queries/sorting.html"><strong aria-hidden="true">12.3.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../specification/queries/pagination.html"><strong aria-hidden="true">12.4.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../specification/queries/aggregates.html"><strong aria-hidden="true">12.5.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../specification/queries/arguments.html"><strong aria-hidden="true">12.6.</strong> Arguments</a></li><li class="chapter-item expanded "><a href="../specification/queries/relationships.html"><strong aria-hidden="true">12.7.</strong> Relationships</a></li><li class="chapter-item expanded "><a href="../specification/queries/variables.html"><strong aria-hidden="true">12.8.</strong> Variables</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/mutations/index.html"><strong aria-hidden="true">13.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/mutations/procedures.html"><strong aria-hidden="true">13.1.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/explain.html"><strong aria-hidden="true">14.</strong> Explain</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorial</li><li class="chapter-item expanded "><a href="../tutorial/index.html"><strong aria-hidden="true">15.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../tutorial/setup.html"><strong aria-hidden="true">16.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../tutorial/testing.html"><strong aria-hidden="true">17.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../tutorial/getting-started.html"><strong aria-hidden="true">18.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../tutorial/capabilities.html"><strong aria-hidden="true">19.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../tutorial/schema.html" class="active"><strong aria-hidden="true">20.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/index.html"><strong aria-hidden="true">21.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/queries/variables.html"><strong aria-hidden="true">21.1.</strong> Query Variables</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/arguments.html"><strong aria-hidden="true">21.2.</strong> Evaluating Arguments</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/index.html"><strong aria-hidden="true">21.3.</strong> Executing Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/queries/execute/sorting.html"><strong aria-hidden="true">21.3.1.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/filtering.html"><strong aria-hidden="true">21.3.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/pagination.html"><strong aria-hidden="true">21.3.3.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/aggregates.html"><strong aria-hidden="true">21.3.4.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/field-selection.html"><strong aria-hidden="true">21.3.5.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/relationships.html"><strong aria-hidden="true">21.3.6.</strong> Relationships</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../tutorial/mutations/index.html"><strong aria-hidden="true">22.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/mutations/operations.html"><strong aria-hidden="true">22.1.</strong> Handling Operations</a></li><li class="chapter-item expanded "><a href="../tutorial/mutations/procedures.html"><strong aria-hidden="true">22.2.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorial/explain.html"><strong aria-hidden="true">23.</strong> Explain</a></li><li class="chapter-item expanded "><a href="../tutorial/health.html"><strong aria-hidden="true">24.</strong> Health and Metrics</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/types.html"><strong aria-hidden="true">25.</strong> Types</a></li><li class="chapter-item expanded "><a href="../reference/json-schema.html"><strong aria-hidden="true">26.</strong> JSON Schema</a></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
-                <div class="sidebar-resize-indicator"></div>
-            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
-
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
                                 <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky">
+                <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
-                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
-                        </label>
+                        </button>
                         <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -193,14 +164,18 @@
             &quot;String&quot;.into(),
             models::ScalarType {
                 aggregate_functions: BTreeMap::new(),
-                comparison_operators: BTreeMap::from_iter([(
-                    &quot;like&quot;.into(),
-                    models::ComparisonOperatorDefinition {
-                        argument_type: models::Type::Named {
-                            name: &quot;String&quot;.into(),
+                comparison_operators: BTreeMap::from_iter([
+                    (&quot;eq&quot;.into(), models::ComparisonOperatorDefinition::Equal),
+                    (&quot;in&quot;.into(), models::ComparisonOperatorDefinition::In),
+                    (
+                        &quot;like&quot;.into(),
+                        models::ComparisonOperatorDefinition::Custom {
+                            argument_type: models::Type::Named {
+                                name: &quot;String&quot;.into(),
+                            },
                         },
-                    },
-                )]),
+                    ),
+                ]),
             },
         ),
         (
@@ -228,15 +203,21 @@
                         },
                     ),
                 ]),
-                comparison_operators: BTreeMap::from_iter([]),
+                comparison_operators: BTreeMap::from_iter([
+                    (&quot;eq&quot;.into(), models::ComparisonOperatorDefinition::Equal),
+                    (&quot;in&quot;.into(), models::ComparisonOperatorDefinition::In),
+                ]),
             },
         ),
     ]);</code></pre>
 <h2 id="object-types"><a class="header" href="#object-types">Object Types</a></h2>
-<p>For each collection, we define an object type for its rows:</p>
+<p>For each collection, we define an object type for its rows. In addition, we define object types for any nested types which we use:</p>
 <pre><code class="language-rust no_run noplayground">    let object_types = BTreeMap::from_iter([
         (&quot;article&quot;.into(), article_type),
         (&quot;author&quot;.into(), author_type),
+        (&quot;institution&quot;.into(), institution_type),
+        (&quot;location&quot;.into(), location_type),
+        (&quot;staff_member&quot;.into(), staff_member_type),
     ]);</code></pre>
 <h3 id="author"><a class="header" href="#author">Author</a></h3>
 <pre><code class="language-rust no_run noplayground">    let author_type = models::ObjectType {
@@ -298,11 +279,65 @@
             ),
         ]),
     };</code></pre>
+<h3 id="institution"><a class="header" href="#institution">Institution</a></h3>
+<pre><code class="language-rust no_run noplayground">    let institution_type = models::ObjectType {
+        description: Some(&quot;An institution&quot;.into()),
+        fields: BTreeMap::from_iter([
+            (
+                &quot;id&quot;.into(),
+                models::ObjectField {
+                    description: Some(&quot;The institution's primary key&quot;.into()),
+                    r#type: models::Type::Named { name: &quot;Int&quot;.into() },
+                },
+            ),
+            (
+                &quot;name&quot;.into(),
+                models::ObjectField {
+                    description: Some(&quot;The institution's name&quot;.into()),
+                    r#type: models::Type::Named {
+                        name: &quot;String&quot;.into(),
+                    },
+                },
+            ),
+            (
+                &quot;location&quot;.into(),
+                models::ObjectField {
+                    description: Some(&quot;The institution's location&quot;.into()),
+                    r#type: models::Type::Named {
+                        name: &quot;location&quot;.into(),
+                    },
+                },
+            ),
+            (
+                &quot;staff&quot;.into(),
+                models::ObjectField {
+                    description: Some(&quot;The institution's staff&quot;.into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: &quot;staff_member&quot;.into(),
+                        }),
+                    },
+                },
+            ),
+            (
+                &quot;departments&quot;.into(),
+                models::ObjectField {
+                    description: Some(&quot;The institution's departments&quot;.into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: &quot;String&quot;.into(),
+                        }),
+                    },
+                },
+            ),
+        ]),
+    };</code></pre>
 <h2 id="collections"><a class="header" href="#collections">Collections</a></h2>
 <p>We define each collection's schema using the type information defined above:</p>
 <pre><code class="language-rust no_run noplayground">    let collections = vec![
         articles_collection,
         authors_collection,
+        institutions_collection,
         articles_by_author_collection,
     ];</code></pre>
 <h3 id="author-1"><a class="header" href="#author-1">Author</a></h3>
@@ -355,6 +390,20 @@
         foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::new(),
     };</code></pre>
+<h3 id="institution-1"><a class="header" href="#institution-1">Institution</a></h3>
+<pre><code class="language-rust no_run noplayground">    let institutions_collection = models::CollectionInfo {
+        name: &quot;institutions&quot;.into(),
+        description: Some(&quot;A collection of institutions&quot;.into()),
+        collection_type: &quot;institution&quot;.into(),
+        arguments: BTreeMap::new(),
+        foreign_keys: BTreeMap::new(),
+        uniqueness_constraints: BTreeMap::from_iter([(
+            &quot;InstitutionByID&quot;.into(),
+            models::UniquenessConstraint {
+                unique_columns: vec![&quot;id&quot;.into()],
+            },
+        )]),
+    };</code></pre>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
 <p>The schema defines a list of <a href="../specification/schema/functions.html">functions</a>, each including its input and output <a href="../specification/types.html">types</a>.</p>
 <h3 id="get-latest-article"><a class="header" href="#get-latest-article">Get Latest Article</a></h3>
@@ -398,7 +447,7 @@
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../tutorial/queries/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../tutorial/queries/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -412,7 +461,7 @@
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../tutorial/queries/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../tutorial/queries/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

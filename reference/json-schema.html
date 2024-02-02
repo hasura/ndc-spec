@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -10,7 +10,7 @@
         
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff">
+        <meta name="theme-color" content="#ffffff" />
 
         <link rel="icon" href="../favicon.svg">
         <link rel="shortcut icon" href="../favicon.png">
@@ -31,7 +31,7 @@
         <!-- Custom theme stylesheets -->
 
     </head>
-    <body class="sidebar-visible no-js">
+    <body>
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -61,71 +61,42 @@
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
+            html.classList.remove('no-js')
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add('js');
         </script>
-
-        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
+            var html = document.querySelector('html');
             var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
             }
-            sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded affix "><a href="../overview.html">Overview</a></li><li class="chapter-item expanded affix "><li class="part-title">API Specification</li><li class="chapter-item expanded "><a href="../specification/index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../specification/changelog.html"><strong aria-hidden="true">2.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="../specification/basics.html"><strong aria-hidden="true">3.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../specification/versioning.html"><strong aria-hidden="true">4.</strong> Versioning</a></li><li class="chapter-item expanded "><a href="../specification/error-handling.html"><strong aria-hidden="true">5.</strong> Error Handling</a></li><li class="chapter-item expanded "><a href="../specification/health.html"><strong aria-hidden="true">6.</strong> Service Health</a></li><li class="chapter-item expanded "><a href="../specification/metrics.html"><strong aria-hidden="true">7.</strong> Metrics</a></li><li class="chapter-item expanded "><a href="../specification/telemetry.html"><strong aria-hidden="true">8.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../specification/capabilities.html"><strong aria-hidden="true">9.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../specification/types.html"><strong aria-hidden="true">10.</strong> Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/index.html"><strong aria-hidden="true">11.</strong> Schema</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/schema/scalar-types.html"><strong aria-hidden="true">11.1.</strong> Scalar Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/object-types.html"><strong aria-hidden="true">11.2.</strong> Object Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/collections.html"><strong aria-hidden="true">11.3.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../specification/schema/functions.html"><strong aria-hidden="true">11.4.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../specification/schema/procedures.html"><strong aria-hidden="true">11.5.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/queries/index.html"><strong aria-hidden="true">12.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/queries/field-selection.html"><strong aria-hidden="true">12.1.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../specification/queries/filtering.html"><strong aria-hidden="true">12.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../specification/queries/sorting.html"><strong aria-hidden="true">12.3.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../specification/queries/pagination.html"><strong aria-hidden="true">12.4.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../specification/queries/aggregates.html"><strong aria-hidden="true">12.5.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../specification/queries/arguments.html"><strong aria-hidden="true">12.6.</strong> Arguments</a></li><li class="chapter-item expanded "><a href="../specification/queries/relationships.html"><strong aria-hidden="true">12.7.</strong> Relationships</a></li><li class="chapter-item expanded "><a href="../specification/queries/variables.html"><strong aria-hidden="true">12.8.</strong> Variables</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/mutations/index.html"><strong aria-hidden="true">13.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/mutations/procedures.html"><strong aria-hidden="true">13.1.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/explain.html"><strong aria-hidden="true">14.</strong> Explain</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorial</li><li class="chapter-item expanded "><a href="../tutorial/index.html"><strong aria-hidden="true">15.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../tutorial/setup.html"><strong aria-hidden="true">16.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../tutorial/testing.html"><strong aria-hidden="true">17.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../tutorial/getting-started.html"><strong aria-hidden="true">18.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../tutorial/capabilities.html"><strong aria-hidden="true">19.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../tutorial/schema.html"><strong aria-hidden="true">20.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/index.html"><strong aria-hidden="true">21.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/queries/variables.html"><strong aria-hidden="true">21.1.</strong> Query Variables</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/arguments.html"><strong aria-hidden="true">21.2.</strong> Evaluating Arguments</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/index.html"><strong aria-hidden="true">21.3.</strong> Executing Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/queries/execute/sorting.html"><strong aria-hidden="true">21.3.1.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/filtering.html"><strong aria-hidden="true">21.3.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/pagination.html"><strong aria-hidden="true">21.3.3.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/aggregates.html"><strong aria-hidden="true">21.3.4.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/field-selection.html"><strong aria-hidden="true">21.3.5.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/relationships.html"><strong aria-hidden="true">21.3.6.</strong> Relationships</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../tutorial/mutations/index.html"><strong aria-hidden="true">22.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/mutations/operations.html"><strong aria-hidden="true">22.1.</strong> Handling Operations</a></li><li class="chapter-item expanded "><a href="../tutorial/mutations/procedures.html"><strong aria-hidden="true">22.2.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorial/explain.html"><strong aria-hidden="true">23.</strong> Explain</a></li><li class="chapter-item expanded "><a href="../tutorial/health.html"><strong aria-hidden="true">24.</strong> Health and Metrics</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/types.html"><strong aria-hidden="true">25.</strong> Types</a></li><li class="chapter-item expanded "><a href="../reference/json-schema.html" class="active"><strong aria-hidden="true">26.</strong> JSON Schema</a></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
-                <div class="sidebar-resize-indicator"></div>
-            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
-
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
                                 <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky">
+                <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
-                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
-                        </label>
+                        </button>
                         <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -181,10 +152,10 @@
   &quot;type&quot;: &quot;object&quot;,
   &quot;required&quot;: [
     &quot;capabilities&quot;,
-    &quot;versions&quot;
+    &quot;version&quot;
   ],
   &quot;properties&quot;: {
-    &quot;versions&quot;: {
+    &quot;version&quot;: {
       &quot;type&quot;: &quot;string&quot;
     },
     &quot;capabilities&quot;: {
@@ -197,21 +168,15 @@
       &quot;description&quot;: &quot;Describes the features of the specification which a data connector implements.&quot;,
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
+        &quot;mutation&quot;,
         &quot;query&quot;
       ],
       &quot;properties&quot;: {
         &quot;query&quot;: {
           &quot;$ref&quot;: &quot;#/definitions/QueryCapabilities&quot;
         },
-        &quot;explain&quot;: {
-          &quot;anyOf&quot;: [
-            {
-              &quot;$ref&quot;: &quot;#/definitions/LeafCapability&quot;
-            },
-            {
-              &quot;type&quot;: &quot;null&quot;
-            }
-          ]
+        &quot;mutation&quot;: {
+          &quot;$ref&quot;: &quot;#/definitions/MutationCapabilities&quot;
         },
         &quot;relationships&quot;: {
           &quot;anyOf&quot;: [
@@ -250,12 +215,51 @@
               &quot;type&quot;: &quot;null&quot;
             }
           ]
+        },
+        &quot;explain&quot;: {
+          &quot;description&quot;: &quot;Does the connector support explaining queries&quot;,
+          &quot;anyOf&quot;: [
+            {
+              &quot;$ref&quot;: &quot;#/definitions/LeafCapability&quot;
+            },
+            {
+              &quot;type&quot;: &quot;null&quot;
+            }
+          ]
         }
       }
     },
     &quot;LeafCapability&quot;: {
       &quot;description&quot;: &quot;A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.&quot;,
       &quot;type&quot;: &quot;object&quot;
+    },
+    &quot;MutationCapabilities&quot;: {
+      &quot;title&quot;: &quot;Mutation Capabilities&quot;,
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;properties&quot;: {
+        &quot;transactional&quot;: {
+          &quot;description&quot;: &quot;Does the connector support executing multiple mutations in a transaction.&quot;,
+          &quot;anyOf&quot;: [
+            {
+              &quot;$ref&quot;: &quot;#/definitions/LeafCapability&quot;
+            },
+            {
+              &quot;type&quot;: &quot;null&quot;
+            }
+          ]
+        },
+        &quot;explain&quot;: {
+          &quot;description&quot;: &quot;Does the connector support explaining mutations&quot;,
+          &quot;anyOf&quot;: [
+            {
+              &quot;$ref&quot;: &quot;#/definitions/LeafCapability&quot;
+            },
+            {
+              &quot;type&quot;: &quot;null&quot;
+            }
+          ]
+        }
+      }
     },
     &quot;RelationshipCapabilities&quot;: {
       &quot;title&quot;: &quot;Relationship Capabilities&quot;,
@@ -411,6 +415,17 @@
             },
             &quot;column&quot;: {
               &quot;type&quot;: &quot;string&quot;
+            },
+            &quot;fields&quot;: {
+              &quot;description&quot;: &quot;When the type of the column is a (possibly-nullable) array or object, the caller can request a subset of the complete column data, by specifying fields to fetch here. If omitted, the column data will be fetched in full.&quot;,
+              &quot;anyOf&quot;: [
+                {
+                  &quot;$ref&quot;: &quot;#/definitions/NestedField&quot;
+                },
+                {
+                  &quot;type&quot;: &quot;null&quot;
+                }
+              ]
             }
           }
         },
@@ -442,6 +457,52 @@
               &quot;additionalProperties&quot;: {
                 &quot;$ref&quot;: &quot;#/definitions/RelationshipArgument&quot;
               }
+            }
+          }
+        }
+      ]
+    },
+    &quot;NestedField&quot;: {
+      &quot;title&quot;: &quot;NestedField&quot;,
+      &quot;oneOf&quot;: [
+        {
+          &quot;title&quot;: &quot;NestedObject&quot;,
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;required&quot;: [
+            &quot;fields&quot;,
+            &quot;type&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;type&quot;: {
+              &quot;type&quot;: &quot;string&quot;,
+              &quot;enum&quot;: [
+                &quot;object&quot;
+              ]
+            },
+            &quot;fields&quot;: {
+              &quot;type&quot;: &quot;object&quot;,
+              &quot;additionalProperties&quot;: {
+                &quot;$ref&quot;: &quot;#/definitions/Field&quot;
+              }
+            }
+          }
+        },
+        {
+          &quot;title&quot;: &quot;NestedArray&quot;,
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;required&quot;: [
+            &quot;fields&quot;,
+            &quot;type&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;type&quot;: {
+              &quot;type&quot;: &quot;string&quot;,
+              &quot;enum&quot;: [
+                &quot;array&quot;
+              ]
+            },
+            &quot;fields&quot;: {
+              &quot;$ref&quot;: &quot;#/definitions/NestedField&quot;
             }
           }
         }
@@ -499,7 +560,7 @@
             }
           ]
         },
-        &quot;where&quot;: {
+        &quot;predicate&quot;: {
           &quot;anyOf&quot;: [
             {
               &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
@@ -709,7 +770,6 @@
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
-        &quot;predicate&quot;,
         &quot;relationship&quot;
       ],
       &quot;properties&quot;: {
@@ -726,9 +786,12 @@
         },
         &quot;predicate&quot;: {
           &quot;description&quot;: &quot;A predicate expression to apply to the target collection&quot;,
-          &quot;allOf&quot;: [
+          &quot;anyOf&quot;: [
             {
               &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
+            },
+            {
+              &quot;type&quot;: &quot;null&quot;
             }
           ]
         }
@@ -897,7 +960,7 @@
               &quot;$ref&quot;: &quot;#/definitions/ComparisonTarget&quot;
             },
             &quot;operator&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/BinaryComparisonOperator&quot;
+              &quot;type&quot;: &quot;string&quot;
             },
             &quot;value&quot;: {
               &quot;$ref&quot;: &quot;#/definitions/ComparisonValue&quot;
@@ -907,38 +970,8 @@
         {
           &quot;type&quot;: &quot;object&quot;,
           &quot;required&quot;: [
-            &quot;column&quot;,
-            &quot;operator&quot;,
-            &quot;type&quot;,
-            &quot;values&quot;
-          ],
-          &quot;properties&quot;: {
-            &quot;type&quot;: {
-              &quot;type&quot;: &quot;string&quot;,
-              &quot;enum&quot;: [
-                &quot;binary_array_comparison_operator&quot;
-              ]
-            },
-            &quot;column&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/ComparisonTarget&quot;
-            },
-            &quot;operator&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/BinaryArrayComparisonOperator&quot;
-            },
-            &quot;values&quot;: {
-              &quot;type&quot;: &quot;array&quot;,
-              &quot;items&quot;: {
-                &quot;$ref&quot;: &quot;#/definitions/ComparisonValue&quot;
-              }
-            }
-          }
-        },
-        {
-          &quot;type&quot;: &quot;object&quot;,
-          &quot;required&quot;: [
             &quot;in_collection&quot;,
-            &quot;type&quot;,
-            &quot;where&quot;
+            &quot;type&quot;
           ],
           &quot;properties&quot;: {
             &quot;type&quot;: {
@@ -950,8 +983,15 @@
             &quot;in_collection&quot;: {
               &quot;$ref&quot;: &quot;#/definitions/ExistsInCollection&quot;
             },
-            &quot;where&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
+            &quot;predicate&quot;: {
+              &quot;anyOf&quot;: [
+                {
+                  &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
+                },
+                {
+                  &quot;type&quot;: &quot;null&quot;
+                }
+              ]
             }
           }
         }
@@ -1015,43 +1055,6 @@
         &quot;is_null&quot;
       ]
     },
-    &quot;BinaryComparisonOperator&quot;: {
-      &quot;title&quot;: &quot;Binary Comparison Operator&quot;,
-      &quot;oneOf&quot;: [
-        {
-          &quot;type&quot;: &quot;object&quot;,
-          &quot;required&quot;: [
-            &quot;type&quot;
-          ],
-          &quot;properties&quot;: {
-            &quot;type&quot;: {
-              &quot;type&quot;: &quot;string&quot;,
-              &quot;enum&quot;: [
-                &quot;equal&quot;
-              ]
-            }
-          }
-        },
-        {
-          &quot;type&quot;: &quot;object&quot;,
-          &quot;required&quot;: [
-            &quot;name&quot;,
-            &quot;type&quot;
-          ],
-          &quot;properties&quot;: {
-            &quot;type&quot;: {
-              &quot;type&quot;: &quot;string&quot;,
-              &quot;enum&quot;: [
-                &quot;other&quot;
-              ]
-            },
-            &quot;name&quot;: {
-              &quot;type&quot;: &quot;string&quot;
-            }
-          }
-        }
-      ]
-    },
     &quot;ComparisonValue&quot;: {
       &quot;title&quot;: &quot;Comparison Value&quot;,
       &quot;oneOf&quot;: [
@@ -1107,13 +1110,6 @@
             }
           }
         }
-      ]
-    },
-    &quot;BinaryArrayComparisonOperator&quot;: {
-      &quot;title&quot;: &quot;Binary Array Comparison Operator&quot;,
-      &quot;type&quot;: &quot;string&quot;,
-      &quot;enum&quot;: [
-        &quot;in&quot;
       ]
     },
     &quot;ExistsInCollection&quot;: {
@@ -1374,7 +1370,7 @@
             }
           ]
         },
-        &quot;where&quot;: {
+        &quot;predicate&quot;: {
           &quot;anyOf&quot;: [
             {
               &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
@@ -1471,6 +1467,17 @@
             },
             &quot;column&quot;: {
               &quot;type&quot;: &quot;string&quot;
+            },
+            &quot;fields&quot;: {
+              &quot;description&quot;: &quot;When the type of the column is a (possibly-nullable) array or object, the caller can request a subset of the complete column data, by specifying fields to fetch here. If omitted, the column data will be fetched in full.&quot;,
+              &quot;anyOf&quot;: [
+                {
+                  &quot;$ref&quot;: &quot;#/definitions/NestedField&quot;
+                },
+                {
+                  &quot;type&quot;: &quot;null&quot;
+                }
+              ]
             }
           }
         },
@@ -1502,6 +1509,52 @@
               &quot;additionalProperties&quot;: {
                 &quot;$ref&quot;: &quot;#/definitions/RelationshipArgument&quot;
               }
+            }
+          }
+        }
+      ]
+    },
+    &quot;NestedField&quot;: {
+      &quot;title&quot;: &quot;NestedField&quot;,
+      &quot;oneOf&quot;: [
+        {
+          &quot;title&quot;: &quot;NestedObject&quot;,
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;required&quot;: [
+            &quot;fields&quot;,
+            &quot;type&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;type&quot;: {
+              &quot;type&quot;: &quot;string&quot;,
+              &quot;enum&quot;: [
+                &quot;object&quot;
+              ]
+            },
+            &quot;fields&quot;: {
+              &quot;type&quot;: &quot;object&quot;,
+              &quot;additionalProperties&quot;: {
+                &quot;$ref&quot;: &quot;#/definitions/Field&quot;
+              }
+            }
+          }
+        },
+        {
+          &quot;title&quot;: &quot;NestedArray&quot;,
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;required&quot;: [
+            &quot;fields&quot;,
+            &quot;type&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;type&quot;: {
+              &quot;type&quot;: &quot;string&quot;,
+              &quot;enum&quot;: [
+                &quot;array&quot;
+              ]
+            },
+            &quot;fields&quot;: {
+              &quot;$ref&quot;: &quot;#/definitions/NestedField&quot;
             }
           }
         }
@@ -1697,7 +1750,6 @@
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
-        &quot;predicate&quot;,
         &quot;relationship&quot;
       ],
       &quot;properties&quot;: {
@@ -1714,9 +1766,12 @@
         },
         &quot;predicate&quot;: {
           &quot;description&quot;: &quot;A predicate expression to apply to the target collection&quot;,
-          &quot;allOf&quot;: [
+          &quot;anyOf&quot;: [
             {
               &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
+            },
+            {
+              &quot;type&quot;: &quot;null&quot;
             }
           ]
         }
@@ -1826,7 +1881,7 @@
               &quot;$ref&quot;: &quot;#/definitions/ComparisonTarget&quot;
             },
             &quot;operator&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/BinaryComparisonOperator&quot;
+              &quot;type&quot;: &quot;string&quot;
             },
             &quot;value&quot;: {
               &quot;$ref&quot;: &quot;#/definitions/ComparisonValue&quot;
@@ -1836,38 +1891,8 @@
         {
           &quot;type&quot;: &quot;object&quot;,
           &quot;required&quot;: [
-            &quot;column&quot;,
-            &quot;operator&quot;,
-            &quot;type&quot;,
-            &quot;values&quot;
-          ],
-          &quot;properties&quot;: {
-            &quot;type&quot;: {
-              &quot;type&quot;: &quot;string&quot;,
-              &quot;enum&quot;: [
-                &quot;binary_array_comparison_operator&quot;
-              ]
-            },
-            &quot;column&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/ComparisonTarget&quot;
-            },
-            &quot;operator&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/BinaryArrayComparisonOperator&quot;
-            },
-            &quot;values&quot;: {
-              &quot;type&quot;: &quot;array&quot;,
-              &quot;items&quot;: {
-                &quot;$ref&quot;: &quot;#/definitions/ComparisonValue&quot;
-              }
-            }
-          }
-        },
-        {
-          &quot;type&quot;: &quot;object&quot;,
-          &quot;required&quot;: [
             &quot;in_collection&quot;,
-            &quot;type&quot;,
-            &quot;where&quot;
+            &quot;type&quot;
           ],
           &quot;properties&quot;: {
             &quot;type&quot;: {
@@ -1879,8 +1904,15 @@
             &quot;in_collection&quot;: {
               &quot;$ref&quot;: &quot;#/definitions/ExistsInCollection&quot;
             },
-            &quot;where&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
+            &quot;predicate&quot;: {
+              &quot;anyOf&quot;: [
+                {
+                  &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
+                },
+                {
+                  &quot;type&quot;: &quot;null&quot;
+                }
+              ]
             }
           }
         }
@@ -1944,43 +1976,6 @@
         &quot;is_null&quot;
       ]
     },
-    &quot;BinaryComparisonOperator&quot;: {
-      &quot;title&quot;: &quot;Binary Comparison Operator&quot;,
-      &quot;oneOf&quot;: [
-        {
-          &quot;type&quot;: &quot;object&quot;,
-          &quot;required&quot;: [
-            &quot;type&quot;
-          ],
-          &quot;properties&quot;: {
-            &quot;type&quot;: {
-              &quot;type&quot;: &quot;string&quot;,
-              &quot;enum&quot;: [
-                &quot;equal&quot;
-              ]
-            }
-          }
-        },
-        {
-          &quot;type&quot;: &quot;object&quot;,
-          &quot;required&quot;: [
-            &quot;name&quot;,
-            &quot;type&quot;
-          ],
-          &quot;properties&quot;: {
-            &quot;type&quot;: {
-              &quot;type&quot;: &quot;string&quot;,
-              &quot;enum&quot;: [
-                &quot;other&quot;
-              ]
-            },
-            &quot;name&quot;: {
-              &quot;type&quot;: &quot;string&quot;
-            }
-          }
-        }
-      ]
-    },
     &quot;ComparisonValue&quot;: {
       &quot;title&quot;: &quot;Comparison Value&quot;,
       &quot;oneOf&quot;: [
@@ -2036,13 +2031,6 @@
             }
           }
         }
-      ]
-    },
-    &quot;BinaryArrayComparisonOperator&quot;: {
-      &quot;title&quot;: &quot;Binary Array Comparison Operator&quot;,
-      &quot;type&quot;: &quot;string&quot;,
-      &quot;enum&quot;: [
-        &quot;in&quot;
       ]
     },
     &quot;ExistsInCollection&quot;: {
@@ -2335,7 +2323,7 @@
             }
           ]
         },
-        &quot;where&quot;: {
+        &quot;predicate&quot;: {
           &quot;anyOf&quot;: [
             {
               &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
@@ -2432,6 +2420,17 @@
             },
             &quot;column&quot;: {
               &quot;type&quot;: &quot;string&quot;
+            },
+            &quot;fields&quot;: {
+              &quot;description&quot;: &quot;When the type of the column is a (possibly-nullable) array or object, the caller can request a subset of the complete column data, by specifying fields to fetch here. If omitted, the column data will be fetched in full.&quot;,
+              &quot;anyOf&quot;: [
+                {
+                  &quot;$ref&quot;: &quot;#/definitions/NestedField&quot;
+                },
+                {
+                  &quot;type&quot;: &quot;null&quot;
+                }
+              ]
             }
           }
         },
@@ -2463,6 +2462,52 @@
               &quot;additionalProperties&quot;: {
                 &quot;$ref&quot;: &quot;#/definitions/RelationshipArgument&quot;
               }
+            }
+          }
+        }
+      ]
+    },
+    &quot;NestedField&quot;: {
+      &quot;title&quot;: &quot;NestedField&quot;,
+      &quot;oneOf&quot;: [
+        {
+          &quot;title&quot;: &quot;NestedObject&quot;,
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;required&quot;: [
+            &quot;fields&quot;,
+            &quot;type&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;type&quot;: {
+              &quot;type&quot;: &quot;string&quot;,
+              &quot;enum&quot;: [
+                &quot;object&quot;
+              ]
+            },
+            &quot;fields&quot;: {
+              &quot;type&quot;: &quot;object&quot;,
+              &quot;additionalProperties&quot;: {
+                &quot;$ref&quot;: &quot;#/definitions/Field&quot;
+              }
+            }
+          }
+        },
+        {
+          &quot;title&quot;: &quot;NestedArray&quot;,
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;required&quot;: [
+            &quot;fields&quot;,
+            &quot;type&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;type&quot;: {
+              &quot;type&quot;: &quot;string&quot;,
+              &quot;enum&quot;: [
+                &quot;array&quot;
+              ]
+            },
+            &quot;fields&quot;: {
+              &quot;$ref&quot;: &quot;#/definitions/NestedField&quot;
             }
           }
         }
@@ -2658,7 +2703,6 @@
       &quot;type&quot;: &quot;object&quot;,
       &quot;required&quot;: [
         &quot;arguments&quot;,
-        &quot;predicate&quot;,
         &quot;relationship&quot;
       ],
       &quot;properties&quot;: {
@@ -2675,9 +2719,12 @@
         },
         &quot;predicate&quot;: {
           &quot;description&quot;: &quot;A predicate expression to apply to the target collection&quot;,
-          &quot;allOf&quot;: [
+          &quot;anyOf&quot;: [
             {
               &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
+            },
+            {
+              &quot;type&quot;: &quot;null&quot;
             }
           ]
         }
@@ -2787,7 +2834,7 @@
               &quot;$ref&quot;: &quot;#/definitions/ComparisonTarget&quot;
             },
             &quot;operator&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/BinaryComparisonOperator&quot;
+              &quot;type&quot;: &quot;string&quot;
             },
             &quot;value&quot;: {
               &quot;$ref&quot;: &quot;#/definitions/ComparisonValue&quot;
@@ -2797,38 +2844,8 @@
         {
           &quot;type&quot;: &quot;object&quot;,
           &quot;required&quot;: [
-            &quot;column&quot;,
-            &quot;operator&quot;,
-            &quot;type&quot;,
-            &quot;values&quot;
-          ],
-          &quot;properties&quot;: {
-            &quot;type&quot;: {
-              &quot;type&quot;: &quot;string&quot;,
-              &quot;enum&quot;: [
-                &quot;binary_array_comparison_operator&quot;
-              ]
-            },
-            &quot;column&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/ComparisonTarget&quot;
-            },
-            &quot;operator&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/BinaryArrayComparisonOperator&quot;
-            },
-            &quot;values&quot;: {
-              &quot;type&quot;: &quot;array&quot;,
-              &quot;items&quot;: {
-                &quot;$ref&quot;: &quot;#/definitions/ComparisonValue&quot;
-              }
-            }
-          }
-        },
-        {
-          &quot;type&quot;: &quot;object&quot;,
-          &quot;required&quot;: [
             &quot;in_collection&quot;,
-            &quot;type&quot;,
-            &quot;where&quot;
+            &quot;type&quot;
           ],
           &quot;properties&quot;: {
             &quot;type&quot;: {
@@ -2840,8 +2857,15 @@
             &quot;in_collection&quot;: {
               &quot;$ref&quot;: &quot;#/definitions/ExistsInCollection&quot;
             },
-            &quot;where&quot;: {
-              &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
+            &quot;predicate&quot;: {
+              &quot;anyOf&quot;: [
+                {
+                  &quot;$ref&quot;: &quot;#/definitions/Expression&quot;
+                },
+                {
+                  &quot;type&quot;: &quot;null&quot;
+                }
+              ]
             }
           }
         }
@@ -2905,43 +2929,6 @@
         &quot;is_null&quot;
       ]
     },
-    &quot;BinaryComparisonOperator&quot;: {
-      &quot;title&quot;: &quot;Binary Comparison Operator&quot;,
-      &quot;oneOf&quot;: [
-        {
-          &quot;type&quot;: &quot;object&quot;,
-          &quot;required&quot;: [
-            &quot;type&quot;
-          ],
-          &quot;properties&quot;: {
-            &quot;type&quot;: {
-              &quot;type&quot;: &quot;string&quot;,
-              &quot;enum&quot;: [
-                &quot;equal&quot;
-              ]
-            }
-          }
-        },
-        {
-          &quot;type&quot;: &quot;object&quot;,
-          &quot;required&quot;: [
-            &quot;name&quot;,
-            &quot;type&quot;
-          ],
-          &quot;properties&quot;: {
-            &quot;type&quot;: {
-              &quot;type&quot;: &quot;string&quot;,
-              &quot;enum&quot;: [
-                &quot;other&quot;
-              ]
-            },
-            &quot;name&quot;: {
-              &quot;type&quot;: &quot;string&quot;
-            }
-          }
-        }
-      ]
-    },
     &quot;ComparisonValue&quot;: {
       &quot;title&quot;: &quot;Comparison Value&quot;,
       &quot;oneOf&quot;: [
@@ -2997,13 +2984,6 @@
             }
           }
         }
-      ]
-    },
-    &quot;BinaryArrayComparisonOperator&quot;: {
-      &quot;title&quot;: &quot;Binary Array Comparison Operator&quot;,
-      &quot;type&quot;: &quot;string&quot;,
-      &quot;enum&quot;: [
-        &quot;in&quot;
       ]
     },
     &quot;ExistsInCollection&quot;: {
@@ -3313,26 +3293,85 @@
               ]
             }
           }
+        },
+        {
+          &quot;description&quot;: &quot;A predicate type for a given object type&quot;,
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;required&quot;: [
+            &quot;object_type_name&quot;,
+            &quot;type&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;type&quot;: {
+              &quot;type&quot;: &quot;string&quot;,
+              &quot;enum&quot;: [
+                &quot;predicate&quot;
+              ]
+            },
+            &quot;object_type_name&quot;: {
+              &quot;description&quot;: &quot;The object type name&quot;,
+              &quot;type&quot;: &quot;string&quot;
+            }
+          }
         }
       ]
     },
     &quot;ComparisonOperatorDefinition&quot;: {
       &quot;title&quot;: &quot;Comparison Operator Definition&quot;,
       &quot;description&quot;: &quot;The definition of a comparison operator on a scalar type&quot;,
-      &quot;type&quot;: &quot;object&quot;,
-      &quot;required&quot;: [
-        &quot;argument_type&quot;
-      ],
-      &quot;properties&quot;: {
-        &quot;argument_type&quot;: {
-          &quot;description&quot;: &quot;The type of the argument to this operator&quot;,
-          &quot;allOf&quot;: [
-            {
-              &quot;$ref&quot;: &quot;#/definitions/Type&quot;
+      &quot;oneOf&quot;: [
+        {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;required&quot;: [
+            &quot;type&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;type&quot;: {
+              &quot;type&quot;: &quot;string&quot;,
+              &quot;enum&quot;: [
+                &quot;equal&quot;
+              ]
             }
-          ]
+          }
+        },
+        {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;required&quot;: [
+            &quot;type&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;type&quot;: {
+              &quot;type&quot;: &quot;string&quot;,
+              &quot;enum&quot;: [
+                &quot;in&quot;
+              ]
+            }
+          }
+        },
+        {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;required&quot;: [
+            &quot;argument_type&quot;,
+            &quot;type&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;type&quot;: {
+              &quot;type&quot;: &quot;string&quot;,
+              &quot;enum&quot;: [
+                &quot;custom&quot;
+              ]
+            },
+            &quot;argument_type&quot;: {
+              &quot;description&quot;: &quot;The type of the argument to this operator&quot;,
+              &quot;allOf&quot;: [
+                {
+                  &quot;$ref&quot;: &quot;#/definitions/Type&quot;
+                }
+              ]
+            }
+          }
         }
-      }
+      ]
     },
     &quot;ObjectType&quot;: {
       &quot;title&quot;: &quot;Object Type&quot;,

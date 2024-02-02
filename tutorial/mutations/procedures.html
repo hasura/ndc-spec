@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -10,7 +10,7 @@
         
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff">
+        <meta name="theme-color" content="#ffffff" />
 
         <link rel="icon" href="../../favicon.svg">
         <link rel="shortcut icon" href="../../favicon.png">
@@ -31,7 +31,7 @@
         <!-- Custom theme stylesheets -->
 
     </head>
-    <body class="sidebar-visible no-js">
+    <body>
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -61,71 +61,42 @@
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
+            html.classList.remove('no-js')
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add('js');
         </script>
-
-        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
+            var html = document.querySelector('html');
             var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
             }
-            sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../overview.html">Overview</a></li><li class="chapter-item expanded affix "><li class="part-title">API Specification</li><li class="chapter-item expanded "><a href="../../specification/index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../../specification/changelog.html"><strong aria-hidden="true">2.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="../../specification/basics.html"><strong aria-hidden="true">3.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../../specification/versioning.html"><strong aria-hidden="true">4.</strong> Versioning</a></li><li class="chapter-item expanded "><a href="../../specification/error-handling.html"><strong aria-hidden="true">5.</strong> Error Handling</a></li><li class="chapter-item expanded "><a href="../../specification/health.html"><strong aria-hidden="true">6.</strong> Service Health</a></li><li class="chapter-item expanded "><a href="../../specification/metrics.html"><strong aria-hidden="true">7.</strong> Metrics</a></li><li class="chapter-item expanded "><a href="../../specification/telemetry.html"><strong aria-hidden="true">8.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../../specification/capabilities.html"><strong aria-hidden="true">9.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../../specification/types.html"><strong aria-hidden="true">10.</strong> Types</a></li><li class="chapter-item expanded "><a href="../../specification/schema/index.html"><strong aria-hidden="true">11.</strong> Schema</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../specification/schema/scalar-types.html"><strong aria-hidden="true">11.1.</strong> Scalar Types</a></li><li class="chapter-item expanded "><a href="../../specification/schema/object-types.html"><strong aria-hidden="true">11.2.</strong> Object Types</a></li><li class="chapter-item expanded "><a href="../../specification/schema/collections.html"><strong aria-hidden="true">11.3.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../../specification/schema/functions.html"><strong aria-hidden="true">11.4.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../../specification/schema/procedures.html"><strong aria-hidden="true">11.5.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../../specification/queries/index.html"><strong aria-hidden="true">12.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../specification/queries/field-selection.html"><strong aria-hidden="true">12.1.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../../specification/queries/filtering.html"><strong aria-hidden="true">12.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../../specification/queries/sorting.html"><strong aria-hidden="true">12.3.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../../specification/queries/pagination.html"><strong aria-hidden="true">12.4.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../../specification/queries/aggregates.html"><strong aria-hidden="true">12.5.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../../specification/queries/arguments.html"><strong aria-hidden="true">12.6.</strong> Arguments</a></li><li class="chapter-item expanded "><a href="../../specification/queries/relationships.html"><strong aria-hidden="true">12.7.</strong> Relationships</a></li><li class="chapter-item expanded "><a href="../../specification/queries/variables.html"><strong aria-hidden="true">12.8.</strong> Variables</a></li></ol></li><li class="chapter-item expanded "><a href="../../specification/mutations/index.html"><strong aria-hidden="true">13.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../specification/mutations/procedures.html"><strong aria-hidden="true">13.1.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../../specification/explain.html"><strong aria-hidden="true">14.</strong> Explain</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorial</li><li class="chapter-item expanded "><a href="../../tutorial/index.html"><strong aria-hidden="true">15.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../../tutorial/setup.html"><strong aria-hidden="true">16.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../../tutorial/testing.html"><strong aria-hidden="true">17.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../../tutorial/getting-started.html"><strong aria-hidden="true">18.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../../tutorial/capabilities.html"><strong aria-hidden="true">19.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../../tutorial/schema.html"><strong aria-hidden="true">20.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/index.html"><strong aria-hidden="true">21.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tutorial/queries/variables.html"><strong aria-hidden="true">21.1.</strong> Query Variables</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/arguments.html"><strong aria-hidden="true">21.2.</strong> Evaluating Arguments</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/index.html"><strong aria-hidden="true">21.3.</strong> Executing Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/sorting.html"><strong aria-hidden="true">21.3.1.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/filtering.html"><strong aria-hidden="true">21.3.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/pagination.html"><strong aria-hidden="true">21.3.3.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/aggregates.html"><strong aria-hidden="true">21.3.4.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/field-selection.html"><strong aria-hidden="true">21.3.5.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/relationships.html"><strong aria-hidden="true">21.3.6.</strong> Relationships</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../tutorial/mutations/index.html"><strong aria-hidden="true">22.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tutorial/mutations/operations.html"><strong aria-hidden="true">22.1.</strong> Handling Operations</a></li><li class="chapter-item expanded "><a href="../../tutorial/mutations/procedures.html" class="active"><strong aria-hidden="true">22.2.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../../tutorial/explain.html"><strong aria-hidden="true">23.</strong> Explain</a></li><li class="chapter-item expanded "><a href="../../tutorial/health.html"><strong aria-hidden="true">24.</strong> Health and Metrics</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../../reference/types.html"><strong aria-hidden="true">25.</strong> Types</a></li><li class="chapter-item expanded "><a href="../../reference/json-schema.html"><strong aria-hidden="true">26.</strong> JSON Schema</a></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
-                <div class="sidebar-resize-indicator"></div>
-            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
-
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
                                 <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky">
+                <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
-                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
-                        </label>
+                        </button>
                         <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -183,11 +154,14 @@
     collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
 ) -&gt; std::result::Result&lt;models::MutationOperationResults, (StatusCode, Json&lt;models::ErrorResponse&gt;)&gt;</code></pre>
 <p>The function receives the application <code>state</code>, along with the <code>name</code> of the procedure to invoke, a list of <code>arguments</code>, a list of <code>fields</code> to return, and a list of <code>collection_relationships</code>.</p>
-<p>The function matches on the name of the procedure, and fails if the name is not recognized. Currently there is only a single implemented procedure, <code>upsert_article</code>, and the function delegates to the <code>execute_upsert_article</code> function to handle it.</p>
+<p>The function matches on the name of the procedure, and fails if the name is not recognized. We will walk through each procedure in turn.</p>
 <pre><code class="language-rust no_run noplayground">{
     match name {
         &quot;upsert_article&quot; =&gt; {
             execute_upsert_article(state, arguments, fields, collection_relationships)
+        }
+        &quot;delete_articles&quot; =&gt; {
+            execute_delete_articles(state, arguments, fields, collection_relationships)
         }
         _ =&gt; Err((
             StatusCode::BAD_REQUEST,
@@ -199,6 +173,7 @@
     }
 }</code></pre>
 <h2 id="upsert_article"><a class="header" href="#upsert_article"><code>upsert_article</code></a></h2>
+<p>The <code>upsert_article</code> procedure is implemented by the <code>execute_upsert_article</code> function.</p>
 <p>The <code>execute_upsert_article</code> function reads the <code>article</code> argument from the <code>arguments</code> list, failing if it is not found or invalid.</p>
 <p>It then inserts or updates that article in the application state, depending on whether or not an article with that <code>id</code> already exists or not.</p>
 <p>Finally, it delegates to the <code>eval_field</code> function to evaluate each requested field in turn, and returns a single row and column (named <code>__value</code>) containing the result.</p>
@@ -213,7 +188,7 @@
     let article = arguments.get(&quot;article&quot;).ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
-            message: &quot; &quot;.into(),
+            message: &quot;Expected argument 'article'&quot;.into(),
             details: serde_json::Value::Null,
         }),
     ))?;
@@ -276,6 +251,100 @@
         )])]),
     })
 }</code></pre>
+<h2 id="delete_articles"><a class="header" href="#delete_articles"><code>delete_articles</code></a></h2>
+<p>The <code>delete_articles</code> procedure is implemented by the <code>execute_delete_articles</code> function.</p>
+<p>It is provided as an example of a procedure with a <a href="../../specification/types.html#predicate-types">predicate type</a> as the type of an argument.</p>
+<p>The <code>execute_delete_articles</code> function reads the <code>where</code> argument from the <code>arguments</code> list, failing if it is not found or invalid.</p>
+<p>It then deletes all articles in the application state which match the predicate, and returns a list of the deleted rows.</p>
+<p>The function  delegates to the <code>eval_field</code> function to evaluate each requested field in turn, and returns a single row and column (named <code>__value</code>) containing the result.</p>
+<pre><code class="language-rust no_run noplayground">fn execute_delete_articles(
+    state: &amp;mut AppState,
+    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    fields: &amp;Option&lt;IndexMap&lt;String, models::Field&gt;&gt;,
+    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+) -&gt; std::result::Result&lt;models::MutationOperationResults, (StatusCode, Json&lt;models::ErrorResponse&gt;)&gt;
+{
+    let predicate_value = arguments.get(&quot;where&quot;).ok_or((
+        StatusCode::BAD_REQUEST,
+        Json(models::ErrorResponse {
+            message: &quot;Expected argument 'where'&quot;.into(),
+            details: serde_json::Value::Null,
+        }),
+    ))?;
+    let predicate: models::Expression =
+        serde_json::from_value(predicate_value.clone()).map_err(|_| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: &quot;Bad predicate&quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
+            )
+        })?;
+
+    let mut removed: Vec&lt;Row&gt; = vec![];
+
+    let state_snapshot = state.clone();
+
+    for (_article_id, article) in state.articles.iter_mut() {
+        if eval_expression(
+            &amp;BTreeMap::new(),
+            &amp;BTreeMap::new(),
+            &amp;state_snapshot,
+            &amp;predicate,
+            article,
+            article,
+        )? {
+            removed.push(article.clone());
+        }
+    }
+
+    let returning = removed
+        .iter()
+        .map(|old_row| {
+            let mut row = IndexMap::new();
+            for fields in fields.iter() {
+                for (field_name, field) in fields.iter() {
+                    row.insert(
+                        field_name.clone(),
+                        eval_field(
+                            collection_relationships,
+                            &amp;BTreeMap::new(),
+                            &amp;state_snapshot,
+                            field,
+                            old_row,
+                        )?,
+                    );
+                }
+            }
+            Ok(row)
+        })
+        .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
+
+    Ok(models::MutationOperationResults {
+        affected_rows: removed.len().try_into().map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(models::ErrorResponse {
+                    message: &quot;Unable to convert integer&quot;.into(),
+                    details: serde_json::Value::Null,
+                }),
+            )
+        })?,
+        returning: Some(vec![IndexMap::from_iter([(
+            &quot;__value&quot;.into(),
+            models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: &quot;cannot encode response&quot;.into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?),
+        )])]),
+    })
+}</code></pre>
 
                     </main>
 
@@ -285,7 +354,7 @@
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../tutorial/explain.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../../tutorial/explain.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -299,7 +368,7 @@
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../tutorial/explain.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../../tutorial/explain.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
