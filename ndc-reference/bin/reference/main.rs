@@ -1080,7 +1080,7 @@ fn eval_path_element(
                         collection_relationships,
                         variables,
                         state,
-                        &expression,
+                        expression,
                         tgt_row,
                         tgt_row,
                     )?
