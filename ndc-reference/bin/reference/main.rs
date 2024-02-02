@@ -127,9 +127,9 @@ async fn main() {
         .route("/capabilities", get(get_capabilities))
         .route("/schema", get(get_schema))
         .route("/query", post(post_query))
+        .route("/query/explain", post(post_query_explain))
         .route("/mutation", post(post_mutation))
-        .route("/explain", post(post_explain))
-        .route("/explain/mutation", post(post_explain_mutation))
+        .route("/mutation/explain", post(post_mutation_explain))
         .layer(axum::middleware::from_fn_with_state(
             app_state.clone(),
             metrics_middleware,
@@ -165,16 +165,14 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
     Json(models::CapabilitiesResponse {
         version: "0.1.0".into(),
         capabilities: models::Capabilities {
-            explain: models::ExplainCapabilities {
-                query: None,
-                mutation: None,
-            },
             query: models::QueryCapabilities {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
+                explain: None,
             },
             mutation: models::MutationCapabilities {
                 transactional: None,
+                explain: None,
             },
             relationships: Some(RelationshipCapabilities {
                 order_by_aggregate: Some(LeafCapability {}),
@@ -1550,8 +1548,8 @@ fn eval_field(
     }
 }
 // ANCHOR_END: eval_field
-// ANCHOR: explain
-async fn post_explain(
+// ANCHOR: query_explain
+async fn post_query_explain(
     Json(_request): Json<models::QueryRequest>,
 ) -> Result<Json<models::ExplainResponse>> {
     Err((
@@ -1562,9 +1560,9 @@ async fn post_explain(
         }),
     ))
 }
-// ANCHOR_END: explain
-// ANCHOR: explain_mutation
-async fn post_explain_mutation(
+// ANCHOR_END: query_explain
+// ANCHOR: mutation_explain
+async fn post_mutation_explain(
     Json(_request): Json<models::MutationRequest>,
 ) -> Result<Json<models::ExplainResponse>> {
     Err((
@@ -1575,7 +1573,7 @@ async fn post_explain_mutation(
         }),
     ))
 }
-// ANCHOR_END: explain_mutation
+// ANCHOR_END: mutation_explain
 // ANCHOR: post_mutation_signature
 async fn post_mutation(
     State(state): State<Arc<Mutex<AppState>>>,

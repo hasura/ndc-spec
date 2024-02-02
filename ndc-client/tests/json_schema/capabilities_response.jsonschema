@@ -20,16 +20,12 @@
       "description": "Describes the features of the specification which a data connector implements.",
       "type": "object",
       "required": [
-        "explain",
         "mutation",
         "query"
       ],
       "properties": {
         "query": {
           "$ref": "#/definitions/QueryCapabilities"
-        },
-        "explain": {
-          "$ref": "#/definitions/ExplainCapabilities"
         },
         "mutation": {
           "$ref": "#/definitions/MutationCapabilities"
@@ -71,6 +67,17 @@
               "type": "null"
             }
           ]
+        },
+        "explain": {
+          "description": "Does the connector support explaining queries",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -78,12 +85,12 @@
       "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
       "type": "object"
     },
-    "ExplainCapabilities": {
-      "title": "Explain Capabilities",
+    "MutationCapabilities": {
+      "title": "Mutation Capabilities",
       "type": "object",
       "properties": {
-        "query": {
-          "description": "Does the connector support explaining query",
+        "transactional": {
+          "description": "Does the connector support executing multiple mutations in a transaction.",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -93,25 +100,8 @@
             }
           ]
         },
-        "mutation": {
+        "explain": {
           "description": "Does the connector support explaining mutations",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
-    "MutationCapabilities": {
-      "title": "Mutation Capabilities",
-      "type": "object",
-      "properties": {
-        "transactional": {
-          "description": "Does the connector support executing multiple mutations in a transaction.",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
