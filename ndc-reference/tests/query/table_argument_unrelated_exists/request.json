@@ -9,7 +9,7 @@
                 "column": "id"
             }
         },
-        "where": {
+        "predicate": {
             "type": "exists",
             "in_collection": {
                 "type": "unrelated",
@@ -21,7 +21,7 @@
                 },
                 "collection": "articles_by_author"
             },
-            "where": {
+            "predicate": {
                 "type": "and",
                 "expressions": [
                     {

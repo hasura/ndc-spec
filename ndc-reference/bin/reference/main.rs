@@ -162,7 +162,7 @@ async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String
 // ANCHOR: capabilities
 async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
     Json(models::CapabilitiesResponse {
-        versions: "^0.1.0".into(),
+        version: "0.1.0".into(),
         capabilities: models::Capabilities {
             explain: None,
             query: models::QueryCapabilities {
@@ -1027,7 +1027,7 @@ fn eval_path_element(
     relationship: &models::Relationship,
     arguments: &BTreeMap<String, models::RelationshipArgument>,
     source: &[Row],
-    predicate: &models::Expression,
+    predicate: &Option<Box<models::Expression>>,
 ) -> Result<Vec<Row>> {
     let mut matching_rows: Vec<Row> = vec![];
 
@@ -1095,14 +1095,18 @@ fn eval_path_element(
 
         for tgt_row in target.iter() {
             if eval_column_mapping(relationship, src_row, tgt_row)?
-                && eval_expression(
-                    collection_relationships,
-                    variables,
-                    state,
-                    predicate,
-                    tgt_row,
-                    tgt_row,
-                )?
+                && if let Some(expression) = predicate {
+                    eval_expression(
+                        collection_relationships,
+                        variables,
+                        state,
+                        expression,
+                        tgt_row,
+                        tgt_row,
+                    )?
+                } else {
+                    true
+                }
             {
                 matching_rows.push(tgt_row.clone());
             }
@@ -1360,7 +1364,7 @@ fn eval_expression(
                 limit: None,
                 offset: None,
                 order_by: None,
-                predicate: Some(*predicate.clone()),
+                predicate: predicate.clone().map(|e| *e),
             };
             let collection = eval_in_collection(
                 collection_relationships,
@@ -1417,9 +1421,7 @@ fn eval_in_collection(
                 relationship,
                 arguments,
                 &source,
-                &models::Expression::And {
-                    expressions: vec![],
-                },
+                &None
             )
         }
         models::ExistsInCollection::Unrelated {
@@ -1540,9 +1542,7 @@ fn eval_field(
                 relationship,
                 arguments,
                 &source,
-                &models::Expression::And {
-                    expressions: vec![],
-                },
+                &None
             )?;
             let rows = execute_query(
                 collection_relationships,

@@ -52,8 +52,6 @@ pub async fn capabilities_get(
     let tracer = global::tracer("engine");
     tracer
         .in_span("capabilities_get", |ctx| async {
-            let configuration = configuration;
-
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, "capabilities")
@@ -91,8 +89,6 @@ pub async fn explain_post(
     let tracer = global::tracer("engine");
     tracer
         .in_span("explain_post", |ctx| async {
-            let configuration = configuration;
-
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, "explain")
@@ -132,8 +128,6 @@ pub async fn mutation_post(
     let tracer = global::tracer("engine");
     tracer
         .in_span("mutation_post", |ctx| async {
-            let configuration = configuration;
-
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, "mutation")
@@ -174,8 +168,6 @@ pub async fn query_post(
     tracer
         .in_span("query_post", |ctx| {
             async {
-                let configuration = configuration;
-
                 let client = &configuration.client;
 
                 let uri = append_path(&configuration.base_path, "query")
@@ -217,8 +209,6 @@ pub async fn schema_get(
     let tracer = global::tracer("engine");
     tracer
         .in_span("schema_get", |ctx| async {
-            let configuration = configuration;
-
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, "schema")
