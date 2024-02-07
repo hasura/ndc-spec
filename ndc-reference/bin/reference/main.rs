@@ -18,7 +18,6 @@ use indexmap::IndexMap;
 use ndc_client::models::{self, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
-use serde_json::Value;
 use tokio::sync::Mutex;
 
 // ANCHOR: row-type
@@ -836,9 +835,9 @@ fn execute_query(
 fn eval_row(
     fields: &IndexMap<String, models::Field>,
     collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, Value>,
+    variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-    item: &BTreeMap<String, Value>,
+    item: &BTreeMap<String, serde_json::Value>,
 ) -> Result<IndexMap<String, models::RowFieldValue>> {
     let mut row = IndexMap::new();
     for (field_name, field) in fields.iter() {
@@ -1589,7 +1588,7 @@ fn eval_in_collection(
                 relationship,
                 arguments,
                 &source,
-                &None
+                &None,
             )
         }
         models::ExistsInCollection::Unrelated {
@@ -1683,11 +1682,11 @@ fn eval_nested_field(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
-    value: Value,
+    value: serde_json::Value,
     nested_field: &models::NestedField,
 ) -> Result<models::RowFieldValue> {
     match nested_field {
-        models::NestedField::Object(models::NestedObject { fields }) => {
+        models::NestedField::Object(nested_object) => {
             let full_row: Row = serde_json::from_value(value).map_err(|_| {
                 (
                     StatusCode::BAD_REQUEST,
@@ -1698,7 +1697,7 @@ fn eval_nested_field(
                 )
             })?;
             let row = eval_row(
-                fields,
+                &nested_object.fields,
                 collection_relationships,
                 variables,
                 state,
@@ -1717,7 +1716,7 @@ fn eval_nested_field(
             )?))
         }
         models::NestedField::Array(models::NestedArray { fields }) => {
-            let array: Vec<Value> = serde_json::from_value(value).map_err(|_| {
+            let array: Vec<serde_json::Value> = serde_json::from_value(value).map_err(|_| {
                 (
                     StatusCode::BAD_REQUEST,
                     Json(models::ErrorResponse {
@@ -1789,7 +1788,7 @@ fn eval_field(
                 relationship,
                 arguments,
                 &source,
-                &None
+                &None,
             )?;
             let rows = execute_query(
                 collection_relationships,
@@ -1892,7 +1891,7 @@ fn execute_procedure(
     state: &mut AppState,
     name: &str,
     arguments: &BTreeMap<String, serde_json::Value>,
-    fields: &Option<IndexMap<String, models::Field>>,
+    fields: &Option<models::NestedField>,
     collection_relationships: &BTreeMap<String, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 // ANCHOR_END: execute_procedure_signature
@@ -1919,7 +1918,7 @@ fn execute_procedure(
 fn execute_upsert_article(
     state: &mut AppState,
     arguments: &BTreeMap<String, serde_json::Value>,
-    fields: &Option<IndexMap<String, models::Field>>,
+    fields: &Option<models::NestedField>,
     collection_relationships: &BTreeMap<String, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 {
@@ -1953,31 +1952,10 @@ fn execute_upsert_article(
     ))?;
     let new_row = BTreeMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
     let old_row = state.articles.insert(id_int, new_row);
-    let returning = old_row
-        .map(|old_row| {
-            let mut row = IndexMap::new();
-            for fields in fields.iter() {
-                for (field_name, field) in fields.iter() {
-                    row.insert(
-                        field_name.clone(),
-                        eval_field(
-                            collection_relationships,
-                            &BTreeMap::new(),
-                            state,
-                            field,
-                            &old_row,
-                        )?,
-                    );
-                }
-            }
-            Ok(row)
-        })
-        .transpose()?;
-    Ok(models::MutationOperationResults {
-        affected_rows: 1,
-        returning: Some(vec![IndexMap::from_iter([(
-            "__value".into(),
-            models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
+
+    Ok(models::MutationOperationResults::Procedure {
+        result: old_row.map_or(Ok(serde_json::Value::Null), |old_row| {
+            let old_row_value = serde_json::to_value(old_row).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
@@ -1985,16 +1963,42 @@ fn execute_upsert_article(
                         details: serde_json::Value::Null,
                     }),
                 )
-            })?),
-        )])]),
+            })?;
+        
+            let old_row_fields = match fields {
+                None => Ok(models::RowFieldValue(old_row_value)),
+                Some(nested_field) => eval_nested_field(
+                    collection_relationships,
+                    &BTreeMap::new(),
+                    &state,
+                    old_row_value,
+                    nested_field,
+                ),
+            }?;
+
+            Ok(old_row_fields.0)
+        })?
     })
+    
+    // let returning = old_row.map(|old_row| todo!()).transpose()?;
+    // Ok(models::MutationOperationResults::Procedure {
+    //     result: serde_json::to_value(returning).map_err(|_| {
+    //         (
+    //             StatusCode::INTERNAL_SERVER_ERROR,
+    //             Json(models::ErrorResponse {
+    //                 message: "cannot encode response".into(),
+    //                 details: serde_json::Value::Null,
+    //             }),
+    //         )
+    //     })?,
+    // })
 }
 // ANCHOR_END: execute_upsert_article
 // ANCHOR: execute_delete_articles
 fn execute_delete_articles(
     state: &mut AppState,
     arguments: &BTreeMap<String, serde_json::Value>,
-    fields: &Option<IndexMap<String, models::Field>>,
+    fields: &Option<models::NestedField>,
     collection_relationships: &BTreeMap<String, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 {
@@ -2033,50 +2037,29 @@ fn execute_delete_articles(
         }
     }
 
-    let returning = removed
-        .iter()
-        .map(|old_row| {
-            let mut row = IndexMap::new();
-            for fields in fields.iter() {
-                for (field_name, field) in fields.iter() {
-                    row.insert(
-                        field_name.clone(),
-                        eval_field(
-                            collection_relationships,
-                            &BTreeMap::new(),
-                            &state_snapshot,
-                            field,
-                            old_row,
-                        )?,
-                    );
-                }
-            }
-            Ok(row)
-        })
-        .collect::<Result<Vec<_>>>()?;
+    let removed_value = serde_json::to_value(removed).map_err(|_| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(models::ErrorResponse {
+                message: "cannot encode response".into(),
+                details: serde_json::Value::Null,
+            }),
+        )
+    })?;
 
-    Ok(models::MutationOperationResults {
-        affected_rows: removed.len().try_into().map_err(|_| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(models::ErrorResponse {
-                    message: "Unable to convert integer".into(),
-                    details: serde_json::Value::Null,
-                }),
-            )
-        })?,
-        returning: Some(vec![IndexMap::from_iter([(
-            "__value".into(),
-            models::RowFieldValue(serde_json::to_value(returning).map_err(|_| {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(models::ErrorResponse {
-                        message: "cannot encode response".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                )
-            })?),
-        )])]),
+    let removed_fields = match fields {
+        None => Ok(models::RowFieldValue(removed_value)),
+        Some(nested_field) => eval_nested_field(
+            collection_relationships,
+            &BTreeMap::new(),
+            &state_snapshot,
+            removed_value,
+            nested_field,
+        ),
+    }?;
+
+    Ok(models::MutationOperationResults::Procedure {
+        result: removed_fields.0
     })
 }
 // ANCHOR_END: execute_delete_articles
@@ -2241,7 +2224,7 @@ mod tests {
     }
 
     struct Reference {
-        state: Arc<Mutex<crate::AppState>>,
+        state: crate::AppState,
     }
 
     #[async_trait]
@@ -2258,7 +2241,7 @@ mod tests {
             &self,
             request: models::QueryRequest,
         ) -> Result<models::QueryResponse, Error> {
-            Ok(post_query(State(self.state.clone()), Json(request))
+            Ok(post_query(State(Arc::new(Mutex::new(self.state.clone()))), Json(request))
                 .await
                 .map_err(|(_, Json(err))| Error::ConnectorError(err))?
                 .0)
@@ -2268,7 +2251,7 @@ mod tests {
             &self,
             request: models::MutationRequest,
         ) -> Result<models::MutationResponse, Error> {
-            Ok(post_mutation(State(self.state.clone()), Json(request))
+            Ok(post_mutation(State(Arc::new(Mutex::new(self.state.clone()))), Json(request))
                 .await
                 .map_err(|(_, Json(err))| Error::ConnectorError(err))?
                 .0)
@@ -2283,7 +2266,7 @@ mod tests {
                 snapshots_dir: None,
             };
             let connector = Reference {
-                state: Arc::new(Mutex::new(init_app_state())),
+                state: init_app_state(),
             };
             let results = test_connector(&configuration, &connector).await;
             assert!(results.failures.is_empty());

@@ -50,14 +50,61 @@
               "additionalProperties": true
             },
             "fields": {
-              "description": "The fields to return",
-              "type": [
-                "object",
-                "null"
-              ],
+              "description": "The fields to return from the result, or null to return everything",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/NestedField"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "NestedField": {
+      "title": "NestedField",
+      "oneOf": [
+        {
+          "title": "NestedObject",
+          "type": "object",
+          "required": [
+            "fields",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "object"
+              ]
+            },
+            "fields": {
+              "type": "object",
               "additionalProperties": {
                 "$ref": "#/definitions/Field"
               }
+            }
+          }
+        },
+        {
+          "title": "NestedArray",
+          "type": "object",
+          "required": [
+            "fields",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "array"
+              ]
+            },
+            "fields": {
+              "$ref": "#/definitions/NestedField"
             }
           }
         }
@@ -123,52 +170,6 @@
               "additionalProperties": {
                 "$ref": "#/definitions/RelationshipArgument"
               }
-            }
-          }
-        }
-      ]
-    },
-    "NestedField": {
-      "title": "NestedField",
-      "oneOf": [
-        {
-          "title": "NestedObject",
-          "type": "object",
-          "required": [
-            "fields",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "object"
-              ]
-            },
-            "fields": {
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/Field"
-              }
-            }
-          }
-        },
-        {
-          "title": "NestedArray",
-          "type": "object",
-          "required": [
-            "fields",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "array"
-              ]
-            },
-            "fields": {
-              "$ref": "#/definitions/NestedField"
             }
           }
         }

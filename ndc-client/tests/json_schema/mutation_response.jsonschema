@@ -17,34 +17,24 @@
   "definitions": {
     "MutationOperationResults": {
       "title": "Mutation Operation Results",
-      "type": "object",
-      "required": [
-        "affected_rows"
-      ],
-      "properties": {
-        "affected_rows": {
-          "description": "The number of rows affected by the mutation operation",
-          "type": "integer",
-          "format": "uint32",
-          "minimum": 0.0
-        },
-        "returning": {
-          "description": "The rows affected by the mutation operation",
-          "type": [
-            "array",
-            "null"
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "result",
+            "type"
           ],
-          "items": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/definitions/RowFieldValue"
-            }
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "procedure"
+              ]
+            },
+            "result": true
           }
         }
-      }
-    },
-    "RowFieldValue": {
-      "title": "Row Field Value"
+      ]
     }
   }
 }

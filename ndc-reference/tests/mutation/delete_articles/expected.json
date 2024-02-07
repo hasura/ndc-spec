@@ -1,15 +1,11 @@
 {
   "operation_results": [
     {
-      "affected_rows": 1,
-      "returning": [
+      "type": "procedure",
+      "result": [
         {
-          "__value": [
-            {
-              "id": 1,
-              "title": "The Next 700 Programming Languages"
-            }
-          ]
+          "idx": 1,
+          "title": "The Next 700 Programming Languages"
         }
       ]
     }

@@ -13,23 +13,26 @@
                 }
             },
             "fields": {
-                "id": {
-                    "type": "column",
-                    "column": "id"
-                },
-                "author": {
-                    "type": "relationship",
-                    "arguments": {},
-                    "relationship": "article_author",
-                    "query": {
-                        "fields": {
-                            "first_name": {
-                                "type": "column",
-                                "column": "first_name"
-                            },
-                            "last_name": {
-                                "type": "column",
-                                "column": "last_name"
+                "type": "object",
+                "fields": {
+                    "id": {
+                        "type": "column",
+                        "column": "id"
+                    },
+                    "author": {
+                        "type": "relationship",
+                        "arguments": {},
+                        "relationship": "article_author",
+                        "query": {
+                            "fields": {
+                                "first_name": {
+                                    "type": "column",
+                                    "column": "first_name"
+                                },
+                                "last_name": {
+                                    "type": "column",
+                                    "column": "last_name"
+                                }
                             }
                         }
                     }

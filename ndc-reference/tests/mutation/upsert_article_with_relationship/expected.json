@@ -1,22 +1,18 @@
 {
   "operation_results": [
     {
-      "affected_rows": 1,
-      "returning": [
-        {
-          "__value": {
-            "id": 2,
-            "author": {
-              "rows": [
-                {
-                  "first_name": "John",
-                  "last_name": "Hughes"
-                }
-              ]
+      "type": "procedure",
+      "result": {
+        "id": 2,
+        "author": {
+          "rows": [
+            {
+              "first_name": "John",
+              "last_name": "Hughes"
             }
-          }
+          ]
         }
-      ]
+      }
     }
   ]
 }
