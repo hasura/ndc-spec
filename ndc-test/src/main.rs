@@ -39,6 +39,10 @@ async fn main() {
             seed,
             snapshots_dir,
         } => {
+            let seed: Option<[u8; 32]> = seed.map(|seed| {
+                seed.as_bytes().try_into().unwrap()
+            });
+
             let test_configuration = TestConfiguration {
                 seed,
                 snapshots_dir,

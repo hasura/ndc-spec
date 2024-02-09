@@ -11,10 +11,9 @@ use indexmap::IndexMap;
 use ndc_client::apis::configuration::Configuration;
 use ndc_client::apis::default_api as api;
 use ndc_client::models::{self, OrderDirection};
-use proptest::prelude::Rng;
-use proptest::sample::select;
-use proptest::strategy::{BoxedStrategy, Just, Strategy, Union, ValueTree};
-use proptest::test_runner::{Config, Reason, RngAlgorithm, TestRng, TestRunner};
+use rand::rngs::SmallRng;
+use rand::seq::{IteratorRandom, SliceRandom};
+use rand::{Rng, SeedableRng};
 use serde::de::DeserializeOwned;
 use thiserror::Error;
 
@@ -23,7 +22,7 @@ pub enum Error {
     #[error("error communicating with the connector: {0}")]
     CommunicationError(#[from] ndc_client::apis::Error),
     #[error("error generating test data: {0}")]
-    StrategyError(Reason),
+    StrategyError(rand::Error),
     #[error("error parsing semver range: {0}")]
     SemverError(#[from] semver::Error),
     #[error(
@@ -72,8 +71,8 @@ pub enum Error {
     OtherError(#[from] Box<dyn std::error::Error>),
 }
 
-impl From<Reason> for Error {
-    fn from(value: Reason) -> Self {
+impl From<rand::Error> for Error {
+    fn from(value: rand::Error) -> Self {
         Error::StrategyError(value)
     }
 }
@@ -185,7 +184,7 @@ where
 
 #[derive(Debug)]
 pub struct TestConfiguration {
-    pub seed: Option<String>,
+    pub seed: Option<[u8;32]>,
     pub snapshots_dir: Option<PathBuf>,
 }
 
@@ -254,15 +253,12 @@ pub async fn test_connector<C: Connector>(
         failures: vec![],
     });
 
-    let mut runner = TestRunner::new_with_rng(
-        Config::default(),
-        match &configuration.seed {
-            Some(seed) => TestRng::from_seed(RngAlgorithm::XorShift, seed.as_bytes()),
-            None => TestRng::deterministic_rng(RngAlgorithm::XorShift),
-        },
-    );
+    let mut rng = match configuration.seed {
+        None => rand::rngs::SmallRng::from_entropy(),
+        Some(seed) => rand::rngs::SmallRng::from_seed(seed),
+    };
 
-    let _ = run_all_tests(configuration, connector, &mut runner, &results).await;
+    let _ = run_all_tests(configuration, connector, &mut rng, &results).await;
 
     results.into_inner()
 }
@@ -270,7 +266,7 @@ pub async fn test_connector<C: Connector>(
 async fn run_all_tests<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    runner: &mut TestRunner,
+    rng: &mut SmallRng,
     results: &RefCell<TestResults>,
 ) -> Option<()> {
     let capabilities = nest("Capabilities", results, async {
@@ -319,7 +315,7 @@ async fn run_all_tests<C: Connector>(
             connector,
             &capabilities,
             &schema,
-            runner,
+            rng,
             results,
         ),
     )
@@ -333,7 +329,10 @@ pub fn validate_capabilities(capabilities: &models::CapabilitiesResponse) -> Res
     let spec_version = semver::VersionReq::parse(format!("^{}", pkg_version).as_str())?;
     let claimed_version = semver::Version::parse(capabilities.version.as_str())?;
     if !spec_version.matches(&claimed_version) {
-        return Err(Error::IncompatibleSpecification(claimed_version, spec_version));
+        return Err(Error::IncompatibleSpecification(
+            claimed_version,
+            spec_version,
+        ));
     }
 
     Ok(())
@@ -444,10 +443,7 @@ pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> 
             validate_type(schema, underlying_type)?;
         }
         models::Type::Predicate { object_type_name } => {
-            if !schema
-                .object_types
-                .contains_key(object_type_name.as_str())
-            {
+            if !schema.object_types.contains_key(object_type_name.as_str()) {
                 return Err(Error::ObjectTypeIsNotDefined(object_type_name.clone()));
             }
         }
@@ -461,7 +457,7 @@ pub async fn test_query<C: Connector>(
     connector: &C,
     capabilities: &models::CapabilitiesResponse,
     schema: &models::SchemaResponse,
-    runner: &mut TestRunner,
+    rng: &mut SmallRng,
     results: &RefCell<TestResults>,
 ) {
     for collection_info in schema.collections.iter() {
@@ -471,7 +467,7 @@ pub async fn test_query<C: Connector>(
                     test_simple_queries(
                         configuration,
                         connector,
-                        runner,
+                        rng,
                         results,
                         schema,
                         collection_info,
@@ -516,18 +512,14 @@ pub async fn test_query<C: Connector>(
 async fn test_simple_queries<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    runner: &mut TestRunner,
+    rng: &mut SmallRng,
     results: &RefCell<TestResults>,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
 ) -> Option<()> {
     let collection_type = schema
         .object_types
-        .get(collection_info.collection_type.as_str())
-        .ok_or(Error::CollectionTypeIsNotDefined(
-            collection_info.collection_type.clone(),
-        ))
-        .ok()?;
+        .get(collection_info.collection_type.as_str())?;
 
     let rows = test(
         "Select top N",
@@ -536,20 +528,16 @@ async fn test_simple_queries<C: Connector>(
     )
     .await?;
 
+    let context = make_context(collection_type, rows).ok()?;
+
     test("Predicates", results, async {
-        let value_strategies = make_value_strategies(rows, collection_type)?;
-
-        if let Some(expression_strategy) =
-            make_expression_strategies(value_strategies, collection_type, schema)?
-        {
+        if let Some(context) = context {
             for _ in 0..10 {
-                if let Ok(tree) = expression_strategy.new_tree(runner) {
-                    let predicate = tree.current();
-
+                if let Some(predicate) = make_predicate(schema, &context, rng)? {
                     test_select_top_n_rows_with_predicate(
                         configuration,
                         connector,
-                        predicate,
+                        &predicate,
                         collection_type,
                         collection_info,
                     )
@@ -565,24 +553,21 @@ async fn test_simple_queries<C: Connector>(
     .await?;
 
     test("Sorting", results, async {
-        if let Some(order_by_elements_strategy) =
-            make_order_by_elements_strategy(collection_type.clone(), schema)
-        {
-            for _ in 0..10 {
-                if let Ok(tree) = order_by_elements_strategy.new_tree(runner) {
-                    let elements = tree.current();
-                    test_select_top_n_rows_with_sort(
-                        configuration,
-                        connector,
-                        elements,
-                        collection_type,
-                        collection_info,
-                    )
-                    .await?;
-                }
+        for _ in 0..10 {
+            if let Some(order_by_element) =
+                make_order_by_element(collection_type.clone(), schema, rng)
+            {
+                test_select_top_n_rows_with_sort(
+                    configuration,
+                    connector,
+                    vec![order_by_element], // TODO
+                    collection_type,
+                    collection_info,
+                )
+                .await?;
+            } else {
+                eprintln!("Skipping empty collection {}", collection_info.name);
             }
-        } else {
-            eprintln!("Skipping empty collection {}", collection_info.name);
         }
 
         Ok(())
@@ -620,7 +605,7 @@ async fn test_select_top_n_rows<C: Connector>(
 async fn test_select_top_n_rows_with_predicate<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    predicate: GeneratedExpression,
+    predicate: &GeneratedExpression,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
 ) -> Result<ndc_client::models::QueryResponse, Error> {
@@ -634,7 +619,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
             limit: Some(10),
             offset: None,
             order_by: None,
-            predicate: Some(predicate.expr),
+            predicate: Some(predicate.expr.clone()),
         },
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
@@ -956,11 +941,23 @@ fn expect_single_rows(
     Ok(rows)
 }
 
-fn make_value_strategies(
-    rows: Vec<IndexMap<String, models::RowFieldValue>>,
+#[derive(Clone, Debug)]
+struct GeneratedValue {
+    field_name: String,
+    value: serde_json::Value,
+}
+
+#[derive(Clone, Debug)]
+struct Context<'a> {
+    collection_type: &'a models::ObjectType,
+    values: Vec<GeneratedValue>,
+}
+
+fn make_context(
     collection_type: &models::ObjectType,
-) -> Result<BTreeMap<String, BoxedStrategy<serde_json::Value>>, Error> {
-    let mut values: BTreeMap<String, Vec<serde_json::Value>> = BTreeMap::new();
+    rows: Vec<IndexMap<String, models::RowFieldValue>>,
+) -> Result<Option<Context>, Error> {
+    let mut values = vec![];
 
     for row in rows {
         for (field_name, _) in collection_type.fields.iter() {
@@ -970,21 +967,28 @@ fn make_value_strategies(
         }
 
         for (field_name, field_value) in row {
-            if !field_value.0.is_null() {
-                values
-                    .entry(field_name.clone())
-                    .or_insert(vec![])
-                    .push(field_value.0.clone());
-            }
+            values.push(GeneratedValue {
+                field_name,
+                value: field_value.0,
+            });
         }
     }
 
-    let strategies = values
-        .into_iter()
-        .map(|(field_name, examples)| Ok((field_name, select(examples).boxed())))
-        .collect::<Result<BTreeMap<String, _>, Reason>>()?;
+    Ok(if values.is_empty() {
+        None
+    } else {
+        Some(Context {
+            collection_type,
+            values,
+        })
+    })
+}
 
-    Ok(strategies)
+fn make_value<'a>(context: &'a Context, rng: &mut SmallRng) -> Result<&'a GeneratedValue, Error> {
+    context
+        .values
+        .choose(rng)
+        .ok_or(Error::ExpectedNonEmptyRows)
 }
 
 #[derive(Clone, Debug)]
@@ -993,93 +997,76 @@ struct GeneratedExpression {
     expect_nonempty: bool,
 }
 
-fn make_expression_strategies(
-    value_strategies: BTreeMap<String, BoxedStrategy<serde_json::Value>>,
-    collection_type: &models::ObjectType,
+fn make_predicate(
     schema: &models::SchemaResponse,
-) -> Result<Option<Union<BoxedStrategy<GeneratedExpression>>>, Error> {
-    let mut expression_strategies: Vec<BoxedStrategy<GeneratedExpression>> = vec![];
+    context: &Context,
+    rng: &mut SmallRng,
+) -> Result<Option<GeneratedExpression>, Error> {
+    let value = make_value(context, rng)?;
+    let field_type = &context
+        .collection_type
+        .fields
+        .get(value.field_name.as_str())
+        .ok_or(Error::UnexpectedField(value.field_name.clone()))?
+        .r#type;
 
-    for (field_name, strategy) in value_strategies {
-        let field_type = &collection_type
-            .fields
-            .get(field_name.as_str())
-            .ok_or(Error::UnexpectedField(field_name.clone()))?
-            .r#type;
+    let mut expressions: Vec<GeneratedExpression> = vec![];
 
-        if is_nullable_type(field_type) {
-            expression_strategies.push(
-                Just(GeneratedExpression {
-                    expr: models::Expression::UnaryComparisonOperator {
-                        column: models::ComparisonTarget::Column {
-                            name: field_name.clone(),
-                            path: vec![],
-                        },
-                        operator: models::UnaryComparisonOperator::IsNull,
-                    },
-                    expect_nonempty: false,
-                })
-                .boxed(),
-            );
-        }
+    if is_nullable_type(field_type) {
+        expressions.push(GeneratedExpression {
+            expr: models::Expression::UnaryComparisonOperator {
+                column: models::ComparisonTarget::Column {
+                    name: value.field_name.clone(),
+                    path: vec![],
+                },
+                operator: models::UnaryComparisonOperator::IsNull,
+            },
+            expect_nonempty: false,
+        });
+    }
 
-        if let Some(field_type_name) = get_named_type(field_type) {
-            if let Some(field_scalar_type) = schema.scalar_types.get(field_type_name.as_str()) {
-                for (operator_name, operator) in field_scalar_type.comparison_operators.iter() {
-                    match operator {
-                        models::ComparisonOperatorDefinition::Equal => {
-                            let closure = {
-                                let field_name = field_name.clone();
-                                let operator_name = operator_name.clone();
-                                move |value| GeneratedExpression {
-                                    expr: models::Expression::BinaryComparisonOperator {
-                                        column: models::ComparisonTarget::Column {
-                                            name: field_name.clone(),
-                                            path: vec![],
-                                        },
-                                        operator: operator_name.clone(),
-                                        value: models::ComparisonValue::Scalar { value },
-                                    },
-                                    expect_nonempty: true,
-                                }
-                            };
-                            expression_strategies.push(strategy.clone().prop_map(closure).boxed());
-                        }
-                        models::ComparisonOperatorDefinition::In => {
-                            let closure = {
-                                let field_name = field_name.clone();
-                                let operator_name = operator_name.clone();
-                                move |values| GeneratedExpression {
-                                    expr: models::Expression::BinaryComparisonOperator {
-                                        column: models::ComparisonTarget::Column {
-                                            name: field_name.clone(),
-                                            path: vec![],
-                                        },
-                                        operator: operator_name.clone(),
-                                        value: models::ComparisonValue::Scalar {
-                                            value: serde_json::Value::Array(values),
-                                        },
-                                    },
-                                    expect_nonempty: true,
-                                }
-                            };
-                            expression_strategies.push(
-                                proptest::collection::vec(strategy.clone(), (1, 3))
-                                    .prop_map(closure)
-                                    .boxed(),
-                            );
-                        }
-                        _ => {}
+    if let Some(field_type_name) = get_named_type(field_type) {
+        if let Some(field_scalar_type) = schema.scalar_types.get(field_type_name.as_str()) {
+            for (operator_name, operator) in field_scalar_type.comparison_operators.iter() {
+                match operator {
+                    models::ComparisonOperatorDefinition::Equal => {
+                        expressions.push(GeneratedExpression {
+                            expr: models::Expression::BinaryComparisonOperator {
+                                column: models::ComparisonTarget::Column {
+                                    name: value.field_name.clone(),
+                                    path: vec![],
+                                },
+                                operator: operator_name.clone(),
+                                value: models::ComparisonValue::Scalar { value: value.value.clone() },
+                            },
+                            expect_nonempty: true,
+                        });
                     }
+                    models::ComparisonOperatorDefinition::In => {
+                        expressions.push(GeneratedExpression {
+                            expr: models::Expression::BinaryComparisonOperator {
+                                column: models::ComparisonTarget::Column {
+                                    name: value.field_name.clone(),
+                                    path: vec![],
+                                },
+                                operator: operator_name.clone(),
+                                value: models::ComparisonValue::Scalar {
+                                    value: serde_json::Value::Array(vec![value.value.clone()]), // TODO
+                                },
+                            },
+                            expect_nonempty: true,
+                        });
+                    }
+                    _ => {}
                 }
             }
         }
     }
 
-    Ok(if expression_strategies.is_empty() {
+    Ok(if expressions.is_empty() {
         None
     } else {
-        Some(Union::new(expression_strategies))
+        expressions.choose(rng).cloned()
     })
 }
 
@@ -1088,7 +1075,9 @@ fn is_nullable_type(ty: &models::Type) -> bool {
         models::Type::Named { name: _ } => false,
         models::Type::Nullable { underlying_type: _ } => true,
         models::Type::Array { element_type: _ } => false,
-        models::Type::Predicate { object_type_name: _ } => false
+        models::Type::Predicate {
+            object_type_name: _,
+        } => false,
     }
 }
 
@@ -1097,7 +1086,9 @@ fn as_named_type(ty: &models::Type) -> Option<&String> {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => as_named_type(underlying_type),
         models::Type::Array { element_type: _ } => None,
-        models::Type::Predicate { object_type_name: _ } => None,
+        models::Type::Predicate {
+            object_type_name: _,
+        } => None,
     }
 }
 
@@ -1106,16 +1097,19 @@ fn get_named_type(ty: &models::Type) -> Option<&String> {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => get_named_type(underlying_type),
         models::Type::Array { element_type: _ } => None,
-        models::Type::Predicate { object_type_name: _ } => None
+        models::Type::Predicate {
+            object_type_name: _,
+        } => None,
     }
 }
 
-fn make_order_by_elements_strategy(
+fn make_order_by_element(
     collection_type: models::ObjectType,
     schema: &models::SchemaResponse,
-) -> Option<impl Strategy<Value = Vec<models::OrderByElement>>> {
+    rng: &mut SmallRng,
+) -> Option<models::OrderByElement> {
     let mut sortable_fields = BTreeMap::new();
-    
+
     for (field_name, field) in collection_type.fields.into_iter() {
         if let Some(name) = as_named_type(&field.r#type) {
             if schema.scalar_types.contains_key(name) {
@@ -1127,33 +1121,21 @@ fn make_order_by_elements_strategy(
     if sortable_fields.is_empty() {
         None
     } else {
-        let random_fields =
-            Just(sortable_fields.keys().cloned().collect::<Vec<_>>()).prop_shuffle();
-        let strategy = random_fields.prop_perturb(|fields, mut rng| {
-            let mut elements = vec![];
+        let (field_name, _) = sortable_fields.iter().choose(rng)?;
 
-            let fields = fields.into_iter().take(rng.gen_range(0..3));
+        let order_direction = if rng.gen_bool(0.5) {
+            OrderDirection::Asc
+        } else {
+            OrderDirection::Desc
+        };
 
-            let order_direction = if rng.gen_bool(0.5) {
-                OrderDirection::Asc
-            } else {
-                OrderDirection::Desc
-            };
-
-            for field in fields {
-                elements.push(models::OrderByElement {
-                    order_direction,
-                    target: models::OrderByTarget::Column {
-                        name: field.clone(),
-                        path: vec![],
-                    },
-                });
-            }
-
-            elements
-        });
-
-        Some(strategy)
+        Some(models::OrderByElement {
+            order_direction,
+            target: models::OrderByTarget::Column {
+                name: field_name.clone(),
+                path: vec![],
+            },
+        })
     }
 }
 
@@ -1166,7 +1148,7 @@ fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, 
                 f.0.clone(),
                 models::Field::Column {
                     column: f.0.clone(),
-                    fields: None
+                    fields: None,
                 },
             )
         })
