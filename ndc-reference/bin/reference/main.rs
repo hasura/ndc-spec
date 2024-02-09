@@ -130,7 +130,7 @@ async fn main() {
     let app_state = Arc::new(Mutex::new(init_app_state()));
 
     let app = Router::new()
-        .route("/healthz", get(get_healthz))
+        .route("/health", get(get_health))
         .route("/metrics", get(get_metrics))
         .route("/capabilities", get(get_capabilities))
         .route("/schema", get(get_schema))
@@ -152,8 +152,8 @@ async fn main() {
 }
 // ANCHOR_END: main
 // ANCHOR: health
-async fn get_healthz() -> StatusCode {
-    StatusCode::NO_CONTENT
+async fn get_health() -> StatusCode {
+    StatusCode::OK
 }
 // ANCHOR_END: health
 // ANCHOR: metrics
