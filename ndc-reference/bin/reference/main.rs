@@ -1979,19 +1979,6 @@ fn execute_upsert_article(
             Ok(old_row_fields.0)
         })?
     })
-    
-    // let returning = old_row.map(|old_row| todo!()).transpose()?;
-    // Ok(models::MutationOperationResults::Procedure {
-    //     result: serde_json::to_value(returning).map_err(|_| {
-    //         (
-    //             StatusCode::INTERNAL_SERVER_ERROR,
-    //             Json(models::ErrorResponse {
-    //                 message: "cannot encode response".into(),
-    //                 details: serde_json::Value::Null,
-    //             }),
-    //         )
-    //     })?,
-    // })
 }
 // ANCHOR_END: execute_upsert_article
 // ANCHOR: execute_delete_articles
