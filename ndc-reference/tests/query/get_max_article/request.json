@@ -1,0 +1,26 @@
+{
+    "collection": "latest_article",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "__value": {
+                "type": "column",
+                "column": "__value",
+                "fields": {
+                    "type": "object",
+                    "fields": {
+                        "id": {
+                            "type": "column",
+                            "column": "id"
+                        },
+                        "title": {
+                            "type": "column",
+                            "column": "title"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "collection_relationships": {}
+}

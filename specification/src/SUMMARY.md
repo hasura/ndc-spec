@@ -29,6 +29,7 @@
   - [Arguments](specification/queries/arguments.md)
   - [Relationships](specification/queries/relationships.md)
   - [Variables](specification/queries/variables.md)
+  - [Functions](specification/queries/functions.md)
 - [Mutations](specification/mutations/README.md)
   - [Procedures](specification/mutations/procedures.md)
 - [Explain](specification/explain.md)

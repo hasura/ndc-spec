@@ -570,8 +570,23 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         arguments: BTreeMap::new(),
     };
     // ANCHOR_END: schema_function_latest_article_id
+    // ANCHOR: schema_function_latest_article
+    let latest_article_function = models::FunctionInfo {
+        name: "latest_article".into(),
+        description: Some("Get the most recent article".into()),
+        result_type: models::Type::Array {
+            element_type: Box::new(models::Type::Nullable {
+                underlying_type: Box::new(models::Type::Named {
+                    name: "article".into(),
+                }),
+            }),
+        },
+        arguments: BTreeMap::new(),
+    };
+    // ANCHOR_END: schema_function_latest_article
     // ANCHOR: schema_functions
-    let functions: Vec<models::FunctionInfo> = vec![latest_article_id_function];
+    let functions: Vec<models::FunctionInfo> =
+        vec![latest_article_id_function, latest_article_function];
     // ANCHOR_END: schema_functions
     // ANCHOR: schema2
     Json(models::SchemaResponse {
@@ -705,11 +720,7 @@ fn get_collection_by_name(
             Ok(articles_by_author)
         }
         "latest_article_id" => {
-            let latest_id = state
-                .articles
-                .iter()
-                .filter_map(|(_id, a)| a.get("id").and_then(|v| v.as_i64()))
-                .max();
+            let latest_id = state.articles.keys().max();
             let latest_id_value = serde_json::to_value(latest_id).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
@@ -722,6 +733,26 @@ fn get_collection_by_name(
             Ok(vec![BTreeMap::from_iter([(
                 "__value".into(),
                 latest_id_value,
+            )])])
+        }
+        "latest_article" => {
+            let latest = state
+                .articles
+                .iter()
+                .max_by_key(|(&id, _)| id)
+                .map(|(_, article)| article);
+            let latest_value = serde_json::to_value(latest).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
+            Ok(vec![BTreeMap::from_iter([(
+                "__value".into(),
+                latest_value,
             )])])
         }
         _ => Err((
