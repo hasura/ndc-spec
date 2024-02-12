@@ -22,9 +22,7 @@ The `execute_upsert_article` function reads the `article` argument from the `arg
 
 It then inserts or updates that article in the application state, depending on whether or not an article with that `id` already exists or not.
 
-Finally, it delegates to the `eval_field` function to evaluate each requested field in turn, and returns a single row and column (named `__value`) containing the result.
-
-`affected_rows` contains `1` to indicate that one row of data was affected.
+Finally, it delegates to the `eval_nested_field` function to evaluate any nested fields, and returns the selected fields in the result:
 
 ```rust,no_run,noplayground
 {{#include ../../../../ndc-reference/bin/reference/main.rs:execute_upsert_article}}
@@ -40,7 +38,7 @@ The `execute_delete_articles` function reads the `where` argument from the `argu
 
 It then deletes all articles in the application state which match the predicate, and returns a list of the deleted rows.
 
-The function  delegates to the `eval_field` function to evaluate each requested field in turn, and returns a single row and column (named `__value`) containing the result.
+This function delegates to the `eval_nested_field` function to evaluate any nested fields, and returns the selected fields in the result:
 
 ```rust,no_run,noplayground
 {{#include ../../../../ndc-reference/bin/reference/main.rs:execute_delete_articles}}

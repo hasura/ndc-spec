@@ -13,9 +13,12 @@
                 }
             },
             "fields": {
-                "id": {
-                    "type": "column",
-                    "column": "id"
+                "type": "object",
+                "fields": {
+                    "id": {
+                        "type": "column",
+                        "column": "id"
+                    }
                 }
             }
         }

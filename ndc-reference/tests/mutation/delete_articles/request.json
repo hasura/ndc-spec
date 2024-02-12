@@ -21,13 +21,19 @@
                 }
             },
             "fields": {
-                "id": {
-                    "type": "column",
-                    "column": "id"
-                },
-                "title": {
-                    "type": "column",
-                    "column": "title"
+                "type": "array",
+                "fields": {
+                    "type": "object",
+                    "fields": {
+                        "id": {
+                            "type": "column",
+                            "column": "id"
+                        },
+                        "title": {
+                            "type": "column",
+                            "column": "title"
+                        }
+                    }
                 }
             }
         }
