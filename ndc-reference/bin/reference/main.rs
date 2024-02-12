@@ -1970,7 +1970,7 @@ fn execute_upsert_article(
                 Some(nested_field) => eval_nested_field(
                     collection_relationships,
                     &BTreeMap::new(),
-                    &state,
+                    state,
                     old_row_value,
                     nested_field,
                 ),
