@@ -973,7 +973,7 @@ fn make_value_strategies(
             if !field_value.0.is_null() {
                 values
                     .entry(field_name.clone())
-                    .or_insert(vec![])
+                    .or_default()
                     .push(field_value.0.clone());
             }
         }
