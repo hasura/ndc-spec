@@ -168,7 +168,7 @@ pub enum Type {
     Predicate {
         /// The object type name
         object_type_name: String,
-    }
+    },
 }
 // ANCHOR_END: Type
 
@@ -381,7 +381,7 @@ pub struct NestedArray {
 #[schemars(title = "NestedField")]
 pub enum NestedField {
     Object(NestedObject),
-    Array(NestedArray)
+    Array(NestedArray),
 }
 // ANCHOR_END: NestedField
 
@@ -396,7 +396,7 @@ pub enum Field {
         /// the caller can request a subset of the complete column data,
         /// by specifying fields to fetch here.
         /// If omitted, the column data will be fetched in full.
-        fields: Option<NestedField>
+        fields: Option<NestedField>,
     },
     Relationship {
         query: Box<Query>,
