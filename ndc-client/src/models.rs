@@ -705,9 +705,7 @@ pub struct MutationResponse {
 // ANCHOR_END: MutationResponse
 
 // ANCHOR: MutationOperationResults
-#[derive(
-    Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema,
-)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Mutation Operation Results")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MutationOperationResults {
