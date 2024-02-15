@@ -82,16 +82,16 @@ pub async fn capabilities_get(
         .await
 }
 
-pub async fn explain_post(
+pub async fn explain_query_post(
     configuration: &configuration::Configuration,
     query_request: crate::models::QueryRequest,
 ) -> Result<crate::models::ExplainResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
-        .in_span("explain_post", |ctx| async {
+        .in_span("explain_query_post", |ctx| async {
             let client = &configuration.client;
 
-            let uri = append_path(&configuration.base_path, "explain")
+            let uri = append_path(&configuration.base_path, "query/explain")
                 .map_err(|_| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::POST, uri);
 
@@ -103,6 +103,45 @@ pub async fn explain_post(
             req_builder = req_builder.headers(configuration.headers.clone());
 
             req_builder = req_builder.json(&query_request);
+
+            req_builder = inject_trace_context(req_builder);
+
+            let req = req_builder.build()?;
+            let resp = client.execute(req).with_traced_errors().await?;
+
+            let response_status = resp.status();
+            let response_content = resp.json().with_traced_errors().with_context(ctx).await?;
+
+            if !response_status.is_client_error() && !response_status.is_server_error() {
+                serde_json::from_value(response_content).map_err(Error::from)
+            } else {
+                Err(construct_error(response_status, response_content))
+            }
+        })
+        .await
+}
+
+pub async fn explain_mutation_post(
+    configuration: &configuration::Configuration,
+    mutation_request: crate::models::MutationRequest,
+) -> Result<crate::models::ExplainResponse, Error> {
+    let tracer = global::tracer("engine");
+    tracer
+        .in_span("explain_mutation_post", |ctx| async {
+            let client = &configuration.client;
+
+            let uri = append_path(&configuration.base_path, "mutation/explain")
+                .map_err(|_| Error::InvalidBaseURL)?;
+            let mut req_builder = client.request(reqwest::Method::POST, uri);
+
+            if let Some(ref user_agent) = configuration.user_agent {
+                req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+            }
+
+            // Note: The headers will be merged in to any already set.
+            req_builder = req_builder.headers(configuration.headers.clone());
+
+            req_builder = req_builder.json(&mutation_request);
 
             req_builder = inject_trace_context(req_builder);
 
