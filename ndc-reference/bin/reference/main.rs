@@ -1995,7 +1995,7 @@ fn execute_upsert_article(
                     }),
                 )
             })?;
-        
+
             let old_row_fields = match fields {
                 None => Ok(models::RowFieldValue(old_row_value)),
                 Some(nested_field) => eval_nested_field(
@@ -2008,7 +2008,7 @@ fn execute_upsert_article(
             }?;
 
             Ok(old_row_fields.0)
-        })?
+        })?,
     })
 }
 // ANCHOR_END: execute_upsert_article
@@ -2077,7 +2077,7 @@ fn execute_delete_articles(
     }?;
 
     Ok(models::MutationOperationResults::Procedure {
-        result: removed_fields.0
+        result: removed_fields.0,
     })
 }
 // ANCHOR_END: execute_delete_articles
@@ -2259,20 +2259,26 @@ mod tests {
             &self,
             request: models::QueryRequest,
         ) -> Result<models::QueryResponse, Error> {
-            Ok(post_query(State(Arc::new(Mutex::new(self.state.clone()))), Json(request))
-                .await
-                .map_err(|(_, Json(err))| Error::ConnectorError(err))?
-                .0)
+            Ok(post_query(
+                State(Arc::new(Mutex::new(self.state.clone()))),
+                Json(request),
+            )
+            .await
+            .map_err(|(_, Json(err))| Error::ConnectorError(err))?
+            .0)
         }
 
         async fn mutation(
             &self,
             request: models::MutationRequest,
         ) -> Result<models::MutationResponse, Error> {
-            Ok(post_mutation(State(Arc::new(Mutex::new(self.state.clone()))), Json(request))
-                .await
-                .map_err(|(_, Json(err))| Error::ConnectorError(err))?
-                .0)
+            Ok(post_mutation(
+                State(Arc::new(Mutex::new(self.state.clone()))),
+                Json(request),
+            )
+            .await
+            .map_err(|(_, Json(err))| Error::ConnectorError(err))?
+            .0)
         }
     }
 

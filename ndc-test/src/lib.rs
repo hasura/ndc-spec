@@ -333,7 +333,10 @@ pub fn validate_capabilities(capabilities: &models::CapabilitiesResponse) -> Res
     let spec_version = semver::VersionReq::parse(format!("^{}", pkg_version).as_str())?;
     let claimed_version = semver::Version::parse(capabilities.version.as_str())?;
     if !spec_version.matches(&claimed_version) {
-        return Err(Error::IncompatibleSpecification(claimed_version, spec_version));
+        return Err(Error::IncompatibleSpecification(
+            claimed_version,
+            spec_version,
+        ));
     }
 
     Ok(())
@@ -444,10 +447,7 @@ pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> 
             validate_type(schema, underlying_type)?;
         }
         models::Type::Predicate { object_type_name } => {
-            if !schema
-                .object_types
-                .contains_key(object_type_name.as_str())
-            {
+            if !schema.object_types.contains_key(object_type_name.as_str()) {
                 return Err(Error::ObjectTypeIsNotDefined(object_type_name.clone()));
             }
         }
@@ -973,7 +973,7 @@ fn make_value_strategies(
             if !field_value.0.is_null() {
                 values
                     .entry(field_name.clone())
-                    .or_insert(vec![])
+                    .or_default()
                     .push(field_value.0.clone());
             }
         }
@@ -1088,7 +1088,9 @@ fn is_nullable_type(ty: &models::Type) -> bool {
         models::Type::Named { name: _ } => false,
         models::Type::Nullable { underlying_type: _ } => true,
         models::Type::Array { element_type: _ } => false,
-        models::Type::Predicate { object_type_name: _ } => false
+        models::Type::Predicate {
+            object_type_name: _,
+        } => false,
     }
 }
 
@@ -1097,7 +1099,9 @@ fn as_named_type(ty: &models::Type) -> Option<&String> {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => as_named_type(underlying_type),
         models::Type::Array { element_type: _ } => None,
-        models::Type::Predicate { object_type_name: _ } => None,
+        models::Type::Predicate {
+            object_type_name: _,
+        } => None,
     }
 }
 
@@ -1106,7 +1110,9 @@ fn get_named_type(ty: &models::Type) -> Option<&String> {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => get_named_type(underlying_type),
         models::Type::Array { element_type: _ } => None,
-        models::Type::Predicate { object_type_name: _ } => None
+        models::Type::Predicate {
+            object_type_name: _,
+        } => None,
     }
 }
 
@@ -1115,7 +1121,7 @@ fn make_order_by_elements_strategy(
     schema: &models::SchemaResponse,
 ) -> Option<impl Strategy<Value = Vec<models::OrderByElement>>> {
     let mut sortable_fields = BTreeMap::new();
-    
+
     for (field_name, field) in collection_type.fields.into_iter() {
         if let Some(name) = as_named_type(&field.r#type) {
             if schema.scalar_types.contains_key(name) {
@@ -1166,7 +1172,7 @@ fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, 
                 f.0.clone(),
                 models::Field::Column {
                     column: f.0.clone(),
-                    fields: None
+                    fields: None,
                 },
             )
         })
