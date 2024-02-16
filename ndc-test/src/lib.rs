@@ -3,6 +3,7 @@ pub mod connector;
 pub mod error;
 pub mod reporter;
 pub mod results;
+pub mod snapshot;
 pub mod test_cases;
 
 use std::cell::RefCell;
@@ -24,6 +25,7 @@ use rand::SeedableRng;
 use reporter::{Reporter, ReporterExt};
 use results::TestResults;
 use serde::de::DeserializeOwned;
+use snapshot::snapshot_test;
 
 #[async_trait]
 impl Connector for Configuration {
@@ -165,7 +167,7 @@ pub async fn test_snapshots_in_directory_with<
 
                             let response = f(request).await?;
 
-                            reporter.snapshot_test(snapshot_path, &response)
+                            snapshot_test(snapshot_path, &response)
                         },
                     )
                     .await;

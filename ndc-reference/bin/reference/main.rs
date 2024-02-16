@@ -2103,7 +2103,8 @@ mod tests {
     use goldenfile::Mint;
     use ndc_client::models;
     use ndc_test::{
-        configuration::TestConfiguration, connector::Connector, error::Error, reporter::ConsoleReporter, test_connector
+        configuration::TestConfiguration, connector::Connector, error::Error,
+        reporter::ConsoleReporter, test_connector,
     };
     use std::{
         fs::{self, File},

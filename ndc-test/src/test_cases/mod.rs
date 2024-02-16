@@ -7,6 +7,7 @@ use crate::configuration::TestConfiguration;
 use crate::connector::Connector;
 use crate::reporter::{Reporter, ReporterExt};
 use crate::results::TestResults;
+use crate::snapshot::snapshot_test;
 
 use super::error::Error;
 use indexmap::IndexMap;
@@ -29,10 +30,7 @@ pub async fn run_all_tests<C: Connector, R: Reporter>(
                 .test("Fetching /capabilities", results, async {
                     let response = connector.get_capabilities().await?;
                     for snapshots_dir in configuration.snapshots_dir.iter() {
-                        reporter.snapshot_test(
-                            snapshots_dir.join("capabilities").as_path(),
-                            &response,
-                        )?;
+                        snapshot_test(snapshots_dir.join("capabilities").as_path(), &response)?;
                     }
                     Ok(response)
                 })
@@ -54,8 +52,7 @@ pub async fn run_all_tests<C: Connector, R: Reporter>(
                 .test("Fetching schema", results, async {
                     let response = connector.get_schema().await?;
                     for snapshots_dir in configuration.snapshots_dir.iter() {
-                        reporter
-                            .snapshot_test(snapshots_dir.join("schema").as_path(), &response)?;
+                        snapshot_test(snapshots_dir.join("schema").as_path(), &response)?;
                     }
                     Ok(response)
                 })
@@ -315,13 +312,7 @@ async fn test_simple_queries<C: Connector, R: Reporter>(
         .test(
             "Select top N",
             results,
-            test_select_top_n_rows(
-                configuration,
-                connector,
-                reporter,
-                collection_type,
-                collection_info,
-            ),
+            test_select_top_n_rows(configuration, connector, collection_type, collection_info),
         )
         .await?;
 
@@ -335,7 +326,6 @@ async fn test_simple_queries<C: Connector, R: Reporter>(
                         test_select_top_n_rows_with_predicate(
                             configuration,
                             connector,
-                            reporter,
                             &predicate,
                             collection_type,
                             collection_info,
@@ -360,7 +350,6 @@ async fn test_simple_queries<C: Connector, R: Reporter>(
                     test_select_top_n_rows_with_sort(
                         configuration,
                         connector,
-                        reporter,
                         vec![order_by_element], // TODO
                         collection_type,
                         collection_info,
@@ -376,10 +365,9 @@ async fn test_simple_queries<C: Connector, R: Reporter>(
         .await
 }
 
-async fn test_select_top_n_rows<C: Connector, R: Reporter>(
+async fn test_select_top_n_rows<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    reporter: &R,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
 ) -> Result<Vec<IndexMap<String, models::RowFieldValue>>, Error> {
@@ -399,16 +387,14 @@ async fn test_select_top_n_rows<C: Connector, R: Reporter>(
         variables: None,
     };
 
-    let response =
-        execute_and_snapshot_query(configuration, connector, reporter, query_request).await?;
+    let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
 
     expect_single_rows(&response)
 }
 
-async fn test_select_top_n_rows_with_predicate<C: Connector, R: Reporter>(
+async fn test_select_top_n_rows_with_predicate<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    reporter: &R,
     predicate: &GeneratedExpression,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
@@ -430,8 +416,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector, R: Reporter>(
         variables: None,
     };
 
-    let response =
-        execute_and_snapshot_query(configuration, connector, reporter, query_request).await?;
+    let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
 
     if predicate.expect_nonempty {
         expect_single_non_empty_rows(&response)?;
@@ -440,10 +425,9 @@ async fn test_select_top_n_rows_with_predicate<C: Connector, R: Reporter>(
     Ok(response)
 }
 
-async fn test_select_top_n_rows_with_sort<C: Connector, R: Reporter>(
+async fn test_select_top_n_rows_with_sort<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    reporter: &R,
     elements: Vec<models::OrderByElement>,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
@@ -465,8 +449,7 @@ async fn test_select_top_n_rows_with_sort<C: Connector, R: Reporter>(
         variables: None,
     };
 
-    let response =
-        execute_and_snapshot_query(configuration, connector, reporter, query_request).await?;
+    let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
 
     expect_single_rows(&response)?;
 
@@ -499,7 +482,6 @@ async fn test_relationship_queries<C: Connector, R: Reporter>(
                         select_top_n_using_foreign_key(
                             configuration,
                             connector,
-                            reporter,
                             collection_type,
                             collection_info,
                             schema,
@@ -516,7 +498,6 @@ async fn test_relationship_queries<C: Connector, R: Reporter>(
                         select_top_n_using_foreign_key_as_array_relationship(
                             configuration,
                             connector,
-                            reporter,
                             collection_type,
                             collection_info,
                             schema,
@@ -534,10 +515,9 @@ async fn test_relationship_queries<C: Connector, R: Reporter>(
     Some(())
 }
 
-async fn select_top_n_using_foreign_key<C: Connector, R: Reporter>(
+async fn select_top_n_using_foreign_key<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    reporter: &R,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
     schema: &models::SchemaResponse,
@@ -603,8 +583,7 @@ async fn select_top_n_using_foreign_key<C: Connector, R: Reporter>(
             variables: None,
         };
 
-        let response =
-            execute_and_snapshot_query(configuration, connector, reporter, query_request).await?;
+        let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
 
         expect_single_rows(&response)?;
     } else {
@@ -614,10 +593,9 @@ async fn select_top_n_using_foreign_key<C: Connector, R: Reporter>(
     Ok(())
 }
 
-async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector, R: Reporter>(
+async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    reporter: &R,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
     schema: &models::SchemaResponse,
@@ -689,8 +667,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector, R: R
             variables: None,
         };
 
-        let response =
-            execute_and_snapshot_query(configuration, connector, reporter, query_request).await?;
+        let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
 
         expect_single_rows(&response)?;
     } else {
@@ -700,10 +677,9 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector, R: R
     Ok(())
 }
 
-async fn execute_and_snapshot_query<C: Connector, R: Reporter>(
+async fn execute_and_snapshot_query<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    reporter: &R,
     query_request: models::QueryRequest,
 ) -> Result<models::QueryResponse, Error> {
     use std::hash::Hash;
@@ -722,7 +698,7 @@ async fn execute_and_snapshot_query<C: Connector, R: Reporter>(
             builder
         };
 
-        reporter.snapshot_test(snapshot_subdir.join("expected.json").as_path(), &response)?;
+        snapshot_test(snapshot_subdir.join("expected.json").as_path(), &response)?;
 
         std::fs::write(snapshot_subdir.join("request.json").as_path(), request_json)
             .map_err(Error::CannotOpenSnapshotFile)?;
@@ -993,7 +969,7 @@ async fn test_aggregate_queries<C: Connector, R: Reporter>(
 
     let total_count = reporter
         .test("star_count", results, async {
-            test_star_count_aggregate(configuration, connector, reporter, collection_info).await
+            test_star_count_aggregate(configuration, connector, collection_info).await
         })
         .await?;
 
@@ -1002,7 +978,6 @@ async fn test_aggregate_queries<C: Connector, R: Reporter>(
             test_column_count_aggregate(
                 configuration,
                 connector,
-                reporter,
                 collection_info,
                 collection_type,
                 total_count,
@@ -1014,10 +989,9 @@ async fn test_aggregate_queries<C: Connector, R: Reporter>(
     Some(())
 }
 
-async fn test_star_count_aggregate<C: Connector, R: Reporter>(
+async fn test_star_count_aggregate<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    reporter: &R,
     collection_info: &models::CollectionInfo,
 ) -> Result<u64, Error> {
     let aggregates = IndexMap::from([("count".into(), models::Aggregate::StarCount {})]);
@@ -1035,8 +1009,7 @@ async fn test_star_count_aggregate<C: Connector, R: Reporter>(
         collection_relationships: BTreeMap::new(),
         variables: None,
     };
-    let response =
-        execute_and_snapshot_query(configuration, connector, reporter, query_request).await?;
+    let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
     if let [row_set] = &*response.0 {
         if row_set.rows.is_some() {
             return Err(Error::RowsShouldBeNullInRowSet);
@@ -1054,10 +1027,9 @@ async fn test_star_count_aggregate<C: Connector, R: Reporter>(
     }
 }
 
-async fn test_column_count_aggregate<C: Connector, R: Reporter>(
+async fn test_column_count_aggregate<C: Connector>(
     configuration: &TestConfiguration,
     connector: &C,
-    reporter: &R,
     collection_info: &models::CollectionInfo,
     collection_type: &models::ObjectType,
     total_count: u64,
@@ -1092,8 +1064,7 @@ async fn test_column_count_aggregate<C: Connector, R: Reporter>(
         collection_relationships: BTreeMap::new(),
         variables: None,
     };
-    let response =
-        execute_and_snapshot_query(configuration, connector, reporter, query_request).await?;
+    let response = execute_and_snapshot_query(configuration, connector, query_request).await?;
     if let [row_set] = &*response.0 {
         if row_set.rows.is_some() {
             return Err(Error::RowsShouldBeNullInRowSet);
