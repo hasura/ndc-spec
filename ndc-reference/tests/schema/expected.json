@@ -215,9 +215,7 @@
       "type": "article",
       "uniqueness_constraints": {
         "ArticleByID": {
-          "unique_columns": [
-            "id"
-          ]
+          "unique_columns": ["id"]
         }
       },
       "foreign_keys": {
@@ -236,9 +234,7 @@
       "type": "author",
       "uniqueness_constraints": {
         "AuthorByID": {
-          "unique_columns": [
-            "id"
-          ]
+          "unique_columns": ["id"]
         }
       },
       "foreign_keys": {}
@@ -250,9 +246,7 @@
       "type": "institution",
       "uniqueness_constraints": {
         "InstitutionByID": {
-          "unique_columns": [
-            "id"
-          ]
+          "unique_columns": ["id"]
         }
       },
       "foreign_keys": {}
@@ -291,13 +285,10 @@
       "description": "Get the most recent article",
       "arguments": {},
       "result_type": {
-        "type": "array",
-        "element_type": {
-          "type": "nullable",
-          "underlying_type": {
-            "type": "named",
-            "name": "article"
-          }
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "article"
         }
       }
     }
