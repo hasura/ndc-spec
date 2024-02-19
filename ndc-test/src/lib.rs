@@ -21,6 +21,8 @@ use ndc_client::apis::configuration::Configuration;
 use ndc_client::apis::default_api as api;
 use ndc_client::models::{self};
 
+use error::Result;
+
 use rand::SeedableRng;
 use reporter::{Reporter, ReporterExt};
 use results::TestResults;
@@ -29,22 +31,22 @@ use snapshot::snapshot_test;
 
 #[async_trait]
 impl Connector for Configuration {
-    async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse, Error> {
+    async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
         Ok(api::capabilities_get(self).await?)
     }
 
-    async fn get_schema(&self) -> Result<models::SchemaResponse, Error> {
+    async fn get_schema(&self) -> Result<models::SchemaResponse> {
         Ok(api::schema_get(self).await?)
     }
 
-    async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse, Error> {
+    async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse> {
         Ok(api::query_post(self, request).await?)
     }
 
     async fn mutation(
         &self,
         request: models::MutationRequest,
-    ) -> Result<models::MutationResponse, Error> {
+    ) -> Result<models::MutationResponse> {
         Ok(api::mutation_post(self, request).await?)
     }
 }
@@ -138,7 +140,7 @@ pub async fn test_snapshots_in_directory_with<
     R: Reporter,
     Req: DeserializeOwned,
     Res: DeserializeOwned + serde::Serialize + PartialEq,
-    F: Future<Output = Result<Res, Error>>,
+    F: Future<Output = Result<Res>>,
 >(
     reporter: &R,
     snapshots_dir: PathBuf,

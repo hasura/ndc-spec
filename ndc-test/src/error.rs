@@ -61,3 +61,23 @@ impl From<rand::Error> for Error {
         Error::StrategyError(value)
     }
 }
+
+impl From<ndc_client::apis::Error> for Box<Error> {
+    fn from(value: ndc_client::apis::Error) -> Self {
+        Box::new(Error::CommunicationError(value))
+    }
+}
+
+impl From<semver::Error> for Box<Error> {
+    fn from(value: semver::Error) -> Self {
+        Box::new(Error::SemverError(value))
+    }
+}
+
+impl From<Box<dyn std::error::Error>> for Box<Error> {
+    fn from(value: Box<dyn std::error::Error>) -> Self {
+        Box::new(Error::OtherError(value))
+    }
+}
+
+pub type Result<A> = core::result::Result<A, Error>;

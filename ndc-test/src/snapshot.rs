@@ -1,8 +1,8 @@
 use std::{fs::File, path::Path};
 
-use crate::error::Error;
+use crate::error::{Error, Result};
 
-pub fn snapshot_test<R>(snapshot_path: &Path, expected: &R) -> Result<(), Error>
+pub fn snapshot_test<R>(snapshot_path: &Path, expected: &R) -> Result<()>
 where
     R: serde::Serialize + serde::de::DeserializeOwned + PartialEq,
 {

@@ -853,7 +853,7 @@ fn eval_row(
 // ANCHOR: eval_aggregate
 fn eval_aggregate(
     aggregate: &models::Aggregate,
-    paginated: &Vec<BTreeMap<String, serde_json::Value>>,
+    paginated: &[BTreeMap<String, serde_json::Value>],
 ) -> Result<serde_json::Value> {
     match aggregate {
         models::Aggregate::StarCount {} => Ok(serde_json::Value::from(paginated.len())),

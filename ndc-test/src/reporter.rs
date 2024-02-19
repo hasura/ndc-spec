@@ -1,12 +1,12 @@
 use async_trait::async_trait;
 
-use crate::results::FailedTest;
-use crate::{error::Error, results::TestResults};
+use crate::error::Result;
+use crate::results::{FailedTest, TestResults};
 use std::cell::RefCell;
 use std::future::Future;
 
 pub trait Reporter {
-    fn enter(&self, name: &str, path: &Vec<String>);
+    fn enter(&self, name: &str, path: &[String]);
     fn exit(&self);
     fn success(&self);
     fn failure(&self, err: &crate::error::Error);
@@ -16,7 +16,7 @@ pub trait Reporter {
 pub struct ConsoleReporter;
 
 impl Reporter for ConsoleReporter {
-    fn enter(&self, name: &str, path: &Vec<String>) {
+    fn enter(&self, name: &str, path: &[String]) {
         let level: usize = path.len();
         let spaces = "│ ".repeat(level);
         print!("{spaces}├ {name} ...");
@@ -39,15 +39,12 @@ impl Reporter for ConsoleReporter {
 
 #[async_trait(?Send)]
 pub trait ReporterExt: Reporter {
-    async fn test<A, F: Future<Output = Result<A, Error>>>(
+    async fn test<A, F: Future<Output = Result<A>>>(
         &self,
         name: &str,
         results: &RefCell<TestResults>,
         f: F,
-    ) -> Option<A>
-    where
-        A: serde::Serialize + serde::de::DeserializeOwned + PartialEq,
-    {
+    ) -> Option<A> {
         {
             let mut results_mut = results.borrow_mut();
             self.enter(name, &results_mut.path);
@@ -67,12 +64,12 @@ pub trait ReporterExt: Reporter {
         results_mut.path.pop();
 
         match result {
-            Err(err) => {
+            Err(error) => {
                 let path = results_mut.path.clone();
                 results_mut.failures.push(FailedTest {
                     path,
                     name: name.into(),
-                    error: err,
+                    error,
                 });
                 None
             }
