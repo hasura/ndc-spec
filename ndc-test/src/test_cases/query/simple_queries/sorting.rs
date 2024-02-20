@@ -3,10 +3,9 @@ use std::{collections::BTreeMap, ops::Range};
 use ndc_client::models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
-use crate::{configuration::TestConfiguration, connector::Connector, error::Result};
+use crate::{connector::Connector, error::Result};
 
 pub async fn test_sorting<C: Connector>(
-    configuration: &TestConfiguration,
     connector: &C,
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
@@ -18,7 +17,6 @@ pub async fn test_sorting<C: Connector>(
             make_order_by_elements(collection_type.clone(), schema, rng, 1..3)
         {
             test_select_top_n_rows_with_sort(
-                configuration,
                 connector,
                 order_by_elements, // TODO
                 collection_type,
@@ -78,7 +76,6 @@ fn make_order_by_elements(
 }
 
 async fn test_select_top_n_rows_with_sort<C: Connector>(
-    configuration: &TestConfiguration,
     connector: &C,
     elements: Vec<models::OrderByElement>,
     collection_type: &models::ObjectType,
@@ -101,9 +98,7 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
         variables: None,
     };
 
-    let response =
-        super::super::snapshot::execute_and_snapshot_query(configuration, connector, query_request)
-            .await?;
+    let response = connector.query(query_request).await?;
 
     super::super::expectations::expect_single_rows(&response)?;
 

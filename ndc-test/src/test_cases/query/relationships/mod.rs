@@ -1,7 +1,6 @@
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 
-use crate::configuration::TestConfiguration;
 use crate::connector::Connector;
 use crate::error::Error;
 use crate::error::Result;
@@ -11,7 +10,6 @@ use crate::results::TestResults;
 use ndc_client::models::{self};
 
 pub async fn test_relationship_queries<C: Connector, R: Reporter>(
-    configuration: &TestConfiguration,
     connector: &C,
     reporter: &R,
     results: &RefCell<TestResults>,
@@ -34,7 +32,6 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         "Object relationship",
                         results,
                         select_top_n_using_foreign_key(
-                            configuration,
                             connector,
                             collection_type,
                             collection_info,
@@ -50,7 +47,6 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         "Array relationship",
                         results,
                         select_top_n_using_foreign_key_as_array_relationship(
-                            configuration,
                             connector,
                             collection_type,
                             collection_info,
@@ -70,7 +66,6 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
 }
 
 async fn select_top_n_using_foreign_key<C: Connector>(
-    configuration: &TestConfiguration,
     connector: &C,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
@@ -137,9 +132,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
             variables: None,
         };
 
-        let response =
-            super::snapshot::execute_and_snapshot_query(configuration, connector, query_request)
-                .await?;
+        let response = connector.query(query_request).await?;
 
         super::expectations::expect_single_rows(&response)?;
     } else {
@@ -150,7 +143,6 @@ async fn select_top_n_using_foreign_key<C: Connector>(
 }
 
 async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
-    configuration: &TestConfiguration,
     connector: &C,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
@@ -223,9 +215,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
             variables: None,
         };
 
-        let response =
-            super::snapshot::execute_and_snapshot_query(configuration, connector, query_request)
-                .await?;
+        let response = connector.query(query_request).await?;
 
         super::expectations::expect_single_rows(&response)?;
     } else {

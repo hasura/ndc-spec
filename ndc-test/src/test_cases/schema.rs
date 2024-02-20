@@ -1,27 +1,18 @@
 use super::super::error::Error;
-use crate::configuration::TestConfiguration;
 use crate::connector::Connector;
 use crate::error::Result;
 use crate::reporter::{Reporter, ReporterExt};
 use crate::results::TestResults;
-use crate::snapshot::snapshot_test;
 use ndc_client::models;
 use std::cell::RefCell;
 
 pub async fn test_schema<C: Connector, R: Reporter>(
-    configuration: &TestConfiguration,
     connector: &C,
     reporter: &R,
     results: &RefCell<TestResults>,
 ) -> Option<models::SchemaResponse> {
     let schema = reporter
-        .test("Fetching schema", results, async {
-            let response = connector.get_schema().await?;
-            for snapshots_dir in configuration.snapshots_dir.iter() {
-                snapshot_test(snapshots_dir.join("schema").as_path(), &response)?;
-            }
-            Ok(response)
-        })
+        .test("Fetching schema", results, connector.get_schema())
         .await?;
 
     reporter

@@ -2246,7 +2246,7 @@ mod tests {
         state: crate::AppState,
     }
 
-    #[async_trait]
+    #[async_trait(?Send)]
     impl Connector for Reference {
         async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse, Error> {
             Ok(get_capabilities().await.0)
