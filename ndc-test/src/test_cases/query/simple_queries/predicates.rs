@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 
-use crate::configuration::TestConfiguration;
 use crate::connector::Connector;
 use crate::error::{Error, Result};
 
@@ -10,7 +9,6 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 
 pub async fn test_predicates<C: Connector>(
-    configuration: &TestConfiguration,
     connector: &C,
     context: Option<super::super::context::Context<'_>>,
     schema: &models::SchemaResponse,
@@ -22,7 +20,6 @@ pub async fn test_predicates<C: Connector>(
         for _ in 0..10 {
             if let Some(predicate) = make_predicate(schema, &context, rng)? {
                 test_select_top_n_rows_with_predicate(
-                    configuration,
                     connector,
                     &predicate,
                     collection_type,
@@ -96,7 +93,11 @@ pub fn make_predicate(
                     }
                     models::ComparisonOperatorDefinition::In => {
                         let value_count = rng.gen_range(0..3);
-                        let values: rand::seq::SliceChooseIter<'_, [serde_json::Value], serde_json::Value> = values.choose_multiple(rng, value_count);
+                        let values: rand::seq::SliceChooseIter<
+                            '_,
+                            [serde_json::Value],
+                            serde_json::Value,
+                        > = values.choose_multiple(rng, value_count);
 
                         expressions.push(GeneratedExpression {
                             expr: models::Expression::BinaryComparisonOperator {
@@ -126,7 +127,6 @@ pub fn make_predicate(
 }
 
 async fn test_select_top_n_rows_with_predicate<C: Connector>(
-    configuration: &TestConfiguration,
     connector: &C,
     predicate: &GeneratedExpression,
     collection_type: &models::ObjectType,
@@ -149,9 +149,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
         variables: None,
     };
 
-    let response =
-        super::super::snapshot::execute_and_snapshot_query(configuration, connector, query_request)
-            .await?;
+    let response = connector.query(query_request).await?;
 
     if predicate.expect_nonempty {
         super::super::expectations::expect_single_non_empty_rows(&response)?;

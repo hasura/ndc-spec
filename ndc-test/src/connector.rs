@@ -3,7 +3,7 @@ use ndc_client::models;
 
 use crate::error::Result;
 
-#[async_trait]
+#[async_trait(?Send)]
 pub trait Connector {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse>;
 

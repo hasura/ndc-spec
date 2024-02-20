@@ -4,7 +4,6 @@ mod sorting;
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 
-use crate::configuration::TestConfiguration;
 use crate::connector::Connector;
 use crate::error::Result;
 use crate::reporter::{Reporter, ReporterExt};
@@ -16,7 +15,6 @@ use indexmap::IndexMap;
 use rand::rngs::SmallRng;
 
 pub async fn test_simple_queries<C: Connector, R: Reporter>(
-    configuration: &TestConfiguration,
     connector: &C,
     reporter: &R,
     rng: &mut SmallRng,
@@ -30,9 +28,7 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
 
     let context = reporter
         .test("Select top N", results, async {
-            let rows =
-                test_select_top_n_rows(configuration, connector, collection_type, collection_info)
-                    .await?;
+            let rows = test_select_top_n_rows(connector, collection_type, collection_info).await?;
 
             super::context::make_context(collection_type, rows)
         })
@@ -43,7 +39,6 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
             "Predicates",
             results,
             predicates::test_predicates(
-                configuration,
                 connector,
                 context,
                 schema,
@@ -58,20 +53,12 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
         .test(
             "Sorting",
             results,
-            sorting::test_sorting(
-                configuration,
-                connector,
-                schema,
-                rng,
-                collection_type,
-                collection_info,
-            ),
+            sorting::test_sorting(connector, schema, rng, collection_type, collection_info),
         )
         .await
 }
 
 async fn test_select_top_n_rows<C: Connector>(
-    configuration: &TestConfiguration,
     connector: &C,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
@@ -92,9 +79,7 @@ async fn test_select_top_n_rows<C: Connector>(
         variables: None,
     };
 
-    let response =
-        super::snapshot::execute_and_snapshot_query(configuration, connector, query_request)
-            .await?;
+    let response = connector.query(query_request).await?;
 
     super::expectations::expect_single_rows(&response)
 }

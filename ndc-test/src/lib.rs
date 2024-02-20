@@ -27,9 +27,9 @@ use rand::SeedableRng;
 use reporter::{Reporter, ReporterExt};
 use results::TestResults;
 use serde::de::DeserializeOwned;
-use snapshot::snapshot_test;
+use snapshot::{snapshot_test, SnapshottingConnector};
 
-#[async_trait]
+#[async_trait(?Send)]
 impl Connector for Configuration {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
         Ok(api::capabilities_get(self).await?)
@@ -43,10 +43,7 @@ impl Connector for Configuration {
         Ok(api::query_post(self, request).await?)
     }
 
-    async fn mutation(
-        &self,
-        request: models::MutationRequest,
-    ) -> Result<models::MutationResponse> {
+    async fn mutation(&self, request: models::MutationRequest) -> Result<models::MutationResponse> {
         Ok(api::mutation_post(self, request).await?)
     }
 }
@@ -86,7 +83,21 @@ pub async fn test_connector<C: Connector, R: Reporter>(
         Some(seed) => rand::rngs::SmallRng::from_seed(seed),
     };
 
-    let _ = test_cases::run_all_tests(configuration, connector, reporter, &mut rng, &results).await;
+    let _ = match &configuration.snapshots_dir {
+        None => test_cases::run_all_tests(connector, reporter, &mut rng, &results).await,
+        Some(snapshot_path) => {
+            test_cases::run_all_tests(
+                &SnapshottingConnector {
+                    snapshot_path,
+                    connector,
+                },
+                reporter,
+                &mut rng,
+                &results,
+            )
+            .await
+        }
+    };
 
     results.into_inner()
 }

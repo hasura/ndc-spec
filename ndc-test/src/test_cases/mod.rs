@@ -4,7 +4,6 @@ mod schema;
 
 use std::cell::RefCell;
 
-use crate::configuration::TestConfiguration;
 use crate::connector::Connector;
 use crate::reporter::{Reporter, ReporterExt};
 use crate::results::TestResults;
@@ -12,7 +11,6 @@ use crate::results::TestResults;
 use rand::rngs::SmallRng;
 
 pub async fn run_all_tests<C: Connector, R: Reporter>(
-    configuration: &TestConfiguration,
     connector: &C,
     reporter: &R,
     rng: &mut SmallRng,
@@ -22,7 +20,7 @@ pub async fn run_all_tests<C: Connector, R: Reporter>(
         .nest(
             "Capabilities",
             results,
-            capabilities::test_capabilities(configuration, connector, reporter, results),
+            capabilities::test_capabilities(connector, reporter, results),
         )
         .await?;
 
@@ -30,7 +28,7 @@ pub async fn run_all_tests<C: Connector, R: Reporter>(
         .nest(
             "Schema",
             results,
-            schema::test_schema(configuration, connector, reporter, results),
+            schema::test_schema(connector, reporter, results),
         )
         .await?;
 
@@ -39,7 +37,6 @@ pub async fn run_all_tests<C: Connector, R: Reporter>(
             "Query",
             results,
             query::test_query(
-                configuration,
                 connector,
                 reporter,
                 &capabilities,
