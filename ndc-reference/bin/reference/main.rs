@@ -853,7 +853,7 @@ fn eval_row(
 // ANCHOR: eval_aggregate
 fn eval_aggregate(
     aggregate: &models::Aggregate,
-    paginated: &Vec<BTreeMap<String, serde_json::Value>>,
+    paginated: &[BTreeMap<String, serde_json::Value>],
 ) -> Result<serde_json::Value> {
     match aggregate {
         models::Aggregate::StarCount {} => Ok(serde_json::Value::from(paginated.len())),
@@ -1589,7 +1589,7 @@ fn eval_in_collection(
                 relationship,
                 arguments,
                 &source,
-                &None
+                &None,
             )
         }
         models::ExistsInCollection::Unrelated {
@@ -1789,7 +1789,7 @@ fn eval_field(
                 relationship,
                 arguments,
                 &source,
-                &None
+                &None,
             )?;
             let rows = execute_query(
                 collection_relationships,
@@ -2102,7 +2102,10 @@ mod tests {
     use axum::{extract::State, Json};
     use goldenfile::Mint;
     use ndc_client::models;
-    use ndc_test::{test_connector, Connector, Error, TestConfiguration};
+    use ndc_test::{
+        configuration::TestConfiguration, connector::Connector, error::Error,
+        reporter::ConsoleReporter, test_connector,
+    };
     use std::{
         fs::{self, File},
         io::Write,
@@ -2285,7 +2288,7 @@ mod tests {
             let connector = Reference {
                 state: Arc::new(Mutex::new(init_app_state())),
             };
-            let results = test_connector(&configuration, &connector).await;
+            let results = test_connector(&configuration, &connector, &ConsoleReporter).await;
             assert!(results.failures.is_empty());
         });
     }

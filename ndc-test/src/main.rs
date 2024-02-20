@@ -2,7 +2,7 @@ use std::{path::PathBuf, process::exit};
 
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
-use ndc_test::{report, TestConfiguration};
+use ndc_test::{configuration::TestConfiguration, report, reporter::ConsoleReporter};
 use reqwest::header::HeaderMap;
 
 #[derive(Parser)]
@@ -39,9 +39,7 @@ async fn main() {
             seed,
             snapshots_dir,
         } => {
-            let seed: Option<[u8; 32]> = seed.map(|seed| {
-                seed.as_bytes().try_into().unwrap()
-            });
+            let seed: Option<[u8; 32]> = seed.map(|seed| seed.as_bytes().try_into().unwrap());
 
             let test_configuration = TestConfiguration {
                 seed,
@@ -55,7 +53,9 @@ async fn main() {
                 headers: HeaderMap::new(),
             };
 
-            let results = ndc_test::test_connector(&test_configuration, &configuration).await;
+            let results =
+                ndc_test::test_connector(&test_configuration, &configuration, &ConsoleReporter)
+                    .await;
 
             if !results.failures.is_empty() {
                 println!();
@@ -75,8 +75,12 @@ async fn main() {
                 headers: HeaderMap::new(),
             };
 
-            let results =
-                ndc_test::test_snapshots_in_directory(&configuration, snapshots_dir).await;
+            let results = ndc_test::test_snapshots_in_directory(
+                &configuration,
+                &ConsoleReporter,
+                snapshots_dir,
+            )
+            .await;
 
             if !results.failures.is_empty() {
                 println!();
