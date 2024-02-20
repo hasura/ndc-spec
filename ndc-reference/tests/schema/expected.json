@@ -291,13 +291,10 @@
       "description": "Get the most recent article",
       "arguments": {},
       "result_type": {
-        "type": "array",
-        "element_type": {
-          "type": "nullable",
-          "underlying_type": {
-            "type": "named",
-            "name": "article"
-          }
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "article"
         }
       }
     }

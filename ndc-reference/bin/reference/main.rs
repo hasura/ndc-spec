@@ -574,11 +574,9 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     let latest_article_function = models::FunctionInfo {
         name: "latest_article".into(),
         description: Some("Get the most recent article".into()),
-        result_type: models::Type::Array {
-            element_type: Box::new(models::Type::Nullable {
-                underlying_type: Box::new(models::Type::Named {
-                    name: "article".into(),
-                }),
+        result_type: models::Type::Nullable {
+            underlying_type: Box::new(models::Type::Named {
+                name: "article".into(),
             }),
         },
         arguments: BTreeMap::new(),
