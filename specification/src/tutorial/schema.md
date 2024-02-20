@@ -90,6 +90,12 @@ As an example, we define a `latest_article_id` function, which returns a single 
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_function_latest_article_id}}
 ```
 
+A second example returns the full corresponding article, to illustrate functions returning structured types:
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-reference/bin/reference/main.rs:schema_function_latest_article}}
+```
+
 ## Procedures
 
 The schema defines a list of [procedures](../specification/schema/procedures.md), each including its input and output [types](../specification/types.md).

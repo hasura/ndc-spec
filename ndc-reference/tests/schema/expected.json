@@ -285,6 +285,18 @@
           "name": "Int"
         }
       }
+    },
+    {
+      "name": "latest_article",
+      "description": "Get the most recent article",
+      "arguments": {},
+      "result_type": {
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "article"
+        }
+      }
     }
   ],
   "procedures": [

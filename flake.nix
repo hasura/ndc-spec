@@ -2,12 +2,21 @@
   description = "ndc-spec";
 
   inputs = {
-    flake-utils.url = github:numtide/flake-utils;
-    nixpkgs.url = github:NixOS/nixpkgs/master;
+    flake-utils.url = "github:numtide/flake-utils";
+
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
+
     crane = {
-      url = github:ipetkov/crane;
-      inputs.flake-utils.follows = "flake-utils";
+      url = "github:ipetkov/crane";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
     };
   };
 
@@ -16,11 +25,17 @@
     , flake-utils
     , nixpkgs
     , crane
+    , rust-overlay
     }:
     flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = import nixpkgs { inherit system; };
-      craneLib = crane.lib.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ rust-overlay.overlays.default ];
+      };
+
+      rustToolchain = pkgs.pkgsBuildHost.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+      craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
 
       buildDependencies =
         [
@@ -29,7 +44,9 @@
         ];
       runtimeDependencies =
         pkgs.lib.optionals pkgs.stdenv.isDarwin [
+          pkgs.darwin.apple_sdk.frameworks.CoreFoundation
           pkgs.darwin.apple_sdk.frameworks.Security
+          pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
           pkgs.libiconv
         ];
 
@@ -70,14 +87,11 @@
 
       devShells.default = pkgs.mkShell {
         nativeBuildInputs = [
-          pkgs.cargo
           pkgs.cargo-edit
           pkgs.cargo-machete
-          pkgs.clippy
-          pkgs.rust-analyzer
-          pkgs.rustPlatform.rustcSrc
-          pkgs.rustc
-          pkgs.rustfmt
+          pkgs.cargo-nextest
+          pkgs.cargo-watch
+          rustToolchain
 
           pkgs.just
           pkgs.mdbook

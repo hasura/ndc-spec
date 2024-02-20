@@ -642,8 +642,8 @@ pub enum MutationOperation {
         name: String,
         /// Any named procedure arguments
         arguments: BTreeMap<String, serde_json::Value>,
-        /// The fields to return
-        fields: Option<IndexMap<String, Field>>,
+        /// The fields to return from the result, or null to return everything
+        fields: Option<NestedField>,
     },
 }
 // ANCHOR_END: MutationOperation
@@ -705,14 +705,11 @@ pub struct MutationResponse {
 // ANCHOR_END: MutationResponse
 
 // ANCHOR: MutationOperationResults
-#[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Mutation Operation Results")]
-pub struct MutationOperationResults {
-    /// The number of rows affected by the mutation operation
-    pub affected_rows: u32,
-    /// The rows affected by the mutation operation
-    pub returning: Option<Vec<IndexMap<String, RowFieldValue>>>,
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum MutationOperationResults {
+    Procedure { result: serde_json::Value },
 }
 // ANCHOR_END: MutationOperationResults
 

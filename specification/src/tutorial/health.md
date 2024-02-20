@@ -2,7 +2,7 @@
 
 ## Service Health
 
-The `/healthz` endpoint has nothing to check, because the reference implementation does not need to connect to any other services. Therefore, once the reference implementation is running, it can always report a healthy status:
+The `/health` endpoint has nothing to check, because the reference implementation does not need to connect to any other services. Therefore, once the reference implementation is running, it can always report a healthy status:
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:health}}
