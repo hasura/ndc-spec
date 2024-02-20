@@ -14,13 +14,13 @@ pub struct SnapshottingConnector<'a, C: Connector> {
 impl <'a, C: Connector> Connector for SnapshottingConnector<'a, C> {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
         let response: models::CapabilitiesResponse = self.connector.get_capabilities().await?;
-        snapshot_test(&self.snapshot_path.join("capabilities").as_path(), &response)?;
+        snapshot_test(self.snapshot_path.join("capabilities").as_path(), &response)?;
         Ok(response)
     }
 
     async fn get_schema(&self) -> Result<models::SchemaResponse> {
         let response = self.connector.get_schema().await?;
-        snapshot_test(&self.snapshot_path.join("schema").as_path(), &response)?;
+        snapshot_test(self.snapshot_path.join("schema").as_path(), &response)?;
         Ok(response)
     }
 
