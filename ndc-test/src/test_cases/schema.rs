@@ -8,7 +8,7 @@ use crate::snapshot::snapshot_test;
 use ndc_client::models;
 use std::cell::RefCell;
 
-pub(crate) async fn test_schema<C: Connector, R: Reporter>(
+pub async fn test_schema<C: Connector, R: Reporter>(
     configuration: &TestConfiguration,
     connector: &C,
     reporter: &R,

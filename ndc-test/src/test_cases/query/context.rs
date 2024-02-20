@@ -9,12 +9,12 @@ use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
 
 #[derive(Clone, Debug)]
-pub(crate) struct Context<'a> {
-    pub(crate) collection_type: &'a models::ObjectType,
-    pub(crate) values: BTreeMap<String, Vec<serde_json::Value>>,
+pub struct Context<'a> {
+    pub collection_type: &'a models::ObjectType,
+    pub values: BTreeMap<String, Vec<serde_json::Value>>,
 }
 
-pub(crate) fn make_context(
+pub fn make_context(
     collection_type: &models::ObjectType,
     rows: Vec<IndexMap<String, models::RowFieldValue>>,
 ) -> Result<Option<Context>> {
@@ -50,13 +50,12 @@ impl<'a> Context<'a> {
         self: &'a Context<'a>,
         rng: &mut SmallRng,
     ) -> Result<(String, Vec<serde_json::Value>)> {
-        let (field_name, values) = self
+        let (field_name, values) = *self
             .values
             .iter()
             .collect::<Vec<_>>()
             .choose(rng)
-            .ok_or(Error::ExpectedNonEmptyRows)?
-            .clone();
+            .ok_or(Error::ExpectedNonEmptyRows)?;
 
         Ok((field_name.clone(), values.clone()))
     }

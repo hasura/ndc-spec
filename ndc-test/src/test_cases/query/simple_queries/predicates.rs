@@ -39,12 +39,12 @@ pub async fn test_predicates<C: Connector>(
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct GeneratedExpression {
-    pub(crate) expr: models::Expression,
-    pub(crate) expect_nonempty: bool,
+pub struct GeneratedExpression {
+    pub expr: models::Expression,
+    pub expect_nonempty: bool,
 }
 
-pub(crate) fn make_predicate(
+pub fn make_predicate(
     schema: &models::SchemaResponse,
     context: &super::super::context::Context,
     rng: &mut SmallRng,

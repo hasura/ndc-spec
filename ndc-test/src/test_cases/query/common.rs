@@ -17,7 +17,7 @@ pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<Stri
         .collect::<IndexMap<String, models::Field>>()
 }
 
-pub(crate) fn is_nullable_type(ty: &models::Type) -> bool {
+pub fn is_nullable_type(ty: &models::Type) -> bool {
     match ty {
         models::Type::Named { name: _ } => false,
         models::Type::Nullable { underlying_type: _ } => true,
@@ -28,7 +28,7 @@ pub(crate) fn is_nullable_type(ty: &models::Type) -> bool {
     }
 }
 
-pub(crate) fn as_named_type(ty: &models::Type) -> Option<&String> {
+pub fn as_named_type(ty: &models::Type) -> Option<&String> {
     match ty {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => as_named_type(underlying_type),
@@ -39,7 +39,7 @@ pub(crate) fn as_named_type(ty: &models::Type) -> Option<&String> {
     }
 }
 
-pub(crate) fn get_named_type(ty: &models::Type) -> Option<&String> {
+pub fn get_named_type(ty: &models::Type) -> Option<&String> {
     match ty {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => get_named_type(underlying_type),
