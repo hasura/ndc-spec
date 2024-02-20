@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use crate::error::Error;
 use crate::error::Result;
 
@@ -7,22 +9,16 @@ use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
 
 #[derive(Clone, Debug)]
-pub(crate) struct GeneratedValue {
-    pub(crate) field_name: String,
-    pub(crate) value: serde_json::Value,
-}
-
-#[derive(Clone, Debug)]
 pub(crate) struct Context<'a> {
     pub(crate) collection_type: &'a models::ObjectType,
-    pub(crate) values: Vec<GeneratedValue>,
+    pub(crate) values: BTreeMap<String, Vec<serde_json::Value>>,
 }
 
 pub(crate) fn make_context(
     collection_type: &models::ObjectType,
     rows: Vec<IndexMap<String, models::RowFieldValue>>,
 ) -> Result<Option<Context>> {
-    let mut values = vec![];
+    let mut values = BTreeMap::new();
 
     for row in rows {
         for (field_name, _) in collection_type.fields.iter() {
@@ -32,10 +28,10 @@ pub(crate) fn make_context(
         }
 
         for (field_name, field_value) in row {
-            values.push(GeneratedValue {
-                field_name,
-                value: field_value.0,
-            });
+            values
+                .entry(field_name.clone())
+                .or_insert(vec![])
+                .push(field_value.0);
         }
     }
 
@@ -50,7 +46,18 @@ pub(crate) fn make_context(
 }
 
 impl<'a> Context<'a> {
-    pub fn make_value(self: &'a Context<'a>, rng: &mut SmallRng) -> Result<&'a GeneratedValue> {
-        self.values.choose(rng).ok_or(Error::ExpectedNonEmptyRows)
+    pub fn choose_field(
+        self: &'a Context<'a>,
+        rng: &mut SmallRng,
+    ) -> Result<(String, Vec<serde_json::Value>)> {
+        let (field_name, values) = self
+            .values
+            .iter()
+            .collect::<Vec<_>>()
+            .choose(rng)
+            .ok_or(Error::ExpectedNonEmptyRows)?
+            .clone();
+
+        Ok((field_name.clone(), values.clone()))
     }
 }

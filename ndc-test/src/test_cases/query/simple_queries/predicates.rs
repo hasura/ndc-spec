@@ -7,6 +7,7 @@ use crate::error::{Error, Result};
 use ndc_client::models;
 use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
+use rand::Rng;
 
 pub async fn test_predicates<C: Connector>(
     configuration: &TestConfiguration,
@@ -48,12 +49,13 @@ pub(crate) fn make_predicate(
     context: &super::super::context::Context,
     rng: &mut SmallRng,
 ) -> Result<Option<GeneratedExpression>> {
-    let value = context.make_value(rng)?;
+    let (field_name, values) = context.choose_field(rng)?;
+
     let field_type = &context
         .collection_type
         .fields
-        .get(value.field_name.as_str())
-        .ok_or(Error::UnexpectedField(value.field_name.clone()))?
+        .get(field_name.as_str())
+        .ok_or(Error::UnexpectedField(field_name.clone()))?
         .r#type;
 
     let mut expressions: Vec<GeneratedExpression> = vec![];
@@ -62,7 +64,7 @@ pub(crate) fn make_predicate(
         expressions.push(GeneratedExpression {
             expr: models::Expression::UnaryComparisonOperator {
                 column: models::ComparisonTarget::Column {
-                    name: value.field_name.clone(),
+                    name: field_name.clone(),
                     path: vec![],
                 },
                 operator: models::UnaryComparisonOperator::IsNull,
@@ -76,33 +78,38 @@ pub(crate) fn make_predicate(
             for (operator_name, operator) in field_scalar_type.comparison_operators.iter() {
                 match operator {
                     models::ComparisonOperatorDefinition::Equal => {
+                        let value = values.choose(rng).ok_or(Error::ExpectedNonEmptyRows)?;
+
                         expressions.push(GeneratedExpression {
                             expr: models::Expression::BinaryComparisonOperator {
                                 column: models::ComparisonTarget::Column {
-                                    name: value.field_name.clone(),
+                                    name: field_name.clone(),
                                     path: vec![],
                                 },
                                 operator: operator_name.clone(),
                                 value: models::ComparisonValue::Scalar {
-                                    value: value.value.clone(),
+                                    value: value.clone(),
                                 },
                             },
                             expect_nonempty: true,
                         });
                     }
                     models::ComparisonOperatorDefinition::In => {
+                        let value_count = rng.gen_range(0..3);
+                        let values: rand::seq::SliceChooseIter<'_, [serde_json::Value], serde_json::Value> = values.choose_multiple(rng, value_count);
+
                         expressions.push(GeneratedExpression {
                             expr: models::Expression::BinaryComparisonOperator {
                                 column: models::ComparisonTarget::Column {
-                                    name: value.field_name.clone(),
+                                    name: field_name.clone(),
                                     path: vec![],
                                 },
                                 operator: operator_name.clone(),
                                 value: models::ComparisonValue::Scalar {
-                                    value: serde_json::Value::Array(vec![value.value.clone()]), // TODO
+                                    value: serde_json::Value::Array(values.cloned().collect()),
                                 },
                             },
-                            expect_nonempty: true,
+                            expect_nonempty: value_count > 0,
                         });
                     }
                     _ => {}

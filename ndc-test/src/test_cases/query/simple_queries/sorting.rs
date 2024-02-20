@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, ops::Range};
 
 use ndc_client::models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
@@ -14,12 +14,13 @@ pub async fn test_sorting<C: Connector>(
     collection_info: &models::CollectionInfo,
 ) -> Result<()> {
     for _ in 0..10 {
-        if let Some(order_by_element) = make_order_by_element(collection_type.clone(), schema, rng)
+        if let Some(order_by_elements) =
+            make_order_by_elements(collection_type.clone(), schema, rng, 1..3)
         {
             test_select_top_n_rows_with_sort(
                 configuration,
                 connector,
-                vec![order_by_element], // TODO
+                order_by_elements, // TODO
                 collection_type,
                 collection_info,
             )
@@ -32,17 +33,18 @@ pub async fn test_sorting<C: Connector>(
     Ok(())
 }
 
-fn make_order_by_element(
+fn make_order_by_elements(
     collection_type: models::ObjectType,
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
-) -> Option<models::OrderByElement> {
-    let mut sortable_fields = BTreeMap::new();
+    amount: Range<usize>,
+) -> Option<Vec<models::OrderByElement>> {
+    let mut sortable_fields = vec![];
 
     for (field_name, field) in collection_type.fields.into_iter() {
         if let Some(name) = super::super::common::as_named_type(&field.r#type) {
             if schema.scalar_types.contains_key(name) {
-                sortable_fields.insert(field_name, field);
+                sortable_fields.push(field_name);
             }
         }
     }
@@ -50,21 +52,28 @@ fn make_order_by_element(
     if sortable_fields.is_empty() {
         None
     } else {
-        let (field_name, _) = sortable_fields.iter().choose(rng)?;
+        let fields_count = rng.gen_range(amount);
+        let fields = sortable_fields.iter().choose_multiple(rng, fields_count);
 
-        let order_direction = if rng.gen_bool(0.5) {
-            models::OrderDirection::Asc
-        } else {
-            models::OrderDirection::Desc
-        };
+        let mut order_by_elements = vec![];
 
-        Some(models::OrderByElement {
-            order_direction,
-            target: models::OrderByTarget::Column {
-                name: field_name.clone(),
-                path: vec![],
-            },
-        })
+        for field_name in fields {
+            let order_direction = if rng.gen_bool(0.5) {
+                models::OrderDirection::Asc
+            } else {
+                models::OrderDirection::Desc
+            };
+
+            order_by_elements.push(models::OrderByElement {
+                order_direction,
+                target: models::OrderByTarget::Column {
+                    name: field_name.clone(),
+                    path: vec![],
+                },
+            })
+        }
+
+        Some(order_by_elements)
     }
 }
 
