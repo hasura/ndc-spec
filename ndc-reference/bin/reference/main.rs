@@ -881,7 +881,7 @@ fn eval_row(
 // ANCHOR: eval_aggregate
 fn eval_aggregate(
     aggregate: &models::Aggregate,
-    paginated: &Vec<BTreeMap<String, serde_json::Value>>,
+    paginated: &[BTreeMap<String, serde_json::Value>],
 ) -> Result<serde_json::Value> {
     match aggregate {
         models::Aggregate::StarCount {} => Ok(serde_json::Value::from(paginated.len())),
@@ -2101,7 +2101,10 @@ mod tests {
     use axum::{extract::State, Json};
     use goldenfile::Mint;
     use ndc_client::models;
-    use ndc_test::{test_connector, Connector, Error, TestConfiguration};
+    use ndc_test::{
+        configuration::TestConfiguration, connector::Connector, error::Error,
+        reporter::TestResults, test_connector,
+    };
     use std::{
         fs::{self, File},
         io::Write,
@@ -2243,7 +2246,7 @@ mod tests {
         state: crate::AppState,
     }
 
-    #[async_trait]
+    #[async_trait(?Send)]
     impl Connector for Reference {
         async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse, Error> {
             Ok(get_capabilities().await.0)
@@ -2290,8 +2293,9 @@ mod tests {
             let connector = Reference {
                 state: init_app_state(),
             };
-            let results = test_connector(&configuration, &connector).await;
-            assert!(results.failures.is_empty());
+            let mut reporter = TestResults::default();
+            test_connector(&configuration, &connector, &mut reporter).await;
+            assert!(reporter.failures.is_empty());
         });
     }
 }
