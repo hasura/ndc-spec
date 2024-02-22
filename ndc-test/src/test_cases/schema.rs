@@ -1,129 +1,121 @@
 use super::super::error::Error;
 use crate::connector::Connector;
 use crate::error::Result;
-use crate::reporter::{Reporter, ReporterExt};
-use crate::results::TestResults;
+use crate::reporter::Reporter;
+use crate::{nest, test};
 use ndc_client::models;
-use std::cell::RefCell;
 
 pub async fn test_schema<C: Connector, R: Reporter>(
     connector: &C,
-    reporter: &R,
-    results: &RefCell<TestResults>,
+    reporter: &mut R,
 ) -> Option<models::SchemaResponse> {
-    let schema = reporter
-        .test("Fetching schema", results, connector.get_schema())
-        .await?;
+    let schema = test!("Fetching schema", reporter, connector.get_schema()).await?;
 
-    reporter
-        .nest("Validating schema", results, async {
-            validate_schema(reporter, &schema, results).await
-        })
-        .await?;
+    nest!("Validating schema", reporter, {
+        validate_schema(reporter, &schema)
+    })
+    .await?;
 
     Some(schema)
 }
 
 pub async fn validate_schema<R: Reporter>(
-    reporter: &R,
+    reporter: &mut R,
     schema: &models::SchemaResponse,
-    results: &RefCell<TestResults>,
 ) -> Option<()> {
-    let _ = reporter
-        .test("object_types", results, async {
-            for (_type_name, object_type) in schema.object_types.iter() {
-                for (_field_name, object_field) in object_type.fields.iter() {
-                    validate_type(schema, &object_field.r#type)?;
-                }
+    let _ = test!("object_types", reporter, async {
+        for (_type_name, object_type) in schema.object_types.iter() {
+            for (_field_name, object_field) in object_type.fields.iter() {
+                validate_type(schema, &object_field.r#type)?;
             }
-            Ok(())
-        })
-        .await;
+        }
+        Ok(())
+    })
+    .await;
 
-    reporter
-        .nest("Collections", results, async {
+    nest!("Collections", reporter, {
+        async {
             for collection_info in schema.collections.iter() {
-                reporter
-                    .nest(collection_info.name.as_str(), results, async {
-                        let _ = reporter
-                            .test("Arguments", results, async {
-                                for (_arg_name, arg_info) in collection_info.arguments.iter() {
-                                    validate_type(schema, &arg_info.argument_type)?;
-                                }
-                                Ok(())
-                            })
-                            .await;
+                nest!(collection_info.name.as_str(), reporter, {
+                    async {
+                        let _ = test!("Arguments", reporter, async {
+                            for (_arg_name, arg_info) in collection_info.arguments.iter() {
+                                validate_type(schema, &arg_info.argument_type)?;
+                            }
+                            Ok(())
+                        })
+                        .await;
 
-                        let _ = reporter
-                            .test("Collection type", results, async {
-                                let _ = schema
-                                    .object_types
-                                    .get(collection_info.collection_type.as_str())
-                                    .ok_or(Error::CollectionTypeIsNotDefined(
-                                        collection_info.collection_type.clone(),
-                                    ))?;
+                        let _ = test!("Collection type", reporter, async {
+                            let _ = schema
+                                .object_types
+                                .get(collection_info.collection_type.as_str())
+                                .ok_or(Error::CollectionTypeIsNotDefined(
+                                    collection_info.collection_type.clone(),
+                                ))?;
 
-                                Ok(())
-                            })
-                            .await;
-                    })
-                    .await;
-            }
-        })
-        .await;
-
-    reporter
-        .nest("Functions", results, async {
-            for function_info in schema.functions.iter() {
-                reporter
-                    .nest(function_info.name.as_str(), results, async {
-                        let _ = reporter
-                            .test("Result type", results, async {
-                                validate_type(schema, &function_info.result_type)
-                            })
-                            .await;
-
-                        let _ = reporter
-                            .test("Arguments", results, async {
-                                for (_arg_name, arg_info) in function_info.arguments.iter() {
-                                    validate_type(schema, &arg_info.argument_type)?;
-                                }
-
-                                Ok(())
-                            })
-                            .await;
-                    })
-                    .await;
-            }
-
-            reporter
-                .nest("Procedures", results, async {
-                    for procedure_info in schema.procedures.iter() {
-                        reporter
-                            .nest(procedure_info.name.as_str(), results, async {
-                                let _ = reporter
-                                    .test("Result type", results, async {
-                                        validate_type(schema, &procedure_info.result_type)
-                                    })
-                                    .await;
-
-                                let _ = reporter
-                                    .test("Arguments", results, async {
-                                        for (_arg_name, arg_info) in procedure_info.arguments.iter()
-                                        {
-                                            validate_type(schema, &arg_info.argument_type)?;
-                                        }
-
-                                        Ok(())
-                                    })
-                                    .await;
-                            })
-                            .await;
+                            Ok(())
+                        })
+                        .await;
                     }
                 })
                 .await;
-        })
-        .await;
+            }
+        }
+    })
+    .await;
+
+    nest!("Functions", reporter, {
+        async {
+            for function_info in schema.functions.iter() {
+                nest!(function_info.name.as_str(), reporter, {
+                    async {
+                        let _ = test!("Result type", reporter, async {
+                            validate_type(schema, &function_info.result_type)
+                        })
+                        .await;
+
+                        let _ = test!("Arguments", reporter, async {
+                            for (_arg_name, arg_info) in function_info.arguments.iter() {
+                                validate_type(schema, &arg_info.argument_type)?;
+                            }
+
+                            Ok(())
+                        })
+                        .await;
+                    }
+                })
+                .await;
+            }
+
+            nest!("Procedures", reporter, {
+                async {
+                    for procedure_info in schema.procedures.iter() {
+                        nest!(procedure_info.name.as_str(), reporter, {
+                            async {
+                                let _ = test!("Result type", reporter, async {
+                                    validate_type(schema, &procedure_info.result_type)
+                                })
+                                .await;
+
+                                let _ = test!("Arguments", reporter, async {
+                                    for (_arg_name, arg_info) in procedure_info.arguments.iter() {
+                                        validate_type(schema, &arg_info.argument_type)?;
+                                    }
+
+                                    Ok(())
+                                })
+                                .await;
+                            }
+                        })
+                        .await;
+                    }
+                }
+            })
+            .await;
+        }
+    })
+    .await;
 
     Some(())
 }

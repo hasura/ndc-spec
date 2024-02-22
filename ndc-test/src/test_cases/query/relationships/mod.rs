@@ -1,18 +1,16 @@
-use std::cell::RefCell;
 use std::collections::BTreeMap;
 
 use crate::connector::Connector;
 use crate::error::Error;
 use crate::error::Result;
-use crate::reporter::{Reporter, ReporterExt};
-use crate::results::TestResults;
+use crate::reporter::Reporter;
+use crate::{nest, test};
 
 use ndc_client::models::{self};
 
 pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     connector: &C,
-    reporter: &R,
-    results: &RefCell<TestResults>,
+    reporter: &mut R,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
 ) -> Option<()> {
@@ -25,27 +23,26 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
         .ok()?;
 
     for (foreign_key_name, foreign_key) in collection_info.foreign_keys.iter() {
-        reporter
-            .nest(foreign_key_name, results, async {
-                let _ = reporter
-                    .test(
-                        "Object relationship",
-                        results,
-                        select_top_n_using_foreign_key(
-                            connector,
-                            collection_type,
-                            collection_info,
-                            schema,
-                            foreign_key_name,
-                            foreign_key,
-                        ),
+        nest!(foreign_key_name, reporter, {
+            Box::pin(async {
+                let _ = test!(
+                    "Object relationship",
+                    reporter,
+                    select_top_n_using_foreign_key(
+                        connector,
+                        collection_type,
+                        collection_info,
+                        schema,
+                        foreign_key_name,
+                        foreign_key,
                     )
-                    .await;
+                )
+                .await;
 
-                let _ = reporter
-                    .test(
+                let _ = 
+                    test!(
                         "Array relationship",
-                        results,
+                        reporter,
                         select_top_n_using_foreign_key_as_array_relationship(
                             connector,
                             collection_type,
@@ -53,13 +50,14 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                             schema,
                             foreign_key_name,
                             foreign_key,
-                        ),
+                        )
                     )
                     .await;
 
                 Some(())
             })
-            .await;
+        })
+        .await;
     }
 
     Some(())
