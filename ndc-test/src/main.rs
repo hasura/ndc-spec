@@ -2,7 +2,11 @@ use std::{path::PathBuf, process::exit};
 
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
-use ndc_test::{configuration::TestConfiguration, report, reporter::ConsoleReporter};
+use ndc_test::{
+    configuration::TestConfiguration,
+    report,
+    reporter::{CompositeReporter, ConsoleReporter, TestResults},
+};
 use reqwest::header::HeaderMap;
 
 #[derive(Parser)]
@@ -22,6 +26,8 @@ enum Commands {
         seed: Option<String>,
         #[arg(long, value_name = "PATH")]
         snapshots_dir: Option<PathBuf>,
+        #[arg(long, value_name = "COUNT", default_value = "10")]
+        sample_rows: u32,
     },
     Replay {
         #[arg(long, value_name = "ENDPOINT")]
@@ -38,6 +44,7 @@ async fn main() {
             endpoint,
             seed,
             snapshots_dir,
+            sample_rows: _,
         } => {
             let seed: Option<[u8; 32]> = seed.map(|seed| seed.as_bytes().try_into().unwrap());
 
@@ -53,13 +60,16 @@ async fn main() {
                 headers: HeaderMap::new(),
             };
 
-            let results =
-                ndc_test::test_connector(&test_configuration, &configuration, &ConsoleReporter)
-                    .await;
+            let mut reporter =
+                CompositeReporter(ConsoleReporter::default(), TestResults::default());
+
+            ndc_test::test_connector(&test_configuration, &configuration, &mut reporter).await;
+
+            let results = reporter.1;
 
             if !results.failures.is_empty() {
                 println!();
-                println!("{}", report(results));
+                println!("{}", report(&results));
 
                 exit(1)
             }
@@ -75,19 +85,19 @@ async fn main() {
                 headers: HeaderMap::new(),
             };
 
-            let results = ndc_test::test_snapshots_in_directory(
-                &configuration,
-                &ConsoleReporter,
-                snapshots_dir,
-            )
-            .await;
+            let mut reporter = ConsoleReporter::new();
 
-            if !results.failures.is_empty() {
-                println!();
-                println!("{}", report(results));
+            ndc_test::test_snapshots_in_directory(&configuration, &mut reporter, snapshots_dir)
+                .await;
 
-                exit(1)
-            }
+            // let results = reporter.results();
+
+            // if !results.failures.is_empty() {
+            //     println!();
+            //     println!("{}", report(results));
+
+            //     exit(1)
+            // }
         }
     }
 }

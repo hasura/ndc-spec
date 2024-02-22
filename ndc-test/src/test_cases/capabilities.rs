@@ -1,28 +1,22 @@
 use crate::connector::Connector;
 use crate::error::{Error, Result};
-use crate::reporter::{Reporter, ReporterExt};
-use crate::results::TestResults;
+use crate::reporter::Reporter;
+use crate::test;
 use ndc_client::models;
-use std::cell::RefCell;
 
 pub async fn test_capabilities<C: Connector, R: Reporter>(
     connector: &C,
-    reporter: &R,
-    results: &RefCell<TestResults>,
+    reporter: &mut R,
 ) -> Option<models::CapabilitiesResponse> {
-    let capabilities = reporter
-        .test(
-            "Fetching /capabilities",
-            results,
-            connector.get_capabilities(),
-        )
-        .await?;
+    let capabilities = test!(
+        "Fetching /capabilities",
+        reporter,
+        connector.get_capabilities()
+    )?;
 
-    let _ = reporter
-        .test("Validating capabilities", results, async {
-            validate_capabilities(&capabilities)
-        })
-        .await;
+    let _ = test!("Validating capabilities", reporter, {
+        async { validate_capabilities(&capabilities) }
+    });
 
     Some(capabilities)
 }

@@ -2103,7 +2103,7 @@ mod tests {
     use ndc_client::models;
     use ndc_test::{
         configuration::TestConfiguration, connector::Connector, error::Error,
-        reporter::ConsoleReporter, test_connector,
+        reporter::TestResults, test_connector,
     };
     use std::{
         fs::{self, File},
@@ -2293,8 +2293,9 @@ mod tests {
             let connector = Reference {
                 state: init_app_state(),
             };
-            let results = test_connector(&configuration, &connector, &ConsoleReporter).await;
-            assert!(results.failures.is_empty());
+            let mut reporter = TestResults::default();
+            test_connector(&configuration, &connector, &mut reporter).await;
+            assert!(reporter.failures.is_empty());
         });
     }
 }

@@ -2,11 +2,8 @@ pub mod configuration;
 pub mod connector;
 pub mod error;
 pub mod reporter;
-pub mod results;
 pub mod snapshot;
 pub mod test_cases;
-
-use std::cell::RefCell;
 
 use std::fs::File;
 use std::future::Future;
@@ -24,8 +21,7 @@ use ndc_client::models::{self};
 use error::Result;
 
 use rand::SeedableRng;
-use reporter::{Reporter, ReporterExt};
-use results::TestResults;
+use reporter::{Reporter, TestResults};
 use serde::de::DeserializeOwned;
 use snapshot::{snapshot_test, SnapshottingConnector};
 
@@ -48,7 +44,7 @@ impl Connector for Configuration {
     }
 }
 
-pub fn report(results: TestResults) -> String {
+pub fn report(results: &TestResults) -> String {
     use colored::Colorize;
 
     let mut result = format!("Failed with {0} test failures:", results.failures.len())
@@ -56,9 +52,9 @@ pub fn report(results: TestResults) -> String {
         .to_string();
 
     let mut ix = 1;
-    for failure in results.failures {
+    for failure in results.failures.iter() {
         result += format!("\n\n[{0}] {1}", ix, failure.name).as_str();
-        for path_element in failure.path {
+        for path_element in failure.path.iter() {
             result += format!("\n  in {0}", path_element).as_str();
         }
         result += format!("\nDetails: {0}", failure.error).as_str();
@@ -71,20 +67,15 @@ pub fn report(results: TestResults) -> String {
 pub async fn test_connector<C: Connector, R: Reporter>(
     configuration: &configuration::TestConfiguration,
     connector: &C,
-    reporter: &R,
-) -> TestResults {
-    let results = RefCell::new(TestResults {
-        path: vec![],
-        failures: vec![],
-    });
-
+    reporter: &mut R,
+) {
     let mut rng = match configuration.seed {
         None => rand::rngs::SmallRng::from_entropy(),
         Some(seed) => rand::rngs::SmallRng::from_seed(seed),
     };
 
     let _ = match &configuration.snapshots_dir {
-        None => test_cases::run_all_tests(connector, reporter, &mut rng, &results).await,
+        None => test_cases::run_all_tests(connector, reporter, &mut rng).await,
         Some(snapshot_path) => {
             test_cases::run_all_tests(
                 &SnapshottingConnector {
@@ -93,57 +84,39 @@ pub async fn test_connector<C: Connector, R: Reporter>(
                 },
                 reporter,
                 &mut rng,
-                &results,
             )
             .await
         }
     };
-
-    results.into_inner()
 }
 
 pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
     connector: &C,
-    reporter: &R,
+    reporter: &mut R,
     snapshots_dir: PathBuf,
-) -> TestResults {
-    let results = RefCell::new(TestResults {
-        path: vec![],
-        failures: vec![],
-    });
-
+) {
     let _ = async {
-        reporter
-            .nest(
-                "Query",
-                &results,
-                test_snapshots_in_directory_with::<C, R, _, _, _>(
-                    reporter,
-                    snapshots_dir.join("query"),
-                    &results,
-                    |req| connector.query(req),
-                ),
+        nest!("Query", reporter, {
+            test_snapshots_in_directory_with::<C, R, _, _, _>(
+                reporter,
+                snapshots_dir.join("query"),
+                |req| connector.query(req),
             )
-            .await;
+        });
 
-        reporter
-            .nest(
-                "Mutation",
-                &results,
+        nest!("Mutation", reporter, {
+            Box::pin({
                 test_snapshots_in_directory_with::<C, R, _, _, _>(
                     reporter,
                     snapshots_dir.join("mutation"),
-                    &results,
                     |req| connector.mutation(req),
-                ),
-            )
-            .await;
+                )
+            })
+        });
 
         Some(())
     }
     .await;
-
-    results.into_inner()
 }
 
 pub async fn test_snapshots_in_directory_with<
@@ -153,9 +126,8 @@ pub async fn test_snapshots_in_directory_with<
     Res: DeserializeOwned + serde::Serialize + PartialEq,
     F: Future<Output = Result<Res>>,
 >(
-    reporter: &R,
+    reporter: &mut R,
     snapshots_dir: PathBuf,
-    results: &RefCell<TestResults>,
     f: impl Fn(Req) -> F,
 ) {
     match std::fs::read_dir(snapshots_dir) {
@@ -163,10 +135,10 @@ pub async fn test_snapshots_in_directory_with<
             for entry in dir {
                 let entry = entry.expect("Error reading snapshot directory entry");
 
-                reporter
-                    .test(
-                        entry.file_name().to_str().unwrap_or("{unknown}"),
-                        results,
+                test!(
+                    entry.file_name().to_str().unwrap_or("{unknown}"),
+                    reporter,
+                    {
                         async {
                             let path = entry.path();
 
@@ -181,9 +153,9 @@ pub async fn test_snapshots_in_directory_with<
                             let response = f(request).await?;
 
                             snapshot_test(snapshot_path, &response)
-                        },
-                    )
-                    .await;
+                        }
+                    }
+                );
             }
         }
         Err(e) => println!("Warning: a snapshot folder could not be found: {}", e),

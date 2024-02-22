@@ -1,37 +1,34 @@
 use crate::connector::Connector;
 use crate::error::Error;
 use crate::error::Result;
-use crate::reporter::{Reporter, ReporterExt};
-use crate::results::TestResults;
+use crate::reporter::Reporter;
+use crate::test;
 
 use indexmap::IndexMap;
 use ndc_client::models;
-use std::cell::RefCell;
 use std::collections::BTreeMap;
 
 pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     connector: &C,
-    reporter: &R,
+    reporter: &mut R,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
-    results: &RefCell<TestResults>,
 ) -> Option<()> {
     let collection_type = schema
         .object_types
         .get(collection_info.collection_type.as_str())?;
 
-    let total_count = reporter
-        .test("star_count", results, async {
-            test_star_count_aggregate(connector, collection_info).await
-        })
-        .await?;
+    let total_count = test!(
+        "star_count",
+        reporter,
+        test_star_count_aggregate(connector, collection_info)
+    )?;
 
-    let _ = reporter
-        .test("column_count", results, async {
-            test_column_count_aggregate(connector, collection_info, collection_type, total_count)
-                .await
-        })
-        .await;
+    let _ = test!(
+        "column_count",
+        reporter,
+        test_column_count_aggregate(connector, collection_info, collection_type, total_count)
+    );
 
     Some(())
 }

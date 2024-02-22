@@ -1,101 +1,147 @@
-use async_trait::async_trait;
-
-use crate::error::Result;
-use crate::results::{FailedTest, TestResults};
-use std::cell::RefCell;
-use std::future::Future;
-
 pub trait Reporter {
-    fn enter(&self, name: &str, path: &[String]);
-    fn exit(&self);
-    fn success(&self);
-    fn failure(&self, err: &crate::error::Error);
+    fn enter(&mut self, name: &str);
+    fn exit(&mut self);
+    fn success(&mut self);
+    fn failure(&mut self, name: &str, err: &crate::error::Error);
+}
+
+#[derive(Debug)]
+#[derive(Default)]
+pub struct TestResults {
+    path: Vec<String>,
+    pub failures: Vec<FailedTest>,
+}
+
+#[derive(Debug)]
+pub struct FailedTest {
+    pub path: Vec<String>,
+    pub name: String,
+    pub error: String,
+}
+
+
+
+impl Reporter for TestResults {
+    fn enter(&mut self, name: &str) {
+        self.path.push(name.into());
+    }
+
+    fn exit(&mut self) {
+        self.path.pop();
+    }
+
+    fn success(&mut self) {}
+
+    fn failure(&mut self, name: &str, error: &crate::error::Error) {
+        let path = self.path.clone();
+        self.failures.push(FailedTest {
+            path,
+            name: name.into(),
+            error: format!("{error}"),
+        });
+    }
 }
 
 #[derive(Debug, Clone)]
-pub struct ConsoleReporter;
+pub struct ConsoleReporter {
+    level: usize,
+}
+
+impl Default for ConsoleReporter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ConsoleReporter {
+    pub fn new() -> ConsoleReporter {
+        ConsoleReporter { level: 0 }
+    }
+}
 
 impl Reporter for ConsoleReporter {
-    fn enter(&self, name: &str, path: &[String]) {
-        let level: usize = path.len();
-        let spaces = "│ ".repeat(level);
-        print!("{spaces}├ {name} ...");
+    fn enter(&mut self, name: &str) {
+        let spaces = "│ ".repeat(self.level);
+        print!("\n{spaces}├ {name} ...");
+        self.level += 1;
     }
 
-    fn exit(&self) {
-        println!();
+    fn exit(&mut self) {
+        self.level -= 1;
     }
 
-    fn success(&self) {
+    fn success(&mut self) {
         use colored::Colorize;
         print!(" {}", "OK".green());
     }
 
-    fn failure(&self, _err: &crate::error::Error) {
+    fn failure(&mut self, _name: &str, _err: &crate::error::Error) {
         use colored::Colorize;
         print!(" {}", "FAIL".red());
     }
 }
 
-#[async_trait(?Send)]
-pub trait ReporterExt: Reporter {
-    async fn test<A, F: Future<Output = Result<A>>>(
-        &self,
-        name: &str,
-        results: &RefCell<TestResults>,
-        f: F,
-    ) -> Option<A> {
-        {
-            let mut results_mut = results.borrow_mut();
-            self.enter(name, &results_mut.path);
-            results_mut.path.push(name.into());
-        }
+#[derive(Debug, Default, Clone)]
+pub struct CompositeReporter<R1: Reporter, R2: Reporter>(pub R1, pub R2);
 
-        let result = f.await;
-
-        match &result {
-            Ok(_) => self.success(),
-            Err(err) => self.failure(err),
-        };
-
-        self.exit();
-
-        let mut results_mut = results.borrow_mut();
-        results_mut.path.pop();
-
-        match result {
-            Err(error) => {
-                let path = results_mut.path.clone();
-                results_mut.failures.push(FailedTest {
-                    path,
-                    name: name.into(),
-                    error,
-                });
-                None
-            }
-            Ok(result) => Some(result),
-        }
+impl<R1, R2> Reporter for CompositeReporter<R1, R2>
+where
+    R1: Reporter,
+    R2: Reporter,
+{
+    fn enter(&mut self, name: &str) {
+        self.0.enter(name);
+        self.1.enter(name);
     }
 
-    async fn nest<A, F: Future<Output = A>>(
-        &self,
-        name: &str,
-        results: &RefCell<TestResults>,
-        f: F,
-    ) -> A {
-        {
-            let mut results_mut = results.borrow_mut();
-            self.enter(name, &results_mut.path);
-            self.exit();
-            results_mut.path.push(name.into());
-        }
-        let result = f.await;
-        {
-            let mut results_mut = results.borrow_mut();
-            let _ = results_mut.path.pop();
-        }
-        result
+    fn exit(&mut self) {
+        self.0.exit();
+        self.1.exit();
+    }
+
+    fn success(&mut self) {
+        self.0.success();
+        self.1.success();
+    }
+
+    fn failure(&mut self, name: &str, err: &crate::error::Error) {
+        self.0.failure(name, err);
+        self.1.failure(name, err);
     }
 }
 
-impl<R> ReporterExt for R where R: Reporter {}
+#[macro_export]
+macro_rules! test {
+    ($name: expr, $reporter: expr, $f: expr) => {
+        {
+            $reporter.enter($name);
+
+            let result = $f.await;
+
+            match &result {
+                Ok(_) => {
+                    $reporter.success();
+                }
+                Err(err) => {
+                    $reporter.failure($name, err);
+                }
+            };
+
+            $reporter.exit();
+
+            result.ok()
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! nest {
+    ($name: expr, $reporter: expr, $f: expr) => {
+        {
+            $reporter.enter($name);
+            let result = $f.await;
+            $reporter.exit();
+            result
+        }
+    };
+}
