@@ -4,8 +4,7 @@ use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
 use ndc_test::{
     configuration::TestConfiguration,
-    report,
-    reporter::{CompositeReporter, ConsoleReporter, TestResults},
+    reporter::{ConsoleReporter, TestResults},
 };
 use reqwest::header::HeaderMap;
 
@@ -61,15 +60,13 @@ async fn main() {
             };
 
             let mut reporter =
-                CompositeReporter(ConsoleReporter::default(), TestResults::default());
+                (ConsoleReporter::default(), TestResults::default());
 
             ndc_test::test_connector(&test_configuration, &configuration, &mut reporter).await;
 
-            let results = reporter.1;
-
-            if !results.failures.is_empty() {
+            if !reporter.1.failures.is_empty() {
                 println!();
-                println!("{}", report(&results));
+                println!("{}", report(&reporter.1));
 
                 exit(1)
             }
@@ -85,19 +82,38 @@ async fn main() {
                 headers: HeaderMap::new(),
             };
 
-            let mut reporter = ConsoleReporter::new();
+            let mut reporter =
+                (ConsoleReporter::default(), TestResults::default());
 
             ndc_test::test_snapshots_in_directory(&configuration, &mut reporter, snapshots_dir)
                 .await;
 
-            // let results = reporter.results();
+            if !reporter.1.failures.is_empty() {
+                println!();
+                println!("{}", report(&reporter.1));
 
-            // if !results.failures.is_empty() {
-            //     println!();
-            //     println!("{}", report(results));
-
-            //     exit(1)
-            // }
+                exit(1)
+            }
         }
     }
+}
+
+pub fn report(results: &TestResults) -> String {
+    use colored::Colorize;
+
+    let mut result = format!("Failed with {0} test failures:", results.failures.len())
+        .red()
+        .to_string();
+
+    let mut ix = 1;
+    for failure in results.failures.iter() {
+        result += format!("\n\n[{0}] {1}", ix, failure.name).as_str();
+        for path_element in failure.path.iter() {
+            result += format!("\n  in {0}", path_element).as_str();
+        }
+        result += format!("\nDetails: {0}", failure.error).as_str();
+        ix += 1;
+    }
+
+    result
 }

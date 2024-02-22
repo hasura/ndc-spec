@@ -81,10 +81,7 @@ impl Reporter for ConsoleReporter {
     }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct CompositeReporter<R1: Reporter, R2: Reporter>(pub R1, pub R2);
-
-impl<R1, R2> Reporter for CompositeReporter<R1, R2>
+impl<R1, R2> Reporter for (R1, R2)
 where
     R1: Reporter,
     R2: Reporter,
