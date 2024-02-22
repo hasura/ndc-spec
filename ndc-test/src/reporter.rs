@@ -6,6 +6,7 @@ pub trait Reporter {
 }
 
 #[derive(Debug)]
+#[derive(Default)]
 pub struct TestResults {
     path: Vec<String>,
     pub failures: Vec<FailedTest>,
@@ -18,14 +19,7 @@ pub struct FailedTest {
     pub error: String,
 }
 
-impl Default for TestResults {
-    fn default() -> Self {
-        TestResults {
-            failures: vec![],
-            path: vec![],
-        }
-    }
-}
+
 
 impl Reporter for TestResults {
     fn enter(&mut self, name: &str) {
@@ -129,7 +123,7 @@ macro_rules! test {
                     $reporter.success();
                 }
                 Err(err) => {
-                    $reporter.failure($name.into(), err);
+                    $reporter.failure($name, err);
                 }
             };
 
