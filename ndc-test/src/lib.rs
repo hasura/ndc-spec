@@ -102,8 +102,7 @@ pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
                 snapshots_dir.join("query"),
                 |req| connector.query(req),
             )
-        })
-        .await;
+        });
 
         nest!("Mutation", reporter, {
             Box::pin({
@@ -113,8 +112,7 @@ pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
                     |req| connector.mutation(req),
                 )
             })
-        })
-        .await;
+        });
 
         Some(())
     }
@@ -157,8 +155,7 @@ pub async fn test_snapshots_in_directory_with<
                             snapshot_test(snapshot_path, &response)
                         }
                     }
-                )
-                .await;
+                );
             }
         }
         Err(e) => println!("Warning: a snapshot folder could not be found: {}", e),

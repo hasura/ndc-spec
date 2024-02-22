@@ -12,13 +12,11 @@ pub async fn test_capabilities<C: Connector, R: Reporter>(
         "Fetching /capabilities",
         reporter,
         connector.get_capabilities()
-    )
-    .await?;
+    )?;
 
     let _ = test!("Validating capabilities", reporter, {
         async { validate_capabilities(&capabilities) }
-    })
-    .await;
+    });
 
     Some(capabilities)
 }

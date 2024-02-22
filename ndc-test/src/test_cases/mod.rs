@@ -15,18 +15,15 @@ pub async fn run_all_tests<C: Connector, R: Reporter>(
 ) -> Option<()> {
     let capabilities = nest!("Capabilities", reporter, {
         capabilities::test_capabilities(connector, reporter)
-    })
-    .await?;
+    })?;
 
     let schema = nest!("Schema", reporter, {
         schema::test_schema(connector, reporter)
-    })
-    .await?;
+    })?;
 
     nest!("Query", reporter, {
         query::test_query(connector, reporter, &capabilities, &schema, rng)
-    })
-    .await;
+    });
 
     Some(())
 }

@@ -113,7 +113,7 @@ where
 #[macro_export]
 macro_rules! test {
     ($name: expr, $reporter: expr, $f: expr) => {
-        async {
+        {
             $reporter.enter($name);
 
             let result = $f.await;
@@ -137,7 +137,7 @@ macro_rules! test {
 #[macro_export]
 macro_rules! nest {
     ($name: expr, $reporter: expr, $f: expr) => {
-        async {
+        {
             $reporter.enter($name);
             let result = $f.await;
             $reporter.exit();

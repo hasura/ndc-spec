@@ -22,15 +22,13 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
         "star_count",
         reporter,
         test_star_count_aggregate(connector, collection_info)
-    )
-    .await?;
+    )?;
 
     let _ = test!(
         "column_count",
         reporter,
         test_column_count_aggregate(connector, collection_info, collection_type, total_count)
-    )
-    .await;
+    );
 
     Some(())
 }

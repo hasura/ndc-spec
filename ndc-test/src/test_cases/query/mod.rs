@@ -32,8 +32,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                             schema,
                             collection_info,
                         )
-                    })
-                    .await;
+                    });
 
                     if capabilities.capabilities.relationships.is_some() {
                         nest!("Relationship queries", reporter, {
@@ -43,8 +42,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                                 schema,
                                 collection_info,
                             )
-                        })
-                        .await;
+                        });
                     }
 
                     nest!("Aggregate queries", reporter, {
@@ -54,13 +52,11 @@ pub async fn test_query<C: Connector, R: Reporter>(
                             schema,
                             collection_info,
                         )
-                    })
-                    .await;
+                    });
                 } else {
                     eprintln!("Skipping parameterized collection {}", collection_info.name);
                 }
             }
-        })
-        .await;
+        });
     }
 }

@@ -28,12 +28,11 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
         let rows = test_select_top_n_rows(connector, collection_type, collection_info).await?;
 
         super::context::make_context(collection_type, rows)
-    })
-    .await?;
+    })?;
 
     test!(
         "Predicates",
-        reporter, 
+        reporter,
         predicates::test_predicates(
             connector,
             context,
@@ -42,15 +41,13 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
             collection_type,
             collection_info,
         )
-    )
-    .await?;
+    );
 
     test!(
         "Sorting",
-        reporter, 
+        reporter,
         sorting::test_sorting(connector, schema, rng, collection_type, collection_info)
     )
-    .await
 }
 
 async fn test_select_top_n_rows<C: Connector>(

@@ -9,12 +9,11 @@ pub async fn test_schema<C: Connector, R: Reporter>(
     connector: &C,
     reporter: &mut R,
 ) -> Option<models::SchemaResponse> {
-    let schema = test!("Fetching schema", reporter, connector.get_schema()).await?;
+    let schema = test!("Fetching schema", reporter, connector.get_schema())?;
 
     nest!("Validating schema", reporter, {
         validate_schema(reporter, &schema)
-    })
-    .await?;
+    })?;
 
     Some(schema)
 }
@@ -30,8 +29,7 @@ pub async fn validate_schema<R: Reporter>(
             }
         }
         Ok(())
-    })
-    .await;
+    });
 
     nest!("Collections", reporter, {
         async {
@@ -43,8 +41,7 @@ pub async fn validate_schema<R: Reporter>(
                                 validate_type(schema, &arg_info.argument_type)?;
                             }
                             Ok(())
-                        })
-                        .await;
+                        });
 
                         let _ = test!("Collection type", reporter, async {
                             let _ = schema
@@ -55,15 +52,12 @@ pub async fn validate_schema<R: Reporter>(
                                 ))?;
 
                             Ok(())
-                        })
-                        .await;
+                        });
                     }
-                })
-                .await;
+                });
             }
         }
-    })
-    .await;
+    });
 
     nest!("Functions", reporter, {
         async {
@@ -72,8 +66,7 @@ pub async fn validate_schema<R: Reporter>(
                     async {
                         let _ = test!("Result type", reporter, async {
                             validate_type(schema, &function_info.result_type)
-                        })
-                        .await;
+                        });
 
                         let _ = test!("Arguments", reporter, async {
                             for (_arg_name, arg_info) in function_info.arguments.iter() {
@@ -81,11 +74,9 @@ pub async fn validate_schema<R: Reporter>(
                             }
 
                             Ok(())
-                        })
-                        .await;
+                        });
                     }
-                })
-                .await;
+                });
             }
 
             nest!("Procedures", reporter, {
@@ -95,8 +86,7 @@ pub async fn validate_schema<R: Reporter>(
                             async {
                                 let _ = test!("Result type", reporter, async {
                                     validate_type(schema, &procedure_info.result_type)
-                                })
-                                .await;
+                                });
 
                                 let _ = test!("Arguments", reporter, async {
                                     for (_arg_name, arg_info) in procedure_info.arguments.iter() {
@@ -104,18 +94,14 @@ pub async fn validate_schema<R: Reporter>(
                                     }
 
                                     Ok(())
-                                })
-                                .await;
+                                });
                             }
-                        })
-                        .await;
+                        });
                     }
                 }
-            })
-            .await;
+            });
         }
-    })
-    .await;
+    });
 
     Some(())
 }

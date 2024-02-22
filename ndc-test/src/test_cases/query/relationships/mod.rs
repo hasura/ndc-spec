@@ -24,7 +24,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
 
     for (foreign_key_name, foreign_key) in collection_info.foreign_keys.iter() {
         nest!(foreign_key_name, reporter, {
-            Box::pin(async {
+            async {
                 let _ = test!(
                     "Object relationship",
                     reporter,
@@ -36,28 +36,25 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         foreign_key_name,
                         foreign_key,
                     )
-                )
-                .await;
+                );
 
-                let _ = 
-                    test!(
-                        "Array relationship",
-                        reporter,
-                        select_top_n_using_foreign_key_as_array_relationship(
-                            connector,
-                            collection_type,
-                            collection_info,
-                            schema,
-                            foreign_key_name,
-                            foreign_key,
-                        )
+                let _ = test!(
+                    "Array relationship",
+                    reporter,
+                    select_top_n_using_foreign_key_as_array_relationship(
+                        connector,
+                        collection_type,
+                        collection_info,
+                        schema,
+                        foreign_key_name,
+                        foreign_key,
                     )
-                    .await;
+                )
+                ;
 
                 Some(())
-            })
-        })
-        .await;
+            }
+        });
     }
 
     Some(())
