@@ -3,22 +3,24 @@ use std::{collections::BTreeMap, ops::Range};
 use ndc_client::models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
-use crate::{connector::Connector, error::Result};
+use crate::{configuration::TestGenerationConfiguration, connector::Connector, error::Result};
 
 pub async fn test_sorting<C: Connector>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
 ) -> Result<()> {
-    for _ in 0..10 {
+    for _ in 0..gen_config.test_cases {
         if let Some(order_by_elements) =
             make_order_by_elements(collection_type.clone(), schema, rng, 1..3)
         {
             test_select_top_n_rows_with_sort(
+                gen_config,
                 connector,
-                order_by_elements, // TODO
+                order_by_elements,
                 collection_type,
                 collection_info,
             )
@@ -76,6 +78,7 @@ fn make_order_by_elements(
 }
 
 async fn test_select_top_n_rows_with_sort<C: Connector>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     elements: Vec<models::OrderByElement>,
     collection_type: &models::ObjectType,
@@ -88,7 +91,7 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
         query: models::Query {
             aggregates: None,
             fields: Some(fields),
-            limit: Some(10),
+            limit: Some(gen_config.max_limit),
             offset: None,
             order_by: Some(models::OrderBy { elements }),
             predicate: None,

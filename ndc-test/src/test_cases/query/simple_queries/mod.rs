@@ -3,6 +3,7 @@ mod sorting;
 
 use std::collections::BTreeMap;
 
+use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::error::Result;
 use crate::reporter::Reporter;
@@ -14,6 +15,7 @@ use indexmap::IndexMap;
 use rand::rngs::SmallRng;
 
 pub async fn test_simple_queries<C: Connector, R: Reporter>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     reporter: &mut R,
     rng: &mut SmallRng,
@@ -25,7 +27,7 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
         .get(collection_info.collection_type.as_str())?;
 
     let context = test!("Select top N", reporter, async {
-        let rows = test_select_top_n_rows(connector, collection_type, collection_info).await?;
+        let rows = test_select_top_n_rows(connector, collection_type, collection_info, gen_config.sample_size).await?;
 
         super::context::make_context(collection_type, rows)
     })?;
@@ -34,6 +36,7 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
         "Predicates",
         reporter,
         predicates::test_predicates(
+            gen_config,
             connector,
             context,
             schema,
@@ -46,7 +49,14 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
     test!(
         "Sorting",
         reporter,
-        sorting::test_sorting(connector, schema, rng, collection_type, collection_info)
+        sorting::test_sorting(
+            gen_config,
+            connector,
+            schema,
+            rng,
+            collection_type,
+            collection_info
+        )
     )
 }
 
@@ -54,6 +64,7 @@ async fn test_select_top_n_rows<C: Connector>(
     connector: &C,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
+    limit: u32,
 ) -> Result<Vec<IndexMap<String, models::RowFieldValue>>> {
     let fields = super::common::select_all_columns(collection_type);
     let query_request = models::QueryRequest {
@@ -61,7 +72,7 @@ async fn test_select_top_n_rows<C: Connector>(
         query: models::Query {
             aggregates: None,
             fields: Some(fields.clone()),
-            limit: Some(10),
+            limit: Some(limit),
             offset: None,
             order_by: None,
             predicate: None,
