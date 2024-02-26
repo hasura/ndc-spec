@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::error::{Error, Result};
 
@@ -9,6 +10,7 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 
 pub async fn test_predicates<C: Connector>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     context: Option<super::super::context::Context<'_>>,
     schema: &models::SchemaResponse,
@@ -17,9 +19,10 @@ pub async fn test_predicates<C: Connector>(
     collection_info: &models::CollectionInfo,
 ) -> Result<()> {
     if let Some(context) = context {
-        for _ in 0..10 {
+        for _ in 0..gen_config.test_cases {
             if let Some(predicate) = make_predicate(schema, &context, rng)? {
                 test_select_top_n_rows_with_predicate(
+                    gen_config,
                     connector,
                     &predicate,
                     collection_type,
@@ -127,6 +130,7 @@ pub fn make_predicate(
 }
 
 async fn test_select_top_n_rows_with_predicate<C: Connector>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     predicate: &GeneratedExpression,
     collection_type: &models::ObjectType,
@@ -139,7 +143,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
         query: models::Query {
             aggregates: None,
             fields: Some(fields),
-            limit: Some(10),
+            limit: Some(gen_config.max_limit),
             offset: None,
             order_by: None,
             predicate: Some(predicate.expr.clone()),

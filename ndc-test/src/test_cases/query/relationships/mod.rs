@@ -5,10 +5,12 @@ use crate::error::Error;
 use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::{nest, test};
+use crate::configuration::TestGenerationConfiguration;
 
 use ndc_client::models::{self};
 
 pub async fn test_relationship_queries<C: Connector, R: Reporter>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     reporter: &mut R,
     schema: &models::SchemaResponse,
@@ -29,6 +31,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                     "Object relationship",
                     reporter,
                     select_top_n_using_foreign_key(
+                        gen_config,
                         connector,
                         collection_type,
                         collection_info,
@@ -42,6 +45,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                     "Array relationship",
                     reporter,
                     select_top_n_using_foreign_key_as_array_relationship(
+                        gen_config,
                         connector,
                         collection_type,
                         collection_info,
@@ -61,6 +65,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
 }
 
 async fn select_top_n_using_foreign_key<C: Connector>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
@@ -94,7 +99,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
                 query: Box::new(models::Query {
                     aggregates: None,
                     fields: Some(other_fields.clone()),
-                    limit: Some(10),
+                    limit: Some(gen_config.max_limit),
                     offset: None,
                     order_by: None,
                     predicate: None,
@@ -109,7 +114,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
             query: models::Query {
                 aggregates: None,
                 fields: Some(fields.clone()),
-                limit: Some(10),
+                limit: Some(gen_config.max_limit),
                 offset: None,
                 order_by: None,
                 predicate: None,
@@ -138,6 +143,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
 }
 
 async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
@@ -171,7 +177,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
                 query: Box::new(models::Query {
                     aggregates: None,
                     fields: Some(fields.clone()),
-                    limit: Some(10),
+                    limit: Some(gen_config.max_limit),
                     offset: None,
                     order_by: None,
                     predicate: None,
@@ -192,7 +198,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
             query: models::Query {
                 aggregates: None,
                 fields: Some(other_fields.clone()),
-                limit: Some(10),
+                limit: Some(gen_config.max_limit),
                 offset: None,
                 order_by: None,
                 predicate: None,

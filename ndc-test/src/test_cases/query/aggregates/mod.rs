@@ -3,12 +3,14 @@ use crate::error::Error;
 use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::test;
+use crate::configuration::TestGenerationConfiguration;
 
 use indexmap::IndexMap;
 use ndc_client::models;
 use std::collections::BTreeMap;
 
 pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     reporter: &mut R,
     schema: &models::SchemaResponse,
@@ -21,19 +23,20 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     let total_count = test!(
         "star_count",
         reporter,
-        test_star_count_aggregate(connector, collection_info)
+        test_star_count_aggregate(gen_config, connector, collection_info)
     )?;
 
     let _ = test!(
         "column_count",
         reporter,
-        test_column_count_aggregate(connector, collection_info, collection_type, total_count)
+        test_column_count_aggregate(gen_config, connector, collection_info, collection_type, total_count)
     );
 
     Some(())
 }
 
 pub async fn test_star_count_aggregate<C: Connector>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,
 ) -> Result<u64> {
@@ -43,7 +46,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
         query: models::Query {
             aggregates: Some(aggregates),
             fields: None,
-            limit: Some(10),
+            limit: Some(gen_config.max_limit),
             offset: None,
             order_by: None,
             predicate: None,
@@ -71,6 +74,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
 }
 
 pub async fn test_column_count_aggregate<C: Connector>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,
     collection_type: &models::ObjectType,
@@ -97,7 +101,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
         query: models::Query {
             aggregates: Some(aggregates),
             fields: None,
-            limit: Some(10),
+            limit: Some(gen_config.max_limit),
             offset: None,
             order_by: None,
             predicate: None,

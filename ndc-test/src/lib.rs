@@ -55,9 +55,13 @@ pub async fn test_connector<C: Connector, R: Reporter>(
     };
 
     let _ = match &configuration.snapshots_dir {
-        None => test_cases::run_all_tests(connector, reporter, &mut rng).await,
+        None => {
+            test_cases::run_all_tests(&configuration.gen_config, connector, reporter, &mut rng)
+                .await
+        }
         Some(snapshot_path) => {
             test_cases::run_all_tests(
+                &configuration.gen_config,
                 &SnapshottingConnector {
                     snapshot_path,
                     connector,

@@ -2,6 +2,7 @@ mod capabilities;
 mod query;
 mod schema;
 
+use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::nest;
 use crate::reporter::Reporter;
@@ -9,6 +10,7 @@ use crate::reporter::Reporter;
 use rand::rngs::SmallRng;
 
 pub async fn run_all_tests<C: Connector, R: Reporter>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     reporter: &mut R,
     rng: &mut SmallRng,
@@ -22,7 +24,7 @@ pub async fn run_all_tests<C: Connector, R: Reporter>(
     })?;
 
     nest!("Query", reporter, {
-        query::test_query(connector, reporter, &capabilities, &schema, rng)
+        query::test_query(gen_config, connector, reporter, &capabilities, &schema, rng)
     });
 
     Some(())

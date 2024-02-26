@@ -6,6 +6,7 @@ mod common;
 mod context;
 mod expectations;
 
+use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::nest;
 use crate::reporter::Reporter;
@@ -14,6 +15,7 @@ use ndc_client::models;
 use rand::rngs::SmallRng;
 
 pub async fn test_query<C: Connector, R: Reporter>(
+    gen_config: &TestGenerationConfiguration,
     connector: &C,
     reporter: &mut R,
     capabilities: &models::CapabilitiesResponse,
@@ -26,6 +28,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                 if collection_info.arguments.is_empty() {
                     nest!("Simple queries", reporter, {
                         simple_queries::test_simple_queries(
+                            gen_config,
                             connector,
                             reporter,
                             rng,
@@ -37,6 +40,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                     if capabilities.capabilities.relationships.is_some() {
                         nest!("Relationship queries", reporter, {
                             relationships::test_relationship_queries(
+                                gen_config,
                                 connector,
                                 reporter,
                                 schema,
@@ -47,6 +51,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
 
                     nest!("Aggregate queries", reporter, {
                         aggregates::test_aggregate_queries(
+                            gen_config,
                             connector,
                             reporter,
                             schema,

@@ -3,7 +3,7 @@ use std::{path::PathBuf, process::exit};
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
 use ndc_test::{
-    configuration::TestConfiguration,
+    configuration::{TestConfiguration, TestGenerationConfiguration},
     reporter::{ConsoleReporter, TestResults},
 };
 use reqwest::header::HeaderMap;
@@ -19,19 +19,50 @@ struct Options {
 #[derive(Subcommand)]
 enum Commands {
     Test {
-        #[arg(long, value_name = "ENDPOINT")]
+        #[arg(long, value_name = "ENDPOINT", help = "The NDC endpoint to test")]
         endpoint: reqwest::Url,
-        #[arg(long, value_name = "SEED")]
+        #[arg(
+            long,
+            value_name = "SEED",
+            help = "a 32-byte string with which to initialize the RNG"
+        )]
         seed: Option<String>,
-        #[arg(long, value_name = "PATH")]
+        #[arg(
+            long,
+            value_name = "PATH",
+            help = "the directory used to store snapshot files"
+        )]
         snapshots_dir: Option<PathBuf>,
-        #[arg(long, value_name = "COUNT", default_value = "10")]
-        sample_rows: u32,
+        #[arg(
+            long,
+            value_name = "COUNT",
+            default_value = "10",
+            help = "the number of test cases to generate per scenario"
+        )]
+        test_cases: u32,
+        #[arg(
+            long,
+            value_name = "COUNT",
+            default_value = "10",
+            help = "the number of example rows to fetch from each collection"
+        )]
+        sample_size: u32,
+        #[arg(
+            long,
+            value_name = "COUNT",
+            default_value = "10",
+            help = "the maximum number of rows to fetch per test query"
+        )]
+        max_limit: u32,
     },
     Replay {
-        #[arg(long, value_name = "ENDPOINT")]
+        #[arg(long, value_name = "ENDPOINT", help = "The NDC endpoint to test")]
         endpoint: reqwest::Url,
-        #[arg(long, value_name = "PATH")]
+        #[arg(
+            long,
+            value_name = "PATH",
+            help = "the directory used to store snapshot files"
+        )]
         snapshots_dir: PathBuf,
     },
 }
@@ -43,13 +74,22 @@ async fn main() {
             endpoint,
             seed,
             snapshots_dir,
-            sample_rows: _,
+            test_cases,
+            sample_size,
+            max_limit,
         } => {
             let seed: Option<[u8; 32]> = seed.map(|seed| seed.as_bytes().try_into().unwrap());
+
+            let gen_config = TestGenerationConfiguration {
+                test_cases,
+                sample_size,
+                max_limit,
+            };
 
             let test_configuration = TestConfiguration {
                 seed,
                 snapshots_dir,
+                gen_config,
             };
 
             let configuration = Configuration {
@@ -59,8 +99,7 @@ async fn main() {
                 headers: HeaderMap::new(),
             };
 
-            let mut reporter =
-                (ConsoleReporter::default(), TestResults::default());
+            let mut reporter = (ConsoleReporter::default(), TestResults::default());
 
             ndc_test::test_connector(&test_configuration, &configuration, &mut reporter).await;
 
@@ -82,8 +121,7 @@ async fn main() {
                 headers: HeaderMap::new(),
             };
 
-            let mut reporter =
-                (ConsoleReporter::default(), TestResults::default());
+            let mut reporter = (ConsoleReporter::default(), TestResults::default());
 
             ndc_test::test_snapshots_in_directory(&configuration, &mut reporter, snapshots_dir)
                 .await;

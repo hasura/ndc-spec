@@ -2289,6 +2289,7 @@ mod tests {
             let configuration = TestConfiguration {
                 seed: None,
                 snapshots_dir: None,
+                gen_config: Default::default(),
             };
             let connector = Reference {
                 state: init_app_state(),
