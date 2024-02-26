@@ -1,11 +1,11 @@
 use std::collections::BTreeMap;
 
+use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::error::Error;
 use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::{nest, test};
-use crate::configuration::TestGenerationConfiguration;
 
 use ndc_client::models::{self};
 
@@ -55,8 +55,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         foreign_key_name,
                         foreign_key,
                     )
-                )
-                ;
+                );
 
                 Some(())
             }
@@ -135,7 +134,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
         };
 
         let response = connector.query(query_request.clone()).await?;
-    
+
         validate_response(&query_request, &response)?;
     } else {
         eprintln!("Skipping parameterized relationship {}", foreign_key_name);
@@ -219,7 +218,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
         };
 
         let response = connector.query(query_request.clone()).await?;
-    
+
         validate_response(&query_request, &response)?;
     } else {
         eprintln!("Skipping parameterized relationship {}", foreign_key_name);

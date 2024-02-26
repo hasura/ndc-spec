@@ -29,7 +29,13 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
         .get(collection_info.collection_type.as_str())?;
 
     let context = test!("Select top N", reporter, async {
-        let rows = test_select_top_n_rows(connector, collection_type, collection_info, gen_config.sample_size).await?;
+        let rows = test_select_top_n_rows(
+            connector,
+            collection_type,
+            collection_info,
+            gen_config.sample_size,
+        )
+        .await?;
 
         super::context::make_context(collection_type, rows)
     })?;
@@ -85,7 +91,7 @@ async fn test_select_top_n_rows<C: Connector>(
     };
 
     let response = connector.query(query_request.clone()).await?;
-    
+
     validate_response(&query_request, &response)?;
 
     expect_single_rows(response)

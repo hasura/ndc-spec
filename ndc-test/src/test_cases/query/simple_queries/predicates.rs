@@ -155,7 +155,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
     };
 
     let response = connector.query(query_request.clone()).await?;
-    
+
     validate_response(&query_request, &response)?;
 
     if predicate.expect_nonempty {

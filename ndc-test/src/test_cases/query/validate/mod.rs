@@ -49,7 +49,7 @@ pub fn validate_response(
     }
 
     for rowset in &response.0 {
-        validate_rowset(&request.query, &rowset)?;
+        validate_rowset(&request.query, rowset)?;
     }
 
     Ok(())
@@ -57,7 +57,7 @@ pub fn validate_response(
 
 pub fn validate_rowset(query: &models::Query, rowset: &models::RowSet) -> Result<()> {
     match (&query.fields, &rowset.rows) {
-        (Some(fields), Some(rows)) => validate_rows(&query, fields, rows),
+        (Some(fields), Some(rows)) => validate_rows(query, fields, rows),
         (None, None) => Ok(()),
         (None, Some(_)) => Err(Error::RowsShouldBeNullInRowSet),
         (Some(_), None) => Err(Error::RowsShouldBeNonNullInRowSet),
