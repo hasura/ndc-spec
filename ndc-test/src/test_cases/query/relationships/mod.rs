@@ -9,6 +9,8 @@ use crate::configuration::TestGenerationConfiguration;
 
 use ndc_client::models::{self};
 
+use super::validate::validate_response;
+
 pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
@@ -132,9 +134,9 @@ async fn select_top_n_using_foreign_key<C: Connector>(
             variables: None,
         };
 
-        let response = connector.query(query_request).await?;
-
-        super::expectations::expect_single_rows(&response)?;
+        let response = connector.query(query_request.clone()).await?;
+    
+        validate_response(&query_request, &response)?;
     } else {
         eprintln!("Skipping parameterized relationship {}", foreign_key_name);
     }
@@ -216,9 +218,9 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
             variables: None,
         };
 
-        let response = connector.query(query_request).await?;
-
-        super::expectations::expect_single_rows(&response)?;
+        let response = connector.query(query_request.clone()).await?;
+    
+        validate_response(&query_request, &response)?;
     } else {
         eprintln!("Skipping parameterized relationship {}", foreign_key_name);
     }
