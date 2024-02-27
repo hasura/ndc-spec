@@ -1,9 +1,9 @@
+use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::error::Error;
 use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::test;
-use crate::configuration::TestGenerationConfiguration;
 
 use indexmap::IndexMap;
 use ndc_client::models;
@@ -29,7 +29,13 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     let _ = test!(
         "column_count",
         reporter,
-        test_column_count_aggregate(gen_config, connector, collection_info, collection_type, total_count)
+        test_column_count_aggregate(
+            gen_config,
+            connector,
+            collection_info,
+            collection_type,
+            total_count
+        )
     );
 
     Some(())
