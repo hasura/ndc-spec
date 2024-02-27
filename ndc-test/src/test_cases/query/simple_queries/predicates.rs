@@ -19,8 +19,8 @@ pub async fn test_predicates<C: Connector>(
     collection_info: &models::CollectionInfo,
 ) -> Result<()> {
     if let Some(context) = context {
-        for _ in 0..gen_config.test_cases {
-            if let Some(predicate) = make_predicate(schema, &context, rng)? {
+        for _ in 0..gen_config.test_cases.max(1) {
+            if let Some(predicate) = make_predicate(gen_config, schema, &context, rng)? {
                 test_select_top_n_rows_with_predicate(
                     gen_config,
                     connector,
@@ -45,12 +45,59 @@ pub struct GeneratedExpression {
 }
 
 pub fn make_predicate(
+    gen_config: &TestGenerationConfiguration,
     schema: &models::SchemaResponse,
     context: &super::super::context::Context,
     rng: &mut SmallRng,
 ) -> Result<Option<GeneratedExpression>> {
-    let (field_name, values) = context.choose_field(rng)?;
+    let amount = rng.gen_range(1..=gen_config.complexity.max(1)).into();
+    let fields = context.choose_distinct_fields(rng, amount);
 
+    let mut expressions: Vec<GeneratedExpression> = vec![];
+
+    for (field_name, values) in fields {
+        let available_expressions: Vec<GeneratedExpression> =
+            make_single_expressions(schema, context, field_name, values, rng)?;
+
+        let amount = rng.gen_range(1..=gen_config.complexity.max(1)).into();
+        let chosen = available_expressions
+            .choose_multiple(rng, amount)
+            .collect::<Vec<_>>();
+
+        match *chosen {
+            [] => continue,
+            [expression] => expressions.push(expression.clone()),
+            _ => expressions.push(GeneratedExpression {
+                expr: models::Expression::Or {
+                    expressions: chosen.iter().map(|e| e.expr.clone()).collect::<Vec<_>>(),
+                },
+                expect_nonempty: chosen.iter().any(|e| e.expect_nonempty),
+            }),
+        }
+    }
+
+    Ok(match expressions.as_slice() {
+        [] => None,
+        [expression] => Some(expression.clone()),
+        _ => Some(GeneratedExpression {
+            expr: models::Expression::And {
+                expressions: expressions
+                    .iter()
+                    .map(|e| e.expr.clone())
+                    .collect::<Vec<_>>(),
+            },
+            expect_nonempty: false,
+        }),
+    })
+}
+
+fn make_single_expressions(
+    schema: &models::SchemaResponse,
+    context: &super::super::context::Context,
+    field_name: String,
+    values: Vec<serde_json::Value>,
+    rng: &mut SmallRng,
+) -> Result<Vec<GeneratedExpression>> {
     let field_type = &context
         .collection_type
         .fields
@@ -122,11 +169,7 @@ pub fn make_predicate(
         }
     }
 
-    Ok(if expressions.is_empty() {
-        None
-    } else {
-        expressions.choose(rng).cloned()
-    })
+    Ok(expressions)
 }
 
 async fn test_select_top_n_rows_with_predicate<C: Connector>(

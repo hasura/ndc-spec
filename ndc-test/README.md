@@ -17,10 +17,10 @@ In order to properly validate a connector for release, authors should augment th
 cargo run --bin ndc-test -- test --endpoint http://localhost:8100
 ```
 
-To modify the random seed used to generate test data, use the `--seed` argument with a 16-character string:
+To modify the random seed used to generate test data, use the `--seed` argument with a 32-character string:
 
 ```sh
-cargo run --bin ndc-test -- test --endpoint http://localhost:8100 --seed '1234567890123456'
+cargo run --bin ndc-test -- test --endpoint http://localhost:8100 --seed 'ABD1FFEA148FE165FAC69B66B58972A8'
 ```
 
 ### Generate/replay snapshot tests

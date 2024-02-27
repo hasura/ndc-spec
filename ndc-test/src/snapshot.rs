@@ -1,9 +1,17 @@
-use std::{collections::hash_map::DefaultHasher, fs::File, hash::{Hash, Hasher}, path::{Path, PathBuf}};
+use std::{
+    collections::hash_map::DefaultHasher,
+    fs::File,
+    hash::{Hash, Hasher},
+    path::{Path, PathBuf},
+};
 
 use async_trait::async_trait;
 use ndc_client::models;
 
-use crate::{connector::Connector, error::{Error, Result}};
+use crate::{
+    connector::Connector,
+    error::{Error, Result},
+};
 
 pub struct SnapshottingConnector<'a, C: Connector> {
     pub snapshot_path: &'a PathBuf,
@@ -11,7 +19,7 @@ pub struct SnapshottingConnector<'a, C: Connector> {
 }
 
 #[async_trait(?Send)]
-impl <'a, C: Connector> Connector for SnapshottingConnector<'a, C> {
+impl<'a, C: Connector> Connector for SnapshottingConnector<'a, C> {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
         let response: models::CapabilitiesResponse = self.connector.get_capabilities().await?;
         snapshot_test(self.snapshot_path.join("capabilities").as_path(), &response)?;
@@ -61,7 +69,10 @@ where
 
         if snapshot != *expected {
             let actual = serde_json::to_string_pretty(&expected).map_err(Error::SerdeError)?;
-            return Err(Error::ResponseDidNotMatchSnapshot(snapshot_path.to_path_buf(), actual));
+            return Err(Error::ResponseDidNotMatchSnapshot(
+                snapshot_path.to_path_buf(),
+                actual,
+            ));
         }
     } else {
         let parent = snapshot_path.parent().unwrap();
