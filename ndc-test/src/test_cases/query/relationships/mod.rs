@@ -1,13 +1,14 @@
 use std::collections::BTreeMap;
 
+use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::error::Error;
 use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::{nest, test};
-use crate::configuration::TestGenerationConfiguration;
 
 use ndc_client::models::{self};
+use rand::rngs::SmallRng;
 
 pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
@@ -15,6 +16,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     reporter: &mut R,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
+    rng: &mut SmallRng
 ) -> Option<()> {
     let collection_type = schema
         .object_types
@@ -38,6 +40,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         schema,
                         foreign_key_name,
                         foreign_key,
+                        rng,
                     )
                 );
 
@@ -52,9 +55,9 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         schema,
                         foreign_key_name,
                         foreign_key,
+                        rng,
                     )
-                )
-                ;
+                );
 
                 Some(())
             }
@@ -72,8 +75,9 @@ async fn select_top_n_using_foreign_key<C: Connector>(
     schema: &models::SchemaResponse,
     foreign_key_name: &str,
     foreign_key: &models::ForeignKeyConstraint,
+    rng: &mut SmallRng,
 ) -> Result<()> {
-    let mut fields = super::common::select_all_columns(collection_type);
+    let mut fields = super::common::select_columns(collection_type, rng);
 
     let other_collection = schema
         .collections
@@ -150,8 +154,9 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
     schema: &models::SchemaResponse,
     foreign_key_name: &str,
     foreign_key: &models::ForeignKeyConstraint,
+    rng: &mut SmallRng,
 ) -> Result<()> {
-    let fields = super::common::select_all_columns(collection_type);
+    let fields = super::common::select_columns(collection_type, rng);
 
     let other_collection = schema
         .collections
