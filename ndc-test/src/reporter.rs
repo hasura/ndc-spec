@@ -5,8 +5,7 @@ pub trait Reporter {
     fn failure(&mut self, name: &str, err: &crate::error::Error);
 }
 
-#[derive(Debug)]
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct TestResults {
     path: Vec<String>,
     pub failures: Vec<FailedTest>,
@@ -18,8 +17,6 @@ pub struct FailedTest {
     pub name: String,
     pub error: String,
 }
-
-
 
 impl Reporter for TestResults {
     fn enter(&mut self, name: &str) {
@@ -109,36 +106,32 @@ where
 
 #[macro_export]
 macro_rules! test {
-    ($name: expr, $reporter: expr, $f: expr) => {
-        {
-            $reporter.enter($name);
+    ($name: expr, $reporter: expr, $f: expr) => {{
+        $reporter.enter($name);
 
-            let result = $f.await;
+        let result = $f.await;
 
-            match &result {
-                Ok(_) => {
-                    $reporter.success();
-                }
-                Err(err) => {
-                    $reporter.failure($name, err);
-                }
-            };
+        match &result {
+            Ok(_) => {
+                $reporter.success();
+            }
+            Err(err) => {
+                $reporter.failure($name, err);
+            }
+        };
 
-            $reporter.exit();
+        $reporter.exit();
 
-            result.ok()
-        }
-    };
+        result.ok()
+    }};
 }
 
 #[macro_export]
 macro_rules! nest {
-    ($name: expr, $reporter: expr, $f: expr) => {
-        {
-            $reporter.enter($name);
-            let result = $f.await;
-            $reporter.exit();
-            result
-        }
-    };
+    ($name: expr, $reporter: expr, $f: expr) => {{
+        $reporter.enter($name);
+        let result = $f.await;
+        $reporter.exit();
+        result
+    }};
 }

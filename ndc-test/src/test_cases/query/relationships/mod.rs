@@ -16,7 +16,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     reporter: &mut R,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
-    rng: &mut SmallRng
+    rng: &mut SmallRng,
 ) -> Option<()> {
     let collection_type = schema
         .object_types
