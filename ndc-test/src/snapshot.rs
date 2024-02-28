@@ -25,7 +25,7 @@ impl <'a, C: Connector> Connector for SnapshottingConnector<'a, C> {
     }
 
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse> {
-        let request_json = serde_json::to_string_pretty(&request).map_err(Error::SerdeError)?;
+        let request_json = serde_json::to_string_pretty(&request)?;
         let response = self.connector.query(request).await?;
 
         let mut hasher = DefaultHasher::new();
@@ -57,10 +57,10 @@ where
 {
     if snapshot_path.exists() {
         let snapshot_file = File::open(snapshot_path).map_err(Error::CannotOpenSnapshotFile)?;
-        let snapshot: R = serde_json::from_reader(snapshot_file).map_err(Error::SerdeError)?;
+        let snapshot: R = serde_json::from_reader(snapshot_file)?;
 
         if snapshot != *expected {
-            let actual = serde_json::to_string_pretty(&expected).map_err(Error::SerdeError)?;
+            let actual = serde_json::to_string_pretty(&expected)?;
             return Err(Error::ResponseDidNotMatchSnapshot(snapshot_path.to_path_buf(), actual));
         }
     } else {
@@ -71,7 +71,7 @@ where
         })()
         .map_err(Error::CannotOpenSnapshotFile)?;
 
-        serde_json::to_writer_pretty(snapshot_file, &expected).map_err(Error::SerdeError)?;
+        serde_json::to_writer_pretty(snapshot_file, &expected)?;
     }
 
     Ok(())
