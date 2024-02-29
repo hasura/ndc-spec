@@ -48,7 +48,7 @@ For example, an equality operator on a string type might test equality at the le
 
 #### `In`
 
-An operator defined using type `in` tests if a column value is a member of an array of values, each of which can be a scalar value, another column value, or a variable.
+An operator defined using type `in` tests if a column value is a member of an array of values. The array is specified either as a scalar, a variable, or as the value of another column.
 
 It should accept an array type as its argument, whose element type is the scalar type for which it is defined. It should be equivalent to a disjunction of individual equality tests on the elements of the provided array, where the equality test is an equivalence relation in the same sense as above.
 
