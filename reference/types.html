@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js light">
+<html lang="en" class="light" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -10,7 +10,7 @@
         
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff">
 
         <link rel="icon" href="../favicon.svg">
         <link rel="shortcut icon" href="../favicon.png">
@@ -31,7 +31,7 @@
         <!-- Custom theme stylesheets -->
 
     </head>
-    <body>
+    <body class="sidebar-visible no-js">
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -61,42 +61,71 @@
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
-            html.classList.remove('no-js')
             html.classList.remove('light')
             html.classList.add(theme);
-            html.classList.add('js');
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
         </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var html = document.querySelector('html');
+            var body = document.querySelector('body');
             var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
             }
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded affix "><a href="../overview.html">Overview</a></li><li class="chapter-item expanded affix "><li class="part-title">API Specification</li><li class="chapter-item expanded "><a href="../specification/index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../specification/changelog.html"><strong aria-hidden="true">2.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="../specification/basics.html"><strong aria-hidden="true">3.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../specification/versioning.html"><strong aria-hidden="true">4.</strong> Versioning</a></li><li class="chapter-item expanded "><a href="../specification/error-handling.html"><strong aria-hidden="true">5.</strong> Error Handling</a></li><li class="chapter-item expanded "><a href="../specification/health.html"><strong aria-hidden="true">6.</strong> Service Health</a></li><li class="chapter-item expanded "><a href="../specification/metrics.html"><strong aria-hidden="true">7.</strong> Metrics</a></li><li class="chapter-item expanded "><a href="../specification/telemetry.html"><strong aria-hidden="true">8.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../specification/capabilities.html"><strong aria-hidden="true">9.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../specification/types.html"><strong aria-hidden="true">10.</strong> Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/index.html"><strong aria-hidden="true">11.</strong> Schema</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/schema/scalar-types.html"><strong aria-hidden="true">11.1.</strong> Scalar Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/object-types.html"><strong aria-hidden="true">11.2.</strong> Object Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/collections.html"><strong aria-hidden="true">11.3.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../specification/schema/functions.html"><strong aria-hidden="true">11.4.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../specification/schema/procedures.html"><strong aria-hidden="true">11.5.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/queries/index.html"><strong aria-hidden="true">12.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/queries/field-selection.html"><strong aria-hidden="true">12.1.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../specification/queries/filtering.html"><strong aria-hidden="true">12.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../specification/queries/sorting.html"><strong aria-hidden="true">12.3.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../specification/queries/pagination.html"><strong aria-hidden="true">12.4.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../specification/queries/aggregates.html"><strong aria-hidden="true">12.5.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../specification/queries/arguments.html"><strong aria-hidden="true">12.6.</strong> Arguments</a></li><li class="chapter-item expanded "><a href="../specification/queries/relationships.html"><strong aria-hidden="true">12.7.</strong> Relationships</a></li><li class="chapter-item expanded "><a href="../specification/queries/variables.html"><strong aria-hidden="true">12.8.</strong> Variables</a></li><li class="chapter-item expanded "><a href="../specification/queries/functions.html"><strong aria-hidden="true">12.9.</strong> Functions</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/mutations/index.html"><strong aria-hidden="true">13.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/mutations/procedures.html"><strong aria-hidden="true">13.1.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/explain.html"><strong aria-hidden="true">14.</strong> Explain</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorial</li><li class="chapter-item expanded "><a href="../tutorial/index.html"><strong aria-hidden="true">15.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../tutorial/setup.html"><strong aria-hidden="true">16.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../tutorial/testing.html"><strong aria-hidden="true">17.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../tutorial/getting-started.html"><strong aria-hidden="true">18.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../tutorial/capabilities.html"><strong aria-hidden="true">19.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../tutorial/schema.html"><strong aria-hidden="true">20.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/index.html"><strong aria-hidden="true">21.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/queries/variables.html"><strong aria-hidden="true">21.1.</strong> Query Variables</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/arguments.html"><strong aria-hidden="true">21.2.</strong> Evaluating Arguments</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/index.html"><strong aria-hidden="true">21.3.</strong> Executing Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/queries/execute/sorting.html"><strong aria-hidden="true">21.3.1.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/filtering.html"><strong aria-hidden="true">21.3.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/pagination.html"><strong aria-hidden="true">21.3.3.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/aggregates.html"><strong aria-hidden="true">21.3.4.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/field-selection.html"><strong aria-hidden="true">21.3.5.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/relationships.html"><strong aria-hidden="true">21.3.6.</strong> Relationships</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../tutorial/mutations/index.html"><strong aria-hidden="true">22.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/mutations/operations.html"><strong aria-hidden="true">22.1.</strong> Handling Operations</a></li><li class="chapter-item expanded "><a href="../tutorial/mutations/procedures.html"><strong aria-hidden="true">22.2.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorial/explain.html"><strong aria-hidden="true">23.</strong> Explain</a></li><li class="chapter-item expanded "><a href="../tutorial/health.html"><strong aria-hidden="true">24.</strong> Health and Metrics</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/types.html" class="active"><strong aria-hidden="true">25.</strong> Types</a></li><li class="chapter-item expanded "><a href="../reference/json-schema.html"><strong aria-hidden="true">26.</strong> JSON Schema</a></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
                                 <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky bordered">
+                <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
-                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
-                        </button>
+                        </label>
                         <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -147,8 +176,8 @@
                         <h1 id="types"><a class="header" href="#types">Types</a></h1>
 <h2 id="aggregate"><a class="header" href="#aggregate"><code>Aggregate</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Aggregate&quot;)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Aggregate")]
 pub enum Aggregate {
     ColumnCount {
         /// The column to apply the count aggregate function to
@@ -167,15 +196,15 @@ pub enum Aggregate {
 <h2 id="aggregatefunctiondefinition"><a class="header" href="#aggregatefunctiondefinition"><code>AggregateFunctionDefinition</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an aggregation function on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Aggregate Function Definition&quot;)]
+#[schemars(title = "Aggregate Function Definition")]
 pub struct AggregateFunctionDefinition {
     /// The scalar or object type of the result of this function
     pub result_type: Type,
 }</code></pre>
 <h2 id="argument"><a class="header" href="#argument"><code>Argument</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Argument&quot;)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Argument")]
 pub enum Argument {
     /// The argument is provided by reference to a variable
     Variable { name: String },
@@ -185,19 +214,19 @@ pub enum Argument {
 <h2 id="argumentinfo"><a class="header" href="#argumentinfo"><code>ArgumentInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Argument Info&quot;)]
+#[schemars(title = "Argument Info")]
 pub struct ArgumentInfo {
     /// Argument description
     pub description: Option&lt;String&gt;,
     /// The name of the type of this argument
-    #[serde(rename = &quot;type&quot;)]
+    #[serde(rename = "type")]
     pub argument_type: Type,
 }</code></pre>
 <h2 id="capabilities"><a class="header" href="#capabilities"><code>Capabilities</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// Describes the features of the specification which a data connector implements.
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Capabilities&quot;)]
+#[schemars(title = "Capabilities")]
 pub struct Capabilities {
     pub query: QueryCapabilities,
     pub mutation: MutationCapabilities,
@@ -206,7 +235,7 @@ pub struct Capabilities {
 <h2 id="capabilitiesresponse"><a class="header" href="#capabilitiesresponse"><code>CapabilitiesResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Capabilities Response&quot;)]
+#[schemars(title = "Capabilities Response")]
 pub struct CapabilitiesResponse {
     pub version: String,
     pub capabilities: Capabilities,
@@ -214,8 +243,8 @@ pub struct CapabilitiesResponse {
 <h2 id="comparisonoperatordefinition"><a class="header" href="#comparisonoperatordefinition"><code>ComparisonOperatorDefinition</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of a comparison operator on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Comparison Operator Definition&quot;)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Comparison Operator Definition")]
 pub enum ComparisonOperatorDefinition {
     Equal,
     In,
@@ -227,8 +256,8 @@ pub enum ComparisonOperatorDefinition {
 <h2 id="comparisontarget"><a class="header" href="#comparisontarget"><code>ComparisonTarget</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Comparison Target&quot;)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = "Comparison Target")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum ComparisonTarget {
     Column {
         /// The name of the column
@@ -243,8 +272,8 @@ pub enum ComparisonTarget {
 }</code></pre>
 <h2 id="comparisonvalue"><a class="header" href="#comparisonvalue"><code>ComparisonValue</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Comparison Value&quot;)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Comparison Value")]
 pub enum ComparisonValue {
     Column { column: ComparisonTarget },
     Scalar { value: serde_json::Value },
@@ -253,7 +282,7 @@ pub enum ComparisonValue {
 <h2 id="errorresponse"><a class="header" href="#errorresponse"><code>ErrorResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Error Response&quot;)]
+#[schemars(title = "Error Response")]
 pub struct ErrorResponse {
     /// A human-readable summary of the error
     pub message: String,
@@ -262,8 +291,8 @@ pub struct ErrorResponse {
 }</code></pre>
 <h2 id="existsincollection"><a class="header" href="#existsincollection"><code>ExistsInCollection</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Exists In Collection&quot;)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Exists In Collection")]
 pub enum ExistsInCollection {
     Related {
         relationship: String,
@@ -279,7 +308,7 @@ pub enum ExistsInCollection {
 }</code></pre>
 <h2 id="explainresponse"><a class="header" href="#explainresponse"><code>ExplainResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Explain Response&quot;)]
+#[schemars(title = "Explain Response")]
 pub struct ExplainResponse {
     /// A list of human-readable key-value pairs describing
     /// a query execution plan. For example, a connector for
@@ -291,8 +320,8 @@ pub struct ExplainResponse {
 }</code></pre>
 <h2 id="expression"><a class="header" href="#expression"><code>Expression</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Expression&quot;)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Expression")]
 pub enum Expression {
     And {
         expressions: Vec&lt;Expression&gt;,
@@ -319,8 +348,8 @@ pub enum Expression {
 }</code></pre>
 <h2 id="field"><a class="header" href="#field"><code>Field</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Field&quot;)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Field")]
 pub enum Field {
     Column {
         column: String,
@@ -340,7 +369,7 @@ pub enum Field {
 }</code></pre>
 <h2 id="foreignkeyconstraint"><a class="header" href="#foreignkeyconstraint"><code>ForeignKeyConstraint</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Foreign Key Constraint&quot;)]
+#[schemars(title = "Foreign Key Constraint")]
 pub struct ForeignKeyConstraint {
     /// The columns on which you want want to define the foreign key.
     pub column_mapping: BTreeMap&lt;String, String&gt;,
@@ -350,7 +379,7 @@ pub struct ForeignKeyConstraint {
 <h2 id="functioninfo"><a class="header" href="#functioninfo"><code>FunctionInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Function Info&quot;)]
+#[schemars(title = "Function Info")]
 pub struct FunctionInfo {
     /// The name of the function
     pub name: String,
@@ -369,8 +398,8 @@ pub struct LeafCapability {}</code></pre>
 <h2 id="mutationoperation"><a class="header" href="#mutationoperation"><code>MutationOperation</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Mutation Operation&quot;)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = "Mutation Operation")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum MutationOperation {
     Procedure {
         /// The name of a procedure
@@ -382,17 +411,15 @@ pub enum MutationOperation {
     },
 }</code></pre>
 <h2 id="mutationoperationresults"><a class="header" href="#mutationoperationresults"><code>MutationOperationResults</code></a></h2>
-<pre><code class="language-rust no_run noplayground">#[derive(
-    Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema,
-)]
-#[schemars(title = &quot;Mutation Operation Results&quot;)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+<pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Mutation Operation Results")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum MutationOperationResults {
     Procedure { result: serde_json::Value },
 }</code></pre>
 <h2 id="mutationrequest"><a class="header" href="#mutationrequest"><code>MutationRequest</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Mutation Request&quot;)]
+#[schemars(title = "Mutation Request")]
 pub struct MutationRequest {
     /// The mutation operations to perform
     pub operations: Vec&lt;MutationOperation&gt;,
@@ -401,30 +428,30 @@ pub struct MutationRequest {
 }</code></pre>
 <h2 id="mutationresponse"><a class="header" href="#mutationresponse"><code>MutationResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Mutation Response&quot;)]
+#[schemars(title = "Mutation Response")]
 pub struct MutationResponse {
     /// The results of each mutation operation, in the same order as they were received
     pub operation_results: Vec&lt;MutationOperationResults&gt;,
 }</code></pre>
 <h2 id="nestedarray"><a class="header" href="#nestedarray"><code>NestedArray</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;NestedArray&quot;)]
+#[serde(rename_all = "snake_case")]
+#[schemars(title = "NestedArray")]
 pub struct NestedArray {
     pub fields: Box&lt;NestedField&gt;,
 }</code></pre>
 <h2 id="nestedfield"><a class="header" href="#nestedfield"><code>NestedField</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;NestedField&quot;)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "NestedField")]
 pub enum NestedField {
     Object(NestedObject),
     Array(NestedArray),
 }</code></pre>
 <h2 id="nestedobject"><a class="header" href="#nestedobject"><code>NestedObject</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;NestedObject&quot;)]
+#[serde(rename_all = "snake_case")]
+#[schemars(title = "NestedObject")]
 pub struct NestedObject {
     pub fields: IndexMap&lt;String, Field&gt;,
 }</code></pre>
@@ -432,19 +459,19 @@ pub struct NestedObject {
 <pre><code class="language-rust no_run noplayground">/// The definition of an object field
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Object Field&quot;)]
+#[schemars(title = "Object Field")]
 pub struct ObjectField {
     /// Description of this field
     pub description: Option&lt;String&gt;,
     /// The type of this field
-    #[serde(rename = &quot;type&quot;)]
+    #[serde(rename = "type")]
     pub r#type: Type,
 }</code></pre>
 <h2 id="objecttype"><a class="header" href="#objecttype"><code>ObjectType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an object type
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Object Type&quot;)]
+#[schemars(title = "Object Type")]
 pub struct ObjectType {
     /// Description of this type
     pub description: Option&lt;String&gt;,
@@ -453,14 +480,14 @@ pub struct ObjectType {
 }</code></pre>
 <h2 id="orderby"><a class="header" href="#orderby"><code>OrderBy</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Order By&quot;)]
+#[schemars(title = "Order By")]
 pub struct OrderBy {
     /// The elements to order by, in priority order
     pub elements: Vec&lt;OrderByElement&gt;,
 }</code></pre>
 <h2 id="orderbyelement"><a class="header" href="#orderbyelement"><code>OrderByElement</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Order By Element&quot;)]
+#[schemars(title = "Order By Element")]
 pub struct OrderByElement {
     pub order_direction: OrderDirection,
     pub target: OrderByTarget,
@@ -468,8 +495,8 @@ pub struct OrderByElement {
 <h2 id="orderbytarget"><a class="header" href="#orderbytarget"><code>OrderByTarget</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Order By Target&quot;)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = "Order By Target")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum OrderByTarget {
     Column {
         /// The name of the column
@@ -494,16 +521,16 @@ pub enum OrderByTarget {
 <pre><code class="language-rust no_run noplayground">#[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
-#[schemars(title = &quot;Order Direction&quot;)]
-#[serde(rename_all = &quot;snake_case&quot;)]
+#[schemars(title = "Order Direction")]
+#[serde(rename_all = "snake_case")]
 pub enum OrderDirection {
     Asc,
     Desc,
 }</code></pre>
 <h2 id="pathelement"><a class="header" href="#pathelement"><code>PathElement</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Path Element&quot;)]
+#[serde(rename_all = "snake_case")]
+#[schemars(title = "Path Element")]
 pub struct PathElement {
     /// The name of the relationship to follow
     pub relationship: String,
@@ -515,7 +542,7 @@ pub struct PathElement {
 <h2 id="procedureinfo"><a class="header" href="#procedureinfo"><code>ProcedureInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Procedure Info&quot;)]
+#[schemars(title = "Procedure Info")]
 pub struct ProcedureInfo {
     /// The name of the procedure
     pub name: String,
@@ -529,7 +556,7 @@ pub struct ProcedureInfo {
 <h2 id="query"><a class="header" href="#query"><code>Query</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Query&quot;)]
+#[schemars(title = "Query")]
 pub struct Query {
     /// Aggregate fields of the query
     pub aggregates: Option&lt;IndexMap&lt;String, Aggregate&gt;&gt;,
@@ -545,7 +572,7 @@ pub struct Query {
 <h2 id="querycapabilities"><a class="header" href="#querycapabilities"><code>QueryCapabilities</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Query Capabilities&quot;)]
+#[schemars(title = "Query Capabilities")]
 pub struct QueryCapabilities {
     /// Does the connector support aggregate queries
     pub aggregates: Option&lt;LeafCapability&gt;,
@@ -558,7 +585,7 @@ pub struct QueryCapabilities {
 <pre><code class="language-rust no_run noplayground">/// This is the request body of the query POST endpoint
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Query Request&quot;)]
+#[schemars(title = "Query Request")]
 pub struct QueryRequest {
     /// The name of a collection
     pub collection: String,
@@ -575,13 +602,13 @@ pub struct QueryRequest {
 <h2 id="queryresponse"><a class="header" href="#queryresponse"><code>QueryResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Query Response&quot;)]
+#[schemars(title = "Query Response")]
 /// Query responses may return multiple RowSets when using queries with variables.
 /// Else, there should always be exactly one RowSet
 pub struct QueryResponse(pub Vec&lt;RowSet&gt;);</code></pre>
 <h2 id="relationship"><a class="header" href="#relationship"><code>Relationship</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Relationship&quot;)]
+#[schemars(title = "Relationship")]
 pub struct Relationship {
     /// A mapping between columns on the source collection to columns on the target collection
     pub column_mapping: BTreeMap&lt;String, String&gt;,
@@ -594,8 +621,8 @@ pub struct Relationship {
 <h2 id="relationshipargument"><a class="header" href="#relationshipargument"><code>RelationshipArgument</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Relationship Argument&quot;)]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
+#[schemars(title = "Relationship Argument")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum RelationshipArgument {
     /// The argument is provided by reference to a variable
     Variable {
@@ -613,7 +640,7 @@ pub enum RelationshipArgument {
 <h2 id="relationshipcapabilities"><a class="header" href="#relationshipcapabilities"><code>RelationshipCapabilities</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Relationship Capabilities&quot;)]
+#[schemars(title = "Relationship Capabilities")]
 pub struct RelationshipCapabilities {
     /// Does the connector support comparisons that involve related collections (ie. joins)?
     pub relation_comparisons: Option&lt;LeafCapability&gt;,
@@ -624,15 +651,15 @@ pub struct RelationshipCapabilities {
 <pre><code class="language-rust no_run noplayground">#[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
-#[schemars(title = &quot;Relationship Type&quot;)]
-#[serde(rename_all = &quot;snake_case&quot;)]
+#[schemars(title = "Relationship Type")]
+#[serde(rename_all = "snake_case")]
 pub enum RelationshipType {
     Object,
     Array,
 }</code></pre>
 <h2 id="rowfieldvalue"><a class="header" href="#rowfieldvalue"><code>RowFieldValue</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Row Field Value&quot;)]
+#[schemars(title = "Row Field Value")]
 pub struct RowFieldValue(pub serde_json::Value);
 
 impl RowFieldValue {
@@ -647,7 +674,7 @@ impl RowFieldValue {
 <h2 id="rowset"><a class="header" href="#rowset"><code>RowSet</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Row Set&quot;)]
+#[schemars(title = "Row Set")]
 pub struct RowSet {
     /// The results of the aggregates returned by the query
     pub aggregates: Option&lt;IndexMap&lt;String, serde_json::Value&gt;&gt;,
@@ -657,7 +684,7 @@ pub struct RowSet {
 <h2 id="scalartype"><a class="header" href="#scalartype"><code>ScalarType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of a scalar type, i.e. types that can be used as the types of columns.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Scalar Type&quot;)]
+#[schemars(title = "Scalar Type")]
 pub struct ScalarType {
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap&lt;String, AggregateFunctionDefinition&gt;,
@@ -666,7 +693,7 @@ pub struct ScalarType {
 }</code></pre>
 <h2 id="schemaresponse"><a class="header" href="#schemaresponse"><code>SchemaResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Schema Response&quot;)]
+#[schemars(title = "Schema Response")]
 pub struct SchemaResponse {
     /// A list of scalar types which will be used as the types of collection columns
     pub scalar_types: BTreeMap&lt;String, ScalarType&gt;,
@@ -683,7 +710,7 @@ pub struct SchemaResponse {
 <h2 id="collectioninfo"><a class="header" href="#collectioninfo"><code>CollectionInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Collection Info&quot;)]
+#[schemars(title = "Collection Info")]
 pub struct CollectionInfo {
     /// The name of the collection
     ///
@@ -695,7 +722,7 @@ pub struct CollectionInfo {
     /// Any arguments that this collection requires
     pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
     /// The name of the collection's object type
-    #[serde(rename = &quot;type&quot;)]
+    #[serde(rename = "type")]
     pub collection_type: String,
     /// Any uniqueness constraints enforced on this collection
     pub uniqueness_constraints: BTreeMap&lt;String, UniquenessConstraint&gt;,
@@ -707,8 +734,8 @@ pub struct CollectionInfo {
 #[derive(
     Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
-#[serde(tag = &quot;type&quot;, rename_all = &quot;snake_case&quot;)]
-#[schemars(title = &quot;Type&quot;)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Type")]
 pub enum Type {
     /// A named type
     Named {
@@ -735,14 +762,14 @@ pub enum Type {
 <pre><code class="language-rust no_run noplayground">#[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
-#[schemars(title = &quot;Unary Comparison Operator&quot;)]
-#[serde(rename_all = &quot;snake_case&quot;)]
+#[schemars(title = "Unary Comparison Operator")]
+#[serde(rename_all = "snake_case")]
 pub enum UnaryComparisonOperator {
     IsNull,
 }</code></pre>
 <h2 id="uniquenessconstraint"><a class="header" href="#uniquenessconstraint"><code>UniquenessConstraint</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = &quot;Uniqueness Constraint&quot;)]
+#[schemars(title = "Uniqueness Constraint")]
 pub struct UniquenessConstraint {
     /// A list of columns which this constraint requires to be unique
     pub unique_columns: Vec&lt;String&gt;,
@@ -756,7 +783,7 @@ pub struct UniquenessConstraint {
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="../reference/json-schema.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../reference/json-schema.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -770,7 +797,7 @@ pub struct UniquenessConstraint {
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="../reference/json-schema.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../reference/json-schema.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

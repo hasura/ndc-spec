@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js light">
+<html lang="en" class="light" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -10,7 +10,7 @@
         
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff">
 
         <link rel="icon" href="../favicon.svg">
         <link rel="shortcut icon" href="../favicon.png">
@@ -31,7 +31,7 @@
         <!-- Custom theme stylesheets -->
 
     </head>
-    <body>
+    <body class="sidebar-visible no-js">
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -61,42 +61,71 @@
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
-            html.classList.remove('no-js')
             html.classList.remove('light')
             html.classList.add(theme);
-            html.classList.add('js');
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
         </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var html = document.querySelector('html');
+            var body = document.querySelector('body');
             var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
             }
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded affix "><a href="../overview.html">Overview</a></li><li class="chapter-item expanded affix "><li class="part-title">API Specification</li><li class="chapter-item expanded "><a href="../specification/index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../specification/changelog.html"><strong aria-hidden="true">2.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="../specification/basics.html"><strong aria-hidden="true">3.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../specification/versioning.html"><strong aria-hidden="true">4.</strong> Versioning</a></li><li class="chapter-item expanded "><a href="../specification/error-handling.html"><strong aria-hidden="true">5.</strong> Error Handling</a></li><li class="chapter-item expanded "><a href="../specification/health.html"><strong aria-hidden="true">6.</strong> Service Health</a></li><li class="chapter-item expanded "><a href="../specification/metrics.html"><strong aria-hidden="true">7.</strong> Metrics</a></li><li class="chapter-item expanded "><a href="../specification/telemetry.html"><strong aria-hidden="true">8.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../specification/capabilities.html"><strong aria-hidden="true">9.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../specification/types.html"><strong aria-hidden="true">10.</strong> Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/index.html"><strong aria-hidden="true">11.</strong> Schema</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/schema/scalar-types.html"><strong aria-hidden="true">11.1.</strong> Scalar Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/object-types.html"><strong aria-hidden="true">11.2.</strong> Object Types</a></li><li class="chapter-item expanded "><a href="../specification/schema/collections.html"><strong aria-hidden="true">11.3.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../specification/schema/functions.html"><strong aria-hidden="true">11.4.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../specification/schema/procedures.html"><strong aria-hidden="true">11.5.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/queries/index.html"><strong aria-hidden="true">12.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/queries/field-selection.html"><strong aria-hidden="true">12.1.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../specification/queries/filtering.html"><strong aria-hidden="true">12.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../specification/queries/sorting.html"><strong aria-hidden="true">12.3.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../specification/queries/pagination.html"><strong aria-hidden="true">12.4.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../specification/queries/aggregates.html"><strong aria-hidden="true">12.5.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../specification/queries/arguments.html"><strong aria-hidden="true">12.6.</strong> Arguments</a></li><li class="chapter-item expanded "><a href="../specification/queries/relationships.html"><strong aria-hidden="true">12.7.</strong> Relationships</a></li><li class="chapter-item expanded "><a href="../specification/queries/variables.html"><strong aria-hidden="true">12.8.</strong> Variables</a></li><li class="chapter-item expanded "><a href="../specification/queries/functions.html"><strong aria-hidden="true">12.9.</strong> Functions</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/mutations/index.html"><strong aria-hidden="true">13.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../specification/mutations/procedures.html"><strong aria-hidden="true">13.1.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../specification/explain.html"><strong aria-hidden="true">14.</strong> Explain</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorial</li><li class="chapter-item expanded "><a href="../tutorial/index.html"><strong aria-hidden="true">15.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../tutorial/setup.html"><strong aria-hidden="true">16.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../tutorial/testing.html"><strong aria-hidden="true">17.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../tutorial/getting-started.html"><strong aria-hidden="true">18.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../tutorial/capabilities.html"><strong aria-hidden="true">19.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../tutorial/schema.html" class="active"><strong aria-hidden="true">20.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/index.html"><strong aria-hidden="true">21.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/queries/variables.html"><strong aria-hidden="true">21.1.</strong> Query Variables</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/arguments.html"><strong aria-hidden="true">21.2.</strong> Evaluating Arguments</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/index.html"><strong aria-hidden="true">21.3.</strong> Executing Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/queries/execute/sorting.html"><strong aria-hidden="true">21.3.1.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/filtering.html"><strong aria-hidden="true">21.3.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/pagination.html"><strong aria-hidden="true">21.3.3.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/aggregates.html"><strong aria-hidden="true">21.3.4.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/field-selection.html"><strong aria-hidden="true">21.3.5.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../tutorial/queries/execute/relationships.html"><strong aria-hidden="true">21.3.6.</strong> Relationships</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../tutorial/mutations/index.html"><strong aria-hidden="true">22.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorial/mutations/operations.html"><strong aria-hidden="true">22.1.</strong> Handling Operations</a></li><li class="chapter-item expanded "><a href="../tutorial/mutations/procedures.html"><strong aria-hidden="true">22.2.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorial/explain.html"><strong aria-hidden="true">23.</strong> Explain</a></li><li class="chapter-item expanded "><a href="../tutorial/health.html"><strong aria-hidden="true">24.</strong> Health and Metrics</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/types.html"><strong aria-hidden="true">25.</strong> Types</a></li><li class="chapter-item expanded "><a href="../reference/json-schema.html"><strong aria-hidden="true">26.</strong> JSON Schema</a></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
                                 <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky bordered">
+                <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
-                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
-                        </button>
+                        </label>
                         <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -161,17 +190,17 @@
 <p><code>String</code> supports a custom <code>like</code> comparison operator, and <code>Int</code> supports custom aggregation operators <code>min</code> and <code>max</code>.</p>
 <pre><code class="language-rust no_run noplayground">    let scalar_types = BTreeMap::from_iter([
         (
-            &quot;String&quot;.into(),
+            "String".into(),
             models::ScalarType {
                 aggregate_functions: BTreeMap::new(),
                 comparison_operators: BTreeMap::from_iter([
-                    (&quot;eq&quot;.into(), models::ComparisonOperatorDefinition::Equal),
-                    (&quot;in&quot;.into(), models::ComparisonOperatorDefinition::In),
+                    ("eq".into(), models::ComparisonOperatorDefinition::Equal),
+                    ("in".into(), models::ComparisonOperatorDefinition::In),
                     (
-                        &quot;like&quot;.into(),
+                        "like".into(),
                         models::ComparisonOperatorDefinition::Custom {
                             argument_type: models::Type::Named {
-                                name: &quot;String&quot;.into(),
+                                name: "String".into(),
                             },
                         },
                     ),
@@ -179,33 +208,33 @@
             },
         ),
         (
-            &quot;Int&quot;.into(),
+            "Int".into(),
             models::ScalarType {
                 aggregate_functions: BTreeMap::from_iter([
                     (
-                        &quot;max&quot;.into(),
+                        "max".into(),
                         models::AggregateFunctionDefinition {
                             result_type: models::Type::Nullable {
                                 underlying_type: Box::new(models::Type::Named {
-                                    name: &quot;Int&quot;.into(),
+                                    name: "Int".into(),
                                 }),
                             },
                         },
                     ),
                     (
-                        &quot;min&quot;.into(),
+                        "min".into(),
                         models::AggregateFunctionDefinition {
                             result_type: models::Type::Nullable {
                                 underlying_type: Box::new(models::Type::Named {
-                                    name: &quot;Int&quot;.into(),
+                                    name: "Int".into(),
                                 }),
                             },
                         },
                     ),
                 ]),
                 comparison_operators: BTreeMap::from_iter([
-                    (&quot;eq&quot;.into(), models::ComparisonOperatorDefinition::Equal),
-                    (&quot;in&quot;.into(), models::ComparisonOperatorDefinition::In),
+                    ("eq".into(), models::ComparisonOperatorDefinition::Equal),
+                    ("in".into(), models::ComparisonOperatorDefinition::In),
                 ]),
             },
         ),
@@ -213,38 +242,38 @@
 <h2 id="object-types"><a class="header" href="#object-types">Object Types</a></h2>
 <p>For each collection, we define an object type for its rows. In addition, we define object types for any nested types which we use:</p>
 <pre><code class="language-rust no_run noplayground">    let object_types = BTreeMap::from_iter([
-        (&quot;article&quot;.into(), article_type),
-        (&quot;author&quot;.into(), author_type),
-        (&quot;institution&quot;.into(), institution_type),
-        (&quot;location&quot;.into(), location_type),
-        (&quot;staff_member&quot;.into(), staff_member_type),
+        ("article".into(), article_type),
+        ("author".into(), author_type),
+        ("institution".into(), institution_type),
+        ("location".into(), location_type),
+        ("staff_member".into(), staff_member_type),
     ]);</code></pre>
 <h3 id="author"><a class="header" href="#author">Author</a></h3>
 <pre><code class="language-rust no_run noplayground">    let author_type = models::ObjectType {
-        description: Some(&quot;An author&quot;.into()),
+        description: Some("An author".into()),
         fields: BTreeMap::from_iter([
             (
-                &quot;id&quot;.into(),
+                "id".into(),
                 models::ObjectField {
-                    description: Some(&quot;The author's primary key&quot;.into()),
-                    r#type: models::Type::Named { name: &quot;Int&quot;.into() },
+                    description: Some("The author's primary key".into()),
+                    r#type: models::Type::Named { name: "Int".into() },
                 },
             ),
             (
-                &quot;first_name&quot;.into(),
+                "first_name".into(),
                 models::ObjectField {
-                    description: Some(&quot;The author's first name&quot;.into()),
+                    description: Some("The author's first name".into()),
                     r#type: models::Type::Named {
-                        name: &quot;String&quot;.into(),
+                        name: "String".into(),
                     },
                 },
             ),
             (
-                &quot;last_name&quot;.into(),
+                "last_name".into(),
                 models::ObjectField {
-                    description: Some(&quot;The author's last name&quot;.into()),
+                    description: Some("The author's last name".into()),
                     r#type: models::Type::Named {
-                        name: &quot;String&quot;.into(),
+                        name: "String".into(),
                     },
                 },
             ),
@@ -252,80 +281,80 @@
     };</code></pre>
 <h3 id="article"><a class="header" href="#article">Article</a></h3>
 <pre><code class="language-rust no_run noplayground">    let article_type = models::ObjectType {
-        description: Some(&quot;An article&quot;.into()),
+        description: Some("An article".into()),
         fields: BTreeMap::from_iter([
             (
-                &quot;id&quot;.into(),
+                "id".into(),
                 models::ObjectField {
-                    description: Some(&quot;The article's primary key&quot;.into()),
-                    r#type: models::Type::Named { name: &quot;Int&quot;.into() },
+                    description: Some("The article's primary key".into()),
+                    r#type: models::Type::Named { name: "Int".into() },
                 },
             ),
             (
-                &quot;title&quot;.into(),
+                "title".into(),
                 models::ObjectField {
-                    description: Some(&quot;The article's title&quot;.into()),
+                    description: Some("The article's title".into()),
                     r#type: models::Type::Named {
-                        name: &quot;String&quot;.into(),
+                        name: "String".into(),
                     },
                 },
             ),
             (
-                &quot;author_id&quot;.into(),
+                "author_id".into(),
                 models::ObjectField {
-                    description: Some(&quot;The article's author ID&quot;.into()),
-                    r#type: models::Type::Named { name: &quot;Int&quot;.into() },
+                    description: Some("The article's author ID".into()),
+                    r#type: models::Type::Named { name: "Int".into() },
                 },
             ),
         ]),
     };</code></pre>
 <h3 id="institution"><a class="header" href="#institution">Institution</a></h3>
 <pre><code class="language-rust no_run noplayground">    let institution_type = models::ObjectType {
-        description: Some(&quot;An institution&quot;.into()),
+        description: Some("An institution".into()),
         fields: BTreeMap::from_iter([
             (
-                &quot;id&quot;.into(),
+                "id".into(),
                 models::ObjectField {
-                    description: Some(&quot;The institution's primary key&quot;.into()),
-                    r#type: models::Type::Named { name: &quot;Int&quot;.into() },
+                    description: Some("The institution's primary key".into()),
+                    r#type: models::Type::Named { name: "Int".into() },
                 },
             ),
             (
-                &quot;name&quot;.into(),
+                "name".into(),
                 models::ObjectField {
-                    description: Some(&quot;The institution's name&quot;.into()),
+                    description: Some("The institution's name".into()),
                     r#type: models::Type::Named {
-                        name: &quot;String&quot;.into(),
+                        name: "String".into(),
                     },
                 },
             ),
             (
-                &quot;location&quot;.into(),
+                "location".into(),
                 models::ObjectField {
-                    description: Some(&quot;The institution's location&quot;.into()),
+                    description: Some("The institution's location".into()),
                     r#type: models::Type::Named {
-                        name: &quot;location&quot;.into(),
+                        name: "location".into(),
                     },
                 },
             ),
             (
-                &quot;staff&quot;.into(),
+                "staff".into(),
                 models::ObjectField {
-                    description: Some(&quot;The institution's staff&quot;.into()),
+                    description: Some("The institution's staff".into()),
                     r#type: models::Type::Array {
                         element_type: Box::new(models::Type::Named {
-                            name: &quot;staff_member&quot;.into(),
+                            name: "staff_member".into(),
                         }),
                     },
                 },
             ),
             (
-                &quot;departments&quot;.into(),
+                "departments".into(),
                 models::ObjectField {
-                    description: Some(&quot;The institution's departments&quot;.into()),
+                    description: Some("The institution's departments".into()),
                     r#type: models::Type::Array {
                         element_type: Box::new(models::Type::Named {
-                            name: &quot;String&quot;.into(),
+                            name: "String".into(),
                         }),
                     },
                 },
@@ -342,48 +371,48 @@
     ];</code></pre>
 <h3 id="author-1"><a class="header" href="#author-1">Author</a></h3>
 <pre><code class="language-rust no_run noplayground">    let authors_collection = models::CollectionInfo {
-        name: &quot;authors&quot;.into(),
-        description: Some(&quot;A collection of authors&quot;.into()),
-        collection_type: &quot;author&quot;.into(),
+        name: "authors".into(),
+        description: Some("A collection of authors".into()),
+        collection_type: "author".into(),
         arguments: BTreeMap::new(),
         foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::from_iter([(
-            &quot;AuthorByID&quot;.into(),
+            "AuthorByID".into(),
             models::UniquenessConstraint {
-                unique_columns: vec![&quot;id&quot;.into()],
+                unique_columns: vec!["id".into()],
             },
         )]),
     };</code></pre>
 <h3 id="article-1"><a class="header" href="#article-1">Article</a></h3>
 <pre><code class="language-rust no_run noplayground">    let articles_collection = models::CollectionInfo {
-        name: &quot;articles&quot;.into(),
-        description: Some(&quot;A collection of articles&quot;.into()),
-        collection_type: &quot;article&quot;.into(),
+        name: "articles".into(),
+        description: Some("A collection of articles".into()),
+        collection_type: "article".into(),
         arguments: BTreeMap::new(),
         foreign_keys: BTreeMap::from_iter([(
-            &quot;Article_AuthorID&quot;.into(),
+            "Article_AuthorID".into(),
             models::ForeignKeyConstraint {
-                foreign_collection: &quot;authors&quot;.into(),
-                column_mapping: BTreeMap::from_iter([(&quot;author_id&quot;.into(), &quot;id&quot;.into())]),
+                foreign_collection: "authors".into(),
+                column_mapping: BTreeMap::from_iter([("author_id".into(), "id".into())]),
             },
         )]),
         uniqueness_constraints: BTreeMap::from_iter([(
-            &quot;ArticleByID&quot;.into(),
+            "ArticleByID".into(),
             models::UniquenessConstraint {
-                unique_columns: vec![&quot;id&quot;.into()],
+                unique_columns: vec!["id".into()],
             },
         )]),
     };</code></pre>
 <h3 id="articles_by_author"><a class="header" href="#articles_by_author"><code>articles_by_author</code></a></h3>
 <p>We define one additional collection, <code>articles_by_author</code>, which is provided as an example of a collection with an argument:</p>
 <pre><code class="language-rust no_run noplayground">    let articles_by_author_collection = models::CollectionInfo {
-        name: &quot;articles_by_author&quot;.into(),
-        description: Some(&quot;Articles parameterized by author&quot;.into()),
-        collection_type: &quot;article&quot;.into(),
+        name: "articles_by_author".into(),
+        description: Some("Articles parameterized by author".into()),
+        collection_type: "article".into(),
         arguments: BTreeMap::from_iter([(
-            &quot;author_id&quot;.into(),
+            "author_id".into(),
             models::ArgumentInfo {
-                argument_type: models::Type::Named { name: &quot;Int&quot;.into() },
+                argument_type: models::Type::Named { name: "Int".into() },
                 description: None,
             },
         )]),
@@ -392,15 +421,15 @@
     };</code></pre>
 <h3 id="institution-1"><a class="header" href="#institution-1">Institution</a></h3>
 <pre><code class="language-rust no_run noplayground">    let institutions_collection = models::CollectionInfo {
-        name: &quot;institutions&quot;.into(),
-        description: Some(&quot;A collection of institutions&quot;.into()),
-        collection_type: &quot;institution&quot;.into(),
+        name: "institutions".into(),
+        description: Some("A collection of institutions".into()),
+        collection_type: "institution".into(),
         arguments: BTreeMap::new(),
         foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::from_iter([(
-            &quot;InstitutionByID&quot;.into(),
+            "InstitutionByID".into(),
             models::UniquenessConstraint {
-                unique_columns: vec![&quot;id&quot;.into()],
+                unique_columns: vec!["id".into()],
             },
         )]),
     };</code></pre>
@@ -409,22 +438,20 @@
 <h3 id="get-latest-article"><a class="header" href="#get-latest-article">Get Latest Article</a></h3>
 <p>As an example, we define a <code>latest_article_id</code> function, which returns a single integer representing the maximum article ID.</p>
 <pre><code class="language-rust no_run noplayground">    let latest_article_id_function = models::FunctionInfo {
-        name: &quot;latest_article_id&quot;.into(),
-        description: Some(&quot;Get the ID of the most recent article&quot;.into()),
+        name: "latest_article_id".into(),
+        description: Some("Get the ID of the most recent article".into()),
         result_type: models::Type::Nullable {
-            underlying_type: Box::new(models::Type::Named { name: &quot;Int&quot;.into() }),
+            underlying_type: Box::new(models::Type::Named { name: "Int".into() }),
         },
         arguments: BTreeMap::new(),
     };</code></pre>
 <p>A second example returns the full corresponding article, to illustrate functions returning structured types:</p>
 <pre><code class="language-rust no_run noplayground">    let latest_article_function = models::FunctionInfo {
-        name: &quot;latest_article&quot;.into(),
-        description: Some(&quot;Get the most recent article&quot;.into()),
-        result_type: models::Type::Array {
-            element_type: Box::new(models::Type::Nullable {
-                underlying_type: Box::new(models::Type::Named {
-                    name: &quot;article&quot;.into(),
-                }),
+        name: "latest_article".into(),
+        description: Some("Get the most recent article".into()),
+        result_type: models::Type::Nullable {
+            underlying_type: Box::new(models::Type::Named {
+                name: "article".into(),
             }),
         },
         arguments: BTreeMap::new(),
@@ -434,20 +461,20 @@
 <h3 id="upsert-article"><a class="header" href="#upsert-article">Upsert Article</a></h3>
 <p>As an example, we define an <em>upsert</em> procedure for the article collection defined above. The procedure will accept an input argument of type <code>article</code>, and returns a nulcollection <code>article</code>, representing the state of the article before the update, if it were already present.</p>
 <pre><code class="language-rust no_run noplayground">    let upsert_article = models::ProcedureInfo {
-        name: &quot;upsert_article&quot;.into(),
-        description: Some(&quot;Insert or update an article&quot;.into()),
+        name: "upsert_article".into(),
+        description: Some("Insert or update an article".into()),
         arguments: BTreeMap::from_iter([(
-            &quot;article&quot;.into(),
+            "article".into(),
             models::ArgumentInfo {
-                description: Some(&quot;The article to insert or update&quot;.into()),
+                description: Some("The article to insert or update".into()),
                 argument_type: models::Type::Named {
-                    name: &quot;article&quot;.into(),
+                    name: "article".into(),
                 },
             },
         )]),
         result_type: models::Type::Nullable {
             underlying_type: Box::new(models::Type::Named {
-                name: &quot;article&quot;.into(),
+                name: "article".into(),
             }),
         },
     };</code></pre>
@@ -460,7 +487,7 @@
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="../tutorial/queries/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../tutorial/queries/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -474,7 +501,7 @@
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="../tutorial/queries/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../tutorial/queries/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

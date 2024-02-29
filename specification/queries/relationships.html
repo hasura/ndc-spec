@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js light">
+<html lang="en" class="light" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -10,7 +10,7 @@
         
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff">
 
         <link rel="icon" href="../../favicon.svg">
         <link rel="shortcut icon" href="../../favicon.png">
@@ -31,7 +31,7 @@
         <!-- Custom theme stylesheets -->
 
     </head>
-    <body>
+    <body class="sidebar-visible no-js">
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -61,42 +61,71 @@
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
-            html.classList.remove('no-js')
             html.classList.remove('light')
             html.classList.add(theme);
-            html.classList.add('js');
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
         </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var html = document.querySelector('html');
+            var body = document.querySelector('body');
             var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
             }
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../overview.html">Overview</a></li><li class="chapter-item expanded affix "><li class="part-title">API Specification</li><li class="chapter-item expanded "><a href="../../specification/index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../../specification/changelog.html"><strong aria-hidden="true">2.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="../../specification/basics.html"><strong aria-hidden="true">3.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../../specification/versioning.html"><strong aria-hidden="true">4.</strong> Versioning</a></li><li class="chapter-item expanded "><a href="../../specification/error-handling.html"><strong aria-hidden="true">5.</strong> Error Handling</a></li><li class="chapter-item expanded "><a href="../../specification/health.html"><strong aria-hidden="true">6.</strong> Service Health</a></li><li class="chapter-item expanded "><a href="../../specification/metrics.html"><strong aria-hidden="true">7.</strong> Metrics</a></li><li class="chapter-item expanded "><a href="../../specification/telemetry.html"><strong aria-hidden="true">8.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../../specification/capabilities.html"><strong aria-hidden="true">9.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../../specification/types.html"><strong aria-hidden="true">10.</strong> Types</a></li><li class="chapter-item expanded "><a href="../../specification/schema/index.html"><strong aria-hidden="true">11.</strong> Schema</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../specification/schema/scalar-types.html"><strong aria-hidden="true">11.1.</strong> Scalar Types</a></li><li class="chapter-item expanded "><a href="../../specification/schema/object-types.html"><strong aria-hidden="true">11.2.</strong> Object Types</a></li><li class="chapter-item expanded "><a href="../../specification/schema/collections.html"><strong aria-hidden="true">11.3.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../../specification/schema/functions.html"><strong aria-hidden="true">11.4.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../../specification/schema/procedures.html"><strong aria-hidden="true">11.5.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../../specification/queries/index.html"><strong aria-hidden="true">12.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../specification/queries/field-selection.html"><strong aria-hidden="true">12.1.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../../specification/queries/filtering.html"><strong aria-hidden="true">12.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../../specification/queries/sorting.html"><strong aria-hidden="true">12.3.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../../specification/queries/pagination.html"><strong aria-hidden="true">12.4.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../../specification/queries/aggregates.html"><strong aria-hidden="true">12.5.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../../specification/queries/arguments.html"><strong aria-hidden="true">12.6.</strong> Arguments</a></li><li class="chapter-item expanded "><a href="../../specification/queries/relationships.html" class="active"><strong aria-hidden="true">12.7.</strong> Relationships</a></li><li class="chapter-item expanded "><a href="../../specification/queries/variables.html"><strong aria-hidden="true">12.8.</strong> Variables</a></li><li class="chapter-item expanded "><a href="../../specification/queries/functions.html"><strong aria-hidden="true">12.9.</strong> Functions</a></li></ol></li><li class="chapter-item expanded "><a href="../../specification/mutations/index.html"><strong aria-hidden="true">13.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../specification/mutations/procedures.html"><strong aria-hidden="true">13.1.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../../specification/explain.html"><strong aria-hidden="true">14.</strong> Explain</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorial</li><li class="chapter-item expanded "><a href="../../tutorial/index.html"><strong aria-hidden="true">15.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../../tutorial/setup.html"><strong aria-hidden="true">16.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../../tutorial/testing.html"><strong aria-hidden="true">17.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../../tutorial/getting-started.html"><strong aria-hidden="true">18.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../../tutorial/capabilities.html"><strong aria-hidden="true">19.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../../tutorial/schema.html"><strong aria-hidden="true">20.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/index.html"><strong aria-hidden="true">21.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tutorial/queries/variables.html"><strong aria-hidden="true">21.1.</strong> Query Variables</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/arguments.html"><strong aria-hidden="true">21.2.</strong> Evaluating Arguments</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/index.html"><strong aria-hidden="true">21.3.</strong> Executing Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/sorting.html"><strong aria-hidden="true">21.3.1.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/filtering.html"><strong aria-hidden="true">21.3.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/pagination.html"><strong aria-hidden="true">21.3.3.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/aggregates.html"><strong aria-hidden="true">21.3.4.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/field-selection.html"><strong aria-hidden="true">21.3.5.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/relationships.html"><strong aria-hidden="true">21.3.6.</strong> Relationships</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../tutorial/mutations/index.html"><strong aria-hidden="true">22.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tutorial/mutations/operations.html"><strong aria-hidden="true">22.1.</strong> Handling Operations</a></li><li class="chapter-item expanded "><a href="../../tutorial/mutations/procedures.html"><strong aria-hidden="true">22.2.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../../tutorial/explain.html"><strong aria-hidden="true">23.</strong> Explain</a></li><li class="chapter-item expanded "><a href="../../tutorial/health.html"><strong aria-hidden="true">24.</strong> Health and Metrics</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../../reference/types.html"><strong aria-hidden="true">25.</strong> Types</a></li><li class="chapter-item expanded "><a href="../../reference/json-schema.html"><strong aria-hidden="true">26.</strong> JSON Schema</a></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
                                 <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky bordered">
+                <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
-                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
-                        </button>
+                        </label>
                         <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -145,7 +174,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="relationships"><a class="header" href="#relationships">Relationships</a></h1>
-<p>Queries can request data from other collections via relationships. A relationship identifies rows in one collection (the &quot;source collection&quot;) with possibly-many related rows in a second collection (the &quot;target collection&quot;) in two ways:</p>
+<p>Queries can request data from other collections via relationships. A relationship identifies rows in one collection (the "source collection") with possibly-many related rows in a second collection (the "target collection") in two ways:</p>
 <ul>
 <li>Columns in the two collections can be related via <em>column mappings</em>, and</li>
 <li><a href="./arguments.html">Collection arguments</a> to the target collection can be computed via the row of the source collection.</li>
@@ -156,46 +185,46 @@
 <p>A column mapping is a set of pairs of columns - each consisting of one column from the source collection and one column from the target collection - which must be pairwise equal in order for a pair of rows to be considered equal.</p>
 <p>For example, we can fetch each <code>author</code> with its list of related <code>articles</code> by establishing a column mapping between the author's primary key and the article's <code>author_id</code> column:</p>
 <pre><code class="language-json">{
-    &quot;collection&quot;: &quot;authors&quot;,
-    &quot;arguments&quot;: {},
-    &quot;query&quot;: {
-        &quot;fields&quot;: {
-            &quot;first_name&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;column&quot;: &quot;first_name&quot;
+    "collection": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "first_name": {
+                "type": "column",
+                "column": "first_name"
             },
-            &quot;last_name&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;column&quot;: &quot;last_name&quot;
+            "last_name": {
+                "type": "column",
+                "column": "last_name"
             },
-            &quot;articles&quot;: {
-                &quot;type&quot;: &quot;relationship&quot;,
-                &quot;arguments&quot;: {},
-                &quot;relationship&quot;: &quot;author_articles&quot;,
-                &quot;query&quot;: {
-                    &quot;fields&quot;: {
-                        &quot;id&quot;: {
-                            &quot;type&quot;: &quot;column&quot;,
-                            &quot;column&quot;: &quot;id&quot;
+            "articles": {
+                "type": "relationship",
+                "arguments": {},
+                "relationship": "author_articles",
+                "query": {
+                    "fields": {
+                        "id": {
+                            "type": "column",
+                            "column": "id"
                         },
-                        &quot;title&quot;: {
-                            &quot;type&quot;: &quot;column&quot;,
-                            &quot;column&quot;: &quot;title&quot;
+                        "title": {
+                            "type": "column",
+                            "column": "title"
                         }
                     }
                 }
             }
         }
     },
-    &quot;collection_relationships&quot;: {
-        &quot;author_articles&quot;: {
-            &quot;arguments&quot;: {},
-            &quot;column_mapping&quot;: {
-                &quot;id&quot;: &quot;author_id&quot;
+    "collection_relationships": {
+        "author_articles": {
+            "arguments": {},
+            "column_mapping": {
+                "id": "author_id"
             },
-            &quot;relationship_type&quot;: &quot;array&quot;,
-            &quot;source_collection_or_type&quot;: &quot;author&quot;,
-            &quot;target_collection&quot;: &quot;articles&quot;
+            "relationship_type": "array",
+            "source_collection_or_type": "author",
+            "target_collection": "articles"
         }
     }
 }
@@ -205,135 +234,135 @@
 <h2 id="advanced-relationship-use-cases"><a class="header" href="#advanced-relationship-use-cases">Advanced relationship use cases</a></h2>
 <p>Relationships are not used only for fetching data - they are used in practically all features of data connectors, as we will see below.</p>
 <h3 id="relationships-in-predicates"><a class="header" href="#relationships-in-predicates">Relationships in predicates</a></h3>
-<p>Filters can reference columns across relationships. For example, here we fetch all authors who have written articles with the word <code>&quot;Functional&quot;</code> in the title:</p>
+<p>Filters can reference columns across relationships. For example, here we fetch all authors who have written articles with the word <code>"Functional"</code> in the title:</p>
 <pre><code class="language-json">{
-    &quot;collection&quot;: &quot;authors&quot;,
-    &quot;arguments&quot;: {},
-    &quot;query&quot;: {
-        &quot;fields&quot;: {
-            &quot;first_name&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;column&quot;: &quot;first_name&quot;
+    "collection": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "first_name": {
+                "type": "column",
+                "column": "first_name"
             },
-            &quot;last_name&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;column&quot;: &quot;last_name&quot;
+            "last_name": {
+                "type": "column",
+                "column": "last_name"
             },
-            &quot;articles&quot;: {
-                &quot;type&quot;: &quot;relationship&quot;,
-                &quot;arguments&quot;: {},
-                &quot;relationship&quot;: &quot;author_articles&quot;,
-                &quot;query&quot;: {
-                    &quot;fields&quot;: {
-                        &quot;id&quot;: {
-                            &quot;type&quot;: &quot;column&quot;,
-                            &quot;column&quot;: &quot;id&quot;
+            "articles": {
+                "type": "relationship",
+                "arguments": {},
+                "relationship": "author_articles",
+                "query": {
+                    "fields": {
+                        "id": {
+                            "type": "column",
+                            "column": "id"
                         },
-                        &quot;title&quot;: {
-                            &quot;type&quot;: &quot;column&quot;,
-                            &quot;column&quot;: &quot;title&quot;
+                        "title": {
+                            "type": "column",
+                            "column": "title"
                         }
                     }
                 }
             }
         },
-        &quot;predicate&quot;: {
-            &quot;type&quot;: &quot;binary_comparison_operator&quot;,
-            &quot;column&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;name&quot;: &quot;title&quot;,
-                &quot;path&quot;: [{
-                    &quot;arguments&quot;: {},
-                    &quot;relationship&quot;: &quot;author_articles&quot;,
-                    &quot;predicate&quot;: {
-                        &quot;type&quot;: &quot;and&quot;,
-                        &quot;expressions&quot;: []
+        "predicate": {
+            "type": "binary_comparison_operator",
+            "column": {
+                "type": "column",
+                "name": "title",
+                "path": [{
+                    "arguments": {},
+                    "relationship": "author_articles",
+                    "predicate": {
+                        "type": "and",
+                        "expressions": []
                     }
                 }]
             },
-            &quot;operator&quot;: &quot;like&quot;,
-            &quot;value&quot;: {
-                &quot;type&quot;: &quot;scalar&quot;,
-                &quot;value&quot;: &quot;Functional&quot;
+            "operator": "like",
+            "value": {
+                "type": "scalar",
+                "value": "Functional"
             }
         }
     },
-    &quot;collection_relationships&quot;: {
-        &quot;author_articles&quot;: {
-            &quot;arguments&quot;: {},
-            &quot;column_mapping&quot;: {
-                &quot;id&quot;: &quot;author_id&quot;
+    "collection_relationships": {
+        "author_articles": {
+            "arguments": {},
+            "column_mapping": {
+                "id": "author_id"
             },
-            &quot;relationship_type&quot;: &quot;array&quot;,
-            &quot;source_collection_or_type&quot;: &quot;author&quot;,
-            &quot;target_collection&quot;: &quot;articles&quot;
+            "relationship_type": "array",
+            "source_collection_or_type": "author",
+            "target_collection": "articles"
         }
     }
 }
 </code></pre>
-<p><code>EXISTS</code> expressions in predicates can query related collections. Here we find all authors who have written any article with <code>&quot;Functional&quot;</code> in the title:</p>
+<p><code>EXISTS</code> expressions in predicates can query related collections. Here we find all authors who have written any article with <code>"Functional"</code> in the title:</p>
 <pre><code class="language-json">{
-    &quot;collection&quot;: &quot;authors&quot;,
-    &quot;arguments&quot;: {},
-    &quot;query&quot;: {
-        &quot;fields&quot;: {
-            &quot;first_name&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;column&quot;: &quot;first_name&quot;
+    "collection": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "first_name": {
+                "type": "column",
+                "column": "first_name"
             },
-            &quot;last_name&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;column&quot;: &quot;last_name&quot;
+            "last_name": {
+                "type": "column",
+                "column": "last_name"
             },
-            &quot;articles&quot;: {
-                &quot;type&quot;: &quot;relationship&quot;,
-                &quot;arguments&quot;: {},
-                &quot;relationship&quot;: &quot;author_articles&quot;,
-                &quot;query&quot;: {
-                    &quot;fields&quot;: {
-                        &quot;id&quot;: {
-                            &quot;type&quot;: &quot;column&quot;,
-                            &quot;column&quot;: &quot;id&quot;
+            "articles": {
+                "type": "relationship",
+                "arguments": {},
+                "relationship": "author_articles",
+                "query": {
+                    "fields": {
+                        "id": {
+                            "type": "column",
+                            "column": "id"
                         },
-                        &quot;title&quot;: {
-                            &quot;type&quot;: &quot;column&quot;,
-                            &quot;column&quot;: &quot;title&quot;
+                        "title": {
+                            "type": "column",
+                            "column": "title"
                         }
                     }
                 }
             }
         },
-        &quot;predicate&quot;: {
-            &quot;type&quot;: &quot;exists&quot;,
-            &quot;in_collection&quot;: {
-                &quot;type&quot;: &quot;related&quot;,
-                &quot;arguments&quot;: {},
-                &quot;relationship&quot;: &quot;author_articles&quot;
+        "predicate": {
+            "type": "exists",
+            "in_collection": {
+                "type": "related",
+                "arguments": {},
+                "relationship": "author_articles"
             },
-            &quot;predicate&quot;: {
-                &quot;type&quot;: &quot;binary_comparison_operator&quot;,
-                &quot;column&quot;: {
-                    &quot;type&quot;: &quot;column&quot;,
-                    &quot;name&quot;: &quot;title&quot;,
-                    &quot;path&quot;: []
+            "predicate": {
+                "type": "binary_comparison_operator",
+                "column": {
+                    "type": "column",
+                    "name": "title",
+                    "path": []
                 },
-                &quot;operator&quot;: &quot;like&quot;,
-                &quot;value&quot;: {
-                    &quot;type&quot;: &quot;scalar&quot;,
-                    &quot;value&quot;: &quot;Functional&quot;
+                "operator": "like",
+                "value": {
+                    "type": "scalar",
+                    "value": "Functional"
                 }
             }
         }
     },
-    &quot;collection_relationships&quot;: {
-        &quot;author_articles&quot;: {
-            &quot;arguments&quot;: {},
-            &quot;column_mapping&quot;: {
-                &quot;id&quot;: &quot;author_id&quot;
+    "collection_relationships": {
+        "author_articles": {
+            "arguments": {},
+            "column_mapping": {
+                "id": "author_id"
             },
-            &quot;relationship_type&quot;: &quot;array&quot;,
-            &quot;source_collection_or_type&quot;: &quot;author&quot;,
-            &quot;target_collection&quot;: &quot;articles&quot;
+            "relationship_type": "array",
+            "source_collection_or_type": "author",
+            "target_collection": "articles"
         }
     }
 }
@@ -342,44 +371,44 @@
 <p>Sorting can be defined in terms of row counts and aggregates over related collections.</p>
 <p>For example, here we order authors by the number of articles they have written:</p>
 <pre><code class="language-json">{
-    &quot;collection&quot;: &quot;authors&quot;,
-    &quot;arguments&quot;: {},
-    &quot;query&quot;: {
-        &quot;fields&quot;: {
-            &quot;first_name&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;column&quot;: &quot;first_name&quot;
+    "collection": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "first_name": {
+                "type": "column",
+                "column": "first_name"
             },
-            &quot;last_name&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;column&quot;: &quot;last_name&quot;
+            "last_name": {
+                "type": "column",
+                "column": "last_name"
             },
-            &quot;articles_aggregate&quot;: {
-                &quot;type&quot;: &quot;relationship&quot;,
-                &quot;arguments&quot;: {},
-                &quot;relationship&quot;: &quot;author_articles&quot;,
-                &quot;query&quot;: {
-                    &quot;aggregates&quot;: {
-                        &quot;count&quot;: {
-                            &quot;type&quot;: &quot;star_count&quot;
+            "articles_aggregate": {
+                "type": "relationship",
+                "arguments": {},
+                "relationship": "author_articles",
+                "query": {
+                    "aggregates": {
+                        "count": {
+                            "type": "star_count"
                         }
                     }
                 }
             }
         },
-        &quot;order_by&quot;: {
-            &quot;elements&quot;: [
+        "order_by": {
+            "elements": [
                 {
-                    &quot;order_direction&quot;: &quot;desc&quot;,
-                    &quot;target&quot;: {
-                        &quot;type&quot;: &quot;star_count_aggregate&quot;,
-                        &quot;path&quot;: [
+                    "order_direction": "desc",
+                    "target": {
+                        "type": "star_count_aggregate",
+                        "path": [
                             {
-                                &quot;arguments&quot;: {},
-                                &quot;relationship&quot;: &quot;author_articles&quot;,
-                                &quot;predicate&quot;: {
-                                    &quot;type&quot;: &quot;and&quot;,
-                                    &quot;expressions&quot;: []
+                                "arguments": {},
+                                "relationship": "author_articles",
+                                "predicate": {
+                                    "type": "and",
+                                    "expressions": []
                                 }
                             }
                         ]
@@ -388,63 +417,63 @@
             ]
         }
     },
-    &quot;collection_relationships&quot;: {
-        &quot;author_articles&quot;: {
-            &quot;arguments&quot;: {},
-            &quot;column_mapping&quot;: {
-                &quot;id&quot;: &quot;author_id&quot;
+    "collection_relationships": {
+        "author_articles": {
+            "arguments": {},
+            "column_mapping": {
+                "id": "author_id"
             },
-            &quot;relationship_type&quot;: &quot;array&quot;,
-            &quot;source_collection_or_type&quot;: &quot;author&quot;,
-            &quot;target_collection&quot;: &quot;articles&quot;
+            "relationship_type": "array",
+            "source_collection_or_type": "author",
+            "target_collection": "articles"
         }
     }
 }
 </code></pre>
 <p>We can also order by custom aggregate functions applied to related collections. For example, here we order authors by their most recent (maximum) article ID:</p>
 <pre><code class="language-json">{
-    &quot;collection&quot;: &quot;authors&quot;,
-    &quot;arguments&quot;: {},
-    &quot;query&quot;: {
-        &quot;fields&quot;: {
-            &quot;first_name&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;column&quot;: &quot;first_name&quot;
+    "collection": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "first_name": {
+                "type": "column",
+                "column": "first_name"
             },
-            &quot;last_name&quot;: {
-                &quot;type&quot;: &quot;column&quot;,
-                &quot;column&quot;: &quot;last_name&quot;
+            "last_name": {
+                "type": "column",
+                "column": "last_name"
             },
-            &quot;articles_aggregate&quot;: {
-                &quot;type&quot;: &quot;relationship&quot;,
-                &quot;arguments&quot;: {},
-                &quot;relationship&quot;: &quot;author_articles&quot;,
-                &quot;query&quot;: {
-                    &quot;aggregates&quot;: {
-                        &quot;max_id&quot;: {
-                            &quot;type&quot;: &quot;single_column&quot;,
-                            &quot;column&quot;: &quot;id&quot;,
-                            &quot;function&quot;: &quot;max&quot;
+            "articles_aggregate": {
+                "type": "relationship",
+                "arguments": {},
+                "relationship": "author_articles",
+                "query": {
+                    "aggregates": {
+                        "max_id": {
+                            "type": "single_column",
+                            "column": "id",
+                            "function": "max"
                         }
                     }
                 }
             }
         },
-        &quot;order_by&quot;: {
-            &quot;elements&quot;: [
+        "order_by": {
+            "elements": [
                 {
-                    &quot;order_direction&quot;: &quot;asc&quot;,
-                    &quot;target&quot;: {
-                        &quot;type&quot;: &quot;single_column_aggregate&quot;,
-                        &quot;column&quot;: &quot;id&quot;,
-                        &quot;function&quot;: &quot;max&quot;,
-                        &quot;path&quot;: [
+                    "order_direction": "asc",
+                    "target": {
+                        "type": "single_column_aggregate",
+                        "column": "id",
+                        "function": "max",
+                        "path": [
                             {
-                                &quot;arguments&quot;: {},
-                                &quot;relationship&quot;: &quot;author_articles&quot;,
-                                &quot;predicate&quot;: {
-                                    &quot;type&quot;: &quot;and&quot;,
-                                    &quot;expressions&quot;: []
+                                "arguments": {},
+                                "relationship": "author_articles",
+                                "predicate": {
+                                    "type": "and",
+                                    "expressions": []
                                 }
                             }
                         ]
@@ -453,15 +482,15 @@
             ]
         }
     },
-    &quot;collection_relationships&quot;: {
-        &quot;author_articles&quot;: {
-            &quot;arguments&quot;: {},
-            &quot;column_mapping&quot;: {
-                &quot;id&quot;: &quot;author_id&quot;
+    "collection_relationships": {
+        "author_articles": {
+            "arguments": {},
+            "column_mapping": {
+                "id": "author_id"
             },
-            &quot;relationship_type&quot;: &quot;array&quot;,
-            &quot;source_collection_or_type&quot;: &quot;author&quot;,
-            &quot;target_collection&quot;: &quot;articles&quot;
+            "relationship_type": "array",
+            "source_collection_or_type": "author",
+            "target_collection": "articles"
         }
     }
 }
@@ -475,7 +504,7 @@
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="../../specification/queries/variables.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../specification/queries/variables.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -489,7 +518,7 @@
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="../../specification/queries/variables.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../specification/queries/variables.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
