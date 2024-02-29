@@ -1,11 +1,11 @@
 use std::collections::BTreeMap;
 
+use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::error::Error;
 use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::{nest, test};
-use crate::configuration::TestGenerationConfiguration;
 
 use ndc_client::models::{self};
 
@@ -53,8 +53,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         foreign_key_name,
                         foreign_key,
                     )
-                )
-                ;
+                );
 
                 Some(())
             }
