@@ -67,6 +67,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     Some(())
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn select_top_n_using_foreign_key<C: Connector>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
@@ -146,6 +147,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,

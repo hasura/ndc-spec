@@ -28,10 +28,12 @@ pub fn make_context(
         }
 
         for (field_name, field_value) in row {
-            values
-                .entry(field_name.clone())
-                .or_insert(vec![])
-                .push(field_value.0);
+            if !field_value.0.is_null() {
+                values
+                    .entry(field_name.clone())
+                    .or_insert(vec![])
+                    .push(field_value.0);
+            }
         }
     }
 
