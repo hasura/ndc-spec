@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, ops::Range};
+use std::collections::BTreeMap;
 
 use ndc_client::models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
@@ -17,8 +17,9 @@ pub async fn test_sorting<C: Connector>(
     collection_info: &models::CollectionInfo,
 ) -> Result<()> {
     for _ in 0..gen_config.test_cases {
+        let amount = rng.gen_range(1..=gen_config.complexity.max(1).into());
         if let Some(order_by_elements) =
-            make_order_by_elements(collection_type.clone(), schema, rng, 1..3)
+            make_order_by_elements(collection_type.clone(), schema, rng, amount)
         {
             test_select_top_n_rows_with_sort(
                 gen_config,
@@ -40,7 +41,7 @@ fn make_order_by_elements(
     collection_type: models::ObjectType,
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
-    amount: Range<usize>,
+    amount: usize,
 ) -> Option<Vec<models::OrderByElement>> {
     let mut sortable_fields = vec![];
 
@@ -55,8 +56,7 @@ fn make_order_by_elements(
     if sortable_fields.is_empty() {
         None
     } else {
-        let fields_count = rng.gen_range(amount);
-        let fields = sortable_fields.iter().choose_multiple(rng, fields_count);
+        let fields = sortable_fields.iter().choose_multiple(rng, amount);
 
         let mut order_by_elements = vec![];
 
