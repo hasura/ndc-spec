@@ -9,6 +9,9 @@ use indexmap::IndexMap;
 use ndc_client::models;
 use std::collections::BTreeMap;
 
+use super::validate::expect_single_rowset;
+use super::validate::validate_response;
+
 pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
@@ -61,21 +64,21 @@ pub async fn test_star_count_aggregate<C: Connector>(
         collection_relationships: BTreeMap::new(),
         variables: None,
     };
-    let response = connector.query(query_request).await?;
-    if let [row_set] = &*response.0 {
-        if row_set.rows.is_some() {
-            return Err(Error::RowsShouldBeNullInRowSet);
-        }
-        if let Some(aggregates) = &row_set.aggregates {
-            match aggregates.get("count").and_then(serde_json::Value::as_u64) {
-                None => Err(Error::MissingField("count".into())),
-                Some(count) => Ok(count),
-            }
-        } else {
-            Err(Error::AggregatesShouldBeNonNullInRowSet)
+    let response = connector.query(query_request.clone()).await?;
+
+    validate_response(&query_request, &response)?;
+
+    let row_set = expect_single_rowset(response)?;
+    if row_set.rows.is_some() {
+        return Err(Error::RowsShouldBeNullInRowSet);
+    }
+    if let Some(aggregates) = &row_set.aggregates {
+        match aggregates.get("count").and_then(serde_json::Value::as_u64) {
+            None => Err(Error::MissingField("count".into())),
+            Some(count) => Ok(count),
         }
     } else {
-        Err(Error::ExpectedSingleRowSet)
+        Err(Error::AggregatesShouldBeNonNullInRowSet)
     }
 }
 
@@ -116,44 +119,46 @@ pub async fn test_column_count_aggregate<C: Connector>(
         collection_relationships: BTreeMap::new(),
         variables: None,
     };
-    let response = connector.query(query_request).await?;
-    if let [row_set] = &*response.0 {
-        if row_set.rows.is_some() {
-            return Err(Error::RowsShouldBeNullInRowSet);
-        }
-        if let Some(aggregates) = &row_set.aggregates {
-            for field_name in collection_type.fields.keys() {
-                let count_field = format!("{}_count", field_name);
-                let count = aggregates
-                    .get(count_field.as_str())
-                    .and_then(serde_json::Value::as_u64)
-                    .ok_or(Error::MissingField(count_field))?;
+    let response = connector.query(query_request.clone()).await?;
 
-                let distinct_field = format!("{}_distinct_count", field_name);
-                let distinct_count = aggregates
-                    .get(distinct_field.as_str())
-                    .and_then(serde_json::Value::as_u64)
-                    .ok_or(Error::MissingField(distinct_field))?;
+    validate_response(&query_request, &response)?;
 
-                if count > total_count {
-                    return Err(Error::ResponseDoesNotSatisfy(format!(
-                        "star_count >= column_count({})",
-                        field_name
-                    )));
-                }
+    let row_set = expect_single_rowset(response)?;
 
-                if distinct_count > count {
-                    return Err(Error::ResponseDoesNotSatisfy(format!(
-                        "column_count >= column_count(distinct {})",
-                        field_name
-                    )));
-                }
+    if row_set.rows.is_some() {
+        return Err(Error::RowsShouldBeNullInRowSet);
+    }
+    if let Some(aggregates) = &row_set.aggregates {
+        for field_name in collection_type.fields.keys() {
+            let count_field = format!("{}_count", field_name);
+            let count = aggregates
+                .get(count_field.as_str())
+                .and_then(serde_json::Value::as_u64)
+                .ok_or(Error::MissingField(count_field))?;
+
+            let distinct_field = format!("{}_distinct_count", field_name);
+            let distinct_count = aggregates
+                .get(distinct_field.as_str())
+                .and_then(serde_json::Value::as_u64)
+                .ok_or(Error::MissingField(distinct_field))?;
+
+            if count > total_count {
+                return Err(Error::ResponseDoesNotSatisfy(format!(
+                    "star_count >= column_count({})",
+                    field_name
+                )));
             }
-        } else {
-            return Err(Error::AggregatesShouldBeNonNullInRowSet);
+
+            if distinct_count > count {
+                return Err(Error::ResponseDoesNotSatisfy(format!(
+                    "column_count >= column_count(distinct {})",
+                    field_name
+                )));
+            }
         }
     } else {
-        return Err(Error::ExpectedSingleRowSet);
+        return Err(Error::AggregatesShouldBeNonNullInRowSet);
     }
+
     Ok(())
 }

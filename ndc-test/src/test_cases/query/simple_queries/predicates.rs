@@ -3,6 +3,7 @@ use std::collections::BTreeMap;
 use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::error::{Error, Result};
+use crate::test_cases::query::validate::validate_response;
 
 use ndc_client::models;
 use rand::rngs::SmallRng;
@@ -135,7 +136,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
     predicate: &GeneratedExpression,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
-) -> Result<ndc_client::models::QueryResponse> {
+) -> Result<()> {
     let fields = super::super::common::select_all_columns(collection_type);
 
     let query_request = models::QueryRequest {
@@ -153,11 +154,13 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
         variables: None,
     };
 
-    let response = connector.query(query_request).await?;
+    let response = connector.query(query_request.clone()).await?;
+
+    validate_response(&query_request, &response)?;
 
     if predicate.expect_nonempty {
-        super::super::expectations::expect_single_non_empty_rows(&response)?;
+        super::super::validate::expect_single_non_empty_rows(response)?;
     }
 
-    Ok(response)
+    Ok(())
 }
