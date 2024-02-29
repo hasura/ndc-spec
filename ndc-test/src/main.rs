@@ -184,7 +184,7 @@ async fn main() {
             println!();
             println!("{}", benchmark_report(&report_configuration, report));
 
-            if reporter.1.failures.len() > 0 {
+            if !reporter.1.failures.is_empty() {
                 exit(1);
             }
         }
