@@ -27,6 +27,7 @@ pub async fn test_sorting<C: Connector>(
                 order_by_elements,
                 collection_type,
                 collection_info,
+                rng,
             )
             .await?;
         } else {
@@ -86,8 +87,9 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
     elements: Vec<models::OrderByElement>,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
+    rng: &mut SmallRng,
 ) -> Result<ndc_client::models::QueryResponse> {
-    let fields = super::super::common::select_all_columns(collection_type);
+    let fields = super::super::common::select_columns(collection_type, rng);
 
     let query_request = models::QueryRequest {
         collection: collection_info.name.clone(),

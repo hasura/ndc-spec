@@ -45,6 +45,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                                 reporter,
                                 schema,
                                 collection_info,
+                                rng,
                             )
                         });
                     }

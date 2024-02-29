@@ -18,6 +18,28 @@ pub struct FailedTest {
     pub error: String,
 }
 
+impl TestResults {
+    pub fn report(&self) -> String {
+        use colored::Colorize;
+
+        let mut result = format!("Failed with {0} test failures:", self.failures.len())
+            .red()
+            .to_string();
+
+        let mut ix = 1;
+        for failure in self.failures.iter() {
+            result += format!("\n\n[{0}] {1}", ix, failure.name).as_str();
+            for path_element in failure.path.iter() {
+                result += format!("\n  in {0}", path_element).as_str();
+            }
+            result += format!("\nDetails: {0}", failure.error).as_str();
+            ix += 1;
+        }
+
+        result
+    }
+}
+
 impl Reporter for TestResults {
     fn enter(&mut self, name: &str) {
         self.path.push(name.into());
