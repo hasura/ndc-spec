@@ -1,9 +1,12 @@
-use std::{collections::BTreeMap, ops::Range};
+use std::collections::BTreeMap;
 
 use ndc_client::models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
-use crate::{configuration::TestGenerationConfiguration, connector::Connector, error::Result};
+use crate::{
+    configuration::TestGenerationConfiguration, connector::Connector, error::Result,
+    test_cases::query::validate::validate_response,
+};
 
 pub async fn test_sorting<C: Connector>(
     gen_config: &TestGenerationConfiguration,
@@ -14,8 +17,9 @@ pub async fn test_sorting<C: Connector>(
     collection_info: &models::CollectionInfo,
 ) -> Result<()> {
     for _ in 0..gen_config.test_cases {
+        let amount = rng.gen_range(1..=gen_config.complexity.max(1).into());
         if let Some(order_by_elements) =
-            make_order_by_elements(collection_type.clone(), schema, rng, 1..3)
+            make_order_by_elements(collection_type.clone(), schema, rng, amount)
         {
             test_select_top_n_rows_with_sort(
                 gen_config,
@@ -23,6 +27,7 @@ pub async fn test_sorting<C: Connector>(
                 order_by_elements,
                 collection_type,
                 collection_info,
+                rng,
             )
             .await?;
         } else {
@@ -37,7 +42,7 @@ fn make_order_by_elements(
     collection_type: models::ObjectType,
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
-    amount: Range<usize>,
+    amount: usize,
 ) -> Option<Vec<models::OrderByElement>> {
     let mut sortable_fields = vec![];
 
@@ -52,8 +57,7 @@ fn make_order_by_elements(
     if sortable_fields.is_empty() {
         None
     } else {
-        let fields_count = rng.gen_range(amount);
-        let fields = sortable_fields.iter().choose_multiple(rng, fields_count);
+        let fields = sortable_fields.iter().choose_multiple(rng, amount);
 
         let mut order_by_elements = vec![];
 
@@ -83,8 +87,9 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
     elements: Vec<models::OrderByElement>,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
+    rng: &mut SmallRng,
 ) -> Result<ndc_client::models::QueryResponse> {
-    let fields = super::super::common::select_all_columns(collection_type);
+    let fields = super::super::common::select_columns(collection_type, rng);
 
     let query_request = models::QueryRequest {
         collection: collection_info.name.clone(),
@@ -101,9 +106,9 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
         variables: None,
     };
 
-    let response = connector.query(query_request).await?;
+    let response = connector.query(query_request.clone()).await?;
 
-    super::super::expectations::expect_single_rows(&response)?;
+    validate_response(&query_request, &response)?;
 
     Ok(response)
 }

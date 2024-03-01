@@ -4,7 +4,7 @@ mod simple_queries;
 
 mod common;
 mod context;
-mod expectations;
+mod validate;
 
 use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
@@ -45,6 +45,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                                 reporter,
                                 schema,
                                 collection_info,
+                                rng,
                             )
                         });
                     }

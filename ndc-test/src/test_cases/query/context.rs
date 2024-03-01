@@ -48,17 +48,16 @@ pub fn make_context(
 }
 
 impl<'a> Context<'a> {
-    pub fn choose_field(
+    pub fn choose_distinct_fields(
         self: &'a Context<'a>,
         rng: &mut SmallRng,
-    ) -> Result<(String, Vec<serde_json::Value>)> {
-        let (field_name, values) = *self
-            .values
+        amount: usize,
+    ) -> Vec<(String, Vec<serde_json::Value>)> {
+        self.values
             .iter()
             .collect::<Vec<_>>()
-            .choose(rng)
-            .ok_or(Error::ExpectedNonEmptyRows)?;
-
-        Ok((field_name.clone(), values.clone()))
+            .choose_multiple(rng, amount)
+            .map(|&(field_name, values)| (field_name.clone(), values.clone()))
+            .collect::<Vec<_>>()
     }
 }
