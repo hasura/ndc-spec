@@ -3,8 +3,10 @@ use std::{path::PathBuf, process::exit};
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
 use ndc_test::{
+    benchmark_report,
     configuration::{TestConfiguration, TestGenerationConfiguration},
     reporter::{ConsoleReporter, TestResults},
+    ReportConfiguration,
 };
 use reqwest::header::HeaderMap;
 
@@ -70,6 +72,29 @@ enum Commands {
             help = "the directory used to store snapshot files"
         )]
         snapshots_dir: PathBuf,
+    },
+    Bench {
+        #[arg(long, value_name = "ENDPOINT", help = "The NDC endpoint to test")]
+        endpoint: reqwest::Url,
+        #[arg(
+            long,
+            value_name = "PATH",
+            help = "the directory used to store snapshot files"
+        )]
+        snapshots_dir: PathBuf,
+        #[arg(
+            long,
+            value_name = "COUNT",
+            help = "the number of samples to collect per test",
+            default_value = "100"
+        )]
+        samples: u32,
+        #[arg(
+            long,
+            value_name = "TOLERANCE",
+            help = "tolerable deviation from previous report, in standard deviations from the mean"
+        )]
+        tolerance: Option<f64>,
     },
 }
 
@@ -139,6 +164,39 @@ async fn main() {
                 println!("{}", reporter.1.report());
 
                 exit(1)
+            }
+        }
+        Commands::Bench {
+            endpoint,
+            snapshots_dir,
+            samples,
+            tolerance,
+        } => {
+            let configuration = Configuration {
+                base_path: endpoint,
+                user_agent: None,
+                client: reqwest::Client::new(),
+                headers: HeaderMap::new(),
+            };
+
+            let mut reporter = (ConsoleReporter::default(), TestResults::default());
+
+            let report_configuration = ReportConfiguration { samples, tolerance };
+
+            let report = ndc_test::bench_snapshots_in_directory(
+                &report_configuration,
+                &configuration,
+                &mut reporter,
+                snapshots_dir,
+            )
+            .await
+            .unwrap();
+
+            println!();
+            println!("{}", benchmark_report(&report_configuration, report));
+
+            if !reporter.1.failures.is_empty() {
+                exit(1);
             }
         }
     }

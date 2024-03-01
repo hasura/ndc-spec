@@ -54,6 +54,12 @@ pub enum Error {
     SerdeError(serde_json::Error),
     #[error("snapshot did not match file {0}: {1}")]
     ResponseDidNotMatchSnapshot(PathBuf, String),
+    #[error("cannot open benchmark directory: {0:?}")]
+    CannotOpenBenchmarkDirectory(std::io::Error),
+    #[error("cannot open benchmark report: {0:?}")]
+    CannotOpenBenchmarkReport(std::io::Error),
+    #[error("benchmark deviated significantly ({0:.02}σ) from previous result")]
+    BenchmarkExceededTolerance(f64),
     #[error("response from connector does not satisfy requirement: {0}")]
     ResponseDoesNotSatisfy(String),
     #[error("other error")]
@@ -63,6 +69,12 @@ pub enum Error {
 impl From<rand::Error> for Error {
     fn from(value: rand::Error) -> Self {
         Error::StrategyError(value)
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(value: serde_json::Error) -> Self {
+        Error::SerdeError(value)
     }
 }
 
