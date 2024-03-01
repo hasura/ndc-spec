@@ -2103,7 +2103,7 @@ mod tests {
     use ndc_client::models;
     use ndc_test::{
         configuration::TestConfiguration, connector::Connector, error::Error,
-        reporter::TestResults, test_connector,
+        reporter::TestResults, test_connector, ReportConfiguration,
     };
     use std::{
         fs::{self, File},
@@ -2296,6 +2296,30 @@ mod tests {
             };
             let mut reporter = TestResults::default();
             test_connector(&configuration, &connector, &mut reporter).await;
+            assert!(reporter.failures.is_empty());
+        });
+    }
+
+    #[test]
+    fn bench_ndc_test() {
+        tokio_test::block_on(async {
+            let configuration = ReportConfiguration {
+                samples: 100,
+                tolerance: Some(0.1),
+            };
+            let connector = Reference {
+                state: init_app_state(),
+            };
+            let mut reporter = TestResults::default();
+            let snapshots_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+            ndc_test::bench_snapshots_in_directory(
+                &configuration,
+                &connector,
+                &mut reporter,
+                snapshots_dir,
+            )
+            .await
+            .expect("benchmark setup ok");
             assert!(reporter.failures.is_empty());
         });
     }
