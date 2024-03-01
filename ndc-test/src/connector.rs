@@ -11,8 +11,5 @@ pub trait Connector {
 
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse>;
 
-    async fn mutation(
-        &self,
-        request: models::MutationRequest,
-    ) -> Result<models::MutationResponse>;
+    async fn mutation(&self, request: models::MutationRequest) -> Result<models::MutationResponse>;
 }

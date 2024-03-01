@@ -5,8 +5,7 @@ pub trait Reporter {
     fn failure(&mut self, name: &str, err: &crate::error::Error);
 }
 
-#[derive(Debug)]
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct TestResults {
     path: Vec<String>,
     pub failures: Vec<FailedTest>,
@@ -19,7 +18,27 @@ pub struct FailedTest {
     pub error: String,
 }
 
+impl TestResults {
+    pub fn report(&self) -> String {
+        use colored::Colorize;
 
+        let mut result = format!("Failed with {0} test failures:", self.failures.len())
+            .red()
+            .to_string();
+
+        let mut ix = 1;
+        for failure in self.failures.iter() {
+            result += format!("\n\n[{0}] {1}", ix, failure.name).as_str();
+            for path_element in failure.path.iter() {
+                result += format!("\n  in {0}", path_element).as_str();
+            }
+            result += format!("\nDetails: {0}", failure.error).as_str();
+            ix += 1;
+        }
+
+        result
+    }
+}
 
 impl Reporter for TestResults {
     fn enter(&mut self, name: &str) {
@@ -109,36 +128,32 @@ where
 
 #[macro_export]
 macro_rules! test {
-    ($name: expr, $reporter: expr, $f: expr) => {
-        {
-            $reporter.enter($name);
+    ($name: expr, $reporter: expr, $f: expr) => {{
+        $reporter.enter($name);
 
-            let result = $f.await;
+        let result = $f.await;
 
-            match &result {
-                Ok(_) => {
-                    $reporter.success();
-                }
-                Err(err) => {
-                    $reporter.failure($name, err);
-                }
-            };
+        match &result {
+            Ok(_) => {
+                $reporter.success();
+            }
+            Err(err) => {
+                $reporter.failure($name, err);
+            }
+        };
 
-            $reporter.exit();
+        $reporter.exit();
 
-            result.ok()
-        }
-    };
+        result.ok()
+    }};
 }
 
 #[macro_export]
 macro_rules! nest {
-    ($name: expr, $reporter: expr, $f: expr) => {
-        {
-            $reporter.enter($name);
-            let result = $f.await;
-            $reporter.exit();
-            result
-        }
-    };
+    ($name: expr, $reporter: expr, $f: expr) => {{
+        $reporter.enter($name);
+        let result = $f.await;
+        $reporter.exit();
+        result
+    }};
 }

@@ -34,8 +34,12 @@ pub enum Error {
     AggregatesShouldBeNullInRowSet,
     #[error("expected non-null aggregates in RowSet")]
     AggregatesShouldBeNonNullInRowSet,
-    #[error("expected a single RowSet in the QueryResponse")]
-    ExpectedSingleRowSet,
+    #[error("expected {0} RowSet(s) in the QueryResponse, got {1}")]
+    UnexpectedRowsets(usize, usize),
+    #[error("expected RowSet in response for field {0}")]
+    ExpectedRowSet(String),
+    #[error("expected <= {0} rows in RowSet, got {1}")]
+    TooManyRowsInResponse(u32, u32),
     #[error("expected non-empty rows in RowSet")]
     ExpectedNonEmptyRows,
     #[error("requested field {0} was missing in response")]

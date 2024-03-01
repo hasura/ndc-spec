@@ -3,7 +3,10 @@ use std::{path::PathBuf, process::exit};
 use clap::{Parser, Subcommand};
 use ndc_client::apis::configuration::Configuration;
 use ndc_test::{
-    benchmark_report, configuration::{TestConfiguration, TestGenerationConfiguration}, reporter::{ConsoleReporter, TestResults}, ReportConfiguration
+    benchmark_report,
+    configuration::{TestConfiguration, TestGenerationConfiguration},
+    reporter::{ConsoleReporter, TestResults},
+    ReportConfiguration,
 };
 use reqwest::header::HeaderMap;
 
@@ -53,6 +56,12 @@ enum Commands {
             help = "the maximum number of rows to fetch per test query"
         )]
         max_limit: u32,
+        #[arg(
+            short='x',
+            action = clap::ArgAction::Count,
+            help = "increase complexity of generated queries",
+        )]
+        complexity: u8,
     },
     Replay {
         #[arg(long, value_name = "ENDPOINT", help = "The NDC endpoint to test")]
@@ -99,6 +108,7 @@ async fn main() {
             test_cases,
             sample_size,
             max_limit,
+            complexity,
         } => {
             let seed: Option<[u8; 32]> = seed.map(|seed| seed.as_bytes().try_into().unwrap());
 
@@ -106,6 +116,7 @@ async fn main() {
                 test_cases,
                 sample_size,
                 max_limit,
+                complexity,
             };
 
             let test_configuration = TestConfiguration {
@@ -127,7 +138,7 @@ async fn main() {
 
             if !reporter.1.failures.is_empty() {
                 println!();
-                println!("{}", report(&reporter.1));
+                println!("{}", reporter.1.report());
 
                 exit(1)
             }
@@ -150,7 +161,7 @@ async fn main() {
 
             if !reporter.1.failures.is_empty() {
                 println!();
-                println!("{}", report(&reporter.1));
+                println!("{}", reporter.1.report());
 
                 exit(1)
             }
@@ -189,24 +200,4 @@ async fn main() {
             }
         }
     }
-}
-
-pub fn report(results: &TestResults) -> String {
-    use colored::Colorize;
-
-    let mut result = format!("Failed with {0} test failures:", results.failures.len())
-        .red()
-        .to_string();
-
-    let mut ix = 1;
-    for failure in results.failures.iter() {
-        result += format!("\n\n[{0}] {1}", ix, failure.name).as_str();
-        for path_element in failure.path.iter() {
-            result += format!("\n  in {0}", path_element).as_str();
-        }
-        result += format!("\nDetails: {0}", failure.error).as_str();
-        ix += 1;
-    }
-
-    result
 }

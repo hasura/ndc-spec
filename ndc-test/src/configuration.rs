@@ -12,6 +12,7 @@ pub struct TestGenerationConfiguration {
     pub test_cases: u32,
     pub sample_size: u32,
     pub max_limit: u32,
+    pub complexity: u8,
 }
 
 impl Default for TestGenerationConfiguration {
@@ -20,6 +21,7 @@ impl Default for TestGenerationConfiguration {
             test_cases: 10,
             sample_size: 10,
             max_limit: 10,
+            complexity: 0,
         }
     }
 }

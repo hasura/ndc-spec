@@ -1,13 +1,16 @@
 use std::collections::BTreeMap;
 
+use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::error::Error;
 use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::{nest, test};
-use crate::configuration::TestGenerationConfiguration;
 
 use ndc_client::models::{self};
+use rand::rngs::SmallRng;
+
+use super::validate::validate_response;
 
 pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
@@ -15,6 +18,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     reporter: &mut R,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
+    rng: &mut SmallRng,
 ) -> Option<()> {
     let collection_type = schema
         .object_types
@@ -38,6 +42,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         schema,
                         foreign_key_name,
                         foreign_key,
+                        rng,
                     )
                 );
 
@@ -52,9 +57,9 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         schema,
                         foreign_key_name,
                         foreign_key,
+                        rng,
                     )
-                )
-                ;
+                );
 
                 Some(())
             }
@@ -64,6 +69,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     Some(())
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn select_top_n_using_foreign_key<C: Connector>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
@@ -72,8 +78,9 @@ async fn select_top_n_using_foreign_key<C: Connector>(
     schema: &models::SchemaResponse,
     foreign_key_name: &str,
     foreign_key: &models::ForeignKeyConstraint,
+    rng: &mut SmallRng,
 ) -> Result<()> {
-    let mut fields = super::common::select_all_columns(collection_type);
+    let mut fields = super::common::select_columns(collection_type, rng);
 
     let other_collection = schema
         .collections
@@ -132,9 +139,9 @@ async fn select_top_n_using_foreign_key<C: Connector>(
             variables: None,
         };
 
-        let response = connector.query(query_request).await?;
+        let response = connector.query(query_request.clone()).await?;
 
-        super::expectations::expect_single_rows(&response)?;
+        validate_response(&query_request, &response)?;
     } else {
         eprintln!("Skipping parameterized relationship {}", foreign_key_name);
     }
@@ -142,6 +149,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
@@ -150,8 +158,9 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
     schema: &models::SchemaResponse,
     foreign_key_name: &str,
     foreign_key: &models::ForeignKeyConstraint,
+    rng: &mut SmallRng,
 ) -> Result<()> {
-    let fields = super::common::select_all_columns(collection_type);
+    let fields = super::common::select_columns(collection_type, rng);
 
     let other_collection = schema
         .collections
@@ -216,9 +225,9 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
             variables: None,
         };
 
-        let response = connector.query(query_request).await?;
+        let response = connector.query(query_request.clone()).await?;
 
-        super::expectations::expect_single_rows(&response)?;
+        validate_response(&query_request, &response)?;
     } else {
         eprintln!("Skipping parameterized relationship {}", foreign_key_name);
     }
