@@ -13,7 +13,7 @@ use std::path::PathBuf;
 use std::time::Instant;
 
 use async_trait::async_trait;
-use colored::Colorize;
+use colorful::Colorful;
 use connector::Connector;
 use error::Error;
 

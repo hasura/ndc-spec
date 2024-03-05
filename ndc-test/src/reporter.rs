@@ -20,7 +20,7 @@ pub struct FailedTest {
 
 impl TestResults {
     pub fn report(&self) -> String {
-        use colored::Colorize;
+        use colorful::Colorful;
 
         let mut result = format!("Failed with {0} test failures:", self.failures.len())
             .red()
@@ -90,12 +90,12 @@ impl Reporter for ConsoleReporter {
     }
 
     fn success(&mut self) {
-        use colored::Colorize;
+        use colorful::Colorful;
         print!(" {}", "OK".green());
     }
 
     fn failure(&mut self, _name: &str, _err: &crate::error::Error) {
-        use colored::Colorize;
+        use colorful::Colorful;
         print!(" {}", "FAIL".red());
     }
 }
