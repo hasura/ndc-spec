@@ -1,0 +1,9 @@
+{
+  "samples": 100,
+  "mean": 123.14,
+  "mean_delta": null,
+  "mean_deviation": null,
+  "sample_variance": 8206.10101010101,
+  "min": 120.0,
+  "max": 203.0
+}
