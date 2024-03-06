@@ -104,15 +104,34 @@ pub struct SchemaResponse {
 
 // ANCHOR: ScalarType
 /// The definition of a scalar type, i.e. types that can be used as the types of columns.
+#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Scalar Type")]
 pub struct ScalarType {
+    ///
+    pub representation: Option<TypeRepresentation>,
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap<String, AggregateFunctionDefinition>,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub comparison_operators: BTreeMap<String, ComparisonOperatorDefinition>,
 }
 // ANCHOR_END: ScalarType
+
+// ANCHOR: TypeHint
+///
+#[derive(
+    Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
+)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Type")]
+pub enum TypeRepresentation {
+    String,
+    Int,
+    Float,
+    Boolean,
+    Enum { one_of: Vec<String> },
+}
+// ANCHOR_END: TypeHint
 
 // ANCHOR: ObjectType
 /// The definition of an object type

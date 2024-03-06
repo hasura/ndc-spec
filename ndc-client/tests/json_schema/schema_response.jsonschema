@@ -56,6 +56,16 @@
         "comparison_operators"
       ],
       "properties": {
+        "representation": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TypeRepresentation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "aggregate_functions": {
           "description": "A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.",
           "type": "object",
@@ -71,6 +81,88 @@
           }
         }
       }
+    },
+    "TypeRepresentation": {
+      "title": "Type",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "string"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "boolean"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "one_of",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "enum"
+              ]
+            },
+            "one_of": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
     },
     "AggregateFunctionDefinition": {
       "title": "Aggregate Function Definition",

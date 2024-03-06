@@ -1,6 +1,9 @@
 {
   "scalar_types": {
     "Int": {
+      "representation": {
+        "type": "int"
+      },
       "aggregate_functions": {
         "max": {
           "result_type": {
@@ -31,6 +34,9 @@
       }
     },
     "String": {
+      "representation": {
+        "type": "string"
+      },
       "aggregate_functions": {},
       "comparison_operators": {
         "eq": {
