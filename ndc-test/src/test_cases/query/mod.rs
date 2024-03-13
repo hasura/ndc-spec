@@ -50,15 +50,17 @@ pub async fn test_query<C: Connector, R: Reporter>(
                         });
                     }
 
-                    nest!("Aggregate queries", reporter, {
-                        aggregates::test_aggregate_queries(
-                            gen_config,
-                            connector,
-                            reporter,
-                            schema,
-                            collection_info,
-                        )
-                    });
+                    if capabilities.capabilities.query.aggregates.is_some() {
+                        nest!("Aggregate queries", reporter, {
+                            aggregates::test_aggregate_queries(
+                                gen_config,
+                                connector,
+                                reporter,
+                                schema,
+                                collection_info,
+                            )
+                        });
+                    }
                 } else {
                     eprintln!("Skipping parameterized collection {}", collection_info.name);
                 }
