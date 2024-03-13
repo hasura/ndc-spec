@@ -8,5 +8,4 @@ _Note_: just as for [functions](../queries/functions.md), fields to return can i
 
 ## Requirements
 
-- The `affected_rows` field in the corresponding [`MutationOperationResults`](../../reference/types.md#mutationoperationresults) structure should indicate the number of rows in the data source which were modified as a result of the operation.
-- The `returning` field in the corresponding [`MutationOperationResults`](../../reference/types.md#mutationoperationresults) structure should contain a single row, with a single column named `__value`. That column should contain the result of the operation, which has a value compatible with the return type of the procedure.
+- The [`MutationResponse`](../../reference/types.md#mutationresponse) structure will contain a [`MutationOperationResults`](../../reference/types.md#mutationoperationresults) structure for the procedure response. This structure should have type `procedure` and contain a `result` field with a result of the type indicated in the [schema response](../schema/procedures.md).
