@@ -17,7 +17,7 @@ pub struct Context<'a> {
 pub fn make_context(
     collection_type: &models::ObjectType,
     rows: Vec<IndexMap<String, models::RowFieldValue>>,
-) -> Result<Option<Context>> {
+) -> Result<Option<Context<'_>>> {
     let mut values = BTreeMap::new();
 
     for row in rows {
