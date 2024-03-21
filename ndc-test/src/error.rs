@@ -46,6 +46,8 @@ pub enum Error {
     MissingField(String),
     #[error("field {0} was not expected in response")]
     UnexpectedField(String),
+    #[error("scalar type {0} has multiple equality operators")]
+    MultipleEqualityOperators(String),
     #[error("error response from connector: {0:?}")]
     ConnectorError(ndc_client::models::ErrorResponse),
     #[error("cannot open snapshot file: {0:?}")]
