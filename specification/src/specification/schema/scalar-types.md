@@ -42,9 +42,14 @@ For example:
 
 An operator defined using type `equal` tests if a column value is equal to a scalar value, another column value, or a variable.
 
-The precise semantics of this equality operator are not specified, but the operator should define an equivalence relation. That is, its argument type should be the same scalar type for which it is defined, and at the level of values, it should be reflexive, symmetric and transitive.
+##### Note: syntactic equality
 
-For example, an equality operator on a string type might test equality at the level of the underlying bytes, or might perform a coarser-grained test such as case-insensitive comparison.
+Specifically, a predicate expression which uses an operator of type `equal` should implement _syntactic equality_:
+
+- An expression which tests for equality of a column with a _scalar_ value or _variable_ should return that scalar value exactly (equal as JSON values) for all rows in each corresponding row set, whenever the same column is selected.
+- An expression which tests for equality of a column with _another column_ should return the same values in both columns (equal as JSON values) for all rows in each corresponding row set, whenever both of those those columns are selected.
+
+This type of equality is quite strict, and it might not be possible to implement such an operator for all scalar types. For example, a case-insensitive string type's natural case-insensitive equality operator would not meet the criteria above. In such cases, the scalar type should _not_ provide an _equal_ operator.
 
 #### `In`
 
