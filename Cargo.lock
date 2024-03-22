@@ -837,7 +837,7 @@ dependencies = [
 
 [[package]]
 name = "ndc-client"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "async-trait",
  "goldenfile",
@@ -854,7 +854,7 @@ dependencies = [
 
 [[package]]
 name = "ndc-reference"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "async-trait",
  "axum",
@@ -871,7 +871,7 @@ dependencies = [
 
 [[package]]
 name = "ndc-test"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "async-trait",
  "clap",
