@@ -13,7 +13,6 @@ Right now, we don't have any notion of type representation for scalar types, so 
     ```rust
     pub enum TypeRepresentation {
         String,
-        Int,
         Float,
         Boolean,
         Enum { one_of: Vec<String> },

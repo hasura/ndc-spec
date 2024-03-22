@@ -216,7 +216,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "Int".into(),
             models::ScalarType {
-                representation: Some(models::TypeRepresentation::Int),
+                representation: Some(models::TypeRepresentation::Integer),
                 aggregate_functions: BTreeMap::from_iter([
                     (
                         "max".into(),

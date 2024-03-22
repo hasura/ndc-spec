@@ -4,6 +4,29 @@ The schema should describe any irreducible _scalar types_. Scalar types can be u
 
 Scalar types define several types of operations, which extend the capabilities of the query and mutation APIs: _comparison operators_ and _aggregation functions_.
 
+## Type Representations
+
+A scalar type definition can include an optional _type representation_. The representation, if provided, indicates to potential callers what values can be expected in responses, and what values are considered acceptable in requests.
+
+| `type` | Values | Additional fields |
+| - | - | - |
+| `boolean` | A JSON boolean | |
+| `string` | A JSON string | |
+| `number` | A JSON number | |
+| `integer` | A JSON number with no decimal part | |
+| `enum` | Any of the values specified in the `one_of` field | `one_of` is a list of acceptable string values |
+
+### Examples
+
+This representation indicates that the only three valid values are the strings `"foo"`, `"bar"` and `"baz"`:
+
+```json
+{
+  "type": "enum",
+  "one_of": ["foo", "bar", "baz"]
+}
+```
+
 ## Comparison Operators
 
 Comparison operators extend the query AST with the ability to express new binary comparison expressions in the predicate.

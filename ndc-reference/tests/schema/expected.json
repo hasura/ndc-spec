@@ -2,7 +2,7 @@
   "scalar_types": {
     "Int": {
       "representation": {
-        "type": "int"
+        "type": "integer"
       },
       "aggregate_functions": {
         "max": {

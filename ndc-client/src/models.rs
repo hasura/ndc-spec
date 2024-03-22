@@ -108,7 +108,7 @@ pub struct SchemaResponse {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Scalar Type")]
 pub struct ScalarType {
-    ///
+    /// An optional description of valid values for this scalar type
     pub representation: Option<TypeRepresentation>,
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap<String, AggregateFunctionDefinition>,
@@ -117,21 +117,26 @@ pub struct ScalarType {
 }
 // ANCHOR_END: ScalarType
 
-// ANCHOR: TypeHint
-///
+// ANCHOR: TypeRepresentation
+/// Representations of scalar types
 #[derive(
     Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Type")]
 pub enum TypeRepresentation {
-    String,
-    Int,
-    Float,
+    /// JSON booleans
     Boolean,
+    /// Any JSON string
+    String,
+    /// Any JSON number
+    Number,
+    /// Any JSON number, with no decimal part
+    Integer,
+    /// One of the specified string values
     Enum { one_of: Vec<String> },
 }
-// ANCHOR_END: TypeHint
+// ANCHOR_END: TypeRepresentation
 
 // ANCHOR: ObjectType
 /// The definition of an object type
