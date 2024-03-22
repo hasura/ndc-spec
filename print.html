@@ -204,6 +204,24 @@
 <li>A <strong>metrics</strong> endpoint, which exposes runtime metrics about the data connector.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
+<h2 id="011"><a class="header" href="#011"><code>0.1.1</code></a></h2>
+<h3 id="specification"><a class="header" href="#specification">Specification</a></h3>
+<ul>
+<li><a href="specification/./schema/scalar-types.html#note-syntactic-equality">Equality operators were more precisely specified</a></li>
+<li>Scalar types can now specify <a href="specification/./schema/scalar-types.html#type-representations">representations</a></li>
+</ul>
+<h3 id="ndc-test"><a class="header" href="#ndc-test"><code>ndc-test</code></a></h3>
+<ul>
+<li>Aggregate tests are gated behind the aggregates capability</li>
+<li>Automatic tests are now generated for exists predicates</li>
+<li>Automatic tests are now generated for <code>single_column</code> aggregates</li>
+</ul>
+<h3 id="rust-libraries"><a class="header" href="#rust-libraries">Rust Libraries</a></h3>
+<ul>
+<li><code>rustls</code> is supported instead of <code>native-tls</code> using a Cargo feature.</li>
+<li>Upgrade <code>opentelemetry</code> to v0.22.0</li>
+<li><code>colored</code> dependency removed in favor of <code>colorful</code></li>
+</ul>
 <h2 id="010"><a class="header" href="#010"><code>0.1.0</code></a></h2>
 <h3 id="terminology"><a class="header" href="#terminology">Terminology</a></h3>
 <p>Tables are now known as <em>collections</em>.</p>
@@ -299,7 +317,7 @@ mutation_total 5000 1685405427000
 <p>See <a href="specification/../reference/types.html#capabilitiesresponse"><code>CapabilitiesResponse</code></a></p>
 <h3 id="example-1"><a class="header" href="#example-1">Example</a></h3>
 <pre><code class="language-json">{
-  "version": "0.1.0",
+  "version": "0.1.1",
   "capabilities": {
     "query": {
       "aggregates": {},
@@ -407,6 +425,9 @@ mutation_total 5000 1685405427000
 <pre><code class="language-json">{
   "scalar_types": {
     "Int": {
+      "representation": {
+        "type": "integer"
+      },
       "aggregate_functions": {
         "max": {
           "result_type": {
@@ -437,6 +458,9 @@ mutation_total 5000 1685405427000
       }
     },
     "String": {
+      "representation": {
+        "type": "string"
+      },
       "aggregate_functions": {},
       "comparison_operators": {
         "eq": {
@@ -760,6 +784,23 @@ mutation_total 5000 1685405427000
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="scalar-types"><a class="header" href="#scalar-types">Scalar Types</a></h1>
 <p>The schema should describe any irreducible <em>scalar types</em>. Scalar types can be used as the types of columns, or in general as the types of object fields.</p>
 <p>Scalar types define several types of operations, which extend the capabilities of the query and mutation APIs: <em>comparison operators</em> and <em>aggregation functions</em>.</p>
+<h2 id="type-representations"><a class="header" href="#type-representations">Type Representations</a></h2>
+<p>A scalar type definition can include an optional <em>type representation</em>. The representation, if provided, indicates to potential callers what values can be expected in responses, and what values are considered acceptable in requests.</p>
+<div class="table-wrapper"><table><thead><tr><th><code>type</code></th><th>Values</th><th>Additional fields</th></tr></thead><tbody>
+<tr><td><code>boolean</code></td><td>A JSON boolean</td><td></td></tr>
+<tr><td><code>string</code></td><td>A JSON string</td><td></td></tr>
+<tr><td><code>number</code></td><td>A JSON number</td><td></td></tr>
+<tr><td><code>integer</code></td><td>A JSON number with no decimal part</td><td></td></tr>
+<tr><td><code>enum</code></td><td>Any of the values specified in the <code>one_of</code> field</td><td><code>one_of</code> is a list of acceptable string values</td></tr>
+</tbody></table>
+</div>
+<h3 id="examples"><a class="header" href="#examples">Examples</a></h3>
+<p>This representation indicates that the only three valid values are the strings <code>"foo"</code>, <code>"bar"</code> and <code>"baz"</code>:</p>
+<pre><code class="language-json">{
+  "type": "enum",
+  "one_of": ["foo", "bar", "baz"]
+}
+</code></pre>
 <h2 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison Operators</a></h2>
 <p>Comparison operators extend the query AST with the ability to express new binary comparison expressions in the predicate.</p>
 <p>For example, a data connector might augment a <code>String</code> scalar type with a <code>LIKE</code> operator which tests for a fuzzy match based on a regular expression.</p>
@@ -787,8 +828,13 @@ mutation_total 5000 1685405427000
 <h3 id="standard-comparison-operators"><a class="header" href="#standard-comparison-operators">Standard Comparison Operators</a></h3>
 <h4 id="equal"><a class="header" href="#equal"><code>Equal</code></a></h4>
 <p>An operator defined using type <code>equal</code> tests if a column value is equal to a scalar value, another column value, or a variable.</p>
-<p>The precise semantics of this equality operator are not specified, but the operator should define an equivalence relation. That is, its argument type should be the same scalar type for which it is defined, and at the level of values, it should be reflexive, symmetric and transitive.</p>
-<p>For example, an equality operator on a string type might test equality at the level of the underlying bytes, or might perform a coarser-grained test such as case-insensitive comparison.</p>
+<h5 id="note-syntactic-equality"><a class="header" href="#note-syntactic-equality">Note: syntactic equality</a></h5>
+<p>Specifically, a predicate expression which uses an operator of type <code>equal</code> should implement <em>syntactic equality</em>:</p>
+<ul>
+<li>An expression which tests for equality of a column with a <em>scalar</em> value or <em>variable</em> should return that scalar value exactly (equal as JSON values) for all rows in each corresponding row set, whenever the same column is selected.</li>
+<li>An expression which tests for equality of a column with <em>another column</em> should return the same values in both columns (equal as JSON values) for all rows in each corresponding row set, whenever both of those those columns are selected.</li>
+</ul>
+<p>This type of equality is quite strict, and it might not be possible to implement such an operator for all scalar types. For example, a case-insensitive string type's natural case-insensitive equality operator would not meet the criteria above. In such cases, the scalar type should <em>not</em> provide an <em>equal</em> operator.</p>
 <h4 id="in"><a class="header" href="#in"><code>In</code></a></h4>
 <p>An operator defined using type <code>in</code> tests if a column value is a member of an array of values. The array is specified either as a scalar, a variable, or as the value of another column.</p>
 <p>It should accept an array type as its argument, whose element type is the scalar type for which it is defined. It should be equivalent to a disjunction of individual equality tests on the elements of the provided array, where the equality test is an equivalence relation in the same sense as above.</p>
@@ -1071,7 +1117,7 @@ mutation_total 5000 1685405427000
 <li>For an object-typed column (whether nullable or not), the <code>fields</code> property should contain a <code>NestedField</code> with type <code>object</code>. The <code>fields</code> property of the <code>NestedField</code> specifies a <a href="specification/queries/../../reference/types.html#field"><code>Field</code></a> structure for each requested nested field from the objects.</li>
 <li>For an array-typed column  (whether nullable or not), the <code>fields</code> property should contain a <code>NestedField</code> with type <code>array</code>. The <code>fields</code> property of the <code>NestedField</code> should contain <em>another</em> <code>NestedField</code> structure, compatible with the type of the elements of the array. The selection function denoted by this nested <code>NestedField</code> structure should be applied to each element of each array.</li>
 </ul>
-<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
 <h3 id="simple-column-selection"><a class="header" href="#simple-column-selection">Simple column selection</a></h3>
 <p>Here is an example of a query which selects some columns from the <code>articles</code> collection of the reference data connector:</p>
 <pre><code class="language-json">{
@@ -2550,7 +2596,7 @@ mutation_total 5000 1685405427000
 <li>A function can be the source or target of a <a href="specification/queries/./relationships.html">relationship</a>,</li>
 <li>Function <a href="specification/queries/./arguments.html">arguments</a> are specified in the same way as collection arguments, and can also be specified using <a href="specification/queries/./variables.html">variables</a>.</li>
 </ul>
-<h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
+<h2 id="examples-2"><a class="header" href="#examples-2">Examples</a></h2>
 <h3 id="a-function-returning-a-scalar-value"><a class="header" href="#a-function-returning-a-scalar-value">A function returning a scalar value</a></h3>
 <p>This example uses the <code>latest_article_id</code> function, which returns a scalar type:</p>
 <pre><code class="language-json">{
@@ -2646,7 +2692,6 @@ the failure, and none of the operations should effect any changes to the data so
 <h2 id="requirements-7"><a class="header" href="#requirements-7">Requirements</a></h2>
 <ul>
 <li>The <code>operation_results</code> field of the <a href="specification/mutations/../../reference/types.html#mutationresponse"><code>MutationResponse</code></a> should contain one <a href="specification/mutations/../../reference/types.html#mutationoperationresults"><code>MutationOperationResults</code></a> structure for each requested operation in the <a href="specification/mutations/../../reference/types.html#mutationrequest"><code>MutationRequest</code></a>.</li>
-<li>Each <a href="specification/mutations/../../reference/types.html#mutationoperationresults"><code>MutationOperationResults</code></a> structure should indicate the number of affected rows, along with a list of those rows.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="procedures-2"><a class="header" href="#procedures-2">Procedures</a></h1>
 <p>A procedure which is <a href="specification/mutations/../schema/procedures.html">described in the schema</a> can be invoked using a <a href="specification/mutations/../../reference/types.html#mutationoperation"><code>MutationOperation</code></a>.</p>
@@ -2654,8 +2699,7 @@ the failure, and none of the operations should effect any changes to the data so
 <p><em>Note</em>: just as for <a href="specification/mutations/../queries/functions.html">functions</a>, fields to return can include <a href="specification/mutations/../queries/relationships.html">relationships</a> or <a href="specification/mutations/../queries/field-selection.html#nested-fields">nested fields</a>. However, unlike functions, procedures do not need to wrap their result in a <code>__value</code> field, so top-level fields can be extracted without use of nested field queries.</p>
 <h2 id="requirements-8"><a class="header" href="#requirements-8">Requirements</a></h2>
 <ul>
-<li>The <code>affected_rows</code> field in the corresponding <a href="specification/mutations/../../reference/types.html#mutationoperationresults"><code>MutationOperationResults</code></a> structure should indicate the number of rows in the data source which were modified as a result of the operation.</li>
-<li>The <code>returning</code> field in the corresponding <a href="specification/mutations/../../reference/types.html#mutationoperationresults"><code>MutationOperationResults</code></a> structure should contain a single row, with a single column named <code>__value</code>. That column should contain the result of the operation, which has a value compatible with the return type of the procedure.</li>
+<li>The <a href="specification/mutations/../../reference/types.html#mutationresponse"><code>MutationResponse</code></a> structure will contain a <a href="specification/mutations/../../reference/types.html#mutationoperationresults"><code>MutationOperationResults</code></a> structure for the procedure response. This structure should have type <code>procedure</code> and contain a <code>result</code> field with a result of the type indicated in the <a href="specification/mutations/../schema/procedures.html">schema response</a>.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="explain"><a class="header" href="#explain">Explain</a></h1>
 <p>There are two endpoints related to explain:</p>
@@ -2696,7 +2740,7 @@ docker run -it reference_connector
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="testing"><a class="header" href="#testing">Testing</a></h1>
 <p>Testing tools are provided in the specification repository to aid in the development of connectors.</p>
-<h2 id="ndc-test"><a class="header" href="#ndc-test"><code>ndc-test</code></a></h2>
+<h2 id="ndc-test-1"><a class="header" href="#ndc-test-1"><code>ndc-test</code></a></h2>
 <p>The <code>ndc-test</code> executable performs basic validation of the data returned by the capabilities and schema endpoints, and performs some basic queries.</p>
 <p>To test a connector, provide its endpoint to <code>ndc-test</code> on the command line:</p>
 <pre><code class="language-sh">ndc-test --endpoint &lt;ENDPOINT&gt;
@@ -2806,7 +2850,7 @@ async fn main() {
 <p>The reference implementation returns a static <code>CapabilitiesResponse</code>:</p>
 <pre><code class="language-rust no_run noplayground">async fn get_capabilities() -&gt; Json&lt;models::CapabilitiesResponse&gt; {
     Json(models::CapabilitiesResponse {
-        version: "0.1.0".into(),
+        version: "0.1.1".into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
                 aggregates: Some(LeafCapability {}),
@@ -2844,6 +2888,7 @@ async fn main() {
         (
             "String".into(),
             models::ScalarType {
+                representation: Some(models::TypeRepresentation::String),
                 aggregate_functions: BTreeMap::new(),
                 comparison_operators: BTreeMap::from_iter([
                     ("eq".into(), models::ComparisonOperatorDefinition::Equal),
@@ -2862,6 +2907,7 @@ async fn main() {
         (
             "Int".into(),
             models::ScalarType {
+                representation: Some(models::TypeRepresentation::Integer),
                 aggregate_functions: BTreeMap::from_iter([
                     (
                         "max".into(),
@@ -4910,9 +4956,12 @@ pub struct RowSet {
 }</code></pre>
 <h2 id="scalartype"><a class="header" href="#scalartype"><code>ScalarType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of a scalar type, i.e. types that can be used as the types of columns.
+#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Scalar Type")]
 pub struct ScalarType {
+    /// An optional description of valid values for this scalar type
+    pub representation: Option&lt;TypeRepresentation&gt;,
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap&lt;String, AggregateFunctionDefinition&gt;,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
@@ -4984,6 +5033,25 @@ pub enum Type {
         /// The object type name
         object_type_name: String,
     },
+}</code></pre>
+<h2 id="typerepresentation"><a class="header" href="#typerepresentation"><code>TypeRepresentation</code></a></h2>
+<pre><code class="language-rust no_run noplayground">/// Representations of scalar types
+#[derive(
+    Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
+)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Type")]
+pub enum TypeRepresentation {
+    /// JSON booleans
+    Boolean,
+    /// Any JSON string
+    String,
+    /// Any JSON number
+    Number,
+    /// Any JSON number, with no decimal part
+    Integer,
+    /// One of the specified string values
+    Enum { one_of: Vec&lt;String&gt; },
 }</code></pre>
 <h2 id="unarycomparisonoperator"><a class="header" href="#unarycomparisonoperator"><code>UnaryComparisonOperator</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(
@@ -8036,6 +8104,17 @@ pub struct UniquenessConstraint {
         "comparison_operators"
       ],
       "properties": {
+        "representation": {
+          "description": "An optional description of valid values for this scalar type",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TypeRepresentation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "aggregate_functions": {
           "description": "A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.",
           "type": "object",
@@ -8051,6 +8130,94 @@ pub struct UniquenessConstraint {
           }
         }
       }
+    },
+    "TypeRepresentation": {
+      "title": "Type",
+      "description": "Representations of scalar types",
+      "oneOf": [
+        {
+          "description": "JSON booleans",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "boolean"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Any JSON string",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "string"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Any JSON number",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "number"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Any JSON number, with no decimal part",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "integer"
+              ]
+            }
+          }
+        },
+        {
+          "description": "One of the specified string values",
+          "type": "object",
+          "required": [
+            "one_of",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "enum"
+              ]
+            },
+            "one_of": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
     },
     "AggregateFunctionDefinition": {
       "title": "Aggregate Function Definition",

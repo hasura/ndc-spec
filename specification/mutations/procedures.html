@@ -179,8 +179,7 @@
 <p><em>Note</em>: just as for <a href="../queries/functions.html">functions</a>, fields to return can include <a href="../queries/relationships.html">relationships</a> or <a href="../queries/field-selection.html#nested-fields">nested fields</a>. However, unlike functions, procedures do not need to wrap their result in a <code>__value</code> field, so top-level fields can be extracted without use of nested field queries.</p>
 <h2 id="requirements"><a class="header" href="#requirements">Requirements</a></h2>
 <ul>
-<li>The <code>affected_rows</code> field in the corresponding <a href="../../reference/types.html#mutationoperationresults"><code>MutationOperationResults</code></a> structure should indicate the number of rows in the data source which were modified as a result of the operation.</li>
-<li>The <code>returning</code> field in the corresponding <a href="../../reference/types.html#mutationoperationresults"><code>MutationOperationResults</code></a> structure should contain a single row, with a single column named <code>__value</code>. That column should contain the result of the operation, which has a value compatible with the return type of the procedure.</li>
+<li>The <a href="../../reference/types.html#mutationresponse"><code>MutationResponse</code></a> structure will contain a <a href="../../reference/types.html#mutationoperationresults"><code>MutationOperationResults</code></a> structure for the procedure response. This structure should have type <code>procedure</code> and contain a <code>result</code> field with a result of the type indicated in the <a href="../schema/procedures.html">schema response</a>.</li>
 </ul>
 
                     </main>
