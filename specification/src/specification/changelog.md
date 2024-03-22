@@ -1,5 +1,23 @@
 # Changelog
 
+## `0.1.1`
+
+### Specification
+
+- [Equality operators were more precisely specified](./schema/scalar-types.md#note-syntactic-equality)
+
+### `ndc-test`
+
+- Aggregate tests are gated behind the aggregates capability
+- Automatic tests are now generated for exists predicates
+- Automatic tests are now generated for `single_column` aggregates
+
+### Rust Libraries
+
+- `rustls` is supported instead of `native-tls` using a Cargo feature.
+- Upgrade `opentelemetry` to v0.22.0
+- `colored` dependency removed in favor of `colorful`
+
 ## `0.1.0`
 
 ### Terminology
