@@ -41,4 +41,3 @@ See [`MutationResponse`](../../reference/types.md#mutationresponse)
 ## Requirements
 
 - The `operation_results` field of the [`MutationResponse`](../../reference/types.md#mutationresponse) should contain one [`MutationOperationResults`](../../reference/types.md#mutationoperationresults) structure for each requested operation in the [`MutationRequest`](../../reference/types.md#mutationrequest).
-- Each [`MutationOperationResults`](../../reference/types.md#mutationoperationresults) structure should indicate the number of affected rows, along with a list of those rows.

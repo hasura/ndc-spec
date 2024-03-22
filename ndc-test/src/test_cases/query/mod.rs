@@ -26,7 +26,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
         nest!(collection_info.name.as_str(), reporter, {
             async {
                 if collection_info.arguments.is_empty() {
-                    nest!("Simple queries", reporter, {
+                    let context = nest!("Simple queries", reporter, {
                         simple_queries::test_simple_queries(
                             gen_config,
                             connector,
@@ -35,7 +35,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                             schema,
                             collection_info,
                         )
-                    });
+                    })?;
 
                     if capabilities.capabilities.relationships.is_some() {
                         nest!("Relationship queries", reporter, {
@@ -45,23 +45,29 @@ pub async fn test_query<C: Connector, R: Reporter>(
                                 reporter,
                                 schema,
                                 collection_info,
+                                &context,
                                 rng,
                             )
                         });
                     }
 
-                    nest!("Aggregate queries", reporter, {
-                        aggregates::test_aggregate_queries(
-                            gen_config,
-                            connector,
-                            reporter,
-                            schema,
-                            collection_info,
-                        )
-                    });
+                    if capabilities.capabilities.query.aggregates.is_some() {
+                        nest!("Aggregate queries", reporter, {
+                            aggregates::test_aggregate_queries(
+                                gen_config,
+                                connector,
+                                reporter,
+                                schema,
+                                collection_info,
+                                rng,
+                            )
+                        });
+                    }
                 } else {
                     eprintln!("Skipping parameterized collection {}", collection_info.name);
                 }
+
+                Some(())
             }
         });
     }

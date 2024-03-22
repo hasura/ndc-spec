@@ -1,5 +1,5 @@
-mod predicates;
-mod sorting;
+pub mod predicates;
+pub mod sorting;
 
 use std::collections::BTreeMap;
 
@@ -16,14 +16,14 @@ use rand::rngs::SmallRng;
 
 use super::validate::{expect_single_rows, validate_response};
 
-pub async fn test_simple_queries<C: Connector, R: Reporter>(
+pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     reporter: &mut R,
     rng: &mut SmallRng,
-    schema: &models::SchemaResponse,
-    collection_info: &models::CollectionInfo,
-) -> Option<()> {
+    schema: &'a models::SchemaResponse,
+    collection_info: &'a models::CollectionInfo,
+) -> Option<Option<super::context::Context<'a>>> {
     let collection_type = schema
         .object_types
         .get(collection_info.collection_type.as_str())?;
@@ -46,7 +46,7 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
         predicates::test_predicates(
             gen_config,
             connector,
-            context,
+            &context,
             schema,
             rng,
             collection_type,
@@ -65,7 +65,9 @@ pub async fn test_simple_queries<C: Connector, R: Reporter>(
             collection_type,
             collection_info
         )
-    )
+    );
+
+    Some(context)
 }
 
 async fn test_select_top_n_rows<C: Connector>(

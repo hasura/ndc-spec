@@ -22,6 +22,37 @@ pub async fn validate_schema<R: Reporter>(
     reporter: &mut R,
     schema: &models::SchemaResponse,
 ) -> Option<()> {
+    let _ = test!("scalar_types", reporter, async {
+        for (type_name, scalar_type) in schema.scalar_types.iter() {
+            for (_aggregate_function_name, aggregate_function) in
+                scalar_type.aggregate_functions.iter()
+            {
+                validate_type(schema, &aggregate_function.result_type)?;
+            }
+
+            let mut has_equality = false;
+
+            for (_comparison_operator_name, comparison_operator) in
+                scalar_type.comparison_operators.iter()
+            {
+                if let models::ComparisonOperatorDefinition::Equal = comparison_operator {
+                    if has_equality {
+                        return Err(Error::MultipleEqualityOperators(type_name.clone()));
+                    }
+                    has_equality = true;
+                }
+
+                if let models::ComparisonOperatorDefinition::Custom { argument_type } =
+                    comparison_operator
+                {
+                    validate_type(schema, argument_type)?;
+                }
+            }
+        }
+
+        Ok(())
+    });
+
     let _ = test!("object_types", reporter, async {
         for (_type_name, object_type) in schema.object_types.iter() {
             for (_field_name, object_field) in object_type.fields.iter() {

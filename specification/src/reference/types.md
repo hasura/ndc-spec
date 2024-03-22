@@ -276,6 +276,12 @@
 {{#include ../../../ndc-client/src/models.rs:Type}}
 ```
 
+## `TypeRepresentation`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/models.rs:TypeRepresentation}}
+```
+
 ## `UnaryComparisonOperator`
 
 ```rust,no_run,noplayground

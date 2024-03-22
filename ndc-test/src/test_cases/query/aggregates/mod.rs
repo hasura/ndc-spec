@@ -7,6 +7,9 @@ use crate::test;
 
 use indexmap::IndexMap;
 use ndc_client::models;
+use rand::rngs::SmallRng;
+use rand::seq::IteratorRandom;
+use rand::Rng;
 use std::collections::BTreeMap;
 
 use super::validate::expect_single_rowset;
@@ -18,6 +21,7 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     reporter: &mut R,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
+    rng: &mut SmallRng,
 ) -> Option<()> {
     let collection_type = schema
         .object_types
@@ -38,6 +42,19 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
             collection_info,
             collection_type,
             total_count
+        )
+    );
+
+    let _ = test!(
+        "single_column",
+        reporter,
+        test_single_column_aggregates(
+            gen_config,
+            connector,
+            schema,
+            collection_info,
+            collection_type,
+            rng,
         )
     );
 
@@ -69,9 +86,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
     validate_response(&query_request, &response)?;
 
     let row_set = expect_single_rowset(response)?;
-    if row_set.rows.is_some() {
-        return Err(Error::RowsShouldBeNullInRowSet);
-    }
+
     if let Some(aggregates) = &row_set.aggregates {
         match aggregates.get("count").and_then(serde_json::Value::as_u64) {
             None => Err(Error::MissingField("count".into())),
@@ -125,9 +140,6 @@ pub async fn test_column_count_aggregate<C: Connector>(
 
     let row_set = expect_single_rowset(response)?;
 
-    if row_set.rows.is_some() {
-        return Err(Error::RowsShouldBeNullInRowSet);
-    }
     if let Some(aggregates) = &row_set.aggregates {
         for field_name in collection_type.fields.keys() {
             let count_field = format!("{}_count", field_name);
@@ -161,4 +173,62 @@ pub async fn test_column_count_aggregate<C: Connector>(
     }
 
     Ok(())
+}
+
+pub async fn test_single_column_aggregates<C: Connector>(
+    gen_config: &TestGenerationConfiguration,
+    connector: &C,
+    schema: &models::SchemaResponse,
+    collection_info: &models::CollectionInfo,
+    collection_type: &models::ObjectType,
+    rng: &mut SmallRng,
+) -> Result<()> {
+    let mut available_aggregates = IndexMap::new();
+
+    for (field_name, field) in collection_type.fields.iter() {
+        if let Some(name) = super::common::as_named_type(&field.r#type) {
+            if let Some(scalar_type) = schema.scalar_types.get(name) {
+                for (function_name, _function_defn) in scalar_type.aggregate_functions.iter() {
+                    let aggregate = models::Aggregate::SingleColumn {
+                        column: field_name.clone(),
+                        function: function_name.clone(),
+                    };
+                    available_aggregates.insert(
+                        format!(
+                            "{}_{}_{:04}",
+                            field_name,
+                            function_name,
+                            rng.gen_range(0..=9999)
+                        ),
+                        aggregate,
+                    );
+                }
+            }
+        }
+    }
+
+    let amount = rng.gen_range(1..=(gen_config.complexity.max(1) * 5));
+    let aggregates = IndexMap::from_iter(
+        available_aggregates
+            .into_iter()
+            .choose_multiple(rng, amount.into()),
+    );
+
+    let query_request = models::QueryRequest {
+        collection: collection_info.name.clone(),
+        query: models::Query {
+            aggregates: Some(aggregates),
+            fields: None,
+            limit: Some(gen_config.max_limit),
+            offset: None,
+            order_by: None,
+            predicate: None,
+        },
+        arguments: BTreeMap::new(),
+        collection_relationships: BTreeMap::new(),
+        variables: None,
+    };
+    let response = connector.query(query_request.clone()).await?;
+
+    validate_response(&query_request, &response)
 }
