@@ -5,6 +5,7 @@
 ### Specification
 
 - [Equality operators were more precisely specified](./schema/scalar-types.md#note-syntactic-equality)
+- Scalar types can now specify [representations](./schema/scalar-types.md#type-representations)
 
 ### `ndc-test`
 
