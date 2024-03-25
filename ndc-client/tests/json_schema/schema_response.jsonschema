@@ -84,7 +84,7 @@
       }
     },
     "TypeRepresentation": {
-      "title": "Type",
+      "title": "Type Representation",
       "description": "Representations of scalar types",
       "oneOf": [
         {
