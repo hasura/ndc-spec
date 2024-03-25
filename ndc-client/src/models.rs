@@ -123,7 +123,7 @@ pub struct ScalarType {
     Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(tag = "type", rename_all = "snake_case")]
-#[schemars(title = "Type")]
+#[schemars(title = "Type Representation")]
 pub enum TypeRepresentation {
     /// JSON booleans
     Boolean,
