@@ -5,6 +5,7 @@ This repository contains the specification for Hasura's Native Data Connectors (
 ## Resources
 
 - [Specification](./specification)
+- [Rust models](./ndc-models)
 - [Rust client](./ndc-client)
 - [Reference implementation](./ndc-reference)
 - [Test runner](./ndc-test)

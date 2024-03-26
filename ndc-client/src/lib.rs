@@ -1,10 +1,5 @@
-#[macro_use]
-extern crate serde_derive;
-
-extern crate reqwest;
-extern crate serde;
-extern crate serde_json;
-extern crate url;
-
 pub mod apis;
-pub mod models;
+
+/// `ndc_models` is exposed here for backwards compatibility, because it used to
+/// belong to this crate.
+pub use ndc_models as models;

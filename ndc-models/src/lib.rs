@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use indexmap::IndexMap;
 use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 // ANCHOR: ErrorResponse
@@ -739,10 +740,13 @@ pub enum MutationOperationResults {
 
 #[cfg(test)]
 mod tests {
-    use crate::models;
+    use std::io::Write;
+    use std::path::PathBuf;
+
     use goldenfile::Mint;
     use schemars::schema_for;
-    use std::{io::Write, path::PathBuf};
+
+    use super::*;
 
     #[test]
     fn test_json_schemas() {
@@ -752,47 +756,47 @@ mod tests {
 
         test_json_schema(
             &mut mint,
-            schema_for!(models::ErrorResponse),
+            schema_for!(ErrorResponse),
             "error_response.jsonschema",
         );
 
         test_json_schema(
             &mut mint,
-            schema_for!(models::SchemaResponse),
+            schema_for!(SchemaResponse),
             "schema_response.jsonschema",
         );
 
         test_json_schema(
             &mut mint,
-            schema_for!(models::CapabilitiesResponse),
+            schema_for!(CapabilitiesResponse),
             "capabilities_response.jsonschema",
         );
 
         test_json_schema(
             &mut mint,
-            schema_for!(models::QueryRequest),
+            schema_for!(QueryRequest),
             "query_request.jsonschema",
         );
         test_json_schema(
             &mut mint,
-            schema_for!(models::QueryResponse),
+            schema_for!(QueryResponse),
             "query_response.jsonschema",
         );
 
         test_json_schema(
             &mut mint,
-            schema_for!(models::ExplainResponse),
+            schema_for!(ExplainResponse),
             "explain_response.jsonschema",
         );
 
         test_json_schema(
             &mut mint,
-            schema_for!(models::MutationRequest),
+            schema_for!(MutationRequest),
             "mutation_request.jsonschema",
         );
         test_json_schema(
             &mut mint,
-            schema_for!(models::MutationResponse),
+            schema_for!(MutationResponse),
             "mutation_response.jsonschema",
         );
     }
