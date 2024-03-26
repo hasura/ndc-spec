@@ -766,6 +766,7 @@ fn get_collection_by_name(
 }
 // ANCHOR_END: get_collection_by_name
 /// ANCHOR: Root
+#[derive(Clone, Copy)]
 enum Root<'a> {
     /// References to the root collection actually
     /// refer to the current row, because the path to
