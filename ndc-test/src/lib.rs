@@ -306,7 +306,7 @@ pub fn benchmark_report(
     config: &ReportConfiguration,
     reports: BTreeMap<String, Statistics>,
 ) -> String {
-    if let Some(max_width) = reports.keys().map(|s| s.len()).max() {
+    if let Some(max_width) = reports.keys().map(String::len).max() {
         let spaces = " ".repeat(max_width + 1);
         let mut result = format!("{spaces}        μ           Δ         σ       min       max\n");
 
