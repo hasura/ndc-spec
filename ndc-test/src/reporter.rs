@@ -27,9 +27,9 @@ impl TestResults {
             .to_string();
 
         let mut ix = 1;
-        for failure in self.failures.iter() {
+        for failure in &self.failures {
             result += format!("\n\n[{0}] {1}", ix, failure.name).as_str();
-            for path_element in failure.path.iter() {
+            for path_element in &failure.path {
                 result += format!("\n  in {0}", path_element).as_str();
             }
             result += format!("\nDetails: {0}", failure.error).as_str();

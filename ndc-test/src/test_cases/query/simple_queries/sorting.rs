@@ -46,7 +46,7 @@ fn make_order_by_elements(
 ) -> Option<Vec<models::OrderByElement>> {
     let mut sortable_fields = vec![];
 
-    for (field_name, field) in collection_type.fields.into_iter() {
+    for (field_name, field) in collection_type.fields {
         if let Some(name) = super::super::common::as_named_type(&field.r#type) {
             if schema.scalar_types.contains_key(name) {
                 sortable_fields.push(field_name);

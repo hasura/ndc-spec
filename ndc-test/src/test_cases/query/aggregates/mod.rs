@@ -185,10 +185,10 @@ pub async fn test_single_column_aggregates<C: Connector>(
 ) -> Result<()> {
     let mut available_aggregates = IndexMap::new();
 
-    for (field_name, field) in collection_type.fields.iter() {
+    for (field_name, field) in &collection_type.fields {
         if let Some(name) = super::common::as_named_type(&field.r#type) {
             if let Some(scalar_type) = schema.scalar_types.get(name) {
-                for (function_name, _function_defn) in scalar_type.aggregate_functions.iter() {
+                for function_name in scalar_type.aggregate_functions.keys() {
                     let aggregate = models::Aggregate::SingleColumn {
                         column: field_name.clone(),
                         function: function_name.clone(),

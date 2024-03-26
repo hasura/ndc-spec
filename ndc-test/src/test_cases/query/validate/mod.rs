@@ -90,10 +90,10 @@ pub fn validate_rows(
         }
     }
 
-    for row in rows.iter() {
+    for row in rows {
         let mut row_copy = row.clone();
 
-        for (field_name, field) in fields.iter() {
+        for (field_name, field) in fields {
             if let Some(row_field_value) = row_copy.swap_remove(field_name) {
                 validate_field(field_name, field, row_field_value)?;
             } else {
@@ -145,7 +145,7 @@ pub fn validate_aggregates(
 ) -> Result<()> {
     let mut aggregates_copy = aggregates.clone();
 
-    for (aggregate_name, requested_aggregate) in requested_aggregates.iter() {
+    for (aggregate_name, requested_aggregate) in requested_aggregates {
         if let Some(aggregate_value) = aggregates_copy.swap_remove(aggregate_name) {
             match requested_aggregate {
                 models::Aggregate::ColumnCount { .. } | models::Aggregate::StarCount { .. } => {
