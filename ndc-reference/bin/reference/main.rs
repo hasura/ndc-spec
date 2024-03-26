@@ -2104,8 +2104,11 @@ mod tests {
     use goldenfile::Mint;
     use ndc_client::models;
     use ndc_test::{
-        configuration::TestConfiguration, connector::Connector, error::Error,
-        reporter::TestResults, test_connector,
+        configuration::{TestConfiguration, TestGenerationConfiguration},
+        connector::Connector,
+        error::Error,
+        reporter::TestResults,
+        test_connector,
     };
     use std::{
         fs::{self, File},
@@ -2291,7 +2294,7 @@ mod tests {
             let configuration = TestConfiguration {
                 seed: None,
                 snapshots_dir: None,
-                gen_config: Default::default(),
+                gen_config: TestGenerationConfiguration::default(),
             };
             let connector = Reference {
                 state: init_app_state(),
