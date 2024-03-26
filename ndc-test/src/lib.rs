@@ -133,7 +133,7 @@ pub async fn test_snapshots_in_directory_with<
                         async {
                             let path = entry.path();
 
-                            let snapshot_pathbuf = path.to_path_buf().join("expected.json");
+                            let snapshot_pathbuf = path.join("expected.json");
                             let snapshot_path = snapshot_pathbuf.as_path();
 
                             let request_file = File::open(path.join("request.json"))
@@ -339,6 +339,6 @@ pub fn benchmark_report(
 
         result
     } else {
-        "".into()
+        String::new()
     }
 }

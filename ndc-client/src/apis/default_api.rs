@@ -17,7 +17,7 @@ trait ToHeaderString {
 
 impl ToHeaderString for HashMap<String, json::Value> {
     fn to_header_string(self) -> String {
-        json::to_value(self).map_or("".to_string(), |val| val.to_string())
+        json::to_value(self).map_or(String::new(), |val| val.to_string())
     }
 }
 
