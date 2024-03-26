@@ -713,7 +713,7 @@ fn get_collection_by_name(
                     }),
                 ))?;
                 if article_author_id_int == author_id_int {
-                    articles_by_author.push(article.clone())
+                    articles_by_author.push(article.clone());
                 }
             }
 
@@ -851,7 +851,7 @@ fn execute_query(
             let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
             for item in &paginated {
                 let row = eval_row(fields, collection_relationships, variables, state, item)?;
-                rows.push(row)
+                rows.push(row);
             }
             Ok(rows)
         })

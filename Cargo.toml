@@ -27,4 +27,3 @@ match_wildcard_for_single_variants = { level = "allow" }
 needless_pass_by_value = { level = "allow" }
 redundant_closure_for_method_calls = { level = "allow" }
 redundant_else = { level = "allow" }
-semicolon_if_nothing_returned = { level = "allow" }

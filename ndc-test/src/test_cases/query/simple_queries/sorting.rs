@@ -74,7 +74,7 @@ fn make_order_by_elements(
                     name: field_name.clone(),
                     path: vec![],
                 },
-            })
+            });
         }
 
         Some(order_by_elements)
