@@ -24,4 +24,3 @@ wildcard_imports = { level = "allow" }
 # disable these for now, but we should probably fix them
 needless_pass_by_value = { level = "allow" }
 redundant_closure_for_method_calls = { level = "allow" }
-redundant_else = { level = "allow" }

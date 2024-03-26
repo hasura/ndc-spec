@@ -1012,9 +1012,8 @@ fn sort(
                         &item_to_insert,
                     )? {
                         break;
-                    } else {
-                        index += 1;
                     }
+                    index += 1;
                 }
                 copy.insert(index, item_to_insert);
             }
