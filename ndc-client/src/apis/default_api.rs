@@ -5,7 +5,7 @@ use opentelemetry::{
     trace::{FutureExt, Tracer},
     Context,
 };
-use serde::Deserialize;
+use serde::{de::DeserializeOwned, Deserialize};
 use serde_json as json;
 
 use self::utils::FutureTracing;
@@ -51,33 +51,28 @@ pub async fn capabilities_get(
 ) -> Result<crate::models::CapabilitiesResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
-        .in_span("capabilities_get", |ctx| async {
-            let client = &configuration.client;
+        .in_span("capabilities_get", |ctx| {
+            async {
+                let client = &configuration.client;
 
-            let uri = append_path(&configuration.base_path, &["capabilities"])
-                .map_err(|_| Error::InvalidBaseURL)?;
-            let mut req_builder = client.request(reqwest::Method::GET, uri);
+                let uri = append_path(&configuration.base_path, &["capabilities"])
+                    .map_err(|_| Error::InvalidBaseURL)?;
+                let mut req_builder = client.request(reqwest::Method::GET, uri);
 
-            req_builder = inject_trace_context(req_builder);
+                req_builder = inject_trace_context(req_builder);
 
-            if let Some(ref user_agent) = configuration.user_agent {
-                req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+                if let Some(ref user_agent) = configuration.user_agent {
+                    req_builder =
+                        req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+                }
+
+                // Note: The headers will be merged in to any already set.
+                req_builder = req_builder.headers(configuration.headers.clone());
+
+                let req = req_builder.build()?;
+                execute_request(configuration, req).await
             }
-
-            // Note: The headers will be merged in to any already set.
-            req_builder = req_builder.headers(configuration.headers.clone());
-
-            let req = req_builder.build()?;
-            let resp = client.execute(req).with_traced_errors().await?;
-
-            let response_status = resp.status();
-            let response_content = resp.json().with_traced_errors().with_context(ctx).await?;
-
-            if !response_status.is_client_error() && !response_status.is_server_error() {
-                serde_json::from_value(response_content).map_err(Error::from)
-            } else {
-                Err(construct_error(response_status, response_content))
-            }
+            .with_context(ctx)
         })
         .await
 }
@@ -88,35 +83,30 @@ pub async fn explain_query_post(
 ) -> Result<crate::models::ExplainResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
-        .in_span("explain_query_post", |ctx| async {
-            let client = &configuration.client;
+        .in_span("explain_query_post", |ctx| {
+            async {
+                let client = &configuration.client;
 
-            let uri = append_path(&configuration.base_path, &["query", "explain"])
-                .map_err(|_| Error::InvalidBaseURL)?;
-            let mut req_builder = client.request(reqwest::Method::POST, uri);
+                let uri = append_path(&configuration.base_path, &["query", "explain"])
+                    .map_err(|_| Error::InvalidBaseURL)?;
+                let mut req_builder = client.request(reqwest::Method::POST, uri);
 
-            if let Some(ref user_agent) = configuration.user_agent {
-                req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+                if let Some(ref user_agent) = configuration.user_agent {
+                    req_builder =
+                        req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+                }
+
+                // Note: The headers will be merged in to any already set.
+                req_builder = req_builder.headers(configuration.headers.clone());
+
+                req_builder = req_builder.json(&query_request);
+
+                req_builder = inject_trace_context(req_builder);
+
+                let req = req_builder.build()?;
+                execute_request(configuration, req).await
             }
-
-            // Note: The headers will be merged in to any already set.
-            req_builder = req_builder.headers(configuration.headers.clone());
-
-            req_builder = req_builder.json(&query_request);
-
-            req_builder = inject_trace_context(req_builder);
-
-            let req = req_builder.build()?;
-            let resp = client.execute(req).with_traced_errors().await?;
-
-            let response_status = resp.status();
-            let response_content = resp.json().with_traced_errors().with_context(ctx).await?;
-
-            if !response_status.is_client_error() && !response_status.is_server_error() {
-                serde_json::from_value(response_content).map_err(Error::from)
-            } else {
-                Err(construct_error(response_status, response_content))
-            }
+            .with_context(ctx)
         })
         .await
 }
@@ -127,35 +117,30 @@ pub async fn explain_mutation_post(
 ) -> Result<crate::models::ExplainResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
-        .in_span("explain_mutation_post", |ctx| async {
-            let client = &configuration.client;
+        .in_span("explain_mutation_post", |ctx| {
+            async {
+                let client = &configuration.client;
 
-            let uri = append_path(&configuration.base_path, &["mutation", "explain"])
-                .map_err(|_| Error::InvalidBaseURL)?;
-            let mut req_builder = client.request(reqwest::Method::POST, uri);
+                let uri = append_path(&configuration.base_path, &["mutation", "explain"])
+                    .map_err(|_| Error::InvalidBaseURL)?;
+                let mut req_builder = client.request(reqwest::Method::POST, uri);
 
-            if let Some(ref user_agent) = configuration.user_agent {
-                req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+                if let Some(ref user_agent) = configuration.user_agent {
+                    req_builder =
+                        req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+                }
+
+                // Note: The headers will be merged in to any already set.
+                req_builder = req_builder.headers(configuration.headers.clone());
+
+                req_builder = req_builder.json(&mutation_request);
+
+                req_builder = inject_trace_context(req_builder);
+
+                let req = req_builder.build()?;
+                execute_request(configuration, req).await
             }
-
-            // Note: The headers will be merged in to any already set.
-            req_builder = req_builder.headers(configuration.headers.clone());
-
-            req_builder = req_builder.json(&mutation_request);
-
-            req_builder = inject_trace_context(req_builder);
-
-            let req = req_builder.build()?;
-            let resp = client.execute(req).with_traced_errors().await?;
-
-            let response_status = resp.status();
-            let response_content = resp.json().with_traced_errors().with_context(ctx).await?;
-
-            if !response_status.is_client_error() && !response_status.is_server_error() {
-                serde_json::from_value(response_content).map_err(Error::from)
-            } else {
-                Err(construct_error(response_status, response_content))
-            }
+            .with_context(ctx)
         })
         .await
 }
@@ -166,35 +151,30 @@ pub async fn mutation_post(
 ) -> Result<crate::models::MutationResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
-        .in_span("mutation_post", |ctx| async {
-            let client = &configuration.client;
+        .in_span("mutation_post", |ctx| {
+            async {
+                let client = &configuration.client;
 
-            let uri = append_path(&configuration.base_path, &["mutation"])
-                .map_err(|_| Error::InvalidBaseURL)?;
-            let mut req_builder = client.request(reqwest::Method::POST, uri);
+                let uri = append_path(&configuration.base_path, &["mutation"])
+                    .map_err(|_| Error::InvalidBaseURL)?;
+                let mut req_builder = client.request(reqwest::Method::POST, uri);
 
-            if let Some(ref user_agent) = configuration.user_agent {
-                req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+                if let Some(ref user_agent) = configuration.user_agent {
+                    req_builder =
+                        req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+                }
+
+                // Note: The headers will be merged in to any already set.
+                req_builder = req_builder.headers(configuration.headers.clone());
+
+                req_builder = req_builder.json(&mutation_request);
+
+                req_builder = inject_trace_context(req_builder);
+
+                let req = req_builder.build()?;
+                execute_request(configuration, req).await
             }
-
-            // Note: The headers will be merged in to any already set.
-            req_builder = req_builder.headers(configuration.headers.clone());
-
-            req_builder = req_builder.json(&mutation_request);
-
-            req_builder = inject_trace_context(req_builder);
-
-            let req = req_builder.build()?;
-            let resp = client.execute(req).with_traced_errors().await?;
-
-            let response_status = resp.status();
-            let response_content = resp.json().with_traced_errors().with_context(ctx).await?;
-
-            if !response_status.is_client_error() && !response_status.is_server_error() {
-                serde_json::from_value(response_content).map_err(Error::from)
-            } else {
-                Err(construct_error(response_status, response_content))
-            }
+            .with_context(ctx)
         })
         .await
 }
@@ -226,16 +206,7 @@ pub async fn query_post(
                 req_builder = inject_trace_context(req_builder);
 
                 let req = req_builder.build()?;
-                let resp = client.execute(req).with_traced_errors().await?;
-
-                let response_status = resp.status();
-                let response_content = resp.json().with_traced_errors().await?;
-
-                if !response_status.is_client_error() && !response_status.is_server_error() {
-                    serde_json::from_value(response_content).map_err(Error::from)
-                } else {
-                    Err(construct_error(response_status, response_content))
-                }
+                execute_request(configuration, req).await
             }
             .with_context(ctx)
         })
@@ -247,35 +218,65 @@ pub async fn schema_get(
 ) -> Result<crate::models::SchemaResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
-        .in_span("schema_get", |ctx| async {
-            let client = &configuration.client;
+        .in_span("schema_get", |ctx| {
+            async {
+                let client = &configuration.client;
 
-            let uri = append_path(&configuration.base_path, &["schema"])
-                .map_err(|_| Error::InvalidBaseURL)?;
-            let mut req_builder = client.request(reqwest::Method::GET, uri);
+                let uri = append_path(&configuration.base_path, &["schema"])
+                    .map_err(|_| Error::InvalidBaseURL)?;
+                let mut req_builder = client.request(reqwest::Method::GET, uri);
 
-            req_builder = inject_trace_context(req_builder);
+                req_builder = inject_trace_context(req_builder);
 
-            if let Some(ref user_agent) = configuration.user_agent {
-                req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+                if let Some(ref user_agent) = configuration.user_agent {
+                    req_builder =
+                        req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+                }
+
+                // Note: The headers will be merged in to any already set.
+                req_builder = req_builder.headers(configuration.headers.clone());
+
+                let req = req_builder.build()?;
+                execute_request(configuration, req).await
             }
-
-            // Note: The headers will be merged in to any already set.
-            req_builder = req_builder.headers(configuration.headers.clone());
-
-            let req = req_builder.build()?;
-            let resp = client.execute(req).with_traced_errors().await?;
-
-            let response_status = resp.status();
-            let response_content = resp.json().with_traced_errors().with_context(ctx).await?;
-
-            if !response_status.is_client_error() && !response_status.is_server_error() {
-                serde_json::from_value(response_content).map_err(Error::from)
-            } else {
-                Err(construct_error(response_status, response_content))
-            }
+            .with_context(ctx)
         })
         .await
+}
+
+async fn execute_request<T: DeserializeOwned>(
+    configuration: &configuration::Configuration,
+    request: reqwest::Request,
+) -> Result<T, Error> {
+    async {
+        let client = &configuration.client;
+        let mut resp = client.execute(request).await?;
+        let response_status = resp.status();
+        let response_content = match &configuration.response_size_limit {
+            Some(size_limit) => {
+                let mut size = 0;
+                let mut buf = bytes::BytesMut::new();
+                while let Some(chunk) = resp.chunk().await? {
+                    size += chunk.len();
+                    if size > *size_limit {
+                        Err(Error::ResponseTooLarge(*size_limit))?
+                    } else {
+                        buf.extend_from_slice(&chunk)
+                    }
+                }
+                serde_json::from_slice(&buf).map_err(Error::from)?
+            }
+            None => resp.json().await?,
+        };
+
+        if !response_status.is_client_error() && !response_status.is_server_error() {
+            serde_json::from_value(response_content).map_err(Error::from)
+        } else {
+            Err(construct_error(response_status, response_content))
+        }
+    }
+    .with_traced_errors()
+    .await
 }
 
 fn construct_error(

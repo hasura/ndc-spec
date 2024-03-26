@@ -130,6 +130,7 @@ async fn main() {
                 user_agent: None,
                 client: reqwest::Client::new(),
                 headers: HeaderMap::new(),
+                response_size_limit: None,
             };
 
             let mut reporter = (ConsoleReporter::default(), TestResults::default());
@@ -152,6 +153,7 @@ async fn main() {
                 user_agent: None,
                 client: reqwest::Client::new(),
                 headers: HeaderMap::new(),
+                response_size_limit: None,
             };
 
             let mut reporter = (ConsoleReporter::default(), TestResults::default());
@@ -177,6 +179,7 @@ async fn main() {
                 user_agent: None,
                 client: reqwest::Client::new(),
                 headers: HeaderMap::new(),
+                response_size_limit: None,
             };
 
             let mut reporter = (ConsoleReporter::default(), TestResults::default());

@@ -840,6 +840,7 @@ name = "ndc-client"
 version = "0.1.1"
 dependencies = [
  "async-trait",
+ "bytes",
  "goldenfile",
  "indexmap 2.2.3",
  "opentelemetry",

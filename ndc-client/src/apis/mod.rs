@@ -41,6 +41,7 @@ pub enum Error {
     ConnectorError(ConnectorError),
     InvalidConnectorError(InvalidConnectorError),
     InvalidBaseURL,
+    ResponseTooLarge(usize),
 }
 
 impl fmt::Display for Error {
@@ -52,6 +53,9 @@ impl fmt::Display for Error {
             Error::ConnectorError(e) => ("response", format!("status code {}", e.status)),
             Error::InvalidConnectorError(e) => ("response", format!("status code {}", e.status)),
             Error::InvalidBaseURL => ("url", "invalid base URL".into()),
+            Error::ResponseTooLarge(limit) => {
+                ("response", format!("too large (limit: {} bytes)", limit))
+            }
         };
         write!(f, "error in {}: {}", module, e)
     }
@@ -63,9 +67,10 @@ impl error::Error for Error {
             Error::Reqwest(e) => Some(e),
             Error::Serde(e) => Some(e),
             Error::Io(e) => Some(e),
-            Error::ConnectorError(_) | Error::InvalidConnectorError(_) | Error::InvalidBaseURL => {
-                None
-            }
+            Error::ConnectorError(_)
+            | Error::InvalidConnectorError(_)
+            | Error::InvalidBaseURL
+            | Error::ResponseTooLarge(_) => None,
         }
     }
 }

@@ -7,4 +7,5 @@ pub struct Configuration {
     pub user_agent: Option<String>,
     pub client: reqwest::Client,
     pub headers: HeaderMap<HeaderValue>,
+    pub response_size_limit: Option<usize>,
 }
