@@ -161,7 +161,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
 
         validate_response(&query_request, &response)?;
     } else {
-        eprintln!("Skipping parameterized relationship {}", foreign_key_name);
+        eprintln!("Skipping parameterized relationship {foreign_key_name}");
     }
 
     Ok(())
@@ -242,7 +242,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
             validate_response(&query_request, &response)?;
         }
     } else {
-        eprintln!("Skipping parameterized relationship {}", foreign_key_name);
+        eprintln!("Skipping parameterized relationship {foreign_key_name}");
     }
 
     Ok(())
@@ -328,7 +328,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
 
         validate_response(&query_request, &response)?;
     } else {
-        eprintln!("Skipping parameterized relationship {}", foreign_key_name);
+        eprintln!("Skipping parameterized relationship {foreign_key_name}");
     }
 
     Ok(())

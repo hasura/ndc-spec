@@ -148,7 +148,7 @@ pub async fn test_snapshots_in_directory_with<
                 );
             }
         }
-        Err(e) => println!("Warning: a snapshot folder could not be found: {}", e),
+        Err(e) => println!("Warning: a snapshot folder could not be found: {e}"),
     }
 }
 

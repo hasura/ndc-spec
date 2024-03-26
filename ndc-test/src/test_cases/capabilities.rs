@@ -23,7 +23,7 @@ pub async fn test_capabilities<C: Connector, R: Reporter>(
 
 pub fn validate_capabilities(capabilities: &models::CapabilitiesResponse) -> Result<()> {
     let pkg_version = env!("CARGO_PKG_VERSION");
-    let spec_version = semver::VersionReq::parse(format!("^{}", pkg_version).as_str())?;
+    let spec_version = semver::VersionReq::parse(format!("^{pkg_version}").as_str())?;
     let claimed_version = semver::Version::parse(capabilities.version.as_str())?;
     if !spec_version.matches(&claimed_version) {
         return Err(Error::IncompatibleSpecification(

@@ -2138,7 +2138,7 @@ mod tests {
 
             let response_json = serde_json::to_string_pretty(&response.0).unwrap();
 
-            write!(expected, "{}", response_json).unwrap();
+            write!(expected, "{response_json}").unwrap();
 
             // Test roundtrip
             assert_eq!(
