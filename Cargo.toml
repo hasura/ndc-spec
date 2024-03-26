@@ -22,7 +22,6 @@ return_self_not_must_use = { level = "allow" }
 too_many_lines = { level = "allow" }
 wildcard_imports = { level = "allow" }
 # disable these for now, but we should probably fix them
-ignored_unit_patterns = { level = "allow" }
 implicit_clone = { level = "allow" }
 manual_string_new = { level = "allow" }
 match_same_arms = { level = "allow" }
