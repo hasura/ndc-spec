@@ -155,7 +155,7 @@ pub fn validate_aggregates(
                         ));
                     }
                 }
-                _ => {}
+                models::Aggregate::SingleColumn { .. } => {}
             }
         } else {
             return Err(Error::MissingField(aggregate_name.clone()));

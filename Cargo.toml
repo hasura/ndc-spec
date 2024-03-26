@@ -22,7 +22,6 @@ return_self_not_must_use = { level = "allow" }
 too_many_lines = { level = "allow" }
 wildcard_imports = { level = "allow" }
 # disable these for now, but we should probably fix them
-match_wildcard_for_single_variants = { level = "allow" }
 needless_pass_by_value = { level = "allow" }
 redundant_closure_for_method_calls = { level = "allow" }
 redundant_else = { level = "allow" }
