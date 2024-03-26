@@ -1,5 +1,5 @@
 {
-    "$schema": "../../../../ndc-client/tests/json_schema/mutation_request.jsonschema",
+    "$schema": "../../../../ndc-models/tests/json_schema/mutation_request.jsonschema",
     "insert_schema": [],
     "operations": [
         {

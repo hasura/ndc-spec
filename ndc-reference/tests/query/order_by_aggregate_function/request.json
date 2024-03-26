@@ -1,5 +1,5 @@
 {
-    "$schema": "../../../../ndc-client/tests/json_schema/query_request.jsonschema",
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
     "collection": "authors",
     "arguments": {},
     "query": {
