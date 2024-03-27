@@ -2,8 +2,6 @@ use std::{
     cmp::Ordering,
     collections::{BTreeMap, HashSet},
     error::Error,
-    fs::File,
-    io::{self, BufRead},
     sync::Arc,
 };
 
@@ -20,6 +18,10 @@ use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
 
+const ARTICLES_JSON: &str = include_str!("../../articles.json");
+const AUTHORS_JSON: &str = include_str!("../../authors.json");
+const INSTITUTIONS_JSON: &str = include_str!("../../institutions.json");
+
 // ANCHOR: row-type
 type Row = BTreeMap<String, serde_json::Value>;
 // ANCHOR_END: row-type
@@ -34,12 +36,10 @@ pub struct AppState {
 // ANCHOR_END: app-state
 
 // ANCHOR: read_json_lines
-fn read_json_lines(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
-    let file = File::open(path)?;
-    let lines = io::BufReader::new(file).lines();
+fn read_json_lines(contents: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
     let mut records: BTreeMap<i64, Row> = BTreeMap::new();
-    for line in lines {
-        let row: BTreeMap<String, serde_json::Value> = serde_json::from_str(&line?)?;
+    for line in contents.lines() {
+        let row: BTreeMap<String, serde_json::Value> = serde_json::from_str(line)?;
         let id = row
             .get("id")
             .ok_or("'id' field not found in json file")?
@@ -102,13 +102,14 @@ async fn metrics_middleware<T>(
     metrics.active_requests.dec();
     response
 }
+
 // ANCHOR_END: metrics_middleware
 // ANCHOR: init_app_state
 fn init_app_state() -> AppState {
     // Read the JSON data files
-    let articles = read_json_lines("articles.json").unwrap();
-    let authors = read_json_lines("authors.json").unwrap();
-    let institutions = read_json_lines("institutions.json").unwrap();
+    let articles = read_json_lines(ARTICLES_JSON).unwrap();
+    let authors = read_json_lines(AUTHORS_JSON).unwrap();
+    let institutions = read_json_lines(INSTITUTIONS_JSON).unwrap();
 
     let metrics = Metrics::new().unwrap();
 
