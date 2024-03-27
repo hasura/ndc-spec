@@ -4,6 +4,9 @@ description = "Protocol definitions for the Hasura NDC specification"
 version = "0.1.1"
 edition = "2021"
 
+[lints]
+workspace = true
+
 [dependencies]
 indexmap = { version = "2.1.0", features = ["serde"] }
 schemars = { version = "^0.8.15", features = ["indexmap2", "preserve_order", "smol_str"] }

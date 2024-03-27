@@ -4,6 +4,9 @@ description = "Client library for the Hasura NDC specification"
 version = "0.1.1"
 edition = "2021"
 
+[lints]
+workspace = true
+
 [features]
 default = ["native-tls"]
 native-tls = ["reqwest/native-tls"]
