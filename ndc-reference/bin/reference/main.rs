@@ -148,14 +148,42 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
         ))
         .with_state(app_state);
 
+    // start the server on localhost:<PORT>
     let port = env::var("HASURA_CONNECTOR_PORT")
         .map(|s| s.parse())
         .unwrap_or(Ok(DEFAULT_PORT))?;
     let addr = net::SocketAddr::new(net::IpAddr::V4(net::Ipv4Addr::UNSPECIFIED), port);
-    // start the server on localhost:<PORT>
     let server = axum::Server::bind(&addr).serve(app.into_make_service());
     println!("Serving on {}", server.local_addr());
-    server.await?;
+
+    server
+        .with_graceful_shutdown(async {
+            // wait for a SIGINT, i.e. a Ctrl+C from the keyboard
+            let sigint = async {
+                tokio::signal::ctrl_c()
+                    .await
+                    .expect("failed to install signal handler")
+            };
+            // wait for a SIGTERM, i.e. a normal `kill` command
+            #[cfg(unix)]
+            let sigterm = async {
+                tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+                    .expect("failed to install signal handler")
+                    .recv()
+                    .await
+            };
+            // block until either of the above happens
+            #[cfg(unix)]
+            tokio::select! {
+                _ = sigint => (),
+                _ = sigterm => (),
+            }
+            #[cfg(windows)]
+            tokio::select! {
+                _ = sigint => (),
+            }
+        })
+        .await?;
     Ok(())
 }
 // ANCHOR_END: main

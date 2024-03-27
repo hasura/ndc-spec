@@ -15,7 +15,7 @@ indexmap = { version = "^2", features = ["serde"] }
 prometheus = "^0.13.3"
 regex = "^1.10.2"
 serde_json = "^1.0.107"
-tokio = { version = "^1.33.0", features = ["macros", "rt-multi-thread", "parking_lot"] }
+tokio = { version = "^1.33.0", features = ["macros", "parking_lot", "rt-multi-thread", "signal"] }
 
 [dev-dependencies]
 ndc-test = { path = "../ndc-test" }
