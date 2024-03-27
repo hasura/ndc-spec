@@ -1,7 +1,9 @@
 use std::{
     cmp::Ordering,
     collections::{BTreeMap, HashSet},
+    env,
     error::Error,
+    net,
     sync::Arc,
 };
 
@@ -17,6 +19,8 @@ use ndc_client::models::{self, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
+
+const DEFAULT_PORT: u16 = 8080;
 
 const ARTICLES_JSON: &str = include_str!("../../articles.json");
 const AUTHORS_JSON: &str = include_str!("../../authors.json");
@@ -126,7 +130,7 @@ type Result<A> = core::result::Result<A, (StatusCode, Json<models::ErrorResponse
 
 // ANCHOR: main
 #[tokio::main]
-async fn main() {
+async fn main() -> std::result::Result<(), Box<dyn Error>> {
     let app_state = Arc::new(Mutex::new(init_app_state()));
 
     let app = Router::new()
@@ -144,11 +148,15 @@ async fn main() {
         ))
         .with_state(app_state);
 
-    // run it with hyper on localhost:8100
-    axum::Server::bind(&"0.0.0.0:8100".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    let port = env::var("HASURA_CONNECTOR_PORT")
+        .map(|s| s.parse())
+        .unwrap_or(Ok(DEFAULT_PORT))?;
+    let addr = net::SocketAddr::new(net::IpAddr::V4(net::Ipv4Addr::UNSPECIFIED), port);
+    // start the server on localhost:<PORT>
+    let server = axum::Server::bind(&addr).serve(app.into_make_service());
+    println!("Serving on {}", server.local_addr());
+    server.await?;
+    Ok(())
 }
 // ANCHOR_END: main
 // ANCHOR: health
