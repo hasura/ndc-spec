@@ -9,7 +9,7 @@ use serde::{de::DeserializeOwned, Deserialize};
 use serde_json as json;
 
 use self::utils::FutureTracing;
-use super::{configuration, Error};
+use super::{configuration, Error, NDCResponseHandler};
 
 trait ToHeaderString {
     fn to_header_string(self) -> String;
@@ -46,8 +46,8 @@ impl ToHeaderString for &str {
     }
 }
 
-pub async fn capabilities_get(
-    configuration: &configuration::Configuration,
+pub async fn capabilities_get<R: NDCResponseHandler>(
+    configuration: &configuration::Configuration<R>,
 ) -> Result<ndc_models::CapabilitiesResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
@@ -77,8 +77,8 @@ pub async fn capabilities_get(
         .await
 }
 
-pub async fn explain_query_post(
-    configuration: &configuration::Configuration,
+pub async fn explain_query_post<R: NDCResponseHandler>(
+    configuration: &configuration::Configuration<R>,
     query_request: ndc_models::QueryRequest,
 ) -> Result<ndc_models::ExplainResponse, Error> {
     let tracer = global::tracer("engine");
@@ -111,8 +111,8 @@ pub async fn explain_query_post(
         .await
 }
 
-pub async fn explain_mutation_post(
-    configuration: &configuration::Configuration,
+pub async fn explain_mutation_post<R: NDCResponseHandler>(
+    configuration: &configuration::Configuration<R>,
     mutation_request: ndc_models::MutationRequest,
 ) -> Result<ndc_models::ExplainResponse, Error> {
     let tracer = global::tracer("engine");
@@ -145,8 +145,8 @@ pub async fn explain_mutation_post(
         .await
 }
 
-pub async fn mutation_post(
-    configuration: &configuration::Configuration,
+pub async fn mutation_post<R: NDCResponseHandler>(
+    configuration: &configuration::Configuration<R>,
     mutation_request: ndc_models::MutationRequest,
 ) -> Result<ndc_models::MutationResponse, Error> {
     let tracer = global::tracer("engine");
@@ -179,8 +179,8 @@ pub async fn mutation_post(
         .await
 }
 
-pub async fn query_post(
-    configuration: &configuration::Configuration,
+pub async fn query_post<R: NDCResponseHandler>(
+    configuration: &configuration::Configuration<R>,
     query_request: ndc_models::QueryRequest,
 ) -> Result<ndc_models::QueryResponse, Error> {
     let tracer = global::tracer("engine");
@@ -213,8 +213,8 @@ pub async fn query_post(
         .await
 }
 
-pub async fn schema_get(
-    configuration: &configuration::Configuration,
+pub async fn schema_get<R: NDCResponseHandler>(
+    configuration: &configuration::Configuration<R>,
 ) -> Result<ndc_models::SchemaResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
@@ -244,30 +244,15 @@ pub async fn schema_get(
         .await
 }
 
-async fn execute_request<T: DeserializeOwned>(
-    configuration: &configuration::Configuration,
+async fn execute_request<T: DeserializeOwned, R: NDCResponseHandler>(
+    configuration: &configuration::Configuration<R>,
     request: reqwest::Request,
 ) -> Result<T, Error> {
     async {
         let client = &configuration.client;
-        let mut resp = client.execute(request).await?;
+        let resp = client.execute(request).await?;
         let response_status = resp.status();
-        let response_content = match &configuration.response_size_limit {
-            Some(size_limit) => {
-                let mut size = 0;
-                let mut buf = bytes::BytesMut::new();
-                while let Some(chunk) = resp.chunk().await? {
-                    size += chunk.len();
-                    if size > *size_limit {
-                        Err(Error::ResponseTooLarge(*size_limit))?
-                    } else {
-                        buf.extend_from_slice(&chunk)
-                    }
-                }
-                serde_json::from_slice(&buf).map_err(Error::from)?
-            }
-            None => resp.json().await?,
-        };
+        let response_content = configuration.response_handler.handle_response(resp).await?;
 
         if !response_status.is_client_error() && !response_status.is_server_error() {
             serde_json::from_value(response_content).map_err(Error::from)

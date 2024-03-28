@@ -41,7 +41,7 @@ pub enum Error {
     ConnectorError(ConnectorError),
     InvalidConnectorError(InvalidConnectorError),
     InvalidBaseURL,
-    ResponseTooLarge(usize),
+    Custom { kind: String, message: String },
 }
 
 impl fmt::Display for Error {
@@ -53,9 +53,7 @@ impl fmt::Display for Error {
             Error::ConnectorError(e) => ("response", format!("status code {}", e.status)),
             Error::InvalidConnectorError(e) => ("response", format!("status code {}", e.status)),
             Error::InvalidBaseURL => ("url", "invalid base URL".into()),
-            Error::ResponseTooLarge(limit) => {
-                ("response", format!("too large (limit: {} bytes)", limit))
-            }
+            Error::Custom { kind, message } => (kind.as_str(), message.to_owned()),
         };
         write!(f, "error in {}: {}", module, e)
     }
@@ -70,7 +68,7 @@ impl error::Error for Error {
             Error::ConnectorError(_)
             | Error::InvalidConnectorError(_)
             | Error::InvalidBaseURL
-            | Error::ResponseTooLarge(_) => None,
+            | Error::Custom { .. } => None,
         }
     }
 }
@@ -96,6 +94,30 @@ impl From<std::io::Error> for Error {
 pub fn urlencode<T: AsRef<str>>(s: T) -> String {
     ::url::form_urlencoded::byte_serialize(s.as_ref().as_bytes()).collect()
 }
+
+/// Trait to handle `reqwest::Response`, a response returned by an NDC, by parsing it as a JSON value.
+///
+/// Useful for implementing custom NDC response handling, such as limiting the response by size etc.
+#[async_trait::async_trait]
+pub trait NDCResponseHandler: Sync {
+    /// Handle the NDC response.
+    ///
+    /// The default behavior is just extracting JSON via `json()` method on `reqwest::Response`.
+    ///
+    /// Use `Error::Custom{kind: _, message: _}` to raise any custom error in the implementation.
+    async fn handle_response(
+        &self,
+        response: reqwest::Response,
+    ) -> Result<serde_json::Value, Error> {
+        response.json().await.map_err(Error::from)
+    }
+}
+
+/// Default handler for NDC responses.
+pub struct DefaultNDCResponseHandler;
+
+#[async_trait::async_trait]
+impl NDCResponseHandler for DefaultNDCResponseHandler {}
 
 pub mod default_api;
 
