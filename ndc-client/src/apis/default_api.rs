@@ -9,7 +9,7 @@ use serde::{de::DeserializeOwned, Deserialize};
 use serde_json as json;
 
 use self::utils::FutureTracing;
-use super::{configuration, Error, NDCResponseHandler};
+use super::{configuration, Error, ResponseHandler};
 
 trait ToHeaderString {
     fn to_header_string(self) -> String;
@@ -46,7 +46,7 @@ impl ToHeaderString for &str {
     }
 }
 
-pub async fn capabilities_get<R: NDCResponseHandler>(
+pub async fn capabilities_get<R: ResponseHandler>(
     configuration: &configuration::Configuration<R>,
 ) -> Result<ndc_models::CapabilitiesResponse, Error> {
     let tracer = global::tracer("engine");
@@ -77,7 +77,7 @@ pub async fn capabilities_get<R: NDCResponseHandler>(
         .await
 }
 
-pub async fn explain_query_post<R: NDCResponseHandler>(
+pub async fn explain_query_post<R: ResponseHandler>(
     configuration: &configuration::Configuration<R>,
     query_request: ndc_models::QueryRequest,
 ) -> Result<ndc_models::ExplainResponse, Error> {
@@ -111,7 +111,7 @@ pub async fn explain_query_post<R: NDCResponseHandler>(
         .await
 }
 
-pub async fn explain_mutation_post<R: NDCResponseHandler>(
+pub async fn explain_mutation_post<R: ResponseHandler>(
     configuration: &configuration::Configuration<R>,
     mutation_request: ndc_models::MutationRequest,
 ) -> Result<ndc_models::ExplainResponse, Error> {
@@ -145,7 +145,7 @@ pub async fn explain_mutation_post<R: NDCResponseHandler>(
         .await
 }
 
-pub async fn mutation_post<R: NDCResponseHandler>(
+pub async fn mutation_post<R: ResponseHandler>(
     configuration: &configuration::Configuration<R>,
     mutation_request: ndc_models::MutationRequest,
 ) -> Result<ndc_models::MutationResponse, Error> {
@@ -179,7 +179,7 @@ pub async fn mutation_post<R: NDCResponseHandler>(
         .await
 }
 
-pub async fn query_post<R: NDCResponseHandler>(
+pub async fn query_post<R: ResponseHandler>(
     configuration: &configuration::Configuration<R>,
     query_request: ndc_models::QueryRequest,
 ) -> Result<ndc_models::QueryResponse, Error> {
@@ -213,7 +213,7 @@ pub async fn query_post<R: NDCResponseHandler>(
         .await
 }
 
-pub async fn schema_get<R: NDCResponseHandler>(
+pub async fn schema_get<R: ResponseHandler>(
     configuration: &configuration::Configuration<R>,
 ) -> Result<ndc_models::SchemaResponse, Error> {
     let tracer = global::tracer("engine");
@@ -244,7 +244,7 @@ pub async fn schema_get<R: NDCResponseHandler>(
         .await
 }
 
-async fn execute_request<T: DeserializeOwned, R: NDCResponseHandler>(
+async fn execute_request<T: DeserializeOwned, R: ResponseHandler>(
     configuration: &configuration::Configuration<R>,
     request: reqwest::Request,
 ) -> Result<T, Error> {

@@ -1,7 +1,7 @@
 use std::{path::PathBuf, process::exit};
 
 use clap::{Parser, Subcommand};
-use ndc_client::apis::{configuration::Configuration, DefaultNDCResponseHandler};
+use ndc_client::apis::{configuration::Configuration, DefaultResponseHandler};
 use ndc_test::{
     benchmark_report,
     configuration::{TestConfiguration, TestGenerationConfiguration},
@@ -130,7 +130,7 @@ async fn main() {
                 user_agent: None,
                 client: reqwest::Client::new(),
                 headers: HeaderMap::new(),
-                response_handler: DefaultNDCResponseHandler,
+                response_handler: DefaultResponseHandler,
             };
 
             let mut reporter = (ConsoleReporter::default(), TestResults::default());
@@ -153,7 +153,7 @@ async fn main() {
                 user_agent: None,
                 client: reqwest::Client::new(),
                 headers: HeaderMap::new(),
-                response_handler: DefaultNDCResponseHandler,
+                response_handler: DefaultResponseHandler,
             };
 
             let mut reporter = (ConsoleReporter::default(), TestResults::default());
@@ -179,7 +179,7 @@ async fn main() {
                 user_agent: None,
                 client: reqwest::Client::new(),
                 headers: HeaderMap::new(),
-                response_handler: DefaultNDCResponseHandler,
+                response_handler: DefaultResponseHandler,
             };
 
             let mut reporter = (ConsoleReporter::default(), TestResults::default());

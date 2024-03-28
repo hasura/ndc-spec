@@ -99,7 +99,7 @@ pub fn urlencode<T: AsRef<str>>(s: T) -> String {
 ///
 /// Useful for implementing custom NDC response handling, such as limiting the response by size etc.
 #[async_trait::async_trait]
-pub trait NDCResponseHandler: Sync {
+pub trait ResponseHandler: Sync {
     /// Handle the NDC response.
     ///
     /// The default behavior is just extracting JSON via `json()` method on `reqwest::Response`.
@@ -114,10 +114,10 @@ pub trait NDCResponseHandler: Sync {
 }
 
 /// Default handler for NDC responses.
-pub struct DefaultNDCResponseHandler;
+pub struct DefaultResponseHandler;
 
 #[async_trait::async_trait]
-impl NDCResponseHandler for DefaultNDCResponseHandler {}
+impl ResponseHandler for DefaultResponseHandler {}
 
 pub mod default_api;
 

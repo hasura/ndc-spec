@@ -30,7 +30,7 @@ use serde::{Deserialize, Serialize};
 use snapshot::{snapshot_test, SnapshottingConnector};
 
 #[async_trait(?Send)]
-impl<R: ndc_client::apis::NDCResponseHandler> Connector for Configuration<R> {
+impl<R: ndc_client::apis::ResponseHandler> Connector for Configuration<R> {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
         Ok(api::capabilities_get(self).await?)
     }
