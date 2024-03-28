@@ -41,6 +41,7 @@ pub enum Error {
     ConnectorError(ConnectorError),
     InvalidConnectorError(InvalidConnectorError),
     InvalidBaseURL,
+    Custom { kind: String, message: String },
 }
 
 impl fmt::Display for Error {
@@ -52,6 +53,7 @@ impl fmt::Display for Error {
             Error::ConnectorError(e) => ("response", format!("status code {}", e.status)),
             Error::InvalidConnectorError(e) => ("response", format!("status code {}", e.status)),
             Error::InvalidBaseURL => ("url", "invalid base URL".into()),
+            Error::Custom { kind, message } => (kind.as_str(), message.to_owned()),
         };
         write!(f, "error in {}: {}", module, e)
     }
@@ -63,9 +65,10 @@ impl error::Error for Error {
             Error::Reqwest(e) => Some(e),
             Error::Serde(e) => Some(e),
             Error::Io(e) => Some(e),
-            Error::ConnectorError(_) | Error::InvalidConnectorError(_) | Error::InvalidBaseURL => {
-                None
-            }
+            Error::ConnectorError(_)
+            | Error::InvalidConnectorError(_)
+            | Error::InvalidBaseURL
+            | Error::Custom { .. } => None,
         }
     }
 }
@@ -91,6 +94,30 @@ impl From<std::io::Error> for Error {
 pub fn urlencode<T: AsRef<str>>(s: T) -> String {
     ::url::form_urlencoded::byte_serialize(s.as_ref().as_bytes()).collect()
 }
+
+/// Trait to handle `reqwest::Response`, a response returned by an NDC, by parsing it as a JSON value.
+///
+/// Useful for implementing custom NDC response handling, such as limiting the response by size etc.
+#[async_trait::async_trait]
+pub trait ResponseHandler: Sync {
+    /// Handle the NDC response.
+    ///
+    /// The default behavior is just extracting JSON via `json()` method on `reqwest::Response`.
+    ///
+    /// Use `Error::Custom{kind: _, message: _}` to raise any custom error in the implementation.
+    async fn handle_response(
+        &self,
+        response: reqwest::Response,
+    ) -> Result<serde_json::Value, Error> {
+        response.json().await.map_err(Error::from)
+    }
+}
+
+/// Default handler for NDC responses.
+pub struct DefaultResponseHandler;
+
+#[async_trait::async_trait]
+impl ResponseHandler for DefaultResponseHandler {}
 
 pub mod default_api;
 
