@@ -1,6 +1,6 @@
 [package]
 name = "ndc-client"
-description = "Protocol definitions and client library for the Hasura NDC specification"
+description = "Client library for the Hasura NDC specification"
 version = "0.1.1"
 edition = "2021"
 
@@ -10,17 +10,12 @@ native-tls = ["reqwest/native-tls"]
 rustls = ["reqwest/rustls"]
 
 [dependencies]
+ndc-models = { path = "../ndc-models" }
+
 async-trait = "^0.1.74"
 bytes = "1.5.0"
-indexmap = { version = "2.1.0", features = ["serde"] }
 opentelemetry = "^0.22.0"
 reqwest = { version = "^0.11", features = ["json", "multipart"], default-features = false }
-schemars = { version = "^0.8.15", features = ["indexmap2", "preserve_order", "smol_str"] }
 serde = "^1.0"
-serde_derive = "^1.0"
 serde_json = { version = "^1.0", features = ["preserve_order"] }
-serde_with = "^2.3"
 url = "^2.4"
-
-[dev-dependencies]
-goldenfile = "^1.5.2"

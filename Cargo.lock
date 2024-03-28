@@ -841,16 +841,24 @@ version = "0.1.1"
 dependencies = [
  "async-trait",
  "bytes",
- "goldenfile",
- "indexmap 2.2.3",
+ "ndc-models",
  "opentelemetry",
  "reqwest",
+ "serde",
+ "serde_json",
+ "url",
+]
+
+[[package]]
+name = "ndc-models"
+version = "0.1.1"
+dependencies = [
+ "goldenfile",
+ "indexmap 2.2.3",
  "schemars",
  "serde",
- "serde_derive",
  "serde_json",
  "serde_with",
- "url",
 ]
 
 [[package]]

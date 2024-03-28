@@ -48,7 +48,7 @@ impl ToHeaderString for &str {
 
 pub async fn capabilities_get(
     configuration: &configuration::Configuration,
-) -> Result<crate::models::CapabilitiesResponse, Error> {
+) -> Result<ndc_models::CapabilitiesResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
         .in_span("capabilities_get", |ctx| {
@@ -79,8 +79,8 @@ pub async fn capabilities_get(
 
 pub async fn explain_query_post(
     configuration: &configuration::Configuration,
-    query_request: crate::models::QueryRequest,
-) -> Result<crate::models::ExplainResponse, Error> {
+    query_request: ndc_models::QueryRequest,
+) -> Result<ndc_models::ExplainResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
         .in_span("explain_query_post", |ctx| {
@@ -113,8 +113,8 @@ pub async fn explain_query_post(
 
 pub async fn explain_mutation_post(
     configuration: &configuration::Configuration,
-    mutation_request: crate::models::MutationRequest,
-) -> Result<crate::models::ExplainResponse, Error> {
+    mutation_request: ndc_models::MutationRequest,
+) -> Result<ndc_models::ExplainResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
         .in_span("explain_mutation_post", |ctx| {
@@ -147,8 +147,8 @@ pub async fn explain_mutation_post(
 
 pub async fn mutation_post(
     configuration: &configuration::Configuration,
-    mutation_request: crate::models::MutationRequest,
-) -> Result<crate::models::MutationResponse, Error> {
+    mutation_request: ndc_models::MutationRequest,
+) -> Result<ndc_models::MutationResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
         .in_span("mutation_post", |ctx| {
@@ -181,8 +181,8 @@ pub async fn mutation_post(
 
 pub async fn query_post(
     configuration: &configuration::Configuration,
-    query_request: crate::models::QueryRequest,
-) -> Result<crate::models::QueryResponse, Error> {
+    query_request: ndc_models::QueryRequest,
+) -> Result<ndc_models::QueryResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
         .in_span("query_post", |ctx| {
@@ -215,7 +215,7 @@ pub async fn query_post(
 
 pub async fn schema_get(
     configuration: &configuration::Configuration,
-) -> Result<crate::models::SchemaResponse, Error> {
+) -> Result<ndc_models::SchemaResponse, Error> {
     let tracer = global::tracer("engine");
     tracer
         .in_span("schema_get", |ctx| {
@@ -283,7 +283,7 @@ fn construct_error(
     response_status: reqwest::StatusCode,
     response_content: serde_json::Value,
 ) -> Error {
-    match crate::models::ErrorResponse::deserialize(&response_content) {
+    match ndc_models::ErrorResponse::deserialize(&response_content) {
         Ok(error_response) => {
             let connector_error = super::ConnectorError {
                 status: response_status,
