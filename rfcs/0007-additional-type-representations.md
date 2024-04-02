@@ -5,33 +5,43 @@
 The current list of scalar type representations is inadequate:
 
 - JSON integer and number types are not what we want for most applications, since they are represented by an unusual 53-bit number type. Since scalars can be both inputs and outputs, and are therefore invariant, we cannot safely convert to and from larger and smaller integer and floating point types.
-- We want to be able to generate some standard scalar types in Hasura for types which are used across different data sources, e.g. UUIDs. This needs support in NDC.
+- We want to be able to generate some standard scalar types in Hasura for types which are used across different data sources, e.g. UUIDs. This needs support in NDC so that we can generate the right types on the Hasura side (or perform accurate code generation in general).
+- We want to be able to support additional transport mechanisms later (e.g. GRPC) and we will want to guarantee that responses do not depend on the transport mechanism used. It is not enough to simply say a type has no concrete representation, because even if data is "arbitrary JSON", we need to be able to encode that as GRPC later. Therefore, we want to make representation required, but call out two new abstract representations: JSON, and bytes.
 
 ## Proposal
+
+### New representations
 
 Add the following type representations to `ndc_models::TypeRepresentation`:
 
 |Name|Description|JSON representation|
 |-|-|-|
 | Int8 | A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1 | Number |
-| Int16 | A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1 |Number |
-| Int32 | A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1 |Number |
-| Int64 | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1 |String |
+| Int16 | A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1 | Number |
+| Int32 | A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1 | Number |
+| Int64 | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1 | String |
 | Float32 | An IEEE-754 single-precision floating-point number | Number |
 | Float64 | An IEEE-754 double-precision floating-point number | String |
-| Decimal | | String |
-| Char | A unicode scalar value |
-| Uuid | | String |
-| Date | | String |
-| Timestamp | | String |
-| TimestampTZ | | String (ISO 8601) |
-| Bytes | | Base64-encoded String |
-| Geography | Geometry | String (GeoJSON) |
+| Decimal | Arbitrary-precision decimal string | String |
+| UUID | UUID string (8-4-4-4-12) | String |
+| Date | ISO 8601 date | String |
+| Timestamp | ISO 8601 timestamp | String |
+| TimestampTZ | ISO 8601 timestamp-with-timezone | String |
+| Geography | GeoJSON | JSON |
+| Bytes | Base64-encoded bytes | String |
+| JSON | Arbitrary JSON | JSON |
 
-## Open Questions
+### Remove Int and Number representations
 
-- `Decimal`: what about precision?
-- Need regexes for date/timestamp(tz)
+Connector authors should use fixed-precision integer and floating-point types.
+
+In the unlikely case a developer actually wants a 53-bit integer, they can use the new JSON type, and we can consider adding a 53-bit integer representation later.
+
+### Make representation required
+
+Abstract scalar types should use either Bytes or JSON representations going forward.
+
+This way, we can more precisely specify how encoding for other transports should work for each representation, when we get to the point where we implement other transports.
 
 ## Alternatives considered
 
