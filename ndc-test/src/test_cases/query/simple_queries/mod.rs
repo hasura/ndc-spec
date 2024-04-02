@@ -9,7 +9,7 @@ use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::test;
 
-use ndc_client::models;
+use ndc_models as models;
 
 use indexmap::IndexMap;
 use rand::rngs::SmallRng;

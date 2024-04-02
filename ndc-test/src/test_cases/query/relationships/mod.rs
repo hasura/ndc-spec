@@ -7,7 +7,7 @@ use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::{nest, test};
 
-use ndc_client::models::{self};
+use ndc_models as models;
 use rand::rngs::SmallRng;
 
 use super::validate::validate_response;

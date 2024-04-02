@@ -1,5 +1,5 @@
 use indexmap::IndexMap;
-use ndc_client::models;
+use ndc_models as models;
 
 use crate::error::{Error, Result};
 

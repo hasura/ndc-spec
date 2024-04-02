@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use ndc_client::models;
+use ndc_models as models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
 use crate::{
@@ -88,7 +88,7 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
     rng: &mut SmallRng,
-) -> Result<ndc_client::models::QueryResponse> {
+) -> Result<ndc_models::QueryResponse> {
     let fields = super::super::common::select_columns(collection_type, rng);
 
     let query_request = models::QueryRequest {

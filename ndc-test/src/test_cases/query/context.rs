@@ -4,7 +4,7 @@ use crate::error::Error;
 use crate::error::Result;
 
 use indexmap::IndexMap;
-use ndc_client::models;
+use ndc_models as models;
 use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
 

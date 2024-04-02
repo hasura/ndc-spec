@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - ndc-client/tests/json_schema/schema_response.jsonschema
+      - ndc-models/tests/json_schema/schema_response.jsonschema
       - .github/workflows/file-sync.yml
 
 jobs:

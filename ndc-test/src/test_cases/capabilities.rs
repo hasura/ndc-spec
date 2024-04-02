@@ -2,7 +2,7 @@ use crate::connector::Connector;
 use crate::error::{Error, Result};
 use crate::reporter::Reporter;
 use crate::test;
-use ndc_client::models;
+use ndc_models as models;
 
 pub async fn test_capabilities<C: Connector, R: Reporter>(
     connector: &C,

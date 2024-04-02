@@ -6,7 +6,7 @@ use crate::reporter::Reporter;
 use crate::test;
 
 use indexmap::IndexMap;
-use ndc_client::models;
+use ndc_models as models;
 use rand::rngs::SmallRng;
 use rand::seq::IteratorRandom;
 use rand::Rng;
