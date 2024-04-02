@@ -14,9 +14,9 @@ Add the following type representations to `ndc_models::TypeRepresentation`:
 |Name|Description|JSON representation|
 |-|-|-|
 | Int8 | A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1 | Number |
-| Int16 | A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^7 - 1 |Number |
-| Int32 | A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^7 - 1 |Number |
-| Int64 | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^7 - 1 |String |
+| Int16 | A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1 |Number |
+| Int32 | A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1 |Number |
+| Int64 | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1 |String |
 | Float32 | An IEEE-754 single-precision floating-point number | Number |
 | Float64 | An IEEE-754 double-precision floating-point number | String |
 | Decimal | | String |
