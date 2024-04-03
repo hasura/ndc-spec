@@ -161,7 +161,7 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
     let server = axum::Server::bind(&addr).serve(app.into_make_service());
     println!("Serving on {}", server.local_addr());
     server.with_graceful_shutdown(shutdown_handler()).await?;
-    
+
     Ok(())
 }
 // ANCHOR_END: main
@@ -170,7 +170,7 @@ async fn shutdown_handler() {
     let sigint = async {
         tokio::signal::ctrl_c()
             .await
-            .expect("failed to install signal handler")
+            .expect("failed to install signal handler");
     };
     // Wait for a SIGTERM, i.e. a normal `kill` command
     #[cfg(unix)]
@@ -183,7 +183,7 @@ async fn shutdown_handler() {
     // Block until either of the above happens
     #[cfg(unix)]
     tokio::select! {
-        _ = sigint => (),
+        () = sigint => (),
         _ = sigterm => (),
     }
     #[cfg(windows)]
