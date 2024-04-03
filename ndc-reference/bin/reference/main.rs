@@ -26,25 +26,26 @@ type Row = BTreeMap<String, serde_json::Value>;
 // ANCHOR: app-state
 #[derive(Debug, Clone)]
 pub struct AppState {
-    pub articles: BTreeMap<i64, Row>,
-    pub authors: BTreeMap<i64, Row>,
-    pub institutions: BTreeMap<i64, Row>,
+    pub articles: BTreeMap<i32, Row>,
+    pub authors: BTreeMap<i32, Row>,
+    pub institutions: BTreeMap<i32, Row>,
     pub metrics: Metrics,
 }
 // ANCHOR_END: app-state
 
 // ANCHOR: read_json_lines
-fn read_json_lines(path: &str) -> core::result::Result<BTreeMap<i64, Row>, Box<dyn Error>> {
+fn read_json_lines(path: &str) -> core::result::Result<BTreeMap<i32, Row>, Box<dyn Error>> {
     let file = File::open(path)?;
     let lines = io::BufReader::new(file).lines();
-    let mut records: BTreeMap<i64, Row> = BTreeMap::new();
+    let mut records: BTreeMap<i32, Row> = BTreeMap::new();
     for line in lines {
         let row: BTreeMap<String, serde_json::Value> = serde_json::from_str(&line?)?;
-        let id = row
+        let id: i32 = row
             .get("id")
             .ok_or("'id' field not found in json file")?
             .as_i64()
-            .ok_or("'id' field was not an integer in json file")?;
+            .ok_or("'id' field was not an integer in json file")?
+            .try_into()?;
         records.insert(id, row);
     }
     Ok(records)
@@ -197,7 +198,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "String".into(),
             models::ScalarType {
-                representation: Some(models::TypeRepresentation::String),
+                representation: models::TypeRepresentation::String,
                 aggregate_functions: BTreeMap::new(),
                 comparison_operators: BTreeMap::from_iter([
                     ("eq".into(), models::ComparisonOperatorDefinition::Equal),
@@ -216,7 +217,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "Int".into(),
             models::ScalarType {
-                representation: Some(models::TypeRepresentation::Integer),
+                representation: models::TypeRepresentation::Int32,
                 aggregate_functions: BTreeMap::from_iter([
                     (
                         "max".into(),
@@ -687,13 +688,25 @@ fn get_collection_by_name(
                     details: serde_json::Value::Null,
                 }),
             ))?;
-            let author_id_int = author_id.as_i64().ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "author_id must be a string".into(),
-                    details: serde_json::Value::Null,
-                }),
-            ))?;
+            let author_id_int: i32 = author_id
+                .as_i64()
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "author_id must be an integer".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?
+                .try_into()
+                .map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "author_id out of range".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?;
 
             let mut articles_by_author = vec![];
 
@@ -705,13 +718,25 @@ fn get_collection_by_name(
                         details: serde_json::Value::Null,
                     }),
                 ))?;
-                let article_author_id_int = article_author_id.as_i64().ok_or((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(models::ErrorResponse {
-                        message: " ".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
+                let article_author_id_int: i32 = article_author_id
+                    .as_i64()
+                    .ok_or((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(models::ErrorResponse {
+                            message: "author_id must be an integer".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))?
+                    .try_into()
+                    .map_err(|_| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "author_id out of range".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })?;
                 if article_author_id_int == author_id_int {
                     articles_by_author.push(article.clone())
                 }
@@ -957,15 +982,27 @@ fn eval_aggregate_function(
     let int_values = values
         .iter()
         .map(|value| {
-            value.as_i64().ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "column is not an integer".into(),
-                    details: serde_json::Value::Null,
-                }),
-            ))
+            value
+                .as_i64()
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "column is not an integer".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?
+                .try_into()
+                .map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "column value out of range".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })
         })
-        .collect::<Result<Vec<_>>>()?;
+        .collect::<Result<Vec<i32>>>()?;
     let agg_value = match function {
         "min" => Ok(int_values.iter().min()),
         "max" => Ok(int_values.iter().max()),
@@ -1963,24 +2000,36 @@ fn execute_upsert_article(
     let article_obj = article.as_object().ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
-            message: " ".into(),
+            message: "article must be an object".into(),
             details: serde_json::Value::Null,
         }),
     ))?;
     let id = article_obj.get("id").ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
-            message: " ".into(),
+            message: "article missing field 'id'".into(),
             details: serde_json::Value::Null,
         }),
     ))?;
-    let id_int = id.as_i64().ok_or((
-        StatusCode::BAD_REQUEST,
-        Json(models::ErrorResponse {
-            message: " ".into(),
-            details: serde_json::Value::Null,
-        }),
-    ))?;
+    let id_int = id
+        .as_i64()
+        .ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "id must be an integer".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))?
+        .try_into()
+        .map_err(|_| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "id out of range".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )
+        })?;
     let new_row = BTreeMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
     let old_row = state.articles.insert(id_int, new_row);
 
