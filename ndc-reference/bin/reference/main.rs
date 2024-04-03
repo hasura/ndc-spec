@@ -198,7 +198,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "String".into(),
             models::ScalarType {
-                representation: models::TypeRepresentation::String,
+                representation: Some(models::TypeRepresentation::String),
                 aggregate_functions: BTreeMap::new(),
                 comparison_operators: BTreeMap::from_iter([
                     ("eq".into(), models::ComparisonOperatorDefinition::Equal),
@@ -217,7 +217,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "Int".into(),
             models::ScalarType {
-                representation: models::TypeRepresentation::Int32,
+                representation: Some(models::TypeRepresentation::Int32),
                 aggregate_functions: BTreeMap::from_iter([
                     (
                         "max".into(),

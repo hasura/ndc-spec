@@ -21,7 +21,7 @@ Add the following type representations to `ndc_models::TypeRepresentation`:
 | Int32 | A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1 | Number |
 | Int64 | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1 | String |
 | Float32 | An IEEE-754 single-precision floating-point number | Number |
-| Float64 | An IEEE-754 double-precision floating-point number | String |
+| Float64 | An IEEE-754 double-precision floating-point number | Number |
 | Decimal | Arbitrary-precision decimal string | String |
 | UUID | UUID string (8-4-4-4-12) | String |
 | Date | ISO 8601 date | String |
@@ -31,17 +31,15 @@ Add the following type representations to `ndc_models::TypeRepresentation`:
 | Bytes | Base64-encoded bytes | String |
 | JSON | Arbitrary JSON | JSON |
 
-### Remove Int and Number representations
+### Deprecate Int and Number representations
 
 Connector authors should use fixed-precision integer and floating-point types.
 
-In the unlikely case a developer actually wants a 53-bit integer, they can use the new JSON type, and we can consider adding a 53-bit integer representation later.
+We can deprecate these now and remove them in a future release.
 
-### Make representation required
+### Default representation to JSON
 
-Abstract scalar types should use either Bytes or JSON representations going forward.
-
-This way, we can more precisely specify how encoding for other transports should work for each representation, when we get to the point where we implement other transports.
+In a future release, we will make representations required. For now, we can document that a missing representation is equivalent to using `JSON`.
 
 ## Alternatives considered
 

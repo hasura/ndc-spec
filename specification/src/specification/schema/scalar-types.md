@@ -8,17 +8,34 @@ Scalar types define several types of operations, which extend the capabilities o
 
 A scalar type definition can include an optional _type representation_. The representation, if provided, indicates to potential callers what values can be expected in responses, and what values are considered acceptable in requests.
 
-| `type` | Values | Additional fields |
+If the representation is omitted, it defaults to `json`.
+
+### Supported Representations
+
+| `type` | Description | JSON representation |
 | - | - | - |
-| `boolean` | A JSON boolean | |
-| `string` | A JSON string | |
-| `number` | A JSON number | |
-| `integer` | A JSON number with no decimal part | |
-| `enum` | Any of the values specified in the `one_of` field | `one_of` is a list of acceptable string values |
+| `boolean` | Boolean | Boolean |
+| `string` | String | String |
+| `int8` | An 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1 | Number |
+| `int16` | A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1 | Number |
+| `int32` | A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1 | Number |
+| `int64` | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1 | String |
+| `float32` | An IEEE-754 single-precision floating-point number | Number |
+| `float64` | An IEEE-754 double-precision floating-point number | Number |
+| `decimal` | Arbitrary-precision decimal string | String |
+| `uuid` | UUID string (8-4-4-4-12 format) | String |
+| `date` | ISO 8601 date | String |
+| `timestamp` | ISO 8601 timestamp | String |
+| `timestamptz` | ISO 8601 timestamp-with-timezone | String |
+| `geography` | GeoJSON | JSON |
+| `bytes` | Base64-encoded bytes | String |
+| `json` | Arbitrary JSON | JSON |
 
-### Examples
+### Enum Representations
 
-This representation indicates that the only three valid values are the strings `"foo"`, `"bar"` and `"baz"`:
+A scalar type with a representation of type `enum` accepts one of a set of string values, specified by the `one_of` argument.
+
+For example, this representation indicates that the only three valid values are the strings `"foo"`, `"bar"` and `"baz"`:
 
 ```json
 {
@@ -26,6 +43,17 @@ This representation indicates that the only three valid values are the strings `
   "one_of": ["foo", "bar", "baz"]
 }
 ```
+
+### Deprecated Representations
+
+The following representations are deprecated as of version 0.1.2:
+
+| `type` | Description | JSON representation |
+| - | - | - |
+| `number` | Any JSON number | Number |
+| `integer` | Any JSON number with no decimal part | Number |
+
+Connectors should use the sized integer and floating-point types instead.
 
 ## Comparison Operators
 

@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use std::collections::BTreeMap;
 
 use indexmap::IndexMap;
@@ -109,8 +111,9 @@ pub struct SchemaResponse {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Scalar Type")]
 pub struct ScalarType {
-    /// A description of valid values for this scalar type
-    pub representation: TypeRepresentation,
+    /// A description of valid values for this scalar type.
+    /// Defaults to `TypeRepresentation::Json` if omitted
+    pub representation: Option<TypeRepresentation>,
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap<String, AggregateFunctionDefinition>,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
@@ -121,8 +124,10 @@ pub struct ScalarType {
 // ANCHOR: TypeRepresentation
 /// Representations of scalar types
 #[derive(
-    Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
+    Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, JsonSchema,
 )]
+#[allow(deprecated)]
+#[derive(Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Type Representation")]
 pub enum TypeRepresentation {
@@ -130,6 +135,12 @@ pub enum TypeRepresentation {
     Boolean,
     /// Any JSON string
     String,
+    /// Any JSON number
+    #[deprecated(since = "0.1.2", note = "Use sized numeric types instead")]
+    Number,
+    /// Any JSON number, with no decimal part
+    #[deprecated(since = "0.1.2", note = "Use sized numeric types instead")]
+    Integer,
     /// A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1
     Int8,
     /// A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1
@@ -140,17 +151,17 @@ pub enum TypeRepresentation {
     Int64,
     /// An IEEE-754 single-precision floating-point number
     Float32,
-    /// An IEEE-754 double-precision floating-point number
-    Float64,
     /// Arbitrary-precision decimal string
     Decimal,
     /// UUID string (8-4-4-4-12)
+    #[serde(rename = "uuid")]
     UUID,
     /// ISO 8601 date
     Date,
     /// ISO 8601 timestamp
     Timestamp,
     /// ISO 8601 timestamp-with-timezone
+    #[serde(rename = "timestamptz")]
     TimestampTZ,
     /// GeoJSON
     Geography,

@@ -53,15 +53,17 @@
       "type": "object",
       "required": [
         "aggregate_functions",
-        "comparison_operators",
-        "representation"
+        "comparison_operators"
       ],
       "properties": {
         "representation": {
-          "description": "A description of valid values for this scalar type",
-          "allOf": [
+          "description": "A description of valid values for this scalar type. Defaults to `TypeRepresentation::Json` if omitted",
+          "anyOf": [
             {
               "$ref": "#/definitions/TypeRepresentation"
+            },
+            {
+              "type": "null"
             }
           ]
         },
@@ -111,6 +113,38 @@
               "type": "string",
               "enum": [
                 "string"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Any JSON number",
+          "deprecated": true,
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "number"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Any JSON number, with no decimal part",
+          "deprecated": true,
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "integer"
               ]
             }
           }
@@ -186,21 +220,6 @@
               "type": "string",
               "enum": [
                 "float32"
-              ]
-            }
-          }
-        },
-        {
-          "description": "An IEEE-754 double-precision floating-point number",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "float64"
               ]
             }
           }
