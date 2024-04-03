@@ -124,10 +124,8 @@ pub struct ScalarType {
 // ANCHOR: TypeRepresentation
 /// Representations of scalar types
 #[derive(
-    Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, JsonSchema,
+    Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
-#[allow(deprecated)]
-#[derive(Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Type Representation")]
 pub enum TypeRepresentation {
