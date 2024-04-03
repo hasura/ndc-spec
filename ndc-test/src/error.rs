@@ -64,7 +64,7 @@ pub enum Error {
     BenchmarkExceededTolerance(f64),
     #[error("response from connector does not satisfy requirement: {0}")]
     ResponseDoesNotSatisfy(String),
-    #[error("other error")]
+    #[error("other error: {0}")]
     OtherError(#[from] Box<dyn std::error::Error>),
 }
 
