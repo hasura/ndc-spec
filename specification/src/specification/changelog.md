@@ -1,5 +1,16 @@
 # Changelog
 
+## `0.1.2`
+
+### Specification
+
+- More [type representations](./schema/scalar-types.md#type-representations) were added, and some were deprecated.
+
+### Rust Libraries
+
+- Upgrade to Rust v1.77
+- The `ndc-client` library was removed. Clients are advised to use the new `ndc-models` library for type definitions, and to use a HTTP client library of their choice directly.
+
 ## `0.1.1`
 
 ### Specification
