@@ -157,40 +157,40 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
         .map(|s| s.parse())
         .unwrap_or(Ok(DEFAULT_PORT))?;
     let addr = net::SocketAddr::new(host, port);
+
     let server = axum::Server::bind(&addr).serve(app.into_make_service());
     println!("Serving on {}", server.local_addr());
-
-    server
-        .with_graceful_shutdown(async {
-            // wait for a SIGINT, i.e. a Ctrl+C from the keyboard
-            let sigint = async {
-                tokio::signal::ctrl_c()
-                    .await
-                    .expect("failed to install signal handler")
-            };
-            // wait for a SIGTERM, i.e. a normal `kill` command
-            #[cfg(unix)]
-            let sigterm = async {
-                tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
-                    .expect("failed to install signal handler")
-                    .recv()
-                    .await
-            };
-            // block until either of the above happens
-            #[cfg(unix)]
-            tokio::select! {
-                _ = sigint => (),
-                _ = sigterm => (),
-            }
-            #[cfg(windows)]
-            tokio::select! {
-                _ = sigint => (),
-            }
-        })
-        .await?;
+    server.with_graceful_shutdown(shutdown_handler()).await?;
+    
     Ok(())
 }
 // ANCHOR_END: main
+async fn shutdown_handler() {
+    // Wait for a SIGINT, i.e. a Ctrl+C from the keyboard
+    let sigint = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("failed to install signal handler")
+    };
+    // Wait for a SIGTERM, i.e. a normal `kill` command
+    #[cfg(unix)]
+    let sigterm = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await
+    };
+    // Block until either of the above happens
+    #[cfg(unix)]
+    tokio::select! {
+        _ = sigint => (),
+        _ = sigterm => (),
+    }
+    #[cfg(windows)]
+    tokio::select! {
+        _ = sigint => (),
+    }
+}
 // ANCHOR: health
 async fn get_health() -> StatusCode {
     StatusCode::OK
