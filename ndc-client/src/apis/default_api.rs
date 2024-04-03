@@ -17,7 +17,7 @@ trait ToHeaderString {
 
 impl ToHeaderString for HashMap<String, json::Value> {
     fn to_header_string(self) -> String {
-        json::to_value(self).map_or("".to_string(), |val| val.to_string())
+        json::to_value(self).map_or(String::new(), |val| val.to_string())
     }
 }
 
@@ -55,7 +55,7 @@ pub async fn capabilities_get(
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, &["capabilities"])
-                .map_err(|_| Error::InvalidBaseURL)?;
+                .map_err(|()| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::GET, uri);
 
             req_builder = inject_trace_context(req_builder);
@@ -92,7 +92,7 @@ pub async fn explain_query_post(
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, &["query", "explain"])
-                .map_err(|_| Error::InvalidBaseURL)?;
+                .map_err(|()| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::POST, uri);
 
             if let Some(ref user_agent) = configuration.user_agent {
@@ -131,7 +131,7 @@ pub async fn explain_mutation_post(
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, &["mutation", "explain"])
-                .map_err(|_| Error::InvalidBaseURL)?;
+                .map_err(|()| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::POST, uri);
 
             if let Some(ref user_agent) = configuration.user_agent {
@@ -170,7 +170,7 @@ pub async fn mutation_post(
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, &["mutation"])
-                .map_err(|_| Error::InvalidBaseURL)?;
+                .map_err(|()| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::POST, uri);
 
             if let Some(ref user_agent) = configuration.user_agent {
@@ -210,7 +210,7 @@ pub async fn query_post(
                 let client = &configuration.client;
 
                 let uri = append_path(&configuration.base_path, &["query"])
-                    .map_err(|_| Error::InvalidBaseURL)?;
+                    .map_err(|()| Error::InvalidBaseURL)?;
                 let mut req_builder = client.request(reqwest::Method::POST, uri);
 
                 if let Some(ref user_agent) = configuration.user_agent {
@@ -251,7 +251,7 @@ pub async fn schema_get(
             let client = &configuration.client;
 
             let uri = append_path(&configuration.base_path, &["schema"])
-                .map_err(|_| Error::InvalidBaseURL)?;
+                .map_err(|()| Error::InvalidBaseURL)?;
             let mut req_builder = client.request(reqwest::Method::GET, uri);
 
             req_builder = inject_trace_context(req_builder);
