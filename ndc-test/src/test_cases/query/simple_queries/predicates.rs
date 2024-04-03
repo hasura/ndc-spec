@@ -123,7 +123,7 @@ fn make_single_expressions(
 
     if let Some(field_type_name) = super::super::common::get_named_type(field_type) {
         if let Some(field_scalar_type) = schema.scalar_types.get(field_type_name.as_str()) {
-            for (operator_name, operator) in field_scalar_type.comparison_operators.iter() {
+            for (operator_name, operator) in &field_scalar_type.comparison_operators {
                 match operator {
                     models::ComparisonOperatorDefinition::Equal => {
                         let value = values.choose(rng).ok_or(Error::ExpectedNonEmptyRows)?;
@@ -164,7 +164,7 @@ fn make_single_expressions(
                             expect_nonempty: value_count > 0,
                         });
                     }
-                    _ => {}
+                    models::ComparisonOperatorDefinition::Custom { .. } => {}
                 }
             }
         }

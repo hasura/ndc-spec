@@ -57,7 +57,7 @@ impl fmt::Display for Error {
             Error::InvalidConnectorError(e) => ("response", format!("status code {}", e.status)),
             Error::InvalidBaseURL => ("url", "invalid base URL".into()),
         };
-        write!(f, "error in {}: {}", module, e)
+        write!(f, "error in {module}: {e}")
     }
 }
 
@@ -104,7 +104,7 @@ trait ToHeaderString {
 
 impl ToHeaderString for HashMap<String, json::Value> {
     fn to_header_string(self) -> String {
-        json::to_value(self).map_or("".to_string(), |val| val.to_string())
+        json::to_value(self).map_or(String::new(), |val| val.to_string())
     }
 }
 
@@ -126,7 +126,7 @@ pub(crate) async fn capabilities_get(
     let client = &configuration.client;
 
     let uri = append_path(&configuration.base_path, &["capabilities"])
-        .map_err(|_| Error::InvalidBaseURL)?;
+        .map_err(|()| Error::InvalidBaseURL)?;
     let req = client.get(uri).build()?;
     let resp = client.execute(req).await?;
 
@@ -147,7 +147,7 @@ pub(crate) async fn mutation_post(
     let client = &configuration.client;
 
     let uri =
-        append_path(&configuration.base_path, &["mutation"]).map_err(|_| Error::InvalidBaseURL)?;
+        append_path(&configuration.base_path, &["mutation"]).map_err(|()| Error::InvalidBaseURL)?;
     let mut req_builder = client.request(reqwest::Method::POST, uri);
 
     req_builder = req_builder.json(&mutation_request);
@@ -172,7 +172,7 @@ pub(crate) async fn query_post(
     let client = &configuration.client;
 
     let uri =
-        append_path(&configuration.base_path, &["query"]).map_err(|_| Error::InvalidBaseURL)?;
+        append_path(&configuration.base_path, &["query"]).map_err(|()| Error::InvalidBaseURL)?;
     let mut req_builder = client.request(reqwest::Method::POST, uri);
 
     req_builder = req_builder.json(&query_request);
@@ -196,7 +196,7 @@ pub(crate) async fn schema_get(
     let client = &configuration.client;
 
     let uri =
-        append_path(&configuration.base_path, &["schema"]).map_err(|_| Error::InvalidBaseURL)?;
+        append_path(&configuration.base_path, &["schema"]).map_err(|()| Error::InvalidBaseURL)?;
     let req = client.get(uri).build()?;
     let resp = client.execute(req).await?;
 

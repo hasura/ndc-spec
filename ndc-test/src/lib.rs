@@ -1,3 +1,6 @@
+#![allow(clippy::cast_lossless)]
+#![allow(clippy::cast_precision_loss)]
+
 pub mod client;
 pub mod configuration;
 pub mod connector;
@@ -129,7 +132,7 @@ pub async fn test_snapshots_in_directory_with<
                         async {
                             let path = entry.path();
 
-                            let snapshot_pathbuf = path.to_path_buf().join("expected.json");
+                            let snapshot_pathbuf = path.join("expected.json");
                             let snapshot_path = snapshot_pathbuf.as_path();
 
                             let request_file = File::open(path.join("request.json"))
@@ -144,7 +147,7 @@ pub async fn test_snapshots_in_directory_with<
                 );
             }
         }
-        Err(e) => println!("Warning: a snapshot folder could not be found: {}", e),
+        Err(e) => println!("Warning: a snapshot folder could not be found: {e}"),
     }
 }
 
@@ -302,7 +305,7 @@ pub fn benchmark_report(
     config: &ReportConfiguration,
     reports: BTreeMap<String, Statistics>,
 ) -> String {
-    if let Some(max_width) = reports.keys().map(|s| s.len()).max() {
+    if let Some(max_width) = reports.keys().map(String::len).max() {
         let spaces = " ".repeat(max_width + 1);
         let mut result = format!("{spaces}        μ           Δ         σ       min       max\n");
 
@@ -335,6 +338,6 @@ pub fn benchmark_report(
 
         result
     } else {
-        "".into()
+        String::new()
     }
 }

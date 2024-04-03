@@ -4,6 +4,9 @@ description = "A tool to verify that a data connector is somewhat compatible wit
 version = "0.1.1"
 edition = "2021"
 
+[lints]
+workspace = true
+
 [dependencies]
 ndc-models = { path = "../ndc-models" }
 
