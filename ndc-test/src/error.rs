@@ -1,11 +1,12 @@
-use std::path::PathBuf;
+use super::client;
 
+use std::path::PathBuf;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("error communicating with the connector: {0}")]
-    CommunicationError(#[from] ndc_client::apis::Error),
+    CommunicationError(#[from] client::Error),
     #[error("error generating test data: {0}")]
     StrategyError(rand::Error),
     #[error("error parsing semver range: {0}")]
@@ -49,7 +50,7 @@ pub enum Error {
     #[error("scalar type {0} has multiple equality operators")]
     MultipleEqualityOperators(String),
     #[error("error response from connector: {0:?}")]
-    ConnectorError(ndc_client::models::ErrorResponse),
+    ConnectorError(ndc_models::ErrorResponse),
     #[error("cannot open snapshot file: {0:?}")]
     CannotOpenSnapshotFile(std::io::Error),
     #[error("error (de)serializing data structure: {0:?}")]
@@ -80,8 +81,8 @@ impl From<serde_json::Error> for Error {
     }
 }
 
-impl From<ndc_client::apis::Error> for Box<Error> {
-    fn from(value: ndc_client::apis::Error) -> Self {
+impl From<client::Error> for Box<Error> {
+    fn from(value: client::Error) -> Self {
         Box::new(Error::CommunicationError(value))
     }
 }

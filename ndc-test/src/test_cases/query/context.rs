@@ -4,7 +4,7 @@ use crate::error::Error;
 use crate::error::Result;
 
 use indexmap::IndexMap;
-use ndc_client::models;
+use ndc_models as models;
 use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
 
@@ -21,7 +21,7 @@ pub fn make_context(
     let mut values = BTreeMap::new();
 
     for row in rows {
-        for (field_name, _) in collection_type.fields.iter() {
+        for field_name in collection_type.fields.keys() {
             if !row.contains_key(field_name.as_str()) {
                 return Err(Error::MissingField(field_name.clone()));
             }

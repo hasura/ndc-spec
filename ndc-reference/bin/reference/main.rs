@@ -15,7 +15,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use ndc_client::models::{self, LeafCapability, RelationshipCapabilities};
+use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
@@ -612,7 +612,7 @@ pub async fn post_query(
 
     let mut row_sets = vec![];
 
-    for variables in variable_sets.iter() {
+    for variables in &variable_sets {
         let row_set = execute_query_with_variables(
             &request.collection,
             &request.arguments,
@@ -640,7 +640,7 @@ fn execute_query_with_variables(
     // ANCHOR_END: execute_query_with_variables_signature
     let mut argument_values = BTreeMap::new();
 
-    for (argument_name, argument_value) in arguments.iter() {
+    for (argument_name, argument_value) in arguments {
         if argument_values
             .insert(
                 argument_name.clone(),
@@ -710,7 +710,7 @@ fn get_collection_by_name(
 
             let mut articles_by_author = vec![];
 
-            for (_id, article) in state.articles.iter() {
+            for article in state.articles.values() {
                 let article_author_id = article.get("author_id").ok_or((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
@@ -738,7 +738,7 @@ fn get_collection_by_name(
                         )
                     })?;
                 if article_author_id_int == author_id_int {
-                    articles_by_author.push(article.clone())
+                    articles_by_author.push(article.clone());
                 }
             }
 
@@ -791,6 +791,7 @@ fn get_collection_by_name(
 }
 // ANCHOR_END: get_collection_by_name
 /// ANCHOR: Root
+#[derive(Clone, Copy)]
 enum Root<'a> {
     /// References to the root collection actually
     /// refer to the current row, because the path to
@@ -829,7 +830,7 @@ fn execute_query(
         None => Ok(sorted),
         Some(expr) => {
             let mut filtered: Vec<Row> = vec![];
-            for item in sorted.into_iter() {
+            for item in sorted {
                 let root = match root {
                     Root::CurrentRow => &item,
                     Root::ExplicitRow(root) => root,
@@ -858,7 +859,7 @@ fn execute_query(
         .as_ref()
         .map(|aggregates| {
             let mut row: IndexMap<String, serde_json::Value> = IndexMap::new();
-            for (aggregate_name, aggregate) in aggregates.iter() {
+            for (aggregate_name, aggregate) in aggregates {
                 row.insert(
                     aggregate_name.clone(),
                     eval_aggregate(aggregate, &paginated)?,
@@ -874,9 +875,9 @@ fn execute_query(
         .as_ref()
         .map(|fields| {
             let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
-            for item in paginated.iter() {
+            for item in &paginated {
                 let row = eval_row(fields, collection_relationships, variables, state, item)?;
-                rows.push(row)
+                rows.push(row);
             }
             Ok(rows)
         })
@@ -896,7 +897,7 @@ fn eval_row(
     item: &BTreeMap<String, serde_json::Value>,
 ) -> Result<IndexMap<String, models::RowFieldValue>> {
     let mut row = IndexMap::new();
-    for (field_name, field) in fields.iter() {
+    for (field_name, field) in fields {
         row.insert(
             field_name.clone(),
             eval_field(collection_relationships, variables, state, field, item)?,
@@ -1037,9 +1038,9 @@ fn sort(
         None => Ok(collection),
         Some(order_by) => {
             let mut copy = vec![];
-            for item_to_insert in collection.into_iter() {
+            for item_to_insert in collection {
                 let mut index = 0;
-                for other in copy.iter() {
+                for other in &copy {
                     if let Ordering::Greater = eval_order_by(
                         collection_relationships,
                         variables,
@@ -1049,9 +1050,8 @@ fn sort(
                         &item_to_insert,
                     )? {
                         break;
-                    } else {
-                        index += 1;
                     }
+                    index += 1;
                 }
                 copy.insert(index, item_to_insert);
             }
@@ -1084,7 +1084,7 @@ fn eval_order_by(
 ) -> Result<Ordering> {
     let mut result = Ordering::Equal;
 
-    for element in order_by.elements.iter() {
+    for element in &order_by.elements {
         let v1 = eval_order_by_element(collection_relationships, variables, state, element, t1)?;
         let v2 = eval_order_by_element(collection_relationships, variables, state, element, t2)?;
         let x = match element.order_direction {
@@ -1231,7 +1231,7 @@ fn eval_path(
 ) -> Result<Vec<Row>> {
     let mut result: Vec<Row> = vec![item.clone()];
 
-    for path_element in path.iter() {
+    for path_element in path {
         let relationship_name = path_element.relationship.as_str();
         let relationship = collection_relationships.get(relationship_name).ok_or((
             StatusCode::BAD_REQUEST,
@@ -1283,10 +1283,10 @@ fn eval_path_element(
     // should consist of all object relationships, and possibly terminated by a
     // single array relationship, so there should be no double counting.
 
-    for src_row in source.iter() {
+    for src_row in source {
         let mut all_arguments = BTreeMap::new();
 
-        for (argument_name, argument_value) in relationship.arguments.iter() {
+        for (argument_name, argument_value) in &relationship.arguments {
             if all_arguments
                 .insert(
                     argument_name.clone(),
@@ -1304,7 +1304,7 @@ fn eval_path_element(
             }
         }
 
-        for (argument_name, argument_value) in arguments.iter() {
+        for (argument_name, argument_value) in arguments {
             if all_arguments
                 .insert(
                     argument_name.clone(),
@@ -1328,7 +1328,7 @@ fn eval_path_element(
             state,
         )?;
 
-        for tgt_row in target.iter() {
+        for tgt_row in &target {
             if eval_column_mapping(relationship, src_row, tgt_row)?
                 && if let Some(expression) = predicate {
                     eval_expression(
@@ -1413,7 +1413,7 @@ fn eval_expression(
     // ANCHOR: eval_expression_logical
     match expr {
         models::Expression::And { expressions } => {
-            for expr in expressions.iter() {
+            for expr in expressions {
                 if !eval_expression(collection_relationships, variables, state, expr, root, item)? {
                     return Ok(false);
                 }
@@ -1421,7 +1421,7 @@ fn eval_expression(
             Ok(true)
         }
         models::Expression::Or { expressions } => {
-            for expr in expressions.iter() {
+            for expr in expressions {
                 if eval_expression(collection_relationships, variables, state, expr, root, item)? {
                     return Ok(true);
                 }
@@ -1451,7 +1451,7 @@ fn eval_expression(
                     root,
                     item,
                 )?;
-                Ok(vals.iter().any(|val| val.is_null()))
+                Ok(vals.iter().any(serde_json::Value::is_null))
             }
         },
         // ANCHOR_END: eval_expression_unary_operators
@@ -1478,8 +1478,8 @@ fn eval_expression(
                     root,
                     item,
                 )?;
-                for left_val in left_vals.iter() {
-                    for right_val in right_vals.iter() {
+                for left_val in &left_vals {
+                    for right_val in &right_vals {
                         if left_val == right_val {
                             return Ok(true);
                         }
@@ -1507,8 +1507,8 @@ fn eval_expression(
                     root,
                     item,
                 )?;
-                for column_val in column_vals.iter() {
-                    for regex_val in regex_vals.iter() {
+                for column_val in &column_vals {
+                    for regex_val in &regex_vals {
                         let column_str = column_val.as_str().ok_or((
                             StatusCode::BAD_REQUEST,
                             Json(models::ErrorResponse {
@@ -1559,7 +1559,7 @@ fn eval_expression(
                     item,
                 )?;
 
-                for comparison_value in right_val_sets.iter() {
+                for comparison_value in &right_val_sets {
                     let right_vals = comparison_value.as_array().ok_or((
                         StatusCode::BAD_REQUEST,
                         Json(models::ErrorResponse {
@@ -1568,8 +1568,8 @@ fn eval_expression(
                         }),
                     ))?;
 
-                    for left_val in left_vals.iter() {
-                        for right_val in right_vals.iter() {
+                    for left_val in &left_vals {
+                        for right_val in right_vals {
                             if left_val == right_val {
                                 return Ok(true);
                             }
@@ -1686,7 +1686,7 @@ fn eval_comparison_target(
         models::ComparisonTarget::Column { name, path } => {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
-            for row in rows.iter() {
+            for row in &rows {
                 let value = eval_column(row, name.as_str())?;
                 values.push(value);
             }
@@ -1926,7 +1926,7 @@ async fn post_mutation(
 
         let mut operation_results = vec![];
 
-        for operation in request.operations.iter() {
+        for operation in &request.operations {
             let operation_result = execute_mutation_operation(
                 &mut state,
                 &request.collection_relationships,
@@ -2030,7 +2030,10 @@ fn execute_upsert_article(
                 }),
             )
         })?;
-    let new_row = BTreeMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
+    let new_row = article_obj
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<BTreeMap<_, _>>();
     let old_row = state.articles.insert(id_int, new_row);
 
     Ok(models::MutationOperationResults::Procedure {
@@ -2091,7 +2094,7 @@ fn execute_delete_articles(
 
     let state_snapshot = state.clone();
 
-    for (_article_id, article) in state.articles.iter_mut() {
+    for article in state.articles.values_mut() {
         if eval_expression(
             &BTreeMap::new(),
             &BTreeMap::new(),
@@ -2136,7 +2139,7 @@ fn eval_column_mapping(
     src_row: &Row,
     tgt_row: &Row,
 ) -> Result<bool> {
-    for (src_column, tgt_column) in relationship.column_mapping.iter() {
+    for (src_column, tgt_column) in &relationship.column_mapping {
         let src_value = eval_column(src_row, src_column)?;
         let tgt_value = eval_column(tgt_row, tgt_column)?;
         if src_value != tgt_value {
@@ -2151,10 +2154,13 @@ mod tests {
     use async_trait::async_trait;
     use axum::{extract::State, Json};
     use goldenfile::Mint;
-    use ndc_client::models;
+    use ndc_models as models;
     use ndc_test::{
-        configuration::TestConfiguration, connector::Connector, error::Error,
-        reporter::TestResults, test_connector,
+        configuration::{TestConfiguration, TestGenerationConfiguration},
+        connector::Connector,
+        error::Error,
+        reporter::TestResults,
+        test_connector,
     };
     use std::{
         fs::{self, File},
@@ -2181,7 +2187,7 @@ mod tests {
 
             let response_json = serde_json::to_string_pretty(&response.0).unwrap();
 
-            write!(expected, "{}", response_json).unwrap();
+            write!(expected, "{response_json}").unwrap();
 
             // Test roundtrip
             assert_eq!(
@@ -2340,7 +2346,7 @@ mod tests {
             let configuration = TestConfiguration {
                 seed: None,
                 snapshots_dir: None,
-                gen_config: Default::default(),
+                gen_config: TestGenerationConfiguration::default(),
             };
             let connector = Reference {
                 state: init_app_state(),

@@ -6,7 +6,7 @@ use crate::reporter::Reporter;
 use crate::test;
 
 use indexmap::IndexMap;
-use ndc_client::models;
+use ndc_models as models;
 use rand::rngs::SmallRng;
 use rand::seq::IteratorRandom;
 use rand::Rng;
@@ -111,13 +111,13 @@ pub async fn test_column_count_aggregate<C: Connector>(
             column: field_name.clone(),
             distinct: false,
         };
-        aggregates.insert(format!("{}_count", field_name), aggregate);
+        aggregates.insert(format!("{field_name}_count"), aggregate);
 
         let aggregate = models::Aggregate::ColumnCount {
             column: field_name.clone(),
             distinct: true,
         };
-        aggregates.insert(format!("{}_distinct_count", field_name), aggregate);
+        aggregates.insert(format!("{field_name}_distinct_count"), aggregate);
     }
 
     let query_request = models::QueryRequest {
@@ -142,13 +142,13 @@ pub async fn test_column_count_aggregate<C: Connector>(
 
     if let Some(aggregates) = &row_set.aggregates {
         for field_name in collection_type.fields.keys() {
-            let count_field = format!("{}_count", field_name);
+            let count_field = format!("{field_name}_count");
             let count = aggregates
                 .get(count_field.as_str())
                 .and_then(serde_json::Value::as_u64)
                 .ok_or(Error::MissingField(count_field))?;
 
-            let distinct_field = format!("{}_distinct_count", field_name);
+            let distinct_field = format!("{field_name}_distinct_count");
             let distinct_count = aggregates
                 .get(distinct_field.as_str())
                 .and_then(serde_json::Value::as_u64)
@@ -156,15 +156,13 @@ pub async fn test_column_count_aggregate<C: Connector>(
 
             if count > total_count {
                 return Err(Error::ResponseDoesNotSatisfy(format!(
-                    "star_count >= column_count({})",
-                    field_name
+                    "star_count >= column_count({field_name})"
                 )));
             }
 
             if distinct_count > count {
                 return Err(Error::ResponseDoesNotSatisfy(format!(
-                    "column_count >= column_count(distinct {})",
-                    field_name
+                    "column_count >= column_count(distinct {field_name})"
                 )));
             }
         }
@@ -185,10 +183,10 @@ pub async fn test_single_column_aggregates<C: Connector>(
 ) -> Result<()> {
     let mut available_aggregates = IndexMap::new();
 
-    for (field_name, field) in collection_type.fields.iter() {
+    for (field_name, field) in &collection_type.fields {
         if let Some(name) = super::common::as_named_type(&field.r#type) {
             if let Some(scalar_type) = schema.scalar_types.get(name) {
-                for (function_name, _function_defn) in scalar_type.aggregate_functions.iter() {
+                for function_name in scalar_type.aggregate_functions.keys() {
                     let aggregate = models::Aggregate::SingleColumn {
                         column: field_name.clone(),
                         function: function_name.clone(),
