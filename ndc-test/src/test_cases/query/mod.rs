@@ -11,7 +11,7 @@ use crate::connector::Connector;
 use crate::nest;
 use crate::reporter::Reporter;
 
-use ndc_client::models;
+use ndc_models as models;
 use rand::rngs::SmallRng;
 
 pub async fn test_query<C: Connector, R: Reporter>(
@@ -22,7 +22,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
 ) {
-    for collection_info in schema.collections.iter() {
+    for collection_info in &schema.collections {
         nest!(collection_info.name.as_str(), reporter, {
             async {
                 if collection_info.arguments.is_empty() {

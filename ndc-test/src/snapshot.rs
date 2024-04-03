@@ -6,7 +6,7 @@ use std::{
 };
 
 use async_trait::async_trait;
-use ndc_client::models;
+use ndc_models as models;
 
 use crate::{
     connector::Connector,
@@ -42,7 +42,7 @@ impl<'a, C: Connector> Connector for SnapshottingConnector<'a, C> {
 
         let snapshot_subdir = {
             let mut builder = self.snapshot_path.clone();
-            builder.extend(vec!["query", format!("{:x}", hash).as_str()]);
+            builder.extend(vec!["query", format!("{hash:x}").as_str()]);
             builder
         };
 

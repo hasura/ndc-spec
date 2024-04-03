@@ -1,3 +1,7 @@
+#![allow(clippy::cast_lossless)]
+#![allow(clippy::cast_precision_loss)]
+
+pub mod client;
 pub mod configuration;
 pub mod connector;
 pub mod error;
@@ -17,9 +21,7 @@ use colorful::Colorful;
 use connector::Connector;
 use error::Error;
 
-use ndc_client::apis::configuration::Configuration;
-use ndc_client::apis::default_api as api;
-use ndc_client::models::{self};
+use ndc_models as models;
 
 use error::Result;
 
@@ -30,21 +32,21 @@ use serde::{Deserialize, Serialize};
 use snapshot::{snapshot_test, SnapshottingConnector};
 
 #[async_trait(?Send)]
-impl Connector for Configuration {
+impl Connector for client::Configuration {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
-        Ok(api::capabilities_get(self).await?)
+        Ok(client::capabilities_get(self).await?)
     }
 
     async fn get_schema(&self) -> Result<models::SchemaResponse> {
-        Ok(api::schema_get(self).await?)
+        Ok(client::schema_get(self).await?)
     }
 
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse> {
-        Ok(api::query_post(self, request).await?)
+        Ok(client::query_post(self, request).await?)
     }
 
     async fn mutation(&self, request: models::MutationRequest) -> Result<models::MutationResponse> {
-        Ok(api::mutation_post(self, request).await?)
+        Ok(client::mutation_post(self, request).await?)
     }
 }
 
@@ -130,7 +132,7 @@ pub async fn test_snapshots_in_directory_with<
                         async {
                             let path = entry.path();
 
-                            let snapshot_pathbuf = path.to_path_buf().join("expected.json");
+                            let snapshot_pathbuf = path.join("expected.json");
                             let snapshot_path = snapshot_pathbuf.as_path();
 
                             let request_file = File::open(path.join("request.json"))
@@ -145,7 +147,7 @@ pub async fn test_snapshots_in_directory_with<
                 );
             }
         }
-        Err(e) => println!("Warning: a snapshot folder could not be found: {}", e),
+        Err(e) => println!("Warning: a snapshot folder could not be found: {e}"),
     }
 }
 
@@ -303,7 +305,7 @@ pub fn benchmark_report(
     config: &ReportConfiguration,
     reports: BTreeMap<String, Statistics>,
 ) -> String {
-    if let Some(max_width) = reports.keys().map(|s| s.len()).max() {
+    if let Some(max_width) = reports.keys().map(String::len).max() {
         let spaces = " ".repeat(max_width + 1);
         let mut result = format!("{spaces}        μ           Δ         σ       min       max\n");
 
@@ -336,6 +338,6 @@ pub fn benchmark_report(
 
         result
     } else {
-        "".into()
+        String::new()
     }
 }

@@ -57,7 +57,7 @@
       ],
       "properties": {
         "representation": {
-          "description": "An optional description of valid values for this scalar type",
+          "description": "A description of valid values for this scalar type. Defaults to `TypeRepresentation::JSON` if omitted",
           "anyOf": [
             {
               "$ref": "#/definitions/TypeRepresentation"
@@ -119,6 +119,7 @@
         },
         {
           "description": "Any JSON number",
+          "deprecated": true,
           "type": "object",
           "required": [
             "type"
@@ -134,6 +135,7 @@
         },
         {
           "description": "Any JSON number, with no decimal part",
+          "deprecated": true,
           "type": "object",
           "required": [
             "type"
@@ -143,6 +145,216 @@
               "type": "string",
               "enum": [
                 "integer"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int8"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int16"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int32"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int64"
+              ]
+            }
+          }
+        },
+        {
+          "description": "An IEEE-754 single-precision floating-point number",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float32"
+              ]
+            }
+          }
+        },
+        {
+          "description": "An IEEE-754 double-precision floating-point number",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float64"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Arbitrary-precision decimal string",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bigdecimal"
+              ]
+            }
+          }
+        },
+        {
+          "description": "UUID string (8-4-4-4-12)",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uuid"
+              ]
+            }
+          }
+        },
+        {
+          "description": "ISO 8601 date",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "date"
+              ]
+            }
+          }
+        },
+        {
+          "description": "ISO 8601 timestamp",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "timestamp"
+              ]
+            }
+          }
+        },
+        {
+          "description": "ISO 8601 timestamp-with-timezone",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "timestamptz"
+              ]
+            }
+          }
+        },
+        {
+          "description": "GeoJSON",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "geography"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Base64-encoded bytes",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bytes"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Arbitrary JSON",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "json"
               ]
             }
           }

@@ -3,12 +3,15 @@ name = "ndc-reference"
 version = "0.1.1"
 edition = "2021"
 
+[lints]
+workspace = true
+
 [[bin]]
 name = "ndc-reference"
 path = "bin/reference/main.rs"
 
 [dependencies]
-ndc-client = { path = "../ndc-client" }
+ndc-models = { path = "../ndc-models" }
 
 axum = "^0.6.20"
 indexmap = { version = "^2", features = ["serde"] }

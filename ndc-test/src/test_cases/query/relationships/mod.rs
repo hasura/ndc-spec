@@ -7,7 +7,7 @@ use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::{nest, test};
 
-use ndc_client::models::{self};
+use ndc_models as models;
 use rand::rngs::SmallRng;
 
 use super::validate::validate_response;
@@ -29,7 +29,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
         ))
         .ok()?;
 
-    for (foreign_key_name, foreign_key) in collection_info.foreign_keys.iter() {
+    for (foreign_key_name, foreign_key) in &collection_info.foreign_keys {
         nest!(foreign_key_name, reporter, {
             async {
                 let _ = test!(
@@ -161,7 +161,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
 
         validate_response(&query_request, &response)?;
     } else {
-        eprintln!("Skipping parameterized relationship {}", foreign_key_name);
+        eprintln!("Skipping parameterized relationship {foreign_key_name}");
     }
 
     Ok(())
@@ -197,7 +197,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
 
     let mut column_mapping = BTreeMap::new();
 
-    for (column, other_column) in foreign_key.column_mapping.iter() {
+    for (column, other_column) in &foreign_key.column_mapping {
         column_mapping.insert(other_column.clone(), column.clone());
     }
 
@@ -242,7 +242,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
             validate_response(&query_request, &response)?;
         }
     } else {
-        eprintln!("Skipping parameterized relationship {}", foreign_key_name);
+        eprintln!("Skipping parameterized relationship {foreign_key_name}");
     }
 
     Ok(())
@@ -297,7 +297,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
 
         let mut column_mapping = BTreeMap::new();
 
-        for (column, other_column) in foreign_key.column_mapping.iter() {
+        for (column, other_column) in &foreign_key.column_mapping {
             column_mapping.insert(other_column.clone(), column.clone());
         }
 
@@ -328,7 +328,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
 
         validate_response(&query_request, &response)?;
     } else {
-        eprintln!("Skipping parameterized relationship {}", foreign_key_name);
+        eprintln!("Skipping parameterized relationship {foreign_key_name}");
     }
 
     Ok(())
