@@ -5,7 +5,7 @@ use crate::connector::Connector;
 use crate::error::{Error, Result};
 use crate::test_cases::query::validate::validate_response;
 
-use ndc_client::models;
+use ndc_models as models;
 use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
 use rand::Rng;

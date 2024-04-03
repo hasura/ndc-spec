@@ -11,7 +11,7 @@ use crate::connector::Connector;
 use crate::nest;
 use crate::reporter::Reporter;
 
-use ndc_client::models;
+use ndc_models as models;
 use rand::rngs::SmallRng;
 
 pub async fn test_query<C: Connector, R: Reporter>(

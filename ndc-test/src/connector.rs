@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ndc_client::models;
+use ndc_models as models;
 
 use crate::error::Result;
 

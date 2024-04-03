@@ -1,5 +1,5 @@
 use indexmap::IndexMap;
-use ndc_client::models;
+use ndc_models as models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
 pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, models::Field> {

@@ -3,7 +3,7 @@ use crate::connector::Connector;
 use crate::error::Result;
 use crate::reporter::Reporter;
 use crate::{nest, test};
-use ndc_client::models;
+use ndc_models as models;
 
 pub async fn test_schema<C: Connector, R: Reporter>(
     connector: &C,

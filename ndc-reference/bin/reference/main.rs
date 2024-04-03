@@ -15,7 +15,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use ndc_client::models::{self, LeafCapability, RelationshipCapabilities};
+use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
@@ -2105,7 +2105,7 @@ mod tests {
     use async_trait::async_trait;
     use axum::{extract::State, Json};
     use goldenfile::Mint;
-    use ndc_client::models;
+    use ndc_models as models;
     use ndc_test::{
         configuration::{TestConfiguration, TestGenerationConfiguration},
         connector::Connector,

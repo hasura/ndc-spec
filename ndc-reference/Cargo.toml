@@ -11,7 +11,7 @@ name = "ndc-reference"
 path = "bin/reference/main.rs"
 
 [dependencies]
-ndc-client = { path = "../ndc-client" }
+ndc-models = { path = "../ndc-models" }
 
 axum = "^0.6.20"
 indexmap = { version = "^2", features = ["serde"] }
