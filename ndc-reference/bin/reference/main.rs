@@ -148,11 +148,14 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
         ))
         .with_state(app_state);
 
-    // start the server on localhost:<PORT>
+    // Start the server on `localhost:<PORT>`.
+    // This says it's binding to an IPv6 address, but will actually listen to
+    // any IPv4 or IPv6 address.
+    let host = net::IpAddr::V6(net::Ipv6Addr::UNSPECIFIED);
     let port = env::var("HASURA_CONNECTOR_PORT")
         .map(|s| s.parse())
         .unwrap_or(Ok(DEFAULT_PORT))?;
-    let addr = net::SocketAddr::new(net::IpAddr::V4(net::Ipv4Addr::UNSPECIFIED), port);
+    let addr = net::SocketAddr::new(host, port);
     let server = axum::Server::bind(&addr).serve(app.into_make_service());
     println!("Serving on {}", server.local_addr());
 
