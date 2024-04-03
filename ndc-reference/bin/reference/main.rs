@@ -1,9 +1,9 @@
 use std::{
     cmp::Ordering,
     collections::{BTreeMap, HashSet},
+    env,
     error::Error,
-    fs::File,
-    io::{self, BufRead},
+    net,
     sync::Arc,
 };
 
@@ -20,6 +20,12 @@ use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
 
+const DEFAULT_PORT: u16 = 8080;
+
+const ARTICLES_JSON: &str = include_str!("../../articles.json");
+const AUTHORS_JSON: &str = include_str!("../../authors.json");
+const INSTITUTIONS_JSON: &str = include_str!("../../institutions.json");
+
 // ANCHOR: row-type
 type Row = BTreeMap<String, serde_json::Value>;
 // ANCHOR_END: row-type
@@ -34,12 +40,10 @@ pub struct AppState {
 // ANCHOR_END: app-state
 
 // ANCHOR: read_json_lines
-fn read_json_lines(path: &str) -> core::result::Result<BTreeMap<i32, Row>, Box<dyn Error>> {
-    let file = File::open(path)?;
-    let lines = io::BufReader::new(file).lines();
+fn read_json_lines(contents: &str) -> core::result::Result<BTreeMap<i32, Row>, Box<dyn Error>> {
     let mut records: BTreeMap<i32, Row> = BTreeMap::new();
-    for line in lines {
-        let row: BTreeMap<String, serde_json::Value> = serde_json::from_str(&line?)?;
+    for line in contents.lines() {
+        let row: BTreeMap<String, serde_json::Value> = serde_json::from_str(line)?;
         let id: i32 = row
             .get("id")
             .ok_or("'id' field not found in json file")?
@@ -103,13 +107,14 @@ async fn metrics_middleware<T>(
     metrics.active_requests.dec();
     response
 }
+
 // ANCHOR_END: metrics_middleware
 // ANCHOR: init_app_state
 fn init_app_state() -> AppState {
     // Read the JSON data files
-    let articles = read_json_lines("articles.json").unwrap();
-    let authors = read_json_lines("authors.json").unwrap();
-    let institutions = read_json_lines("institutions.json").unwrap();
+    let articles = read_json_lines(ARTICLES_JSON).unwrap();
+    let authors = read_json_lines(AUTHORS_JSON).unwrap();
+    let institutions = read_json_lines(INSTITUTIONS_JSON).unwrap();
 
     let metrics = Metrics::new().unwrap();
 
@@ -126,7 +131,7 @@ type Result<A> = core::result::Result<A, (StatusCode, Json<models::ErrorResponse
 
 // ANCHOR: main
 #[tokio::main]
-async fn main() {
+async fn main() -> std::result::Result<(), Box<dyn Error>> {
     let app_state = Arc::new(Mutex::new(init_app_state()));
 
     let app = Router::new()
@@ -144,13 +149,48 @@ async fn main() {
         ))
         .with_state(app_state);
 
-    // run it with hyper on localhost:8100
-    axum::Server::bind(&"0.0.0.0:8100".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    // Start the server on `localhost:<PORT>`.
+    // This says it's binding to an IPv6 address, but will actually listen to
+    // any IPv4 or IPv6 address.
+    let host = net::IpAddr::V6(net::Ipv6Addr::UNSPECIFIED);
+    let port = env::var("PORT")
+        .map(|s| s.parse())
+        .unwrap_or(Ok(DEFAULT_PORT))?;
+    let addr = net::SocketAddr::new(host, port);
+
+    let server = axum::Server::bind(&addr).serve(app.into_make_service());
+    println!("Serving on {}", server.local_addr());
+    server.with_graceful_shutdown(shutdown_handler()).await?;
+
+    Ok(())
 }
 // ANCHOR_END: main
+async fn shutdown_handler() {
+    // Wait for a SIGINT, i.e. a Ctrl+C from the keyboard
+    let sigint = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("failed to install signal handler");
+    };
+    // Wait for a SIGTERM, i.e. a normal `kill` command
+    #[cfg(unix)]
+    let sigterm = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await
+    };
+    // Block until either of the above happens
+    #[cfg(unix)]
+    tokio::select! {
+        () = sigint => (),
+        _ = sigterm => (),
+    }
+    #[cfg(windows)]
+    tokio::select! {
+        _ = sigint => (),
+    }
+}
 // ANCHOR: health
 async fn get_health() -> StatusCode {
     StatusCode::OK

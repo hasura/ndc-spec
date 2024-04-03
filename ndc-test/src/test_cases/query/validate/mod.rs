@@ -78,7 +78,7 @@ pub fn validate_rowset(query: &models::Query, rowset: &models::RowSet) -> Result
 pub fn validate_rows(
     query: &models::Query,
     fields: &IndexMap<String, models::Field>,
-    rows: &Vec<IndexMap<String, models::RowFieldValue>>,
+    rows: &[IndexMap<String, models::RowFieldValue>],
 ) -> Result<()> {
     if let Some(limit) = query.limit {
         let rows_returned: u32 = rows

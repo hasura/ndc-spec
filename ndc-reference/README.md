@@ -14,13 +14,13 @@ The reference connector implements the features in the NDC specification against
 
 ```sh
 docker build -t reference_connector .
-docker run -it --rm -p 8100:8100 reference_connector
+docker run -it --rm -p 8080:8080 reference_connector
 ```
 
 ## Using the reference connector
 
-The reference connector runs on http://localhost:8100:
+The reference connector runs on http://localhost:8080 by default:
 
 ```sh
-curl http://localhost:8100/schema | jq .
+curl http://localhost:8080/schema | jq .
 ```
