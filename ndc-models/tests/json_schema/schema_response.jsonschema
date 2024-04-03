@@ -57,7 +57,7 @@
       ],
       "properties": {
         "representation": {
-          "description": "A description of valid values for this scalar type. Defaults to `TypeRepresentation::Json` if omitted",
+          "description": "A description of valid values for this scalar type. Defaults to `TypeRepresentation::JSON` if omitted",
           "anyOf": [
             {
               "$ref": "#/definitions/TypeRepresentation"
@@ -354,7 +354,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "j_s_o_n"
+                "json"
               ]
             }
           }

@@ -112,7 +112,7 @@ pub struct SchemaResponse {
 #[schemars(title = "Scalar Type")]
 pub struct ScalarType {
     /// A description of valid values for this scalar type.
-    /// Defaults to `TypeRepresentation::Json` if omitted
+    /// Defaults to `TypeRepresentation::JSON` if omitted
     pub representation: Option<TypeRepresentation>,
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap<String, AggregateFunctionDefinition>,
@@ -169,6 +169,7 @@ pub enum TypeRepresentation {
     /// Base64-encoded bytes
     Bytes,
     /// Arbitrary JSON
+    #[serde(rename = "json")]
     JSON,
     /// One of the specified string values
     Enum { one_of: Vec<String> },
