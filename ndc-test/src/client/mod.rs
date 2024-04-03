@@ -1,6 +1,6 @@
+use std::collections::HashMap;
 use std::error;
 use std::fmt;
-use std::collections::HashMap;
 
 use serde::Deserialize;
 use serde_json as json;
