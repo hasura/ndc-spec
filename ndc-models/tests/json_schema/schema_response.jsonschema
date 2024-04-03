@@ -249,7 +249,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "u_u_i_d"
+                "uuid"
               ]
             }
           }
@@ -294,7 +294,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "timestamp_t_z"
+                "timestamptz"
               ]
             }
           }
