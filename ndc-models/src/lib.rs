@@ -149,8 +149,11 @@ pub enum TypeRepresentation {
     Int64,
     /// An IEEE-754 single-precision floating-point number
     Float32,
+    /// An IEEE-754 double-precision floating-point number
+    Float64,
     /// Arbitrary-precision decimal string
-    Decimal,
+    #[serde(rename = "bigdecimal")]
+    BigDecimal,
     /// UUID string (8-4-4-4-12)
     #[serde(rename = "uuid")]
     UUID,

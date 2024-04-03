@@ -225,6 +225,21 @@
           }
         },
         {
+          "description": "An IEEE-754 double-precision floating-point number",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float64"
+              ]
+            }
+          }
+        },
+        {
           "description": "Arbitrary-precision decimal string",
           "type": "object",
           "required": [
@@ -234,7 +249,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "decimal"
+                "bigdecimal"
               ]
             }
           }

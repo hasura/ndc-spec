@@ -22,7 +22,7 @@ If the representation is omitted, it defaults to `json`.
 | `int64` | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1 | String |
 | `float32` | An IEEE-754 single-precision floating-point number | Number |
 | `float64` | An IEEE-754 double-precision floating-point number | Number |
-| `decimal` | Arbitrary-precision decimal string | String |
+| `bigdecimal` | Arbitrary-precision decimal string | String |
 | `uuid` | UUID string (8-4-4-4-12 format) | String |
 | `date` | ISO 8601 date | String |
 | `timestamp` | ISO 8601 timestamp | String |
