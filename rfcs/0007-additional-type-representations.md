@@ -28,6 +28,7 @@ Add the following type representations to `ndc_models::TypeRepresentation`:
 | Timestamp | ISO 8601 timestamp | String |
 | TimestampTZ | ISO 8601 timestamp-with-timezone | String |
 | Geography | GeoJSON | JSON |
+| Geometry | GeoJSON geometry object | JSON |
 | Bytes | Base64-encoded bytes | String |
 | JSON | Arbitrary JSON | JSON |
 

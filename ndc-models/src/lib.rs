@@ -164,8 +164,10 @@ pub enum TypeRepresentation {
     /// ISO 8601 timestamp-with-timezone
     #[serde(rename = "timestamptz")]
     TimestampTZ,
-    /// GeoJSON
+    /// GeoJSON, per RFC 7946
     Geography,
+    /// GeoJSON Geometry object, per RFC 7946
+    Geometry,
     /// Base64-encoded bytes
     Bytes,
     /// Arbitrary JSON

@@ -27,7 +27,8 @@ If the representation is omitted, it defaults to `json`.
 | `date` | ISO 8601 date | String |
 | `timestamp` | ISO 8601 timestamp | String |
 | `timestamptz` | ISO 8601 timestamp-with-timezone | String |
-| `geography` | GeoJSON | JSON |
+| `geography` | GeoJSON, per RFC 7946 | JSON |
+| `geometry` | GeoJSON Geometry object, per RFC 7946 | JSON |
 | `bytes` | Base64-encoded bytes | String |
 | `json` | Arbitrary JSON | JSON |
 
