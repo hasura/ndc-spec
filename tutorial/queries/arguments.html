@@ -187,7 +187,7 @@
 ) -&gt; Result&lt;models::RowSet&gt; {
     let mut argument_values = BTreeMap::new();
 
-    for (argument_name, argument_value) in arguments.iter() {
+    for (argument_name, argument_value) in arguments {
         if argument_values
             .insert(
                 argument_name.clone(),
@@ -234,17 +234,29 @@
                     details: serde_json::Value::Null,
                 }),
             ))?;
-            let author_id_int = author_id.as_i64().ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "author_id must be a string".into(),
-                    details: serde_json::Value::Null,
-                }),
-            ))?;
+            let author_id_int: i32 = author_id
+                .as_i64()
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "author_id must be an integer".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?
+                .try_into()
+                .map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "author_id out of range".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?;
 
             let mut articles_by_author = vec![];
 
-            for (_id, article) in state.articles.iter() {
+            for article in state.articles.values() {
                 let article_author_id = article.get("author_id").ok_or((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
@@ -252,15 +264,27 @@
                         details: serde_json::Value::Null,
                     }),
                 ))?;
-                let article_author_id_int = article_author_id.as_i64().ok_or((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(models::ErrorResponse {
-                        message: " ".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
+                let article_author_id_int: i32 = article_author_id
+                    .as_i64()
+                    .ok_or((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(models::ErrorResponse {
+                            message: "author_id must be an integer".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))?
+                    .try_into()
+                    .map_err(|_| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "author_id out of range".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })?;
                 if article_author_id_int == author_id_int {
-                    articles_by_author.push(article.clone())
+                    articles_by_author.push(article.clone());
                 }
             }
 

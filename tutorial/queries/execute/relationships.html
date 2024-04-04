@@ -186,7 +186,7 @@
 ) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
     let mut result: Vec&lt;Row&gt; = vec![item.clone()];
 
-    for path_element in path.iter() {
+    for path_element in path {
         let relationship_name = path_element.relationship.as_str();
         let relationship = collection_relationships.get(relationship_name).ok_or((
             StatusCode::BAD_REQUEST,
@@ -237,10 +237,10 @@
     // should consist of all object relationships, and possibly terminated by a
     // single array relationship, so there should be no double counting.
 
-    for src_row in source.iter() {
+    for src_row in source {
         let mut all_arguments = BTreeMap::new();
 
-        for (argument_name, argument_value) in relationship.arguments.iter() {
+        for (argument_name, argument_value) in &amp;relationship.arguments {
             if all_arguments
                 .insert(
                     argument_name.clone(),
@@ -258,7 +258,7 @@
             }
         }
 
-        for (argument_name, argument_value) in arguments.iter() {
+        for (argument_name, argument_value) in arguments {
             if all_arguments
                 .insert(
                     argument_name.clone(),
@@ -282,7 +282,7 @@
             state,
         )?;
 
-        for tgt_row in target.iter() {
+        for tgt_row in &amp;target {
             if eval_column_mapping(relationship, src_row, tgt_row)?
                 &amp;&amp; if let Some(expression) = predicate {
                     eval_expression(

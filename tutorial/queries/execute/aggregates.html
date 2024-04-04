@@ -181,7 +181,7 @@
         .as_ref()
         .map(|aggregates| {
             let mut row: IndexMap&lt;String, serde_json::Value&gt; = IndexMap::new();
-            for (aggregate_name, aggregate) in aggregates.iter() {
+            for (aggregate_name, aggregate) in aggregates {
                 row.insert(
                     aggregate_name.clone(),
                     eval_aggregate(aggregate, &amp;paginated)?,
@@ -271,15 +271,27 @@
     let int_values = values
         .iter()
         .map(|value| {
-            value.as_i64().ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "column is not an integer".into(),
-                    details: serde_json::Value::Null,
-                }),
-            ))
+            value
+                .as_i64()
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "column is not an integer".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?
+                .try_into()
+                .map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "column value out of range".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })
         })
-        .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
+        .collect::&lt;Result&lt;Vec&lt;i32&gt;&gt;&gt;()?;
     let agg_value = match function {
         "min" =&gt; Ok(int_values.iter().min()),
         "max" =&gt; Ok(int_values.iter().max()),

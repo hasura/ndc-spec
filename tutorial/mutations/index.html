@@ -195,7 +195,7 @@
 
         let mut operation_results = vec![];
 
-        for operation in request.operations.iter() {
+        for operation in &amp;request.operations {
             let operation_result = execute_mutation_operation(
                 &amp;mut state,
                 &amp;request.collection_relationships,

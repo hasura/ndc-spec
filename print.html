@@ -204,8 +204,18 @@
 <li>A <strong>metrics</strong> endpoint, which exposes runtime metrics about the data connector.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
-<h2 id="011"><a class="header" href="#011"><code>0.1.1</code></a></h2>
+<h2 id="012"><a class="header" href="#012"><code>0.1.2</code></a></h2>
 <h3 id="specification"><a class="header" href="#specification">Specification</a></h3>
+<ul>
+<li>More <a href="specification/./schema/scalar-types.html#type-representations">type representations</a> were added, and some were deprecated.</li>
+</ul>
+<h3 id="rust-libraries"><a class="header" href="#rust-libraries">Rust Libraries</a></h3>
+<ul>
+<li>Upgrade to Rust v1.77</li>
+<li>The <code>ndc-client</code> library was removed. Clients are advised to use the new <code>ndc-models</code> library for type definitions, and to use a HTTP client library of their choice directly.</li>
+</ul>
+<h2 id="011"><a class="header" href="#011"><code>0.1.1</code></a></h2>
+<h3 id="specification-1"><a class="header" href="#specification-1">Specification</a></h3>
 <ul>
 <li><a href="specification/./schema/scalar-types.html#note-syntactic-equality">Equality operators were more precisely specified</a></li>
 <li>Scalar types can now specify <a href="specification/./schema/scalar-types.html#type-representations">representations</a></li>
@@ -216,7 +226,7 @@
 <li>Automatic tests are now generated for exists predicates</li>
 <li>Automatic tests are now generated for <code>single_column</code> aggregates</li>
 </ul>
-<h3 id="rust-libraries"><a class="header" href="#rust-libraries">Rust Libraries</a></h3>
+<h3 id="rust-libraries-1"><a class="header" href="#rust-libraries-1">Rust Libraries</a></h3>
 <ul>
 <li><code>rustls</code> is supported instead of <code>native-tls</code> using a Cargo feature.</li>
 <li>Upgrade <code>opentelemetry</code> to v0.22.0</li>
@@ -317,7 +327,7 @@ mutation_total 5000 1685405427000
 <p>See <a href="specification/../reference/types.html#capabilitiesresponse"><code>CapabilitiesResponse</code></a></p>
 <h3 id="example-1"><a class="header" href="#example-1">Example</a></h3>
 <pre><code class="language-json">{
-  "version": "0.1.1",
+  "version": "0.1.2",
   "capabilities": {
     "query": {
       "aggregates": {},
@@ -426,7 +436,7 @@ mutation_total 5000 1685405427000
   "scalar_types": {
     "Int": {
       "representation": {
-        "type": "integer"
+        "type": "int32"
       },
       "aggregate_functions": {
         "max": {
@@ -786,21 +796,44 @@ mutation_total 5000 1685405427000
 <p>Scalar types define several types of operations, which extend the capabilities of the query and mutation APIs: <em>comparison operators</em> and <em>aggregation functions</em>.</p>
 <h2 id="type-representations"><a class="header" href="#type-representations">Type Representations</a></h2>
 <p>A scalar type definition can include an optional <em>type representation</em>. The representation, if provided, indicates to potential callers what values can be expected in responses, and what values are considered acceptable in requests.</p>
-<div class="table-wrapper"><table><thead><tr><th><code>type</code></th><th>Values</th><th>Additional fields</th></tr></thead><tbody>
-<tr><td><code>boolean</code></td><td>A JSON boolean</td><td></td></tr>
-<tr><td><code>string</code></td><td>A JSON string</td><td></td></tr>
-<tr><td><code>number</code></td><td>A JSON number</td><td></td></tr>
-<tr><td><code>integer</code></td><td>A JSON number with no decimal part</td><td></td></tr>
-<tr><td><code>enum</code></td><td>Any of the values specified in the <code>one_of</code> field</td><td><code>one_of</code> is a list of acceptable string values</td></tr>
+<p>If the representation is omitted, it defaults to <code>json</code>.</p>
+<h3 id="supported-representations"><a class="header" href="#supported-representations">Supported Representations</a></h3>
+<div class="table-wrapper"><table><thead><tr><th><code>type</code></th><th>Description</th><th>JSON representation</th></tr></thead><tbody>
+<tr><td><code>boolean</code></td><td>Boolean</td><td>Boolean</td></tr>
+<tr><td><code>string</code></td><td>String</td><td>String</td></tr>
+<tr><td><code>int8</code></td><td>An 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1</td><td>Number</td></tr>
+<tr><td><code>int16</code></td><td>A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1</td><td>Number</td></tr>
+<tr><td><code>int32</code></td><td>A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1</td><td>Number</td></tr>
+<tr><td><code>int64</code></td><td>A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1</td><td>String</td></tr>
+<tr><td><code>float32</code></td><td>An IEEE-754 single-precision floating-point number</td><td>Number</td></tr>
+<tr><td><code>float64</code></td><td>An IEEE-754 double-precision floating-point number</td><td>Number</td></tr>
+<tr><td><code>bigdecimal</code></td><td>Arbitrary-precision decimal string</td><td>String</td></tr>
+<tr><td><code>uuid</code></td><td>UUID string (8-4-4-4-12 format)</td><td>String</td></tr>
+<tr><td><code>date</code></td><td>ISO 8601 date</td><td>String</td></tr>
+<tr><td><code>timestamp</code></td><td>ISO 8601 timestamp</td><td>String</td></tr>
+<tr><td><code>timestamptz</code></td><td>ISO 8601 timestamp-with-timezone</td><td>String</td></tr>
+<tr><td><code>geography</code></td><td>GeoJSON, per RFC 7946</td><td>JSON</td></tr>
+<tr><td><code>geometry</code></td><td>GeoJSON Geometry object, per RFC 7946</td><td>JSON</td></tr>
+<tr><td><code>bytes</code></td><td>Base64-encoded bytes</td><td>String</td></tr>
+<tr><td><code>json</code></td><td>Arbitrary JSON</td><td>JSON</td></tr>
 </tbody></table>
 </div>
-<h3 id="examples"><a class="header" href="#examples">Examples</a></h3>
-<p>This representation indicates that the only three valid values are the strings <code>"foo"</code>, <code>"bar"</code> and <code>"baz"</code>:</p>
+<h3 id="enum-representations"><a class="header" href="#enum-representations">Enum Representations</a></h3>
+<p>A scalar type with a representation of type <code>enum</code> accepts one of a set of string values, specified by the <code>one_of</code> argument.</p>
+<p>For example, this representation indicates that the only three valid values are the strings <code>"foo"</code>, <code>"bar"</code> and <code>"baz"</code>:</p>
 <pre><code class="language-json">{
   "type": "enum",
   "one_of": ["foo", "bar", "baz"]
 }
 </code></pre>
+<h3 id="deprecated-representations"><a class="header" href="#deprecated-representations">Deprecated Representations</a></h3>
+<p>The following representations are deprecated as of version 0.1.2:</p>
+<div class="table-wrapper"><table><thead><tr><th><code>type</code></th><th>Description</th><th>JSON representation</th></tr></thead><tbody>
+<tr><td><code>number</code></td><td>Any JSON number</td><td>Number</td></tr>
+<tr><td><code>integer</code></td><td>Any JSON number with no decimal part</td><td>Number</td></tr>
+</tbody></table>
+</div>
+<p>Connectors should use the sized integer and floating-point types instead.</p>
 <h2 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison Operators</a></h2>
 <p>Comparison operators extend the query AST with the ability to express new binary comparison expressions in the predicate.</p>
 <p>For example, a data connector might augment a <code>String</code> scalar type with a <code>LIKE</code> operator which tests for a fuzzy match based on a regular expression.</p>
@@ -1117,7 +1150,7 @@ mutation_total 5000 1685405427000
 <li>For an object-typed column (whether nullable or not), the <code>fields</code> property should contain a <code>NestedField</code> with type <code>object</code>. The <code>fields</code> property of the <code>NestedField</code> specifies a <a href="specification/queries/../../reference/types.html#field"><code>Field</code></a> structure for each requested nested field from the objects.</li>
 <li>For an array-typed column  (whether nullable or not), the <code>fields</code> property should contain a <code>NestedField</code> with type <code>array</code>. The <code>fields</code> property of the <code>NestedField</code> should contain <em>another</em> <code>NestedField</code> structure, compatible with the type of the elements of the array. The selection function denoted by this nested <code>NestedField</code> structure should be applied to each element of each array.</li>
 </ul>
-<h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
 <h3 id="simple-column-selection"><a class="header" href="#simple-column-selection">Simple column selection</a></h3>
 <p>Here is an example of a query which selects some columns from the <code>articles</code> collection of the reference data connector:</p>
 <pre><code class="language-json">{
@@ -2596,7 +2629,7 @@ mutation_total 5000 1685405427000
 <li>A function can be the source or target of a <a href="specification/queries/./relationships.html">relationship</a>,</li>
 <li>Function <a href="specification/queries/./arguments.html">arguments</a> are specified in the same way as collection arguments, and can also be specified using <a href="specification/queries/./variables.html">variables</a>.</li>
 </ul>
-<h2 id="examples-2"><a class="header" href="#examples-2">Examples</a></h2>
+<h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
 <h3 id="a-function-returning-a-scalar-value"><a class="header" href="#a-function-returning-a-scalar-value">A function returning a scalar value</a></h3>
 <p>This example uses the <code>latest_article_id</code> function, which returns a scalar type:</p>
 <pre><code class="language-json">{
@@ -2796,17 +2829,17 @@ Query
 <p>Our application state will consist of collections of various types of rows:</p>
 <pre><code class="language-rust no_run noplayground">#[derive(Debug, Clone)]
 pub struct AppState {
-    pub articles: BTreeMap&lt;i64, Row&gt;,
-    pub authors: BTreeMap&lt;i64, Row&gt;,
-    pub institutions: BTreeMap&lt;i64, Row&gt;,
+    pub articles: BTreeMap&lt;i32, Row&gt;,
+    pub authors: BTreeMap&lt;i32, Row&gt;,
+    pub institutions: BTreeMap&lt;i32, Row&gt;,
     pub metrics: Metrics,
 }</code></pre>
 <p>In our <code>main</code> function, the data connector reads the initial data from the newline-delimited JSON files, and creates the <code>AppState</code>:</p>
 <pre><code class="language-rust no-run noplayground">fn init_app_state() -&gt; AppState {
     // Read the JSON data files
-    let articles = read_json_lines("articles.json").unwrap();
-    let authors = read_json_lines("authors.json").unwrap();
-    let institutions = read_json_lines("institutions.json").unwrap();
+    let articles = read_json_lines(ARTICLES_JSON).unwrap();
+    let authors = read_json_lines(AUTHORS_JSON).unwrap();
+    let institutions = read_json_lines(INSTITUTIONS_JSON).unwrap();
 
     let metrics = Metrics::new().unwrap();
 
@@ -2819,7 +2852,7 @@ pub struct AppState {
 }</code></pre>
 <p>Finally, we start a web server with the endpoints which are required by this specification:</p>
 <pre><code class="language-rust no_run noplayground">#[tokio::main]
-async fn main() {
+async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let app_state = Arc::new(Mutex::new(init_app_state()));
 
     let app = Router::new()
@@ -2837,11 +2870,20 @@ async fn main() {
         ))
         .with_state(app_state);
 
-    // run it with hyper on localhost:8100
-    axum::Server::bind(&amp;"0.0.0.0:8100".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    // Start the server on `localhost:&lt;PORT&gt;`.
+    // This says it's binding to an IPv6 address, but will actually listen to
+    // any IPv4 or IPv6 address.
+    let host = net::IpAddr::V6(net::Ipv6Addr::UNSPECIFIED);
+    let port = env::var("PORT")
+        .map(|s| s.parse())
+        .unwrap_or(Ok(DEFAULT_PORT))?;
+    let addr = net::SocketAddr::new(host, port);
+
+    let server = axum::Server::bind(&amp;addr).serve(app.into_make_service());
+    println!("Serving on {}", server.local_addr());
+    server.with_graceful_shutdown(shutdown_handler()).await?;
+
+    Ok(())
 }</code></pre>
 <p><em>Note</em>: the application state is stored in an <code>Arc&lt;Mutex&lt;_&gt;&gt;</code>, so that we can perform locking reads and writes in multiple threads.</p>
 <p>In the next chapters, we will look at the implementation of each of these endpoints in turn.</p>
@@ -2850,7 +2892,7 @@ async fn main() {
 <p>The reference implementation returns a static <code>CapabilitiesResponse</code>:</p>
 <pre><code class="language-rust no_run noplayground">async fn get_capabilities() -&gt; Json&lt;models::CapabilitiesResponse&gt; {
     Json(models::CapabilitiesResponse {
-        version: "0.1.1".into(),
+        version: "0.1.2".into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
                 aggregates: Some(LeafCapability {}),
@@ -2907,7 +2949,7 @@ async fn main() {
         (
             "Int".into(),
             models::ScalarType {
-                representation: Some(models::TypeRepresentation::Integer),
+                representation: Some(models::TypeRepresentation::Int32),
                 aggregate_functions: BTreeMap::from_iter([
                     (
                         "max".into(),
@@ -3198,7 +3240,7 @@ async fn main() {
 
     let mut row_sets = vec![];
 
-    for variables in variable_sets.iter() {
+    for variables in &amp;variable_sets {
         let row_set = execute_query_with_variables(
             &amp;request.collection,
             &amp;request.arguments,
@@ -3236,7 +3278,7 @@ async fn main() {
 ) -&gt; Result&lt;models::RowSet&gt; {
     let mut argument_values = BTreeMap::new();
 
-    for (argument_name, argument_value) in arguments.iter() {
+    for (argument_name, argument_value) in arguments {
         if argument_values
             .insert(
                 argument_name.clone(),
@@ -3283,17 +3325,29 @@ async fn main() {
                     details: serde_json::Value::Null,
                 }),
             ))?;
-            let author_id_int = author_id.as_i64().ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "author_id must be a string".into(),
-                    details: serde_json::Value::Null,
-                }),
-            ))?;
+            let author_id_int: i32 = author_id
+                .as_i64()
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "author_id must be an integer".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?
+                .try_into()
+                .map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "author_id out of range".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?;
 
             let mut articles_by_author = vec![];
 
-            for (_id, article) in state.articles.iter() {
+            for article in state.articles.values() {
                 let article_author_id = article.get("author_id").ok_or((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
@@ -3301,15 +3355,27 @@ async fn main() {
                         details: serde_json::Value::Null,
                     }),
                 ))?;
-                let article_author_id_int = article_author_id.as_i64().ok_or((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(models::ErrorResponse {
-                        message: " ".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
+                let article_author_id_int: i32 = article_author_id
+                    .as_i64()
+                    .ok_or((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(models::ErrorResponse {
+                            message: "author_id must be an integer".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))?
+                    .try_into()
+                    .map_err(|_| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "author_id out of range".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })?;
                 if article_author_id_int == author_id_int {
-                    articles_by_author.push(article.clone())
+                    articles_by_author.push(article.clone());
                 }
             }
 
@@ -3410,9 +3476,9 @@ Once we have computed the full collection, we can move onto evaluating the query
         None =&gt; Ok(collection),
         Some(order_by) =&gt; {
             let mut copy = vec![];
-            for item_to_insert in collection.into_iter() {
+            for item_to_insert in collection {
                 let mut index = 0;
-                for other in copy.iter() {
+                for other in &amp;copy {
                     if let Ordering::Greater = eval_order_by(
                         collection_relationships,
                         variables,
@@ -3422,9 +3488,8 @@ Once we have computed the full collection, we can move onto evaluating the query
                         &amp;item_to_insert,
                     )? {
                         break;
-                    } else {
-                        index += 1;
                     }
+                    index += 1;
                 }
                 copy.insert(index, item_to_insert);
             }
@@ -3446,7 +3511,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 ) -&gt; Result&lt;Ordering&gt; {
     let mut result = Ordering::Equal;
 
-    for element in order_by.elements.iter() {
+    for element in &amp;order_by.elements {
         let v1 = eval_order_by_element(collection_relationships, variables, state, element, t1)?;
         let v2 = eval_order_by_element(collection_relationships, variables, state, element, t2)?;
         let x = match element.order_direction {
@@ -3493,7 +3558,7 @@ Once we have computed the full collection, we can move onto evaluating the query
         None =&gt; Ok(sorted),
         Some(expr) =&gt; {
             let mut filtered: Vec&lt;Row&gt; = vec![];
-            for item in sorted.into_iter() {
+            for item in sorted {
                 let root = match root {
                     Root::CurrentRow =&gt; &amp;item,
                     Root::ExplicitRow(root) =&gt; root,
@@ -3531,7 +3596,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 </ul>
 <pre><code class="language-rust no_run noplayground">    match expr {
         models::Expression::And { expressions } =&gt; {
-            for expr in expressions.iter() {
+            for expr in expressions {
                 if !eval_expression(collection_relationships, variables, state, expr, root, item)? {
                     return Ok(false);
                 }
@@ -3539,7 +3604,7 @@ Once we have computed the full collection, we can move onto evaluating the query
             Ok(true)
         }
         models::Expression::Or { expressions } =&gt; {
-            for expr in expressions.iter() {
+            for expr in expressions {
                 if eval_expression(collection_relationships, variables, state, expr, root, item)? {
                     return Ok(true);
                 }
@@ -3569,7 +3634,7 @@ Once we have computed the full collection, we can move onto evaluating the query
                     root,
                     item,
                 )?;
-                Ok(vals.iter().any(|val| val.is_null()))
+                Ok(vals.iter().any(serde_json::Value::is_null))
             }
         },</code></pre>
 <p>To evaluate the comparison target, we delegate to the <code>eval_comparison_target</code> function, which pattern matches:</p>
@@ -3589,7 +3654,7 @@ Once we have computed the full collection, we can move onto evaluating the query
         models::ComparisonTarget::Column { name, path } =&gt; {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
-            for row in rows.iter() {
+            for row in &amp;rows {
                 let value = eval_column(row, name.as_str())?;
                 values.push(value);
             }
@@ -3627,8 +3692,8 @@ Once we have computed the full collection, we can move onto evaluating the query
                     root,
                     item,
                 )?;
-                for left_val in left_vals.iter() {
-                    for right_val in right_vals.iter() {
+                for left_val in &amp;left_vals {
+                    for right_val in &amp;right_vals {
                         if left_val == right_val {
                             return Ok(true);
                         }
@@ -3657,7 +3722,7 @@ Once we have computed the full collection, we can move onto evaluating the query
                     item,
                 )?;
 
-                for comparison_value in right_val_sets.iter() {
+                for comparison_value in &amp;right_val_sets {
                     let right_vals = comparison_value.as_array().ok_or((
                         StatusCode::BAD_REQUEST,
                         Json(models::ErrorResponse {
@@ -3666,8 +3731,8 @@ Once we have computed the full collection, we can move onto evaluating the query
                         }),
                     ))?;
 
-                    for left_val in left_vals.iter() {
-                        for right_val in right_vals.iter() {
+                    for left_val in &amp;left_vals {
+                        for right_val in right_vals {
                             if left_val == right_val {
                                 return Ok(true);
                             }
@@ -3694,8 +3759,8 @@ Once we have computed the full collection, we can move onto evaluating the query
                     root,
                     item,
                 )?;
-                for column_val in column_vals.iter() {
-                    for regex_val in regex_vals.iter() {
+                for column_val in &amp;column_vals {
+                    for regex_val in &amp;regex_vals {
                         let column_str = column_val.as_str().ok_or((
                             StatusCode::BAD_REQUEST,
                             Json(models::ErrorResponse {
@@ -3745,7 +3810,7 @@ Once we have computed the full collection, we can move onto evaluating the query
                     item,
                 )?;
 
-                for comparison_value in right_val_sets.iter() {
+                for comparison_value in &amp;right_val_sets {
                     let right_vals = comparison_value.as_array().ok_or((
                         StatusCode::BAD_REQUEST,
                         Json(models::ErrorResponse {
@@ -3754,8 +3819,8 @@ Once we have computed the full collection, we can move onto evaluating the query
                         }),
                     ))?;
 
-                    for left_val in left_vals.iter() {
-                        for right_val in right_vals.iter() {
+                    for left_val in &amp;left_vals {
+                        for right_val in right_vals {
                             if left_val == right_val {
                                 return Ok(true);
                             }
@@ -3831,7 +3896,7 @@ Once we have computed the full collection, we can move onto evaluating the query
         .as_ref()
         .map(|aggregates| {
             let mut row: IndexMap&lt;String, serde_json::Value&gt; = IndexMap::new();
-            for (aggregate_name, aggregate) in aggregates.iter() {
+            for (aggregate_name, aggregate) in aggregates {
                 row.insert(
                     aggregate_name.clone(),
                     eval_aggregate(aggregate, &amp;paginated)?,
@@ -3921,15 +3986,27 @@ Once we have computed the full collection, we can move onto evaluating the query
     let int_values = values
         .iter()
         .map(|value| {
-            value.as_i64().ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "column is not an integer".into(),
-                    details: serde_json::Value::Null,
-                }),
-            ))
+            value
+                .as_i64()
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "column is not an integer".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?
+                .try_into()
+                .map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "column value out of range".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })
         })
-        .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
+        .collect::&lt;Result&lt;Vec&lt;i32&gt;&gt;&gt;()?;
     let agg_value = match function {
         "min" =&gt; Ok(int_values.iter().min()),
         "max" =&gt; Ok(int_values.iter().max()),
@@ -3959,9 +4036,9 @@ Once we have computed the full collection, we can move onto evaluating the query
         .as_ref()
         .map(|fields| {
             let mut rows: Vec&lt;IndexMap&lt;String, models::RowFieldValue&gt;&gt; = vec![];
-            for item in paginated.iter() {
+            for item in &amp;paginated {
                 let row = eval_row(fields, collection_relationships, variables, state, item)?;
-                rows.push(row)
+                rows.push(row);
             }
             Ok(rows)
         })
@@ -4048,7 +4125,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 ) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
     let mut result: Vec&lt;Row&gt; = vec![item.clone()];
 
-    for path_element in path.iter() {
+    for path_element in path {
         let relationship_name = path_element.relationship.as_str();
         let relationship = collection_relationships.get(relationship_name).ok_or((
             StatusCode::BAD_REQUEST,
@@ -4099,10 +4176,10 @@ Once we have computed the full collection, we can move onto evaluating the query
     // should consist of all object relationships, and possibly terminated by a
     // single array relationship, so there should be no double counting.
 
-    for src_row in source.iter() {
+    for src_row in source {
         let mut all_arguments = BTreeMap::new();
 
-        for (argument_name, argument_value) in relationship.arguments.iter() {
+        for (argument_name, argument_value) in &amp;relationship.arguments {
             if all_arguments
                 .insert(
                     argument_name.clone(),
@@ -4120,7 +4197,7 @@ Once we have computed the full collection, we can move onto evaluating the query
             }
         }
 
-        for (argument_name, argument_value) in arguments.iter() {
+        for (argument_name, argument_value) in arguments {
             if all_arguments
                 .insert(
                     argument_name.clone(),
@@ -4144,7 +4221,7 @@ Once we have computed the full collection, we can move onto evaluating the query
             state,
         )?;
 
-        for tgt_row in target.iter() {
+        for tgt_row in &amp;target {
             if eval_column_mapping(relationship, src_row, tgt_row)?
                 &amp;&amp; if let Some(expression) = predicate {
                     eval_expression(
@@ -4188,7 +4265,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 
         let mut operation_results = vec![];
 
-        for operation in request.operations.iter() {
+        for operation in &amp;request.operations {
             let operation_result = execute_mutation_operation(
                 &amp;mut state,
                 &amp;request.collection_relationships,
@@ -4267,25 +4344,40 @@ Once we have computed the full collection, we can move onto evaluating the query
     let article_obj = article.as_object().ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
-            message: " ".into(),
+            message: "article must be an object".into(),
             details: serde_json::Value::Null,
         }),
     ))?;
     let id = article_obj.get("id").ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
-            message: " ".into(),
+            message: "article missing field 'id'".into(),
             details: serde_json::Value::Null,
         }),
     ))?;
-    let id_int = id.as_i64().ok_or((
-        StatusCode::BAD_REQUEST,
-        Json(models::ErrorResponse {
-            message: " ".into(),
-            details: serde_json::Value::Null,
-        }),
-    ))?;
-    let new_row = BTreeMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
+    let id_int = id
+        .as_i64()
+        .ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "id must be an integer".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))?
+        .try_into()
+        .map_err(|_| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "id out of range".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )
+        })?;
+    let new_row = article_obj
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::&lt;BTreeMap&lt;_, _&gt;&gt;();
     let old_row = state.articles.insert(id_int, new_row);
 
     Ok(models::MutationOperationResults::Procedure {
@@ -4350,7 +4442,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 
     let state_snapshot = state.clone();
 
-    for (_article_id, article) in state.articles.iter_mut() {
+    for article in state.articles.values_mut() {
         if eval_expression(
             &amp;BTreeMap::new(),
             &amp;BTreeMap::new(),
@@ -4445,7 +4537,8 @@ and the <code>/query/explain</code> and <code>/mutation/explain</code> endpoints
     let response = next.run(request).await;
     metrics.active_requests.dec();
     response
-}</code></pre>
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="types-1"><a class="header" href="#types-1">Types</a></h1>
 <h2 id="aggregate"><a class="header" href="#aggregate"><code>Aggregate</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -4960,7 +5053,8 @@ pub struct RowSet {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Scalar Type")]
 pub struct ScalarType {
-    /// An optional description of valid values for this scalar type
+    /// A description of valid values for this scalar type.
+    /// Defaults to `TypeRepresentation::JSON` if omitted
     pub representation: Option&lt;TypeRepresentation&gt;,
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap&lt;String, AggregateFunctionDefinition&gt;,
@@ -5040,16 +5134,52 @@ pub enum Type {
     Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(tag = "type", rename_all = "snake_case")]
-#[schemars(title = "Type")]
+#[schemars(title = "Type Representation")]
 pub enum TypeRepresentation {
     /// JSON booleans
     Boolean,
     /// Any JSON string
     String,
     /// Any JSON number
+    #[deprecated(since = "0.1.2", note = "Use sized numeric types instead")]
     Number,
     /// Any JSON number, with no decimal part
+    #[deprecated(since = "0.1.2", note = "Use sized numeric types instead")]
     Integer,
+    /// A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1
+    Int8,
+    /// A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1
+    Int16,
+    /// A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1
+    Int32,
+    /// A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1
+    Int64,
+    /// An IEEE-754 single-precision floating-point number
+    Float32,
+    /// An IEEE-754 double-precision floating-point number
+    Float64,
+    /// Arbitrary-precision decimal string
+    #[serde(rename = "bigdecimal")]
+    BigDecimal,
+    /// UUID string (8-4-4-4-12)
+    #[serde(rename = "uuid")]
+    UUID,
+    /// ISO 8601 date
+    Date,
+    /// ISO 8601 timestamp
+    Timestamp,
+    /// ISO 8601 timestamp-with-timezone
+    #[serde(rename = "timestamptz")]
+    TimestampTZ,
+    /// GeoJSON, per RFC 7946
+    Geography,
+    /// GeoJSON Geometry object, per RFC 7946
+    Geometry,
+    /// Base64-encoded bytes
+    Bytes,
+    /// Arbitrary JSON
+    #[serde(rename = "json")]
+    JSON,
     /// One of the specified string values
     Enum { one_of: Vec&lt;String&gt; },
 }</code></pre>
@@ -8105,7 +8235,7 @@ pub struct UniquenessConstraint {
       ],
       "properties": {
         "representation": {
-          "description": "An optional description of valid values for this scalar type",
+          "description": "A description of valid values for this scalar type. Defaults to `TypeRepresentation::JSON` if omitted",
           "anyOf": [
             {
               "$ref": "#/definitions/TypeRepresentation"
@@ -8132,7 +8262,7 @@ pub struct UniquenessConstraint {
       }
     },
     "TypeRepresentation": {
-      "title": "Type",
+      "title": "Type Representation",
       "description": "Representations of scalar types",
       "oneOf": [
         {
@@ -8167,6 +8297,7 @@ pub struct UniquenessConstraint {
         },
         {
           "description": "Any JSON number",
+          "deprecated": true,
           "type": "object",
           "required": [
             "type"
@@ -8182,6 +8313,7 @@ pub struct UniquenessConstraint {
         },
         {
           "description": "Any JSON number, with no decimal part",
+          "deprecated": true,
           "type": "object",
           "required": [
             "type"
@@ -8191,6 +8323,231 @@ pub struct UniquenessConstraint {
               "type": "string",
               "enum": [
                 "integer"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int8"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int16"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int32"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int64"
+              ]
+            }
+          }
+        },
+        {
+          "description": "An IEEE-754 single-precision floating-point number",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float32"
+              ]
+            }
+          }
+        },
+        {
+          "description": "An IEEE-754 double-precision floating-point number",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float64"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Arbitrary-precision decimal string",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bigdecimal"
+              ]
+            }
+          }
+        },
+        {
+          "description": "UUID string (8-4-4-4-12)",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uuid"
+              ]
+            }
+          }
+        },
+        {
+          "description": "ISO 8601 date",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "date"
+              ]
+            }
+          }
+        },
+        {
+          "description": "ISO 8601 timestamp",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "timestamp"
+              ]
+            }
+          }
+        },
+        {
+          "description": "ISO 8601 timestamp-with-timezone",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "timestamptz"
+              ]
+            }
+          }
+        },
+        {
+          "description": "GeoJSON, per RFC 7946",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "geography"
+              ]
+            }
+          }
+        },
+        {
+          "description": "GeoJSON Geometry object, per RFC 7946",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "geometry"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Base64-encoded bytes",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bytes"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Arbitrary JSON",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "json"
               ]
             }
           }

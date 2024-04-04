@@ -178,21 +178,44 @@
 <p>Scalar types define several types of operations, which extend the capabilities of the query and mutation APIs: <em>comparison operators</em> and <em>aggregation functions</em>.</p>
 <h2 id="type-representations"><a class="header" href="#type-representations">Type Representations</a></h2>
 <p>A scalar type definition can include an optional <em>type representation</em>. The representation, if provided, indicates to potential callers what values can be expected in responses, and what values are considered acceptable in requests.</p>
-<div class="table-wrapper"><table><thead><tr><th><code>type</code></th><th>Values</th><th>Additional fields</th></tr></thead><tbody>
-<tr><td><code>boolean</code></td><td>A JSON boolean</td><td></td></tr>
-<tr><td><code>string</code></td><td>A JSON string</td><td></td></tr>
-<tr><td><code>number</code></td><td>A JSON number</td><td></td></tr>
-<tr><td><code>integer</code></td><td>A JSON number with no decimal part</td><td></td></tr>
-<tr><td><code>enum</code></td><td>Any of the values specified in the <code>one_of</code> field</td><td><code>one_of</code> is a list of acceptable string values</td></tr>
+<p>If the representation is omitted, it defaults to <code>json</code>.</p>
+<h3 id="supported-representations"><a class="header" href="#supported-representations">Supported Representations</a></h3>
+<div class="table-wrapper"><table><thead><tr><th><code>type</code></th><th>Description</th><th>JSON representation</th></tr></thead><tbody>
+<tr><td><code>boolean</code></td><td>Boolean</td><td>Boolean</td></tr>
+<tr><td><code>string</code></td><td>String</td><td>String</td></tr>
+<tr><td><code>int8</code></td><td>An 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1</td><td>Number</td></tr>
+<tr><td><code>int16</code></td><td>A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1</td><td>Number</td></tr>
+<tr><td><code>int32</code></td><td>A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1</td><td>Number</td></tr>
+<tr><td><code>int64</code></td><td>A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1</td><td>String</td></tr>
+<tr><td><code>float32</code></td><td>An IEEE-754 single-precision floating-point number</td><td>Number</td></tr>
+<tr><td><code>float64</code></td><td>An IEEE-754 double-precision floating-point number</td><td>Number</td></tr>
+<tr><td><code>bigdecimal</code></td><td>Arbitrary-precision decimal string</td><td>String</td></tr>
+<tr><td><code>uuid</code></td><td>UUID string (8-4-4-4-12 format)</td><td>String</td></tr>
+<tr><td><code>date</code></td><td>ISO 8601 date</td><td>String</td></tr>
+<tr><td><code>timestamp</code></td><td>ISO 8601 timestamp</td><td>String</td></tr>
+<tr><td><code>timestamptz</code></td><td>ISO 8601 timestamp-with-timezone</td><td>String</td></tr>
+<tr><td><code>geography</code></td><td>GeoJSON, per RFC 7946</td><td>JSON</td></tr>
+<tr><td><code>geometry</code></td><td>GeoJSON Geometry object, per RFC 7946</td><td>JSON</td></tr>
+<tr><td><code>bytes</code></td><td>Base64-encoded bytes</td><td>String</td></tr>
+<tr><td><code>json</code></td><td>Arbitrary JSON</td><td>JSON</td></tr>
 </tbody></table>
 </div>
-<h3 id="examples"><a class="header" href="#examples">Examples</a></h3>
-<p>This representation indicates that the only three valid values are the strings <code>"foo"</code>, <code>"bar"</code> and <code>"baz"</code>:</p>
+<h3 id="enum-representations"><a class="header" href="#enum-representations">Enum Representations</a></h3>
+<p>A scalar type with a representation of type <code>enum</code> accepts one of a set of string values, specified by the <code>one_of</code> argument.</p>
+<p>For example, this representation indicates that the only three valid values are the strings <code>"foo"</code>, <code>"bar"</code> and <code>"baz"</code>:</p>
 <pre><code class="language-json">{
   "type": "enum",
   "one_of": ["foo", "bar", "baz"]
 }
 </code></pre>
+<h3 id="deprecated-representations"><a class="header" href="#deprecated-representations">Deprecated Representations</a></h3>
+<p>The following representations are deprecated as of version 0.1.2:</p>
+<div class="table-wrapper"><table><thead><tr><th><code>type</code></th><th>Description</th><th>JSON representation</th></tr></thead><tbody>
+<tr><td><code>number</code></td><td>Any JSON number</td><td>Number</td></tr>
+<tr><td><code>integer</code></td><td>Any JSON number with no decimal part</td><td>Number</td></tr>
+</tbody></table>
+</div>
+<p>Connectors should use the sized integer and floating-point types instead.</p>
 <h2 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison Operators</a></h2>
 <p>Comparison operators extend the query AST with the ability to express new binary comparison expressions in the predicate.</p>
 <p>For example, a data connector might augment a <code>String</code> scalar type with a <code>LIKE</code> operator which tests for a fuzzy match based on a regular expression.</p>

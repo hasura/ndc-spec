@@ -180,17 +180,17 @@
 <p>Our application state will consist of collections of various types of rows:</p>
 <pre><code class="language-rust no_run noplayground">#[derive(Debug, Clone)]
 pub struct AppState {
-    pub articles: BTreeMap&lt;i64, Row&gt;,
-    pub authors: BTreeMap&lt;i64, Row&gt;,
-    pub institutions: BTreeMap&lt;i64, Row&gt;,
+    pub articles: BTreeMap&lt;i32, Row&gt;,
+    pub authors: BTreeMap&lt;i32, Row&gt;,
+    pub institutions: BTreeMap&lt;i32, Row&gt;,
     pub metrics: Metrics,
 }</code></pre>
 <p>In our <code>main</code> function, the data connector reads the initial data from the newline-delimited JSON files, and creates the <code>AppState</code>:</p>
 <pre><code class="language-rust no-run noplayground">fn init_app_state() -&gt; AppState {
     // Read the JSON data files
-    let articles = read_json_lines("articles.json").unwrap();
-    let authors = read_json_lines("authors.json").unwrap();
-    let institutions = read_json_lines("institutions.json").unwrap();
+    let articles = read_json_lines(ARTICLES_JSON).unwrap();
+    let authors = read_json_lines(AUTHORS_JSON).unwrap();
+    let institutions = read_json_lines(INSTITUTIONS_JSON).unwrap();
 
     let metrics = Metrics::new().unwrap();
 
@@ -203,7 +203,7 @@ pub struct AppState {
 }</code></pre>
 <p>Finally, we start a web server with the endpoints which are required by this specification:</p>
 <pre><code class="language-rust no_run noplayground">#[tokio::main]
-async fn main() {
+async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let app_state = Arc::new(Mutex::new(init_app_state()));
 
     let app = Router::new()
@@ -221,11 +221,20 @@ async fn main() {
         ))
         .with_state(app_state);
 
-    // run it with hyper on localhost:8100
-    axum::Server::bind(&amp;"0.0.0.0:8100".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    // Start the server on `localhost:&lt;PORT&gt;`.
+    // This says it's binding to an IPv6 address, but will actually listen to
+    // any IPv4 or IPv6 address.
+    let host = net::IpAddr::V6(net::Ipv6Addr::UNSPECIFIED);
+    let port = env::var("PORT")
+        .map(|s| s.parse())
+        .unwrap_or(Ok(DEFAULT_PORT))?;
+    let addr = net::SocketAddr::new(host, port);
+
+    let server = axum::Server::bind(&amp;addr).serve(app.into_make_service());
+    println!("Serving on {}", server.local_addr());
+    server.with_graceful_shutdown(shutdown_handler()).await?;
+
+    Ok(())
 }</code></pre>
 <p><em>Note</em>: the application state is stored in an <code>Arc&lt;Mutex&lt;_&gt;&gt;</code>, so that we can perform locking reads and writes in multiple threads.</p>
 <p>In the next chapters, we will look at the implementation of each of these endpoints in turn.</p>

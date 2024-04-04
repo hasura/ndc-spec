@@ -186,7 +186,7 @@
 
     let mut row_sets = vec![];
 
-    for variables in variable_sets.iter() {
+    for variables in &amp;variable_sets {
         let row_set = execute_query_with_variables(
             &amp;request.collection,
             &amp;request.arguments,

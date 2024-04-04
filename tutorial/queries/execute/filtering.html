@@ -179,7 +179,7 @@
         None =&gt; Ok(sorted),
         Some(expr) =&gt; {
             let mut filtered: Vec&lt;Row&gt; = vec![];
-            for item in sorted.into_iter() {
+            for item in sorted {
                 let root = match root {
                     Root::CurrentRow =&gt; &amp;item,
                     Root::ExplicitRow(root) =&gt; root,
@@ -217,7 +217,7 @@
 </ul>
 <pre><code class="language-rust no_run noplayground">    match expr {
         models::Expression::And { expressions } =&gt; {
-            for expr in expressions.iter() {
+            for expr in expressions {
                 if !eval_expression(collection_relationships, variables, state, expr, root, item)? {
                     return Ok(false);
                 }
@@ -225,7 +225,7 @@
             Ok(true)
         }
         models::Expression::Or { expressions } =&gt; {
-            for expr in expressions.iter() {
+            for expr in expressions {
                 if eval_expression(collection_relationships, variables, state, expr, root, item)? {
                     return Ok(true);
                 }
@@ -255,7 +255,7 @@
                     root,
                     item,
                 )?;
-                Ok(vals.iter().any(|val| val.is_null()))
+                Ok(vals.iter().any(serde_json::Value::is_null))
             }
         },</code></pre>
 <p>To evaluate the comparison target, we delegate to the <code>eval_comparison_target</code> function, which pattern matches:</p>
@@ -275,7 +275,7 @@
         models::ComparisonTarget::Column { name, path } =&gt; {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
-            for row in rows.iter() {
+            for row in &amp;rows {
                 let value = eval_column(row, name.as_str())?;
                 values.push(value);
             }
@@ -313,8 +313,8 @@
                     root,
                     item,
                 )?;
-                for left_val in left_vals.iter() {
-                    for right_val in right_vals.iter() {
+                for left_val in &amp;left_vals {
+                    for right_val in &amp;right_vals {
                         if left_val == right_val {
                             return Ok(true);
                         }
@@ -343,7 +343,7 @@
                     item,
                 )?;
 
-                for comparison_value in right_val_sets.iter() {
+                for comparison_value in &amp;right_val_sets {
                     let right_vals = comparison_value.as_array().ok_or((
                         StatusCode::BAD_REQUEST,
                         Json(models::ErrorResponse {
@@ -352,8 +352,8 @@
                         }),
                     ))?;
 
-                    for left_val in left_vals.iter() {
-                        for right_val in right_vals.iter() {
+                    for left_val in &amp;left_vals {
+                        for right_val in right_vals {
                             if left_val == right_val {
                                 return Ok(true);
                             }
@@ -380,8 +380,8 @@
                     root,
                     item,
                 )?;
-                for column_val in column_vals.iter() {
-                    for regex_val in regex_vals.iter() {
+                for column_val in &amp;column_vals {
+                    for regex_val in &amp;regex_vals {
                         let column_str = column_val.as_str().ok_or((
                             StatusCode::BAD_REQUEST,
                             Json(models::ErrorResponse {
@@ -431,7 +431,7 @@
                     item,
                 )?;
 
-                for comparison_value in right_val_sets.iter() {
+                for comparison_value in &amp;right_val_sets {
                     let right_vals = comparison_value.as_array().ok_or((
                         StatusCode::BAD_REQUEST,
                         Json(models::ErrorResponse {
@@ -440,8 +440,8 @@
                         }),
                     ))?;
 
-                    for left_val in left_vals.iter() {
-                        for right_val in right_vals.iter() {
+                    for left_val in &amp;left_vals {
+                        for right_val in right_vals {
                             if left_val == right_val {
                                 return Ok(true);
                             }

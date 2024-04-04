@@ -174,8 +174,18 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
-<h2 id="011"><a class="header" href="#011"><code>0.1.1</code></a></h2>
+<h2 id="012"><a class="header" href="#012"><code>0.1.2</code></a></h2>
 <h3 id="specification"><a class="header" href="#specification">Specification</a></h3>
+<ul>
+<li>More <a href="./schema/scalar-types.html#type-representations">type representations</a> were added, and some were deprecated.</li>
+</ul>
+<h3 id="rust-libraries"><a class="header" href="#rust-libraries">Rust Libraries</a></h3>
+<ul>
+<li>Upgrade to Rust v1.77</li>
+<li>The <code>ndc-client</code> library was removed. Clients are advised to use the new <code>ndc-models</code> library for type definitions, and to use a HTTP client library of their choice directly.</li>
+</ul>
+<h2 id="011"><a class="header" href="#011"><code>0.1.1</code></a></h2>
+<h3 id="specification-1"><a class="header" href="#specification-1">Specification</a></h3>
 <ul>
 <li><a href="./schema/scalar-types.html#note-syntactic-equality">Equality operators were more precisely specified</a></li>
 <li>Scalar types can now specify <a href="./schema/scalar-types.html#type-representations">representations</a></li>
@@ -186,7 +196,7 @@
 <li>Automatic tests are now generated for exists predicates</li>
 <li>Automatic tests are now generated for <code>single_column</code> aggregates</li>
 </ul>
-<h3 id="rust-libraries"><a class="header" href="#rust-libraries">Rust Libraries</a></h3>
+<h3 id="rust-libraries-1"><a class="header" href="#rust-libraries-1">Rust Libraries</a></h3>
 <ul>
 <li><code>rustls</code> is supported instead of <code>native-tls</code> using a Cargo feature.</li>
 <li>Upgrade <code>opentelemetry</code> to v0.22.0</li>

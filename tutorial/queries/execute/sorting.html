@@ -196,9 +196,9 @@
         None =&gt; Ok(collection),
         Some(order_by) =&gt; {
             let mut copy = vec![];
-            for item_to_insert in collection.into_iter() {
+            for item_to_insert in collection {
                 let mut index = 0;
-                for other in copy.iter() {
+                for other in &amp;copy {
                     if let Ordering::Greater = eval_order_by(
                         collection_relationships,
                         variables,
@@ -208,9 +208,8 @@
                         &amp;item_to_insert,
                     )? {
                         break;
-                    } else {
-                        index += 1;
                     }
+                    index += 1;
                 }
                 copy.insert(index, item_to_insert);
             }
@@ -232,7 +231,7 @@
 ) -&gt; Result&lt;Ordering&gt; {
     let mut result = Ordering::Equal;
 
-    for element in order_by.elements.iter() {
+    for element in &amp;order_by.elements {
         let v1 = eval_order_by_element(collection_relationships, variables, state, element, t1)?;
         let v2 = eval_order_by_element(collection_relationships, variables, state, element, t2)?;
         let x = match element.order_direction {

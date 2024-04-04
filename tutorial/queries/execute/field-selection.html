@@ -181,9 +181,9 @@
         .as_ref()
         .map(|fields| {
             let mut rows: Vec&lt;IndexMap&lt;String, models::RowFieldValue&gt;&gt; = vec![];
-            for item in paginated.iter() {
+            for item in &amp;paginated {
                 let row = eval_row(fields, collection_relationships, variables, state, item)?;
-                rows.push(row)
+                rows.push(row);
             }
             Ok(rows)
         })

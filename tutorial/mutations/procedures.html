@@ -223,25 +223,40 @@
     let article_obj = article.as_object().ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
-            message: " ".into(),
+            message: "article must be an object".into(),
             details: serde_json::Value::Null,
         }),
     ))?;
     let id = article_obj.get("id").ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
-            message: " ".into(),
+            message: "article missing field 'id'".into(),
             details: serde_json::Value::Null,
         }),
     ))?;
-    let id_int = id.as_i64().ok_or((
-        StatusCode::BAD_REQUEST,
-        Json(models::ErrorResponse {
-            message: " ".into(),
-            details: serde_json::Value::Null,
-        }),
-    ))?;
-    let new_row = BTreeMap::from_iter(article_obj.iter().map(|(k, v)| (k.clone(), v.clone())));
+    let id_int = id
+        .as_i64()
+        .ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "id must be an integer".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))?
+        .try_into()
+        .map_err(|_| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "id out of range".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )
+        })?;
+    let new_row = article_obj
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::&lt;BTreeMap&lt;_, _&gt;&gt;();
     let old_row = state.articles.insert(id_int, new_row);
 
     Ok(models::MutationOperationResults::Procedure {
@@ -306,7 +321,7 @@
 
     let state_snapshot = state.clone();
 
-    for (_article_id, article) in state.articles.iter_mut() {
+    for article in state.articles.values_mut() {
         if eval_expression(
             &amp;BTreeMap::new(),
             &amp;BTreeMap::new(),
