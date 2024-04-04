@@ -4,6 +4,7 @@ resolver = "2"
 package.version = "0.1.1"
 
 members = [
+  "ndc-models",
   "ndc-reference",
   "ndc-test",
 ]
