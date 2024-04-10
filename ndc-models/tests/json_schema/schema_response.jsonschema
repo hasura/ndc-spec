@@ -240,6 +240,21 @@
           }
         },
         {
+          "description": "Arbitrary-precision integer string",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "biginteger"
+              ]
+            }
+          }
+        },
+        {
           "description": "Arbitrary-precision decimal string",
           "type": "object",
           "required": [
