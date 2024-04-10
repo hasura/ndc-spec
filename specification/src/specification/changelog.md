@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Specification
+
+- Added a `biginteger` [type representation](./schema/scalar-types.md#type-representations)
+
+
 ## `0.1.2`
 
 ### Specification
