@@ -151,6 +151,9 @@ pub enum TypeRepresentation {
     Float32,
     /// An IEEE-754 double-precision floating-point number
     Float64,
+    /// Arbitrary-precision integer string
+    #[serde(rename = "biginteger")]
+    BigInteger,
     /// Arbitrary-precision decimal string
     #[serde(rename = "bigdecimal")]
     BigDecimal,
