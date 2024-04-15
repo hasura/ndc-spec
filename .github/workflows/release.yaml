@@ -15,11 +15,11 @@ jobs:
           - runner: ubuntu-latest
             target: x86_64-unknown-linux-musl
             rustflags: -C target-feature=+crt-static
-            linux-packages: musl-tools libssl-dev
+            linux-packages: musl-tools libssl-dev pkg-config
           - runner: ubuntu-latest
             target: aarch64-unknown-linux-musl
             rustflags: -C target-feature=+crt-static
-            linux-packages: gcc-aarch64-linux-gnu musl-tools libssl-dev
+            linux-packages: gcc-aarch64-linux-gnu musl-tools libssl-dev pkg-config
             linker: /usr/bin/aarch64-linux-gnu-gcc
           - runner: macos-latest
             target: x86_64-apple-darwin
