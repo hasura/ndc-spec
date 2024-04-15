@@ -1,0 +1,139 @@
+name: Release cli on github
+on:
+  push:
+    branches:
+      - release-pipeline-ndc-test
+    tags:
+      - "v*"
+
+jobs:
+  build-cli-binaries:
+    name: build the CLI binaries
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            rustflags: -C target-feature=+crt-static
+            linux-packages: musl-tools
+          - runner: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            rustflags: -C target-feature=+crt-static
+            linux-packages: gcc-aarch64-linux-gnu musl-tools
+            linker: /usr/bin/aarch64-linux-gnu-gcc
+          - runner: macos-latest
+            target: x86_64-apple-darwin
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            rustflags: -C target-feature=+crt-static
+            extension: .exe
+    runs-on: ${{ matrix.runner }}
+    env:
+      CARGO_BUILD_TARGET: ${{ matrix.target }}
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      RUSTFLAGS: "-D warnings ${{ matrix.rustflags }}"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "25.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: install tools
+        run: |
+          rustup show
+          rustup target add ${{ matrix.target }}
+
+      - name: install other packages required
+        if: matrix.linux-packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ matrix.linux-packages }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "build" # share the cache across jobs
+
+      - name: build the CLI
+        run: |
+          # If we're on a tag, use the tag name as the release version.
+          if [[ "$GITHUB_REF_TYPE" == 'tag' ]]; then
+            # Ensure that the version specified in Cargo.toml is the same as the tag (with a 'v' prefix).
+            CARGO_VERSION="$(cargo metadata --format-version=1 | jq -r '.packages | .[] | select(.name == "ndc-test") | .version')"
+            echo "Git tag: ${GITHUB_REF_NAME}"
+            echo "Cargo version: ${CARGO_VERSION}"
+
+            if [[ "${GITHUB_REF_NAME}" != "v${CARGO_VERSION}" ]]; then
+              echo >&2 "The Git tag is \"${GITHUB_REF_NAME}\", but the version in Cargo.toml is \"${CARGO_VERSION}\"."
+              echo >&2 'These must be the same, with a "v" prefix for the tag. Aborting.'
+              exit 1
+            fi
+            export RELEASE_VERSION="$GITHUB_REF_NAME"
+            echo "RELEASE_VERSION = ${RELEASE_VERSION}"
+          fi
+
+          if [[ -n '${{ matrix.linker }}' ]]; then
+            TARGET_SCREAMING="$(echo '${{ matrix.target }}' | tr '[:lower:]' '[:upper:]' | tr '-' '_')"
+            echo "CARGO_TARGET_${TARGET_SCREAMING}_LINKER"='${{ matrix.linker }}'
+            declare "CARGO_TARGET_${TARGET_SCREAMING}_LINKER"='${{ matrix.linker }}'
+            export "CARGO_TARGET_${TARGET_SCREAMING}_LINKER"
+          fi
+
+          echo "Building for target: ${CARGO_BUILD_TARGET}"
+          cargo build --release --package ndc-test
+
+          mkdir -p release
+          mv -v target/${{ matrix.target }}/release/ndc-test release/ndc-test-${{ matrix.target }}${{ matrix.extension }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ndc-test-${{ matrix.target }}${{ matrix.extension }}
+          path: release
+          if-no-files-found: error
+
+  release:
+    name: release to GitHub
+    needs:
+      - build-cli-binaries
+    runs-on: ubuntu-latest
+    # if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: release/artifacts
+          merge-multiple: true
+
+      - name: generate CLI manifest
+        run: |
+          set -evo pipefail
+          ROOT="$(pwd)"
+
+          export CLI_VERSION="$GITHUB_REF_NAME"
+
+          export LINUX_AMD64_SHA256=$(sha256sum ${ROOT}/release/artifacts/ndc-test-x86_64-unknown-linux-musl     | cut -f1 -d' ')
+          export MACOS_AMD64_SHA256=$(sha256sum ${ROOT}/release/artifacts/ndc-test-x86_64-apple-darwin           | cut -f1 -d' ')
+          export WINDOWS_AMD64_SHA256=$(sha256sum ${ROOT}/release/artifacts/ndc-test-x86_64-pc-windows-msvc.exe  | cut -f1 -d' ')
+          export LINUX_ARM64_SHA256=$(sha256sum ${ROOT}/release/artifacts/ndc-test-aarch64-unknown-linux-musl    | cut -f1 -d' ')
+          export MACOS_ARM64_SHA256=$(sha256sum ${ROOT}/release/artifacts/ndc-test-aarch64-apple-darwin          | cut -f1 -d' ')
+
+      - name: Get version from tag
+        id: get-version
+        run: |
+          echo "tagged_version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: create a draft release
+        uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          tag: v${{ steps.get-version.outputs.tagged_version }}
+          artifacts: release/artifacts/*
