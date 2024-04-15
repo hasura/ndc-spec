@@ -88,7 +88,7 @@ jobs:
           fi
 
           echo "Building for target: ${CARGO_BUILD_TARGET}"
-          cargo build --release --package ndc-test
+          cargo build --release --package ndc-test --features rustls
 
           mkdir -p release
           mv -v target/${{ matrix.target }}/release/ndc-test release/ndc-test-${{ matrix.target }}${{ matrix.extension }}
