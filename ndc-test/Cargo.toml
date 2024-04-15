@@ -20,6 +20,7 @@ async-trait = "^0.1.74"
 clap = { version = "^4", features = ["derive"] }
 colorful = "0.2.2"
 indexmap = { version = "^2", features = ["serde"] }
+openssl = { version = "0.10.64", features = ["vendored"] }
 rand = { version = "^0.8.5", features = ["small_rng"] }
 reqwest = { version = "^0.11", features = ["json", "multipart"], default-features = false }
 semver = "^1.0.20"
