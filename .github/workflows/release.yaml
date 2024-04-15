@@ -16,19 +16,18 @@ jobs:
             target: x86_64-unknown-linux-gnu
             rustflags: -C target-feature=+crt-static
             # linux-packages: musl-tools libssl-dev
-          # - runner: ubuntu-latest
-          #   target: aarch64-unknown-linux-gnu
-          #   rustflags: -C target-feature=+crt-static
-          #   linux-packages: gcc-aarch64-linux-gnu musl-tools libssl-dev
-          #   linker: /usr/bin/aarch64-linux-gnu-gcc
-          # - runner: macos-latest
-          #   target: x86_64-apple-darwin
-          # - runner: macos-latest
-          #   target: aarch64-apple-darwin
-          # - runner: windows-latest
-          #   target: x86_64-pc-windows-msvc
-          #   rustflags: -C target-feature=+crt-static
-          #   extension: .exe
+          - runner: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            linux-packages: gcc-aarch64-linux-gnu
+            linker: /usr/bin/aarch64-linux-gnu-gcc
+          - runner: macos-latest
+            target: x86_64-apple-darwin
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            rustflags: -C target-feature=+crt-static
+            extension: .exe
     runs-on: ${{ matrix.runner }}
     env:
       CARGO_BUILD_TARGET: ${{ matrix.target }}
