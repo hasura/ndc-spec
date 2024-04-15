@@ -29,7 +29,8 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
-        ref: v0.1.2
+        with:
+          ref: v0.1.2
       - name: install protoc
         uses: arduino/setup-protoc@v3
         with:
