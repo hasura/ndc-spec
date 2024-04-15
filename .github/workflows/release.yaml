@@ -1,8 +1,8 @@
 name: Release cli on github
 on:
   push:
-    # tags:
-    #   - "v*"
+    tags:
+      - "v*"
 
 jobs:
   build-cli-binaries:
