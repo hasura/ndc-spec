@@ -104,19 +104,6 @@ jobs:
           path: release/artifacts
           merge-multiple: true
 
-      - name: generate CLI manifest
-        run: |
-          set -evo pipefail
-          ROOT="$(pwd)"
-
-          export CLI_VERSION="$GITHUB_REF_NAME"
-
-          export LINUX_AMD64_SHA256=$(sha256sum ${ROOT}/release/artifacts/ndc-test-x86_64-unknown-linux-musl     | cut -f1 -d' ')
-          export MACOS_AMD64_SHA256=$(sha256sum ${ROOT}/release/artifacts/ndc-test-x86_64-apple-darwin           | cut -f1 -d' ')
-          export WINDOWS_AMD64_SHA256=$(sha256sum ${ROOT}/release/artifacts/ndc-test-x86_64-pc-windows-msvc.exe  | cut -f1 -d' ')
-          export LINUX_ARM64_SHA256=$(sha256sum ${ROOT}/release/artifacts/ndc-test-aarch64-unknown-linux-musl    | cut -f1 -d' ')
-          export MACOS_ARM64_SHA256=$(sha256sum ${ROOT}/release/artifacts/ndc-test-aarch64-apple-darwin          | cut -f1 -d' ')
-
       - name: Get version from tag
         id: get-version
         run: |
