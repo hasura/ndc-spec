@@ -13,11 +13,11 @@ jobs:
       matrix:
         include:
           - runner: ubuntu-latest
-            target: x86_64-unknown-linux-musl
+            target: x86_64-unknown-linux-gnu
             rustflags: -C target-feature=+crt-static
             linux-packages: musl-tools libssl-dev
           - runner: ubuntu-latest
-            target: aarch64-unknown-linux-musl
+            target: aarch64-unknown-linux-gnu
             rustflags: -C target-feature=+crt-static
             linux-packages: gcc-aarch64-linux-gnu musl-tools libssl-dev
             linker: /usr/bin/aarch64-linux-gnu-gcc
@@ -88,7 +88,7 @@ jobs:
           fi
 
           echo "Building for target: ${CARGO_BUILD_TARGET}"
-          cargo build --release --package ndc-test --features rustls
+          cargo build --release --package ndc-test
 
           mkdir -p release
           mv -v target/${{ matrix.target }}/release/ndc-test release/ndc-test-${{ matrix.target }}${{ matrix.extension }}
