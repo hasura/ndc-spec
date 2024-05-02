@@ -365,7 +365,11 @@
             },
             "name": {
               "description": "The name of the column",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ColumnSelector"
+                }
+              ]
             },
             "path": {
               "description": "Any relationships to traverse to reach this column",
@@ -429,6 +433,19 @@
               }
             }
           }
+        }
+      ]
+    },
+    "ColumnSelector": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "string"
         }
       ]
     },
@@ -683,7 +700,11 @@
             },
             "name": {
               "description": "The name of the column",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ColumnSelector"
+                }
+              ]
             },
             "path": {
               "description": "Any relationships to traverse to reach this column",
@@ -709,7 +730,11 @@
             },
             "name": {
               "description": "The name of the column",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ColumnSelector"
+                }
+              ]
             }
           }
         }
