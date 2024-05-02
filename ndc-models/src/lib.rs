@@ -501,7 +501,7 @@ pub struct OrderByElement {
 pub enum OrderByTarget {
     Column {
         /// The name of the column
-        name: String,
+        name: ColumnSelector,
         /// Any relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
@@ -573,6 +573,16 @@ pub enum UnaryComparisonOperator {
 }
 // ANCHOR_END: UnaryComparisonOperator
 
+// ANCHOR: ColumnSelector
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(untagged)]
+pub enum ColumnSelector {
+    Path(Vec<String>),
+    Column(String),
+}
+// ANCHOR_END: ColumnSelector
+
+
 // ANCHOR: ComparisonTarget
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -581,13 +591,13 @@ pub enum UnaryComparisonOperator {
 pub enum ComparisonTarget {
     Column {
         /// The name of the column
-        name: String,
+        name: ColumnSelector,
         /// Any relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
     RootCollectionColumn {
         /// The name of the column
-        name: String,
+        name: ColumnSelector,
     },
 }
 // ANCHOR_END: ComparisonTarget
