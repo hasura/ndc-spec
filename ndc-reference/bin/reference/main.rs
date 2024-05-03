@@ -1248,8 +1248,8 @@ fn get_json_path<'a>(
     }
 }
 
-fn eval_select_from_row<'a>(
-    row: &'a Row,
+fn eval_select_from_row(
+    row: &Row,
     column_selector: &ColumnSelector,
 ) -> Result<serde_json::Value> {
     match column_selector {
