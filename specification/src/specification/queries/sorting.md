@@ -16,6 +16,8 @@ To compute the ordering from the `order_by` field, data connectors should implem
 
 ### Type `column`
 
+The field `element.target.name` is a [`ColumnSelector`](../../reference/types.md#columnselector), which can be either a string or an array of strings.  If it is a string or a singleton array then it refers to a scalar-valued top-level column. `ColumnSelector`s with multi-valued arrays are only relevant for databases that support nested objects, e.g. MongoDB. If `element.target.name` is a multi-value array then the first element refers to an object-valued top-level column and the remaining elements specify a path to a scalar-valued field within a nested object within that column.
+
 If `element.order_direction` is `asc`, then the row with the smaller column comes first. 
 
 If `element.order_direction` is `asc`, then the row with the smaller column comes second. 

@@ -42,6 +42,12 @@
 {{#include ../../../ndc-models/src/lib.rs:ComparisonOperatorDefinition}}
 ```
 
+## `ColumnSelector`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-client/src/lib.rs:ColumnSelector}}
+```
+
 ## `ComparisonTarget`
 
 ```rust,no_run,noplayground
