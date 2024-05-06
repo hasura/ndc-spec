@@ -1174,7 +1174,7 @@ fn eval_order_by_element(
     match element.target.clone() {
         models::OrderByTarget::Column {
             name,
-            field_path: column_path,
+            field_path,
             path,
         } => eval_order_by_column(
             collection_relationships,
@@ -1183,7 +1183,7 @@ fn eval_order_by_element(
             item,
             path,
             name,
-            column_path,
+            field_path,
         ),
         models::OrderByTarget::SingleColumnAggregate {
             column,
@@ -1257,12 +1257,12 @@ fn get_json_path<'a>(
     }
 }
 
-fn eval_select_from_row(
+fn eval_column_field_path(
     row: &Row,
     column_name: &String,
-    column_path: &Option<Vec<String>>,
+    field_path: &Option<Vec<String>>,
 ) -> Result<serde_json::Value> {
-    match column_path {
+    match field_path {
         None => eval_column(row, column_name),
         Some(path) => row
             .get(column_name)
@@ -1286,7 +1286,7 @@ fn eval_order_by_column(
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
     name: String,
-    column_path: Option<Vec<String>>,
+    field_path: Option<Vec<String>>,
 ) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     if rows.len() > 1 {
@@ -1299,7 +1299,7 @@ fn eval_order_by_column(
         ));
     }
     match rows.first() {
-        Some(row) => eval_select_from_row(row, &name, &column_path),
+        Some(row) => eval_column_field_path(row, &name, &field_path),
         None => Ok(serde_json::Value::Null),
     }
 }
@@ -1768,22 +1768,22 @@ fn eval_comparison_target(
     match target {
         models::ComparisonTarget::Column {
             name,
-            field_path: column_path,
+            field_path,
             path,
         } => {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in &rows {
-                let value = eval_select_from_row(row, name, column_path)?;
+                let value = eval_column_field_path(row, name, field_path)?;
                 values.push(value);
             }
             Ok(values)
         }
         models::ComparisonTarget::RootCollectionColumn {
             name,
-            field_path: column_path,
+            field_path,
         } => {
-            let value = eval_select_from_row(root, name, column_path)?;
+            let value = eval_column_field_path(root, name, field_path)?;
             Ok(vec![value])
         }
     }
