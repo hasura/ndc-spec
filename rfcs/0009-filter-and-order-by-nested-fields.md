@@ -7,35 +7,25 @@ It would be useful to allow queries on such collections to be filtered and sorte
 
 ## Proposal
 
-Add a new type `ColumnSelector`:
-
-```rust
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[serde(untagged)]
-pub enum ColumnSelector {
-    Path(Vec<String>),
-    Column(String),
-}
-```
-The JSON representation of this type is either a string, referring to a top-level column in a collection, or an array of strings giving a path to a nested field.
-In the array representation, the first element refers to the top-level column name in the collection and the other elements (if any) describe a path to a field within a nested object. The array must not be empty.
-
-We modify `ComparisonTarget` and `OrderByTarget` to use `ColumnSelector` as follows:
+We modify `ComparisonTarget` and `OrderByTarget` to add a `field_path` property, as follows:
 
 ```rust
 pub enum ComparisonTarget {
     Column {
-        name: ColumnSelector,
+        name: String,
+        field_path: Option<Vec<String>>,
         path: Vec<PathElement>,
     },
     RootCollectionColumn {
-        name: ColumnSelector,
+        name: String,
+        field_path: Option<Vec<String>>,
     },
 }
 
 pub enum OrderByTarget {
     Column {
-        name: ColumnSelector,
+        name: String,
+        field_path: Option<Vec<String>>,
         path: Vec<PathElement>,
     },
     SingleColumnAggregate {
@@ -49,11 +39,12 @@ pub enum OrderByTarget {
 }
 ```
 
-The `name` fields, which were previously just `String`s, are now `ColumnSelectors`.
-Backwards compatibility is maintained because the JSON representation of `ColumnSelector::Column` is the same as `String`.
+When `field_path` is present and non-empty it refers to a path to a nested field within the column.
+The value of the nested field will be used for comparison or ordering instead of using the full value of the column.
+
 
 ## Future extensions
 
 Although out of scope for this RFC, in the future we probably want to extend aggregates to allow aggregating on values of nested fields.
-This could be achieved by using `ColumnSelector` in `Aggregate::ColumnCount::column` and `Aggregate::SingleColumn::column`.
-We could also order by aggregates on nested fields by using `ColumnSelector` in `OrderByTarget::SingleColumnAggregate::column`.
+This could be achieved by adding a `field_path` property to `Aggregate::ColumnCount` and `Aggregate::SingleColumn`.
+We could also order by aggregates on nested fields by adding `field_path` to `OrderByTarget::SingleColumnAggregate`.
