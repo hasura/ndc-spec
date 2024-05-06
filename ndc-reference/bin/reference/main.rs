@@ -1247,16 +1247,7 @@ fn eval_order_by_single_column_aggregate(
 }
 // ANCHOR_END: eval_order_by_single_column_aggregate
 
-fn get_json_path<'a>(
-    value: &'a serde_json::Value,
-    path: &[String],
-) -> Option<&'a serde_json::Value> {
-    match path {
-        [] => Some(value),
-        [head, tail @ ..] => value.get(head).and_then(|v| get_json_path(v, tail)),
-    }
-}
-
+// ANCHOR: eval_column_field_path
 fn eval_column_field_path(
     row: &Row,
     column_name: &String,
@@ -1266,17 +1257,18 @@ fn eval_column_field_path(
         None => eval_column(row, column_name),
         Some(path) => row
             .get(column_name)
-            .and_then(|v| get_json_path(v, path.as_slice()))
+            .and_then(|v| path.iter().try_fold(v, |v, field_name| v.get(field_name)))
             .cloned()
             .ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
-                    message: "invalid column name".into(),
+                    message: "invalid column name or field path".into(),
                     details: serde_json::Value::Null,
                 }),
             )),
     }
 }
+// ANCHOR_END: eval_column_field_path
 
 // ANCHOR: eval_order_by_column
 fn eval_order_by_column(
@@ -1779,10 +1771,7 @@ fn eval_comparison_target(
             }
             Ok(values)
         }
-        models::ComparisonTarget::RootCollectionColumn {
-            name,
-            field_path,
-        } => {
+        models::ComparisonTarget::RootCollectionColumn { name, field_path } => {
             let value = eval_column_field_path(root, name, field_path)?;
             Ok(vec![value])
         }
