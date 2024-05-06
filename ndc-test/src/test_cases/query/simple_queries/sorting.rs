@@ -72,7 +72,7 @@ fn make_order_by_elements(
                 order_direction,
                 target: models::OrderByTarget::Column {
                     name: field_name.clone(),
-                    column_path: None,
+                    field_path: None,
                     path: vec![],
                 },
             });

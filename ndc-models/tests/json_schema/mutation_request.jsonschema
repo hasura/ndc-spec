@@ -367,7 +367,7 @@
               "description": "The name of the column",
               "type": "string"
             },
-            "column_path": {
+            "field_path": {
               "description": "Path to a nested field within an object column",
               "type": [
                 "array",
@@ -695,7 +695,7 @@
               "description": "The name of the column",
               "type": "string"
             },
-            "column_path": {
+            "field_path": {
               "description": "Path to a nested field within an object column",
               "type": [
                 "array",
@@ -731,7 +731,7 @@
               "description": "The name of the column",
               "type": "string"
             },
-            "column_path": {
+            "field_path": {
               "description": "Path to a nested field within an object column",
               "type": [
                 "array",

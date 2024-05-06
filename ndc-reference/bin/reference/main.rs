@@ -1174,7 +1174,7 @@ fn eval_order_by_element(
     match element.target.clone() {
         models::OrderByTarget::Column {
             name,
-            column_path,
+            field_path: column_path,
             path,
         } => eval_order_by_column(
             collection_relationships,
@@ -1768,7 +1768,7 @@ fn eval_comparison_target(
     match target {
         models::ComparisonTarget::Column {
             name,
-            column_path,
+            field_path: column_path,
             path,
         } => {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
@@ -1779,7 +1779,10 @@ fn eval_comparison_target(
             }
             Ok(values)
         }
-        models::ComparisonTarget::RootCollectionColumn { name, column_path } => {
+        models::ComparisonTarget::RootCollectionColumn {
+            name,
+            field_path: column_path,
+        } => {
             let value = eval_select_from_row(root, name, column_path)?;
             Ok(vec![value])
         }

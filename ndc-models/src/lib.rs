@@ -503,7 +503,7 @@ pub enum OrderByTarget {
         /// The name of the column
         name: String,
         /// Path to a nested field within an object column
-        column_path: Option<Vec<String>>,
+        field_path: Option<Vec<String>>,
         /// Any relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
@@ -585,7 +585,7 @@ pub enum ComparisonTarget {
         /// The name of the column
         name: String,
         /// Path to a nested field within an object column
-        column_path: Option<Vec<String>>,
+        field_path: Option<Vec<String>>,
         /// Any relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
@@ -593,7 +593,7 @@ pub enum ComparisonTarget {
         /// The name of the column
         name: String,
         /// Path to a nested field within an object column
-        column_path: Option<Vec<String>>,
+        field_path: Option<Vec<String>>,
     },
 }
 // ANCHOR_END: ComparisonTarget
