@@ -15,7 +15,6 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use models::ColumnSelector;
 use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
@@ -1173,9 +1172,19 @@ fn eval_order_by_element(
     item: &Row,
 ) -> Result<serde_json::Value> {
     match element.target.clone() {
-        models::OrderByTarget::Column { name, path } => {
-            eval_order_by_column(collection_relationships, variables, state, item, path, &name)
-        }
+        models::OrderByTarget::Column {
+            name,
+            column_path,
+            path,
+        } => eval_order_by_column(
+            collection_relationships,
+            variables,
+            state,
+            item,
+            path,
+            name,
+            column_path,
+        ),
         models::OrderByTarget::SingleColumnAggregate {
             column,
             function,
@@ -1250,22 +1259,22 @@ fn get_json_path<'a>(
 
 fn eval_select_from_row(
     row: &Row,
-    column_selector: &ColumnSelector,
+    column_name: &String,
+    column_path: &Option<Vec<String>>,
 ) -> Result<serde_json::Value> {
-    match column_selector {
-        ColumnSelector::Column(name) => eval_column(row, name),
-        ColumnSelector::Path(path) => match path.as_slice() {
-            [] => None,
-            [head, tail @ ..] => row.get(head).and_then(|v| get_json_path(v, tail)),
-        }
-        .cloned()
-        .ok_or((
-            StatusCode::BAD_REQUEST,
-            Json(models::ErrorResponse {
-                message: "invalid column name".into(),
-                details: serde_json::Value::Null,
-            }),
-        )),
+    match column_path {
+        None => eval_column(row, column_name),
+        Some(path) => row
+            .get(column_name)
+            .and_then(|v| get_json_path(v, path.as_slice()))
+            .cloned()
+            .ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "invalid column name".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )),
     }
 }
 
@@ -1276,7 +1285,8 @@ fn eval_order_by_column(
     state: &AppState,
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
-    name: &ColumnSelector,
+    name: String,
+    column_path: Option<Vec<String>>,
 ) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     if rows.len() > 1 {
@@ -1289,7 +1299,7 @@ fn eval_order_by_column(
         ));
     }
     match rows.first() {
-        Some(row) => eval_select_from_row(row, name),
+        Some(row) => eval_select_from_row(row, &name, &column_path),
         None => Ok(serde_json::Value::Null),
     }
 }
@@ -1756,17 +1766,21 @@ fn eval_comparison_target(
     item: &Row,
 ) -> Result<Vec<serde_json::Value>> {
     match target {
-        models::ComparisonTarget::Column { name, path } => {
+        models::ComparisonTarget::Column {
+            name,
+            column_path,
+            path,
+        } => {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in &rows {
-                let value = eval_select_from_row(row, name)?;
+                let value = eval_select_from_row(row, name, column_path)?;
                 values.push(value);
             }
             Ok(values)
         }
-        models::ComparisonTarget::RootCollectionColumn { name } => {
-            let value = eval_select_from_row(root, name)?;
+        models::ComparisonTarget::RootCollectionColumn { name, column_path } => {
+            let value = eval_select_from_row(root, name, column_path)?;
             Ok(vec![value])
         }
     }
