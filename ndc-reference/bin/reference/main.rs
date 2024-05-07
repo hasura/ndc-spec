@@ -1250,7 +1250,7 @@ fn eval_order_by_single_column_aggregate(
 // ANCHOR: eval_column_field_path
 fn eval_column_field_path(
     row: &Row,
-    column_name: &String,
+    column_name: &str,
     field_path: &Option<Vec<String>>,
 ) -> Result<serde_json::Value> {
     let column_value = eval_column(row, column_name)?;
