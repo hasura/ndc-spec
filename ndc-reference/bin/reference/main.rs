@@ -1253,16 +1253,17 @@ fn eval_column_field_path(
     column_name: &String,
     field_path: &Option<Vec<String>>,
 ) -> Result<serde_json::Value> {
+    let column_value = eval_column(row, column_name)?;
     match field_path {
-        None => eval_column(row, column_name),
-        Some(path) => row
-            .get(column_name)
-            .and_then(|v| path.iter().try_fold(v, |v, field_name| v.get(field_name)))
+        None => Ok(column_value),
+        Some(path) => path
+            .iter()
+            .try_fold(&column_value, |value, field_name| value.get(field_name))
             .cloned()
             .ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
-                    message: "invalid column name or field path".into(),
+                    message: "invalid field path".into(),
                     details: serde_json::Value::Null,
                 }),
             )),
