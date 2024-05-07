@@ -217,6 +217,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
                 explain: None,
+                nested_field_capabilities: None,
             },
             mutation: models::MutationCapabilities {
                 transactional: None,

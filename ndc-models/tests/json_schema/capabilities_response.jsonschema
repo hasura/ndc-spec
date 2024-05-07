@@ -78,12 +78,51 @@
               "type": "null"
             }
           ]
+        },
+        "nested_field_capabilities": {
+          "description": "Does the connector support nested fields",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NestedFieldCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
     "LeafCapability": {
       "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
       "type": "object"
+    },
+    "NestedFieldCapabilities": {
+      "title": "Nested Field Capabilities",
+      "type": "object",
+      "properties": {
+        "filter_by_nested_fields": {
+          "description": "Does the connector support filtering by values of nested fields",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order_by_nested_fields": {
+          "description": "Does the connector support ordering by values of nested fields",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
     },
     "MutationCapabilities": {
       "title": "Mutation Capabilities",

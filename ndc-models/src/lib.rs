@@ -60,8 +60,22 @@ pub struct QueryCapabilities {
     pub variables: Option<LeafCapability>,
     /// Does the connector support explaining queries
     pub explain: Option<LeafCapability>,
+    /// Does the connector support nested fields
+    pub nested_field_capabilities: Option<NestedFieldCapabilities>,
 }
 // ANCHOR_END: QueryCapabilities
+
+// ANCHOR: NestedFieldCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Nested Field Capabilities")]
+pub struct NestedFieldCapabilities {
+    /// Does the connector support filtering by values of nested fields
+    pub filter_by_nested_fields: Option<LeafCapability>,
+    /// Does the connector support ordering by values of nested fields
+    pub order_by_nested_fields: Option<LeafCapability>,
+}
+// ANCHOR_END: NestedFieldCapabilities
 
 // ANCHOR: MutationCapabilities
 #[skip_serializing_none]
