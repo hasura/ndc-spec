@@ -15,6 +15,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
+use models::NestedFieldCapabilities;
 use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
@@ -217,7 +218,10 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
                 explain: None,
-                nested_field_capabilities: None,
+                nested_field_capabilities: Some(NestedFieldCapabilities {
+                    filter_by_nested_fields: Some(LeafCapability {}),
+                    order_by_nested_fields: Some(LeafCapability {}),
+                }),
             },
             mutation: models::MutationCapabilities {
                 transactional: None,

@@ -1,0 +1,40 @@
+{
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+    "collection": "institutions",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id"
+            },
+            "location": {
+                "type": "column",
+                "column": "location",
+                "fields": {
+                    "type": "object",
+                    "fields": {
+                        "country": {
+                            "type": "column",
+                            "column": "country"
+                        }
+                    }
+                }
+            }
+        },
+        "order_by": {
+            "elements": [
+                {
+                    "target": {
+                        "type": "column",
+                        "name": "location",
+                        "field_path": ["country"],
+                        "path": []
+                    },
+                    "order_direction": "asc"
+                }
+            ]
+        }
+    },
+    "collection_relationships": {}
+}
