@@ -1,0 +1,45 @@
+{
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+    "collection": "institutions",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id"
+            },
+            "location": {
+                "type": "column",
+                "column": "location",
+                "fields": {
+                    "type": "object",
+                    "fields": {
+                        "city": {
+                            "type": "column",
+                            "column": "city"
+                        },
+                        "campuses": {
+                            "type": "column",
+                            "column": "campuses"
+                        }
+                    }
+                }
+            }
+        },
+        "predicate": {
+            "type": "binary_comparison_operator",
+            "column": {
+                "type": "column",
+                "name": "location",
+                "field_path": ["city"],
+                "path": []
+            },
+            "operator": "eq",
+            "value": {
+                "type": "scalar",
+                "value": "London"
+            }
+        }
+    },
+    "collection_relationships": {}
+}
