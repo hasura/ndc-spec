@@ -1,9 +1,7 @@
-use std::collections::HashMap;
 use std::error;
 use std::fmt;
 
 use serde::Deserialize;
-use serde_json as json;
 
 #[derive(Debug, Clone)]
 pub struct ConnectorError {
@@ -98,26 +96,10 @@ pub struct Configuration {
     pub client: reqwest::Client,
 }
 
-trait ToHeaderString {
-    fn to_header_string(self) -> String;
-}
-
-impl ToHeaderString for HashMap<String, json::Value> {
-    fn to_header_string(self) -> String {
-        json::to_value(self).map_or(String::new(), |val| val.to_string())
-    }
-}
-
 fn append_path(url: &reqwest::Url, path: &[&str]) -> Result<reqwest::Url, ()> {
     let mut url = url.clone();
     url.path_segments_mut()?.pop_if_empty().extend(path);
     Ok(url)
-}
-
-impl ToHeaderString for &str {
-    fn to_header_string(self) -> String {
-        self.to_string()
-    }
 }
 
 pub(crate) async fn capabilities_get(
