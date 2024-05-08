@@ -79,7 +79,7 @@
             }
           ]
         },
-        "nested_field_capabilities": {
+        "nested_fields": {
           "description": "Does the connector support nested fields",
           "anyOf": [
             {
@@ -100,7 +100,7 @@
       "title": "Nested Field Capabilities",
       "type": "object",
       "properties": {
-        "filter_by_nested_fields": {
+        "filter_by": {
           "description": "Does the connector support filtering by values of nested fields",
           "anyOf": [
             {
@@ -111,7 +111,7 @@
             }
           ]
         },
-        "order_by_nested_fields": {
+        "order_by": {
           "description": "Does the connector support ordering by values of nested fields",
           "anyOf": [
             {

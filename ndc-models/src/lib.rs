@@ -61,7 +61,7 @@ pub struct QueryCapabilities {
     /// Does the connector support explaining queries
     pub explain: Option<LeafCapability>,
     /// Does the connector support nested fields
-    pub nested_field_capabilities: Option<NestedFieldCapabilities>,
+    pub nested_fields: Option<NestedFieldCapabilities>,
 }
 // ANCHOR_END: QueryCapabilities
 
@@ -71,9 +71,9 @@ pub struct QueryCapabilities {
 #[schemars(title = "Nested Field Capabilities")]
 pub struct NestedFieldCapabilities {
     /// Does the connector support filtering by values of nested fields
-    pub filter_by_nested_fields: Option<LeafCapability>,
+    pub filter_by: Option<LeafCapability>,
     /// Does the connector support ordering by values of nested fields
-    pub order_by_nested_fields: Option<LeafCapability>,
+    pub order_by: Option<LeafCapability>,
 }
 // ANCHOR_END: NestedFieldCapabilities
 

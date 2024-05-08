@@ -218,9 +218,9 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
                 explain: None,
-                nested_field_capabilities: Some(NestedFieldCapabilities {
-                    filter_by_nested_fields: Some(LeafCapability {}),
-                    order_by_nested_fields: Some(LeafCapability {}),
+                nested_fields: Some(NestedFieldCapabilities {
+                    filter_by: Some(LeafCapability {}),
+                    order_by: Some(LeafCapability {}),
                 }),
             },
             mutation: models::MutationCapabilities {

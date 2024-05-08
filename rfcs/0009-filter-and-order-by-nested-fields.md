@@ -42,8 +42,8 @@ pub enum OrderByTarget {
 When `field_path` is present and non-empty it refers to a path to a nested field within the column.
 The value of the nested field will be used for comparison or ordering instead of using the full value of the column.
 
-A connector can declare that it supports filtering and/or ordering by nested fields via two new capabilities: `query.nested_field_capabilities.filter_by_nested_fields` and `query.nested_field_capabilities.order_by_nested_fields`.
-These capabilities declare whether the connector can handle non-empty `field_path` properties in `ComparisonTarget` and `OrderByTarget`, respectively.
+A connector can declare that it supports filtering and/or ordering by nested fields via two new capabilities: `query.nested_fields.filter_by` and `query.nested_fields.order_by`.
+These capabilities declare whether the connector can handle non-empty `field_path`
 
 
 ## Future extensions

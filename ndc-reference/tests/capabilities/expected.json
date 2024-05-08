@@ -4,9 +4,9 @@
     "query": {
       "aggregates": {},
       "variables": {},
-      "nested_field_capabilities": {
-        "filter_by_nested_fields": {},
-        "order_by_nested_fields": {}
+      "nested_fields": {
+        "filter_by": {},
+        "order_by": {}
       }
     },
     "mutation": {},
