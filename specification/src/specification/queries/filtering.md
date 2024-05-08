@@ -85,7 +85,7 @@ If the `ComparisonTarget` has type `root_collection_column`, then the `name` pro
 
 The root collection is defined as the collection in scope at the nearest enclosing [`Query`](../../reference/types.md#query), and the column should be chosen from the _row_ in that collection which was in scope when that `Query` was being evaluated.
 
-#### `field_path`
+#### Referencing nested fields within columns
 
 If the `field_path` property is empty or not present then the target is the value of the named column.
 If `field_path` is non-empty then it refers to a path to a nested field within the named column.
