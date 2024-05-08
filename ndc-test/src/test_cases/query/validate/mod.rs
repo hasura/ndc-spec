@@ -118,6 +118,7 @@ pub fn validate_field(
         models::Field::Column {
             column: _,
             fields: _,
+            arguments: _,
         } => {
             // TODO: validate nested fields
             // TODO: lookup object type and make sure any fields with object and array types

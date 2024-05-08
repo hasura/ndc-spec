@@ -1881,7 +1881,7 @@ fn eval_field(
     item: &Row,
 ) -> Result<models::RowFieldValue> {
     match field {
-        models::Field::Column { column, fields } => {
+        models::Field::Column { column, fields, arguments: _ } => {
             let col_val = eval_column(item, column.as_str())?;
             match fields {
                 None => Ok(models::RowFieldValue(col_val)),

@@ -12,6 +12,7 @@ pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<Stri
                 models::Field::Column {
                     column: f.0.clone(),
                     fields: None,
+                    arguments: None,
                 },
             )
         })
@@ -35,6 +36,7 @@ pub fn select_columns(
                 models::Field::Column {
                     column: f.0.clone(),
                     fields: None,
+                    arguments: None,
                 },
             )
         })
