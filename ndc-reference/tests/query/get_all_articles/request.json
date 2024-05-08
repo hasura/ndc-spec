@@ -9,7 +9,13 @@
             },
             "title": {
                 "type": "column",
-                "column": "title"
+                "column": "title",
+                "arguments": {
+                    "truncated": {
+                        "type": "literal",
+                        "value": 4
+                    }
+                }
             }
         }
     },
