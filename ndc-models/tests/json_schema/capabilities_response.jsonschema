@@ -45,6 +45,9 @@
     "QueryCapabilities": {
       "title": "Query Capabilities",
       "type": "object",
+      "required": [
+        "nested_fields"
+      ],
       "properties": {
         "aggregates": {
           "description": "Does the connector support aggregate queries",
@@ -81,12 +84,9 @@
         },
         "nested_fields": {
           "description": "Does the connector support nested fields",
-          "anyOf": [
+          "allOf": [
             {
               "$ref": "#/definitions/NestedFieldCapabilities"
-            },
-            {
-              "type": "null"
             }
           ]
         }

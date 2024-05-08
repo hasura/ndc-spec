@@ -61,7 +61,7 @@ pub struct QueryCapabilities {
     /// Does the connector support explaining queries
     pub explain: Option<LeafCapability>,
     /// Does the connector support nested fields
-    pub nested_fields: Option<NestedFieldCapabilities>,
+    pub nested_fields: NestedFieldCapabilities,
 }
 // ANCHOR_END: QueryCapabilities
 
