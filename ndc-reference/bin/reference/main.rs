@@ -309,7 +309,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         name: "String".into(),
                     },
                     arguments: Some(
-                        [(
+                        vec![(
                             "truncated".to_string(),
                             ArgumentInfo{
                                 description: None,
@@ -321,8 +321,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                                     }
                             }
                         )]
-                        .iter()
-                        .cloned()
+                        .into_iter()
                         .collect()
                     ),
                 },
