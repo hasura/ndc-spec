@@ -297,6 +297,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The article's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: None,
                 },
             ),
             (
@@ -306,6 +307,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: None,
                 },
             ),
             (
@@ -313,6 +315,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: None,
                 },
             ),
         ]),
@@ -327,6 +330,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The author's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: None,
                 },
             ),
             (
@@ -336,6 +340,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: None,
                 },
             ),
             (
@@ -345,6 +350,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: None,
                 },
             ),
         ]),
@@ -359,6 +365,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The institution's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: None,
                 },
             ),
             (
@@ -368,6 +375,8 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: None,
+
                 },
             ),
             (
@@ -377,6 +386,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "location".into(),
                     },
+                    arguments: None,
                 },
             ),
             (
@@ -388,6 +398,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "staff_member".into(),
                         }),
                     },
+                    arguments: None,
                 },
             ),
             (
@@ -399,6 +410,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
+                    arguments: None,
                 },
             ),
         ]),
@@ -415,6 +427,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: None,
                 },
             ),
             (
@@ -424,6 +437,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: None,
                 },
             ),
             (
@@ -435,6 +449,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
+                    arguments: None,
                 },
             ),
         ]),
@@ -451,6 +466,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: None,
                 },
             ),
             (
@@ -460,6 +476,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: None,
                 },
             ),
             (
@@ -471,6 +488,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
+                    arguments: None,
                 },
             ),
         ]),

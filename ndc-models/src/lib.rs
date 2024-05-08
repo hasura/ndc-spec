@@ -206,7 +206,7 @@ pub struct ObjectField {
     #[serde(rename = "type")]
     pub r#type: Type,
     /// The arguments available to the field - Matches implementation from CollectionInfo
-    pub arguments: BTreeMap<String, ArgumentInfo>,
+    pub arguments: Option<BTreeMap<String, ArgumentInfo>>,
 }
 // ANCHOR_END: ObjectField
 
