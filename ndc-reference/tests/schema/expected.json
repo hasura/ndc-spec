@@ -78,6 +78,17 @@
           "type": {
             "type": "named",
             "name": "String"
+          },
+          "arguments": {
+            "truncated": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
           }
         }
       }

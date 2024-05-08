@@ -15,6 +15,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
+use models::ArgumentInfo;
 use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
@@ -307,7 +308,23 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
-                    arguments: None,
+                    arguments: Some(
+                        [(
+                            "truncated".to_string(),
+                            ArgumentInfo{
+                                description: None,
+                                argument_type:
+                                    models::Type::Nullable {
+                                        underlying_type: Box::new(
+                                            models::Type::Named { name: "Int".into() }
+                                        )
+                                    }
+                            }
+                        )]
+                        .iter()
+                        .cloned()
+                        .collect()
+                    ),
                 },
             ),
             (
