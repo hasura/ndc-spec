@@ -17,9 +17,7 @@ To compute the ordering from the `order_by` field, data connectors should implem
 ### Type `column`
 
 The property `element.target.name` refers to a column name.
-If the property `element.target.field_path` is empty or not present then the entire value of the selected column is compared.
-If `field_path` is non-empty then it refers to a path to a nested field within the column to be compared.
-
+If the connector supports capability `query.nested_fields.order_by` then the target may also have a [`field_path`](./filtering.md#field_path) property.
 
 If `element.order_direction` is `asc`, then the row with the smaller column comes first. 
 

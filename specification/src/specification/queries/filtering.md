@@ -69,10 +69,6 @@ This example uses a custom `like` operator:
 
 Comparison operators compare columns to values. The column on the left hand side of any operator is described by a [`ComparisonTarget`](../../reference/types.md#comparisontarget), and the various cases will be explained next.
 
-The `name` property of `ComparisonTarget` refers to a column in either the current collection or a related collection (see below).
-If the `field_path` property is empty or not present then the target is the value of the named column.
-If `field_path` is non-empty then it refers to a path to a nested field within the named column.
-
 #### Referencing a column from the same collection
 
 If the `ComparisonTarget` has type `column`, and the `path` property is empty, then the `name` property refers to a column in the current collection.
@@ -88,6 +84,12 @@ When a `PathElement` references an _array_ relationship, the enclosing operator 
 If the `ComparisonTarget` has type `root_collection_column`, then the `name` property refers to a column in the _root collection_.
 
 The root collection is defined as the collection in scope at the nearest enclosing [`Query`](../../reference/types.md#query), and the column should be chosen from the _row_ in that collection which was in scope when that `Query` was being evaluated.
+
+#### `field_path`
+
+If the `field_path` property is empty or not present then the target is the value of the named column.
+If `field_path` is non-empty then it refers to a path to a nested field within the named column.
+(A `ComparisonTarget` may only have a non-empty `field_path` if the connector supports capability `query.nested_fields.filter_by`.)
 
 ### Values in Binary Operators
 
