@@ -39,3 +39,15 @@ pub enum Field {
 ```
 
 This mirrors the existing implementation for collection arguments.
+
+## Implications
+
+NDC schema and query invocation:
+
+* When the schema indicates that a field has arguments then they may be provided in a query.
+* Nullable arguments may be omitted.
+* If all arguments are nullable then the field may be referenced without arguments or parenteses.
+
+Engine interactions:
+
+* Variables need to be bound to field arguments if they are not supplied as scalars
