@@ -52,4 +52,6 @@ NDC schema and query invocation:
 
 Engine interactions:
 
+* Query field arguments will need to be translated to NDC field arguments
+* NDC schema responses will need to be translated into graphql schemas
 * Variables need to be bound to field arguments if they are not supplied as scalars
