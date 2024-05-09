@@ -38,7 +38,9 @@ pub enum Field {
 }
 ```
 
-This mirrors the existing implementation for collection arguments.
+This mirrors the existing implementation for collection arguments with the
+addition of an `Option` wrapper in order to make the implementation backwards
+compatible. RFC for this aspect - Should these be non-optional?
 
 ## Implications
 
