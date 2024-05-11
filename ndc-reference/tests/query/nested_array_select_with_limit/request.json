@@ -1,0 +1,44 @@
+{
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+    "collection": "institutions",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id"
+            },
+            "staff": {
+                "type": "column",
+                "column": "staff",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": 1
+                    }
+                },
+                "fields": {
+                    "type": "array",
+                    "fields": {
+                        "type": "object",
+                        "fields": {
+                            "last_name": {
+                                "type": "column",
+                                "column": "last_name"
+                            },
+                            "fields_of_study": {
+                                "type": "column",
+                                "column": "specialities"
+                            }
+                        }
+                    }
+                }
+            },
+            "departments": {
+                "type":"column",
+                "column": "departments"
+            }
+        }
+    },
+    "collection_relationships": {}
+}

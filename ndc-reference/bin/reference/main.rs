@@ -15,10 +15,11 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use models::ArgumentInfo;
+use models::{Argument, ArgumentInfo};
 use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
+use serde_json::Value;
 use tokio::sync::Mutex;
 
 const DEFAULT_PORT: u16 = 8080;
@@ -235,6 +236,22 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
 async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR_END: schema1
     // ANCHOR: schema_scalar_types
+    let array_arguments: Option<BTreeMap<String, _>> = Some(
+        vec![(
+            "limit".to_string(),
+            ArgumentInfo{
+                description: None,
+                argument_type:
+                    models::Type::Nullable {
+                        underlying_type: Box::new(
+                            models::Type::Named { name: "Int".into() }
+                        )
+                    }
+            }
+        )]
+        .into_iter()
+        .collect()
+    );
     let scalar_types = BTreeMap::from_iter([
         (
             "String".into(),
@@ -414,7 +431,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "staff_member".into(),
                         }),
                     },
-                    arguments: None,
+                    arguments: array_arguments.clone(),
                 },
             ),
             (
@@ -426,7 +443,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
-                    arguments: None,
+                    arguments: array_arguments.clone(),
                 },
             ),
         ]),
@@ -465,7 +482,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
-                    arguments: None,
+                    arguments: array_arguments.clone(),
                 },
             ),
         ]),
@@ -504,7 +521,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
-                    arguments: None,
+                    arguments: array_arguments.clone(),
                 },
             ),
         ]),
@@ -1826,6 +1843,7 @@ fn eval_nested_field(
     state: &AppState,
     value: serde_json::Value,
     nested_field: &models::NestedField,
+    arguments: &Option<BTreeMap<String, Argument>>,
 ) -> Result<models::RowFieldValue> {
     match nested_field {
         models::NestedField::Object(nested_object) => {
@@ -1867,10 +1885,37 @@ fn eval_nested_field(
                     }),
                 )
             })?;
-            let result_array = array
+            let mut limit = array.len();
+            let limit_error = (StatusCode::INTERNAL_SERVER_ERROR,
+                                Json(models::ErrorResponse {
+                                    message: "Cannot decode `limit` argument".into(),
+                                    details: serde_json::Value::Null, }));
+            if let Some(map) = arguments {
+                println!("Unevaluated arguments: {:?}", arguments);
+
+                if let Some(unevaluated_argument) = map.get("limit") {
+                    // limit = value;
+                    let evaluated_argument = eval_argument(variables, unevaluated_argument)?;
+                    println!("Evaluated argument: {:?}", evaluated_argument);
+                    match evaluated_argument {
+                        Value::Number(n) => {
+                            let ni = n.as_i64().ok_or(limit_error.clone())?;
+                            println!("ni: {:?}", ni);
+                            let nu = usize::try_from(ni).map_err( |_| { limit_error.clone() }) ?;
+                            println!("nu: {:?}", nu);
+                            println!("limit: {:?}", limit);
+                            if nu <= limit {
+                                limit = nu;
+                            }
+                        }
+                        _ => { Err(limit_error.clone())?; }
+                    }
+                }
+            }
+            let result_array = array[0..limit]
                 .into_iter()
                 .map(|value| {
-                    eval_nested_field(collection_relationships, variables, state, value, fields)
+                    eval_nested_field(collection_relationships, variables, state, value.clone(), fields, &None)
                 })
                 .collect::<Result<Vec<_>>>()?;
             Ok(models::RowFieldValue(
@@ -1897,7 +1942,7 @@ fn eval_field(
     item: &Row,
 ) -> Result<models::RowFieldValue> {
     match field {
-        models::Field::Column { column, fields, arguments: _ } => {
+        models::Field::Column { column, fields, arguments } => {
             let col_val = eval_column(item, column.as_str())?;
             match fields {
                 None => Ok(models::RowFieldValue(col_val)),
@@ -1907,6 +1952,7 @@ fn eval_field(
                     state,
                     col_val,
                     nested_field,
+                    arguments
                 ),
             }
         }
@@ -2130,6 +2176,7 @@ fn execute_upsert_article(
                     state,
                     old_row_value,
                     nested_field,
+                    &None
                 ),
             }?;
 
@@ -2199,6 +2246,7 @@ fn execute_delete_articles(
             &state_snapshot,
             removed_value,
             nested_field,
+            &None
         ),
     }?;
 
