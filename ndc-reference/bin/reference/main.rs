@@ -325,22 +325,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
-                    arguments: Some(
-                        vec![(
-                            "truncated".to_string(),
-                            ArgumentInfo{
-                                description: None,
-                                argument_type:
-                                    models::Type::Nullable {
-                                        underlying_type: Box::new(
-                                            models::Type::Named { name: "Int".into() }
-                                        )
-                                    }
-                            }
-                        )]
-                        .into_iter()
-                        .collect()
-                    ),
+                    arguments: None,
                 },
             ),
             (
