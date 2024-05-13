@@ -30,13 +30,14 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     let total_count = test!(
         "star_count",
         reporter,
-        test_star_count_aggregate(gen_config, connector, collection_info)
+        test_star_count_aggregate(schema, gen_config, connector, collection_info)
     )?;
 
     let _ = test!(
         "column_count",
         reporter,
         test_column_count_aggregate(
+            schema,
             gen_config,
             connector,
             collection_info,
@@ -62,6 +63,7 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
 }
 
 pub async fn test_star_count_aggregate<C: Connector>(
+    schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,
@@ -83,7 +85,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
     };
     let response = connector.query(query_request.clone()).await?;
 
-    validate_response(&query_request, &response)?;
+    validate_response(schema, &query_request, &response)?;
 
     let row_set = expect_single_rowset(response)?;
 
@@ -98,6 +100,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
 }
 
 pub async fn test_column_count_aggregate<C: Connector>(
+    schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,
@@ -136,7 +139,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
     };
     let response = connector.query(query_request.clone()).await?;
 
-    validate_response(&query_request, &response)?;
+    validate_response(schema, &query_request, &response)?;
 
     let row_set = expect_single_rowset(response)?;
 
@@ -228,5 +231,5 @@ pub async fn test_single_column_aggregates<C: Connector>(
     };
     let response = connector.query(query_request.clone()).await?;
 
-    validate_response(&query_request, &response)
+    validate_response(schema, &query_request, &response)
 }

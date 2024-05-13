@@ -159,7 +159,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
 
         let response = connector.query(query_request.clone()).await?;
 
-        validate_response(&query_request, &response)?;
+        validate_response(schema, &query_request, &response)?;
     } else {
         eprintln!("Skipping parameterized relationship {foreign_key_name}");
     }
@@ -239,7 +239,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
 
             let response = connector.query(query_request.clone()).await?;
 
-            validate_response(&query_request, &response)?;
+            validate_response(schema, &query_request, &response)?;
         }
     } else {
         eprintln!("Skipping parameterized relationship {foreign_key_name}");
@@ -326,7 +326,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
 
         let response = connector.query(query_request.clone()).await?;
 
-        validate_response(&query_request, &response)?;
+        validate_response(schema, &query_request, &response)?;
     } else {
         eprintln!("Skipping parameterized relationship {foreign_key_name}");
     }

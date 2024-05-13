@@ -1,5 +1,5 @@
 mod capabilities;
-mod query;
+pub mod query;
 mod schema;
 
 use crate::configuration::TestGenerationConfiguration;

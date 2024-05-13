@@ -90,7 +90,7 @@ pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
             test_snapshots_in_directory_with::<C, R, _, _, _>(
                 reporter,
                 snapshots_dir.join("query"),
-                |req| connector.query(req),
+                |req| connector.query(req)
             )
         });
 

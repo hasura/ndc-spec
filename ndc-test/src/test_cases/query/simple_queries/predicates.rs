@@ -23,6 +23,7 @@ pub async fn test_predicates<C: Connector>(
         for _ in 0..gen_config.test_cases.max(1) {
             if let Some(predicate) = make_predicate(gen_config, schema, context, rng)? {
                 test_select_top_n_rows_with_predicate(
+                    schema, 
                     gen_config,
                     connector,
                     &predicate,
@@ -174,6 +175,7 @@ fn make_single_expressions(
 }
 
 async fn test_select_top_n_rows_with_predicate<C: Connector>(
+    schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     predicate: &GeneratedExpression,
@@ -199,7 +201,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
 
     let response = connector.query(query_request.clone()).await?;
 
-    validate_response(&query_request, &response)?;
+    validate_response(schema, &query_request, &response)?;
 
     if predicate.expect_nonempty {
         super::super::validate::expect_single_non_empty_rows(response)?;
