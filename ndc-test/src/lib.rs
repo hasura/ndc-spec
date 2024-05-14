@@ -31,6 +31,8 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use snapshot::{snapshot_test, SnapshottingConnector};
 
+use crate::test_cases::query::validate::validate_response;
+
 #[async_trait(?Send)]
 impl Connector for client::Configuration {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
@@ -87,10 +89,16 @@ pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
 ) {
     let _ = async {
         nest!("Query", reporter, {
+            
             test_snapshots_in_directory_with::<C, R, _, _, _>(
                 reporter,
                 snapshots_dir.join("query"),
-                |req| connector.query(req)
+                |req: models::QueryRequest| async move {
+                    let schema = connector.get_schema().await?;
+                    let res = connector.query(req.clone()).await?;
+                    validate_response(&schema, &req, &res)?;
+                    Ok(res)
+                },
             )
         });
 

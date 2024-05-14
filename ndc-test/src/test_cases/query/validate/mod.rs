@@ -79,22 +79,14 @@ pub fn validate_rowset(
 ) -> Result<()> {
     match (&query.fields, &rowset.rows) {
         (Some(fields), Some(rows)) => {
-            let collection = schema
-                .collections
-                .iter()
-                .find(|c| c.name == collection_name)
-                .ok_or(Error::CollectionIsNotDefined(collection_name.clone()))?;
-
-            let collection_type = schema.object_types.get(&collection.collection_type).ok_or(
-                Error::ObjectTypeIsNotDefined(collection.collection_type.clone()),
-            )?;
+            let object_type = find_collection_type_by_name(schema, collection_name)?;
 
             let new_json_path = [json_path.as_slice(), &vec!["rows".to_string()]].concat();
 
             validate_rows(
                 schema,
                 collection_relationships,
-                collection_type,
+                &object_type,
                 query,
                 fields,
                 rows,
@@ -116,6 +108,41 @@ pub fn validate_rowset(
     }?;
 
     Ok(())
+}
+
+fn find_collection_type_by_name(
+    schema: &models::SchemaResponse,
+    collection_name: String,
+) -> Result<models::ObjectType> {
+    let collection = schema
+        .collections
+        .iter()
+        .find(|c| c.name == collection_name);
+
+    if let Some(collection) = collection {
+        let object_type = schema
+            .object_types
+            .get(&collection.collection_type)
+            .ok_or(Error::ObjectTypeIsNotDefined(collection.collection_type.clone()))?;
+        Ok(object_type.clone())
+    } else {
+        let function = schema.functions.iter().find(|f| f.name == collection_name);
+
+        if let Some(function) = function {
+            Ok(models::ObjectType {
+                description: None,
+                fields: BTreeMap::from_iter([(
+                    "__value".into(),
+                    models::ObjectField {
+                        description: None,
+                        r#type: function.result_type.clone(),
+                    },
+                )]),
+            })
+        } else {
+            Err(Error::CollectionIsNotDefined(collection_name.clone()))
+        }
+    }
 }
 
 pub fn validate_rows(
