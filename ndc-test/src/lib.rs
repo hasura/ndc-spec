@@ -89,7 +89,6 @@ pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
 ) {
     let _ = async {
         nest!("Query", reporter, {
-            
             test_snapshots_in_directory_with::<C, R, _, _, _>(
                 reporter,
                 snapshots_dir.join("query"),

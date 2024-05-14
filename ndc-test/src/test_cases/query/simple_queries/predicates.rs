@@ -23,7 +23,7 @@ pub async fn test_predicates<C: Connector>(
         for _ in 0..gen_config.test_cases.max(1) {
             if let Some(predicate) = make_predicate(gen_config, schema, context, rng)? {
                 test_select_top_n_rows_with_predicate(
-                    schema, 
+                    schema,
                     gen_config,
                     connector,
                     &predicate,

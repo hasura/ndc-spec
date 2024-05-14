@@ -52,9 +52,7 @@ pub fn validate_response(
         ));
     }
 
-    let mut row_index: i32 = 0;
-
-    for rowset in &response.0 {
+    for (row_index, rowset) in (0_i32..).zip(response.0.iter()) {
         validate_rowset(
             schema,
             &request.collection_relationships,
@@ -63,7 +61,6 @@ pub fn validate_response(
             rowset,
             vec!["$".into(), row_index.to_string()],
         )?;
-        row_index += 1;
     }
 
     Ok(())
@@ -81,7 +78,7 @@ pub fn validate_rowset(
         (Some(fields), Some(rows)) => {
             let object_type = find_collection_type_by_name(schema, collection_name)?;
 
-            let new_json_path = [json_path.as_slice(), &vec!["rows".to_string()]].concat();
+            let new_json_path = [json_path.as_slice(), &["rows".to_string()]].concat();
 
             validate_rows(
                 schema,
@@ -120,10 +117,9 @@ fn find_collection_type_by_name(
         .find(|c| c.name == collection_name);
 
     if let Some(collection) = collection {
-        let object_type = schema
-            .object_types
-            .get(&collection.collection_type)
-            .ok_or(Error::ObjectTypeIsNotDefined(collection.collection_type.clone()))?;
+        let object_type = schema.object_types.get(&collection.collection_type).ok_or(
+            Error::ObjectTypeIsNotDefined(collection.collection_type.clone()),
+        )?;
         Ok(object_type.clone())
     } else {
         let function = schema.functions.iter().find(|f| f.name == collection_name);
@@ -164,16 +160,14 @@ pub fn validate_rows(
         }
     }
 
-    let mut row_index: i32 = 0;
-
-    for row in rows {
+    for (row_index, row) in (0_i32..).zip(rows.iter()) {
         let mut row_copy = row.clone();
 
-        let new_json_path = [json_path.as_slice(), &vec![row_index.to_string()]].concat();
+        let new_json_path = [json_path.as_slice(), &[row_index.to_string()]].concat();
 
         for (field_name, field) in fields {
             if let Some(row_field_value) = row_copy.swap_remove(field_name) {
-                let new_json_path = [new_json_path.as_slice(), &vec![field_name.clone()]].concat();
+                let new_json_path = [new_json_path.as_slice(), &[field_name.clone()]].concat();
 
                 validate_field(
                     schema,
@@ -188,8 +182,6 @@ pub fn validate_rows(
                 return Err(Error::MissingField(field_name.clone()));
             }
         }
-
-        row_index += 1;
     }
 
     Ok(())

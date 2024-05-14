@@ -18,17 +18,17 @@ pub fn check_value_has_type(
 ) -> Result<()> {
     match r#type {
         models::Type::Nullable { underlying_type } => {
-            if !value.is_null() {
+            if value.is_null() {
+                Ok(())
+            } else {
                 check_value_has_type(
                     schema,
                     collection_relationships,
                     value,
-                    &underlying_type,
+                    underlying_type,
                     fields,
                     json_path,
                 )
-            } else {
-                Ok(())
             }
         }
         models::Type::Named { name } => {
@@ -65,15 +65,14 @@ pub fn check_value_has_type(
         }
         models::Type::Array { element_type } => {
             if let Some(elements) = value.as_array() {
-                let mut index = 0;
-                for element in elements.iter() {
+                for (index, element) in elements.iter().enumerate() {
                     let new_json_path = [json_path.as_slice(), &[index.to_string()]].concat();
                     let new_fields = fields
                         .map(|fields| match fields {
                             models::NestedField::Array(new_fields) => {
                                 Ok(new_fields.fields.as_ref())
                             }
-                            _ => Err(Error::InvalidRequest(
+                            models::NestedField::Object(_) => Err(Error::InvalidRequest(
                                 "invalid field selection: expected NestedField::Array".into(),
                             )),
                         })
@@ -82,12 +81,10 @@ pub fn check_value_has_type(
                         schema,
                         collection_relationships,
                         element.clone(),
-                        &element_type,
+                        element_type,
                         new_fields,
                         new_json_path,
                     )?;
-
-                    index += 1;
                 }
 
                 Ok(())
@@ -127,25 +124,22 @@ mod representations {
 
         match representation {
             models::TypeRepresentation::Boolean => check!(value.is_boolean(), "boolean"),
-            models::TypeRepresentation::String => check!(value.is_string(), "string"),
-            models::TypeRepresentation::Number => check!(value.is_number(), "number"),
-            models::TypeRepresentation::Integer => check!(value.is_i64(), "integer"),
-            models::TypeRepresentation::Int8 => check!(value.is_i64(), "integer"),
-            models::TypeRepresentation::Int16 => check!(value.is_i64(), "integer"),
-            models::TypeRepresentation::Int32 => check!(value.is_i64(), "integer"),
-            models::TypeRepresentation::Int64 => check!(value.is_string(), "string"),
-            models::TypeRepresentation::Float32 => check!(value.is_number(), "number"),
-            models::TypeRepresentation::Float64 => check!(value.is_number(), "number"),
-            models::TypeRepresentation::BigInteger => check!(value.is_string(), "string"),
-            models::TypeRepresentation::BigDecimal => check!(value.is_string(), "string"),
-            models::TypeRepresentation::UUID => check!(value.is_string(), "string"),
-            models::TypeRepresentation::Date => check!(value.is_string(), "string"),
-            models::TypeRepresentation::Timestamp => check!(value.is_string(), "string"),
-            models::TypeRepresentation::TimestampTZ => check!(value.is_string(), "string"),
-            models::TypeRepresentation::Geography => {}
-            models::TypeRepresentation::Geometry => {}
-            models::TypeRepresentation::Bytes => check!(value.is_string(), "string"),
-            models::TypeRepresentation::JSON => {}
+            models::TypeRepresentation::Number
+            | models::TypeRepresentation::Float32
+            | models::TypeRepresentation::Float64 => check!(value.is_number(), "number"),
+            models::TypeRepresentation::Integer
+            | models::TypeRepresentation::Int8
+            | models::TypeRepresentation::Int16
+            | models::TypeRepresentation::Int32 => check!(value.is_i64(), "integer"),
+            models::TypeRepresentation::String
+            | models::TypeRepresentation::Int64
+            | models::TypeRepresentation::BigInteger
+            | models::TypeRepresentation::BigDecimal
+            | models::TypeRepresentation::UUID
+            | models::TypeRepresentation::Date
+            | models::TypeRepresentation::Timestamp
+            | models::TypeRepresentation::TimestampTZ
+            | models::TypeRepresentation::Bytes => check!(value.is_string(), "string"),
             models::TypeRepresentation::Enum { one_of } => {
                 check!(
                     {
@@ -153,8 +147,11 @@ mod representations {
                         s.is_some_and(|x| one_of.contains(&x.to_string()))
                     },
                     "string"
-                )
+                );
             }
+            models::TypeRepresentation::Geography
+            | models::TypeRepresentation::Geometry
+            | models::TypeRepresentation::JSON => {}
         }
 
         Ok(())
@@ -172,7 +169,7 @@ pub(crate) fn check_value_has_object_type(
     let mut row_copy = object.clone();
     match fields {
         Some(NestedField::Object(nested_object)) => {
-            for (field_name, field) in nested_object.fields.iter() {
+            for (field_name, field) in &nested_object.fields {
                 if let Some(row_field_value) = row_copy.swap_remove(field_name) {
                     let new_json_path = [json_path.as_slice(), &[field_name.clone()]].concat();
 
@@ -180,7 +177,7 @@ pub(crate) fn check_value_has_object_type(
                         schema,
                         collection_relationships,
                         object_type,
-                        &field_name,
+                        field_name,
                         field,
                         row_field_value,
                         new_json_path,
@@ -194,7 +191,7 @@ pub(crate) fn check_value_has_object_type(
             "invalid field selection: expected NestedField::Object".into(),
         )),
         None => {
-            for (field_name, field) in object_type.fields.iter() {
+            for (field_name, field) in &object_type.fields {
                 if let Some(row_field_value) = row_copy.swap_remove(field_name) {
                     let new_json_path = [json_path.as_slice(), &[field_name.clone()]].concat();
 
