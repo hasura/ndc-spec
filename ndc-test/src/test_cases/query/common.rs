@@ -1,5 +1,7 @@
 
+
 use indexmap::IndexMap;
+use models::Type;
 use ndc_models as models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
@@ -8,15 +10,28 @@ pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<Stri
         .fields
         .iter()
         .map(|f| {
-            (
-                f.0.clone(),
-                models::Field::Column {
-                    column: f.0.clone(),
-                    fields: None,
-                    arguments: None,
-                },
-            )
+            // NOTE: This may have knock-on effects if it is the only field selected and has arguments.
+            if (*f.1).arguments.iter().all( |(_, v)|
+                match v.argument_type  {
+                    Type::Nullable { underlying_type: _ } => {
+                        true
+                    }
+                    _ => false
+                }
+            ) {
+               Some((
+                    f.0.clone(),
+                    models::Field::Column {
+                        column: f.0.clone(),
+                        fields: None,
+                        arguments: None,
+                    },
+                ))
+            } else {
+                None
+            }
         })
+        .filter_map(|x| x)
         .collect::<IndexMap<String, models::Field>>()
 }
 
