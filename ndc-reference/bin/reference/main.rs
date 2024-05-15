@@ -1879,15 +1879,14 @@ fn eval_nested_field(
                 if let Some(present_limit_arg) = present_arguments.get("limit") {
                     if let Some(some_limit_arg) = present_limit_arg {
                         let limit_value = eval_argument(variables, some_limit_arg)?;
-                        match limit_value {
-                            Value::Number(n) => {
+                        if let Value::Number(n) = limit_value {
                                 let ni = n.as_i64().ok_or(limit_error.clone())?;
                                 let nu = usize::try_from(ni).map_err( |_| { limit_error.clone() }) ?;
                                 if nu <= limit {
                                     limit = nu;
                                 }
-                            }
-                            _ => { Err(limit_error.clone())?; }
+                        } else {
+                            Err(limit_error.clone())?;
                         }
                     }
                 }
