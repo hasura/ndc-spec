@@ -206,8 +206,7 @@ pub struct ObjectField {
     #[serde(rename = "type")]
     pub r#type: Type,
     /// The arguments available to the field - Matches implementation from CollectionInfo
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub arguments: Option<BTreeMap<String, ArgumentInfo>>,
+    pub arguments: BTreeMap<String, ArgumentInfo>,
 }
 // ANCHOR_END: ObjectField
 
@@ -467,8 +466,7 @@ pub enum Field {
         /// by specifying fields to fetch here.
         /// If omitted, the column data will be fetched in full.
         fields: Option<NestedField>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        arguments: Option<BTreeMap<String, Argument>>,
+        arguments: Option<BTreeMap<String, Option<Argument>>>,
     },
     Relationship {
         query: Box<Query>,

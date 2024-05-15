@@ -64,21 +64,24 @@
           "type": {
             "type": "named",
             "name": "Int"
-          }
+          },
+          "arguments": {}
         },
         "id": {
           "description": "The article's primary key",
           "type": {
             "type": "named",
             "name": "Int"
-          }
+          },
+          "arguments": {}
         },
         "title": {
           "description": "The article's title",
           "type": {
             "type": "named",
             "name": "String"
-          }
+          },
+          "arguments": {}
         }
       }
     },
@@ -90,21 +93,24 @@
           "type": {
             "type": "named",
             "name": "String"
-          }
+          },
+          "arguments": {}
         },
         "id": {
           "description": "The author's primary key",
           "type": {
             "type": "named",
             "name": "Int"
-          }
+          },
+          "arguments": {}
         },
         "last_name": {
           "description": "The author's last name",
           "type": {
             "type": "named",
             "name": "String"
-          }
+          },
+          "arguments": {}
         }
       }
     },
@@ -137,21 +143,24 @@
           "type": {
             "type": "named",
             "name": "Int"
-          }
+          },
+          "arguments": {}
         },
         "location": {
           "description": "The institution's location",
           "type": {
             "type": "named",
             "name": "location"
-          }
+          },
+          "arguments": {}
         },
         "name": {
           "description": "The institution's name",
           "type": {
             "type": "named",
             "name": "String"
-          }
+          },
+          "arguments": {}
         },
         "staff": {
           "description": "The institution's staff",
@@ -188,31 +197,23 @@
               "name": "String"
             }
           },
-          "arguments": {
-            "limit": {
-              "type": {
-                "type": "nullable",
-                "underlying_type": {
-                  "type": "named",
-                  "name": "Int"
-                }
-              }
-            }
-          }
+          "arguments": {}
         },
         "city": {
           "description": "The location's city",
           "type": {
             "type": "named",
             "name": "String"
-          }
+          },
+          "arguments": {}
         },
         "country": {
           "description": "The location's country",
           "type": {
             "type": "named",
             "name": "String"
-          }
+          },
+          "arguments": {}
         }
       }
     },
@@ -224,14 +225,16 @@
           "type": {
             "type": "named",
             "name": "String"
-          }
+          },
+          "arguments": {}
         },
         "last_name": {
           "description": "The staff member's last name",
           "type": {
             "type": "named",
             "name": "String"
-          }
+          },
+          "arguments": {}
         },
         "specialities": {
           "description": "The staff member's specialities",
@@ -242,17 +245,7 @@
               "name": "String"
             }
           },
-          "arguments": {
-            "limit": {
-              "type": {
-                "type": "nullable",
-                "underlying_type": {
-                  "type": "named",
-                  "name": "Int"
-                }
-              }
-            }
-          }
+          "arguments": {}
         }
       }
     }

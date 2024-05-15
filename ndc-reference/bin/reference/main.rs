@@ -236,7 +236,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
 async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR_END: schema1
     // ANCHOR: schema_scalar_types
-    let array_arguments: Option<BTreeMap<String, _>> = Some(
+    let array_arguments: BTreeMap<String, _> =
         vec![(
             "limit".to_string(),
             ArgumentInfo{
@@ -250,8 +250,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             }
         )]
         .into_iter()
-        .collect()
-    );
+        .collect();
     let scalar_types = BTreeMap::from_iter([
         (
             "String".into(),
@@ -315,7 +314,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The article's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -325,7 +324,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -333,7 +332,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
                     r#type: models::Type::Named { name: "Int".into() },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
         ]),
@@ -348,7 +347,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The author's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -358,7 +357,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -368,7 +367,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
         ]),
@@ -383,7 +382,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The institution's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -393,7 +392,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
 
                 },
             ),
@@ -404,7 +403,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "location".into(),
                     },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -445,7 +444,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -455,7 +454,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -467,7 +466,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
-                    arguments: array_arguments.clone(),
+                    arguments: BTreeMap::new(),
                 },
             ),
         ]),
@@ -484,7 +483,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -494,7 +493,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
-                    arguments: None,
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -506,8 +505,8 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
-                    arguments: array_arguments.clone(),
-                },
+                    arguments: BTreeMap::new(),
+               },
             ),
         ]),
     };
@@ -1828,7 +1827,7 @@ fn eval_nested_field(
     state: &AppState,
     value: serde_json::Value,
     nested_field: &models::NestedField,
-    arguments: &Option<BTreeMap<String, Argument>>,
+    arguments: &Option<BTreeMap<String, Option<Argument>>>,
 ) -> Result<models::RowFieldValue> {
     match nested_field {
         models::NestedField::Object(nested_object) => {
@@ -1875,28 +1874,25 @@ fn eval_nested_field(
                                 Json(models::ErrorResponse {
                                     message: "Cannot decode `limit` argument".into(),
                                     details: serde_json::Value::Null, }));
-            if let Some(map) = arguments {
-                println!("Unevaluated arguments: {:?}", arguments);
 
-                if let Some(unevaluated_argument) = map.get("limit") {
-                    // limit = value;
-                    let evaluated_argument = eval_argument(variables, unevaluated_argument)?;
-                    println!("Evaluated argument: {:?}", evaluated_argument);
-                    match evaluated_argument {
-                        Value::Number(n) => {
-                            let ni = n.as_i64().ok_or(limit_error.clone())?;
-                            println!("ni: {:?}", ni);
-                            let nu = usize::try_from(ni).map_err( |_| { limit_error.clone() }) ?;
-                            println!("nu: {:?}", nu);
-                            println!("limit: {:?}", limit);
-                            if nu <= limit {
-                                limit = nu;
+            if let Some(present_arguments) = arguments {
+                if let Some(present_limit_arg) = present_arguments.get("limit") {
+                    if let Some(some_limit_arg) = present_limit_arg {
+                        let limit_value = eval_argument(variables, some_limit_arg)?;
+                        match limit_value {
+                            Value::Number(n) => {
+                                let ni = n.as_i64().ok_or(limit_error.clone())?;
+                                let nu = usize::try_from(ni).map_err( |_| { limit_error.clone() }) ?;
+                                if nu <= limit {
+                                    limit = nu;
+                                }
                             }
+                            _ => { Err(limit_error.clone())?; }
                         }
-                        _ => { Err(limit_error.clone())?; }
                     }
                 }
             }
+
             let result_array = array[0..limit]
                 .into_iter()
                 .map(|value| {
@@ -2161,7 +2157,7 @@ fn execute_upsert_article(
                     state,
                     old_row_value,
                     nested_field,
-                    &None
+                    &None,
                 ),
             }?;
 
@@ -2231,7 +2227,7 @@ fn execute_delete_articles(
             &state_snapshot,
             removed_value,
             nested_field,
-            &None
+            &None,
         ),
     }?;
 

@@ -611,6 +611,7 @@
       "description": "The definition of an object field",
       "type": "object",
       "required": [
+        "arguments",
         "type"
       ],
       "properties": {
@@ -631,10 +632,7 @@
         },
         "arguments": {
           "description": "The arguments available to the field - Matches implementation from CollectionInfo",
-          "type": [
-            "object",
-            "null"
-          ],
+          "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ArgumentInfo"
           }
