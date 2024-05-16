@@ -19,7 +19,6 @@ use models::{Argument, ArgumentInfo};
 use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
-use serde_json::Value;
 use tokio::sync::Mutex;
 
 const DEFAULT_PORT: u16 = 8080;
@@ -236,21 +235,17 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
 async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR_END: schema1
     // ANCHOR: schema_scalar_types
-    let array_arguments: BTreeMap<String, _> =
-        vec![(
-            "limit".to_string(),
-            ArgumentInfo{
-                description: None,
-                argument_type:
-                    models::Type::Nullable {
-                        underlying_type: Box::new(
-                            models::Type::Named { name: "Int".into() }
-                        )
-                    }
-            }
-        )]
-        .into_iter()
-        .collect();
+    let array_arguments: BTreeMap<String, _> = vec![(
+        "limit".to_string(),
+        ArgumentInfo {
+            description: None,
+            argument_type: models::Type::Nullable {
+                underlying_type: Box::new(models::Type::Named { name: "Int".into() }),
+            },
+        },
+    )]
+    .into_iter()
+    .collect();
     let scalar_types = BTreeMap::from_iter([
         (
             "String".into(),
@@ -393,7 +388,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         name: "String".into(),
                     },
                     arguments: BTreeMap::new(),
-
                 },
             ),
             (
@@ -466,7 +460,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
-                    arguments: BTreeMap::new(),
+                    arguments: array_arguments.clone(),
                 },
             ),
         ]),
@@ -505,8 +499,8 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
-                    arguments: BTreeMap::new(),
-               },
+                    arguments: array_arguments.clone(),
+                },
             ),
         ]),
     };
@@ -1827,7 +1821,8 @@ fn eval_nested_field(
     state: &AppState,
     value: serde_json::Value,
     nested_field: &models::NestedField,
-    arguments: &Option<BTreeMap<String, Option<Argument>>>,
+    arguments: &Option<BTreeMap<String, Argument>>,
+    apply_array_arguments: bool,
 ) -> Result<models::RowFieldValue> {
     match nested_field {
         models::NestedField::Object(nested_object) => {
@@ -1869,31 +1864,55 @@ fn eval_nested_field(
                     }),
                 )
             })?;
-            let mut limit = array.len();
-            let limit_error = (StatusCode::INTERNAL_SERVER_ERROR,
-                                Json(models::ErrorResponse {
-                                    message: "Cannot decode `limit` argument".into(),
-                                    details: serde_json::Value::Null, }));
 
-            if let Some(present_arguments) = arguments {
-                if let Some(Some(some_limit_arg)) = present_arguments.get("limit") {
-                    let limit_value = eval_argument(variables, some_limit_arg)?;
-                    if let Value::Number(n) = limit_value {
-                            let ni = n.as_i64().ok_or(limit_error.clone())?;
-                            let nu = usize::try_from(ni).map_err( |_| { limit_error.clone() }) ?;
-                            if nu <= limit {
-                                limit = nu;
-                            }
-                    } else {
-                        Err(limit_error.clone())?;
-                    }
-                }
-            }
+            let limit = if apply_array_arguments {
+                let limit_argument = arguments
+                    .as_ref()
+                    .ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "Expected arguments".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))?
+                    .get("limit")
+                    .ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "Expected argument 'limit'".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))?;
+                let limit = serde_json::from_value::<Option<usize>>(eval_argument(
+                    variables,
+                    limit_argument,
+                )?)
+                .map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "limit must be null or an integer".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?;
+                Ok(limit)
+            } else {
+                Ok(None)
+            }?;
 
-            let result_array = array[0..limit]
+            let result_array = array[0..limit.unwrap_or(array.len())]
                 .iter()
                 .map(|value| {
-                    eval_nested_field(collection_relationships, variables, state, value.clone(), fields, &None)
+                    eval_nested_field(
+                        collection_relationships,
+                        variables,
+                        state,
+                        value.clone(),
+                        fields,
+                        &None,
+                        true,
+                    )
                 })
                 .collect::<Result<Vec<_>>>()?;
             Ok(models::RowFieldValue(
@@ -1920,7 +1939,11 @@ fn eval_field(
     item: &Row,
 ) -> Result<models::RowFieldValue> {
     match field {
-        models::Field::Column { column, fields, arguments } => {
+        models::Field::Column {
+            column,
+            fields,
+            arguments,
+        } => {
             let col_val = eval_column(item, column.as_str())?;
             match fields {
                 None => Ok(models::RowFieldValue(col_val)),
@@ -1930,7 +1953,8 @@ fn eval_field(
                     state,
                     col_val,
                     nested_field,
-                    arguments
+                    arguments,
+                    true,
                 ),
             }
         }
@@ -2155,6 +2179,7 @@ fn execute_upsert_article(
                     old_row_value,
                     nested_field,
                     &None,
+                    false,
                 ),
             }?;
 
@@ -2225,6 +2250,7 @@ fn execute_delete_articles(
             removed_value,
             nested_field,
             &None,
+            false,
         ),
     }?;
 

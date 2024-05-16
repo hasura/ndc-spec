@@ -11,6 +11,12 @@
             "staff": {
                 "type": "column",
                 "column": "staff",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                },
                 "fields": {
                     "type": "array",
                     "fields": {
@@ -22,14 +28,20 @@
                             },
                             "fields_of_study": {
                                 "type": "column",
-                                "column": "specialities"
+                                "column": "specialities",
+                                "arguments": {
+                                    "limit": {
+                                        "type": "literal",
+                                        "value": null
+                                    }
+                                }
                             }
                         }
                     }
                 }
             },
             "departments": {
-                "type":"column",
+                "type": "column",
                 "column": "departments"
             }
         }

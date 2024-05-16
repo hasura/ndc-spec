@@ -197,7 +197,17 @@
               "name": "String"
             }
           },
-          "arguments": {}
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
+          }
         },
         "city": {
           "description": "The location's city",
@@ -245,7 +255,17 @@
               "name": "String"
             }
           },
-          "arguments": {}
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
+          }
         }
       }
     }

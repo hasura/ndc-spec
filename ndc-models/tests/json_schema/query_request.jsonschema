@@ -216,14 +216,7 @@
                 "null"
               ],
               "additionalProperties": {
-                "anyOf": [
-                  {
-                    "$ref": "#/definitions/Argument"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "$ref": "#/definitions/Argument"
               }
             }
           }

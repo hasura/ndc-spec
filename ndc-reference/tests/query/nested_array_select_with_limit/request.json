@@ -28,7 +28,13 @@
                             },
                             "fields_of_study": {
                                 "type": "column",
-                                "column": "specialities"
+                                "column": "specialities",
+                                "arguments": {
+                                    "limit": {
+                                        "type": "literal",
+                                        "value": 2
+                                    }
+                                }
                             }
                         }
                     }
