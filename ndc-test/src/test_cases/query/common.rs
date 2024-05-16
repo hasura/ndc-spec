@@ -9,15 +9,10 @@ pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<Stri
     collection_type
         .fields
         .iter()
-        .map(|f| {
+        .filter_map(|f| {
             // NOTE: This may have knock-on effects if it is the only field selected and has arguments.
-            if (*f.1).arguments.iter().all( |(_, v)|
-                match v.argument_type  {
-                    Type::Nullable { underlying_type: _ } => {
-                        true
-                    }
-                    _ => false
-                }
+            if f.1.arguments.iter().all( |(_, v)|
+                matches!(v.argument_type, Type::Nullable { underlying_type: _ })
             ) {
                Some((
                     f.0.clone(),
@@ -31,7 +26,6 @@ pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<Stri
                 None
             }
         })
-        .filter_map(|x| x)
         .collect::<IndexMap<String, models::Field>>()
 }
 

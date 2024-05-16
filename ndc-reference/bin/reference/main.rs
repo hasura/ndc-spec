@@ -1876,24 +1876,22 @@ fn eval_nested_field(
                                     details: serde_json::Value::Null, }));
 
             if let Some(present_arguments) = arguments {
-                if let Some(present_limit_arg) = present_arguments.get("limit") {
-                    if let Some(some_limit_arg) = present_limit_arg {
-                        let limit_value = eval_argument(variables, some_limit_arg)?;
-                        if let Value::Number(n) = limit_value {
-                                let ni = n.as_i64().ok_or(limit_error.clone())?;
-                                let nu = usize::try_from(ni).map_err( |_| { limit_error.clone() }) ?;
-                                if nu <= limit {
-                                    limit = nu;
-                                }
-                        } else {
-                            Err(limit_error.clone())?;
-                        }
+                if let Some(Some(some_limit_arg)) = present_arguments.get("limit") {
+                    let limit_value = eval_argument(variables, some_limit_arg)?;
+                    if let Value::Number(n) = limit_value {
+                            let ni = n.as_i64().ok_or(limit_error.clone())?;
+                            let nu = usize::try_from(ni).map_err( |_| { limit_error.clone() }) ?;
+                            if nu <= limit {
+                                limit = nu;
+                            }
+                    } else {
+                        Err(limit_error.clone())?;
                     }
                 }
             }
 
             let result_array = array[0..limit]
-                .into_iter()
+                .iter()
                 .map(|value| {
                     eval_nested_field(collection_relationships, variables, state, value.clone(), fields, &None)
                 })
