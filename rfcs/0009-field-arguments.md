@@ -22,7 +22,7 @@ The schema is extended with:
 ```rust
 pub struct ObjectField {
   ...
-  pub arguments: Option<BTreeMap<String, ArgumentInfo>>,
+  pub arguments: BTreeMap<String, ArgumentInfo>,
 }
 ```
 
@@ -32,7 +32,7 @@ and queries are extended with:
 pub enum Field {
   Column {
     ...
-    arguments: Option<BTreeMap<String, Argument>>,
+    arguments: Option<BTreeMap<String, Option<Argument>>>,
   }
   ...
 }
@@ -40,14 +40,14 @@ pub enum Field {
 
 This mirrors the existing implementation for collection arguments with the
 addition of an `Option` wrapper in order to make the implementation backwards
-compatible. RFC for this aspect - Should these be non-optional?
+compatible.
 
 ## Implications
 
 NDC schema and query invocation:
 
 * When the schema indicates that a field has arguments then they may be provided in a query.
-* Nullable arguments may be omitted.
+* Nullable arguments must be explicitly supplied with None.
 * If all arguments are nullable then the field may be referenced without arguments or parenteses.
 
 Engine interactions:
