@@ -1821,7 +1821,7 @@ fn eval_nested_field(
     state: &AppState,
     value: serde_json::Value,
     nested_field: &models::NestedField,
-    arguments: &Option<BTreeMap<String, Argument>>,
+    arguments: &Option<BTreeMap<String, Option<Argument>>>,
     apply_array_arguments: bool,
 ) -> Result<models::RowFieldValue> {
     match nested_field {
@@ -1883,20 +1883,24 @@ fn eval_nested_field(
                             details: serde_json::Value::Null,
                         }),
                     ))?;
-                let limit = serde_json::from_value::<Option<usize>>(eval_argument(
-                    variables,
-                    limit_argument,
-                )?)
-                .map_err(|_| {
-                    (
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "limit must be null or an integer".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    )
-                })?;
-                Ok(limit)
+                if let Some(some_limit_argument) = limit_argument {
+                    let limit = serde_json::from_value::<Option<usize>>(eval_argument(
+                        variables,
+                        some_limit_argument,
+                    )?)
+                    .map_err(|_| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "limit must be null or an integer".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })?;
+                    Ok(limit)
+                } else {
+                    Ok(None)
+                }
             } else {
                 Ok(None)
             }?;

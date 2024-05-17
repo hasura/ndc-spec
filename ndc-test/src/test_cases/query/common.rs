@@ -1,7 +1,7 @@
 
 
 use indexmap::IndexMap;
-use models::{Argument, Type};
+use models::Type;
 use ndc_models as models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
@@ -20,7 +20,7 @@ pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<Stri
                         column: f.0.clone(),
                         fields: None,
                         arguments: Some(f.1.arguments.keys().map(|k| {
-                            (k.to_owned(), Argument::Literal { value: serde_json::Value::Null} )
+                            (k.to_owned(), None)
                         }).collect()),
                     },
                 ))
