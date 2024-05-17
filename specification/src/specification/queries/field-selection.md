@@ -20,6 +20,11 @@ If `fields` is provided, its value should be compatible with the type of the col
 - For an object-typed column (whether nullable or not), the `fields` property should contain a `NestedField` with type `object`. The `fields` property of the `NestedField` specifies a [`Field`](../../reference/types.md#field) structure for each requested nested field from the objects.
 - For an array-typed column  (whether nullable or not), the `fields` property should contain a `NestedField` with type `array`. The `fields` property of the `NestedField` should contain _another_ `NestedField` structure, compatible with the type of the elements of the array. The selection function denoted by this nested `NestedField` structure should be applied to each element of each array.
 
+Arguments can be supplied to `NestedField` objects via the `arguments` key. These match the format of [collection arguments](../arguments.md).
+
+- The arguments key can be omitted to supply no arguments
+- Individual arguments must be excluded with an explitic `null` value rather than omitting the argument.
+
 ## Examples
 
 ### Simple column selection
@@ -52,6 +57,13 @@ Here is an example of a query which selects some columns from a nested array ins
 
 Notice that the `staff` column is fetched using a `fields` property of type `array`. For each staff member in each institution row, we apply the selection function denoted by its `fields` property (of type `object`). Specifically, the `last_name` and `specialities` properties are selected for each staff member.
 
+### Example with Field Arguments
+
+Here is an example of a query which selects some columns from a nested array inside the rows of the `institutions` collection of the reference data connector and uses the `limit` field argument to limit the number of items returned:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/nested_array_select_with_limit/request.json}}
+```
 
 ## Requirements
 
