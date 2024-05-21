@@ -32,23 +32,22 @@ and queries are extended with:
 pub enum Field {
   Column {
     ...
-    arguments: Option<BTreeMap<String, Option<Argument>>>,
+    arguments: BTreeMap<String, Argument>,
   }
   ...
 }
 ```
 
-This mirrors the existing implementation for collection arguments with the
-addition of an `Option` wrapper in order to make the implementation backwards
-compatible.
+This mirrors the existing implementation for collection arguments.
 
 ## Implications
 
 NDC schema and query invocation:
 
-* When the schema indicates that a field has arguments then they may be provided in a query.
-* Nullable arguments must be explicitly supplied with None.
-* If all arguments are nullable then the field may be referenced without arguments or parenteses.
+* When the schema indicates that a field has arguments then they must be provided in a query.
+* Optional arguments must be explicitly supplied with `Argument::Literal { Value::Null }`.
+* If all arguments are nullable then the field may be referenced without arguments or parenteses
+  for backwards compatibility purposes, however arguments should be applied going forward.
 
 Engine interactions:
 
