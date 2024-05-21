@@ -7,6 +7,28 @@ A [`Query`](../../reference/types.md#query) can specify which fields to fetch. T
 
 The requested fields are specified as a collection of [`Field`](../../reference/types.md#field) structures in the `field` property on the [`Query`](../../reference/types.md#query).
 
+## Field Arguments
+
+Arguments can be supplied to fields via the `arguments` key. These match the format described in [the arguments documentation](../arguments.md).
+
+The [schema response](../schema/object-types.md) will specify which fields take arguments via its respective `arguments` key.
+
+- If a field has any arguments specified, then all arguments must be provided when that field is queried
+- A literal argument `null` value may be used for optional arguments
+
+For example:
+
+```json
+{
+  "limit": {
+      "type": "literal",
+      "value": null
+  }
+}
+```
+
+**Note: Objects with field arguments cannot be used as input types.**
+
 ## Nested Fields
 
 Queries can specify nested field selections for columns which have structured types (that is, not simply a scalar type or a nullable scalar type).
@@ -19,11 +41,6 @@ If `fields` is provided, its value should be compatible with the type of the col
 
 - For an object-typed column (whether nullable or not), the `fields` property should contain a `NestedField` with type `object`. The `fields` property of the `NestedField` specifies a [`Field`](../../reference/types.md#field) structure for each requested nested field from the objects.
 - For an array-typed column  (whether nullable or not), the `fields` property should contain a `NestedField` with type `array`. The `fields` property of the `NestedField` should contain _another_ `NestedField` structure, compatible with the type of the elements of the array. The selection function denoted by this nested `NestedField` structure should be applied to each element of each array.
-
-Arguments can be supplied to `NestedField` objects via the `arguments` key. These match the format of [collection arguments](../arguments.md).
-
-- The arguments key can be omitted to supply no arguments
-- Individual arguments must be excluded with an explitic `null` value rather than omitting the argument.
 
 ## Examples
 

@@ -15,6 +15,11 @@ Collection arguments should be provided as key-value pairs in the `arguments` pr
 {{#include ../../../../ndc-reference/tests/query/table_argument/request.json:3: }}
 ```
 
+### Field Arguments
+
+Field arguments can be provided to any field requested (in addition to those described for top-level collections).
+These are specified in the [schema response](../schema/object-types.md) and their use is described in [field selection](./field-selection.md). Their specification and usage matches that of collection arguments above.
+
 ### Relationships
 
 [Relationships](./relationships.md) can specify values for arguments on their target collection:
