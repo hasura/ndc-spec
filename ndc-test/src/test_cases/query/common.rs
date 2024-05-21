@@ -1,5 +1,7 @@
 
 
+use std::collections::BTreeMap;
+
 use indexmap::IndexMap;
 use models::Type;
 use ndc_models as models;
@@ -47,7 +49,7 @@ pub fn select_columns(
                 models::Field::Column {
                     column: f.0.clone(),
                     fields: None,
-                    arguments: Default::default(),
+                    arguments: BTreeMap::default(),
                 },
             )
         })

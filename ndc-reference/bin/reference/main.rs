@@ -1902,7 +1902,7 @@ fn eval_nested_field(
                         state,
                         value.clone(),
                         fields,
-                        &Default::default(),
+                        &BTreeMap::default(),
                         true,
                     )
                 })
@@ -2170,7 +2170,7 @@ fn execute_upsert_article(
                     state,
                     old_row_value,
                     nested_field,
-                    &Default::default(),
+                    &BTreeMap::default(),
                     false,
                 ),
             }?;
@@ -2241,7 +2241,7 @@ fn execute_delete_articles(
             &state_snapshot,
             removed_value,
             nested_field,
-            &Default::default(),
+            &BTreeMap::default(),
             false,
         ),
     }?;
