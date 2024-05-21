@@ -611,7 +611,6 @@
       "description": "The definition of an object field",
       "type": "object",
       "required": [
-        "arguments",
         "type"
       ],
       "properties": {

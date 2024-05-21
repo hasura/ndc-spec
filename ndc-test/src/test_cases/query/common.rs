@@ -18,9 +18,9 @@ pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<Stri
                     models::Field::Column {
                         column: f.0.clone(),
                         fields: None,
-                        arguments: Some(f.1.arguments.keys().map(|k| {
-                            (k.to_owned(), None)
-                        }).collect()),
+                        arguments: f.1.arguments.keys().map(|k| {
+                            (k.to_owned(), models::Argument::Literal { value: serde_json::Value::Null })
+                        }).collect(),
                     },
                 ))
             } else {
@@ -47,7 +47,7 @@ pub fn select_columns(
                 models::Field::Column {
                     column: f.0.clone(),
                     fields: None,
-                    arguments: None,
+                    arguments: Default::default(),
                 },
             )
         })

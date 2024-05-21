@@ -467,7 +467,8 @@ pub enum Field {
         /// by specifying fields to fetch here.
         /// If omitted, the column data will be fetched in full.
         fields: Option<NestedField>,
-        arguments: Option<BTreeMap<String, Option<Argument>>>,
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap<String, Argument>,
     },
     Relationship {
         query: Box<Query>,

@@ -141,19 +141,9 @@
               ]
             },
             "arguments": {
-              "type": [
-                "object",
-                "null"
-              ],
+              "type": "object",
               "additionalProperties": {
-                "anyOf": [
-                  {
-                    "$ref": "#/definitions/Argument"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "$ref": "#/definitions/Argument"
               }
             }
           }
