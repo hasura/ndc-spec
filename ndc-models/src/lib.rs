@@ -206,6 +206,7 @@ pub struct ObjectField {
     #[serde(rename = "type")]
     pub r#type: Type,
     /// The arguments available to the field - Matches implementation from CollectionInfo
+    #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
     pub arguments: BTreeMap<String, ArgumentInfo>,
 }
 // ANCHOR_END: ObjectField
