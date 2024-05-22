@@ -138,6 +138,12 @@
 {{#include ../../../ndc-models/src/lib.rs:NestedField}}
 ```
 
+## `NestedFieldCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:NestedFieldCapabilities}}
+```
+
 ## `NestedObject`
 
 ```rust,no_run,noplayground

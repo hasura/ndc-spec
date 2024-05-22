@@ -3,7 +3,11 @@
   "capabilities": {
     "query": {
       "aggregates": {},
-      "variables": {}
+      "variables": {},
+      "nested_fields": {
+        "filter_by": {},
+        "order_by": {}
+      }
     },
     "mutation": {},
     "relationships": {
