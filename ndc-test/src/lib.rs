@@ -83,6 +83,7 @@ pub async fn test_connector<C: Connector, R: Reporter>(
 }
 
 pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
+    options: &configuration::TestOptions,
     connector: &C,
     reporter: &mut R,
     snapshots_dir: PathBuf,
@@ -99,7 +100,9 @@ pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
                 let schema = schema.clone();
                 async move {
                     let res = connector.query(req.clone()).await?;
-                    validate_response(&schema, &req, &res)?;
+                    if options.validate_responses {
+                        validate_response(&schema, &req, &res)?;
+                    }
                     Ok(res)
                 }
             },

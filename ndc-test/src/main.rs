@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 use ndc_test::{
     benchmark_report,
     client::Configuration,
-    configuration::{TestConfiguration, TestGenerationConfiguration},
+    configuration::{TestConfiguration, TestGenerationConfiguration, TestOptions},
     reporter::{ConsoleReporter, TestResults},
     ReportConfiguration,
 };
@@ -71,6 +71,8 @@ enum Commands {
             help = "the directory used to store snapshot files"
         )]
         snapshots_dir: PathBuf,
+        #[arg(long, help = "Turn off validations for query responses")]
+        no_validate_responses: bool,
     },
     Bench {
         #[arg(long, value_name = "ENDPOINT", help = "The NDC endpoint to test")]
@@ -143,6 +145,7 @@ async fn main() {
         Commands::Replay {
             endpoint,
             snapshots_dir,
+            no_validate_responses,
         } => {
             let configuration = Configuration {
                 base_path: endpoint,
@@ -151,7 +154,11 @@ async fn main() {
 
             let mut reporter = (ConsoleReporter::default(), TestResults::default());
 
-            ndc_test::test_snapshots_in_directory(&configuration, &mut reporter, snapshots_dir)
+            let options = TestOptions {
+                validate_responses: !no_validate_responses,
+            };
+
+            ndc_test::test_snapshots_in_directory(&options, &configuration, &mut reporter, snapshots_dir)
                 .await;
 
             if !reporter.1.failures.is_empty() {

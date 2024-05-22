@@ -8,6 +8,19 @@ pub struct TestConfiguration {
 }
 
 #[derive(Debug)]
+pub struct TestOptions {
+    pub validate_responses: bool,
+}
+
+impl Default for TestOptions {
+    fn default() -> Self {
+        Self {
+            validate_responses: true,
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct TestGenerationConfiguration {
     pub test_cases: u32,
     pub sample_size: u32,
