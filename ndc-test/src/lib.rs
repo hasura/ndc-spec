@@ -86,34 +86,35 @@ pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
     connector: &C,
     reporter: &mut R,
     snapshots_dir: PathBuf,
-) {
-    let _ = async {
-        nest!("Query", reporter, {
-            test_snapshots_in_directory_with::<C, R, _, _, _>(
-                reporter,
-                snapshots_dir.join("query"),
-                |req: models::QueryRequest| async move {
-                    let schema = connector.get_schema().await?;
+) -> Option<()> {
+    let schema = test!("Schema", reporter, connector.get_schema())?;
+
+    nest!("Query", reporter, {
+        test_snapshots_in_directory_with::<C, R, _, _, _>(
+            reporter,
+            snapshots_dir.join("query"),
+            move |req: models::QueryRequest| {
+                // Move the schema into the closure, and clone it on each invocation,
+                // then move the clone into the async block.
+                let schema = schema.clone();
+                async move {
                     let res = connector.query(req.clone()).await?;
                     validate_response(&schema, &req, &res)?;
                     Ok(res)
-                },
-            )
-        });
+                }
+            },
+        )
+    });
 
-        nest!("Mutation", reporter, {
-            Box::pin({
-                test_snapshots_in_directory_with::<C, R, _, _, _>(
-                    reporter,
-                    snapshots_dir.join("mutation"),
-                    |req| connector.mutation(req),
-                )
-            })
-        });
+    nest!("Mutation", reporter, {
+        test_snapshots_in_directory_with::<C, R, _, _, _>(
+            reporter,
+            snapshots_dir.join("mutation"),
+            |req| connector.mutation(req),
+        )
+    });
 
-        Some(())
-    }
-    .await;
+    Some(())
 }
 
 pub async fn test_snapshots_in_directory_with<
