@@ -14,7 +14,7 @@ Arguments can be supplied to fields via the `arguments` key. These match the for
 The [schema response](../schema/object-types.md) will specify which fields take arguments via its respective `arguments` key.
 
 - If a field has any arguments specified, then all arguments must be provided when that field is queried
-- A literal argument `null` value may be used for optional arguments
+- Literal argument `null` values may be used for nullable arguments
 
 For example:
 
