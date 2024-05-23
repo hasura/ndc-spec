@@ -1,5 +1,3 @@
-
-
 use std::collections::BTreeMap;
 
 use indexmap::IndexMap;
@@ -12,17 +10,29 @@ pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<Stri
         .fields
         .iter()
         .filter_map(|f| {
-            if f.1.arguments.iter().all( |(_, v)|
-                matches!(v.argument_type, Type::Nullable { underlying_type: _ })
-            ) {
-               Some((
+            if f.1
+                .arguments
+                .iter()
+                .all(|(_, v)| matches!(v.argument_type, Type::Nullable { underlying_type: _ }))
+            {
+                Some((
                     f.0.clone(),
                     models::Field::Column {
                         column: f.0.clone(),
                         fields: None,
-                        arguments: f.1.arguments.keys().map(|k| {
-                            (k.to_owned(), models::Argument::Literal { value: serde_json::Value::Null })
-                        }).collect(),
+                        arguments: f
+                            .1
+                            .arguments
+                            .keys()
+                            .map(|k| {
+                                (
+                                    k.to_owned(),
+                                    models::Argument::Literal {
+                                        value: serde_json::Value::Null,
+                                    },
+                                )
+                            })
+                            .collect(),
                     },
                 ))
             } else {
