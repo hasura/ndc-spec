@@ -10,8 +10,6 @@ use crate::{nest, test};
 use ndc_models as models;
 use rand::rngs::SmallRng;
 
-use super::validate::validate_response;
-
 pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
@@ -157,9 +155,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
             variables: None,
         };
 
-        let response = connector.query(query_request.clone()).await?;
-
-        validate_response(&query_request, &response)?;
+        let _ = connector.query(query_request).await?;
     } else {
         eprintln!("Skipping parameterized relationship {foreign_key_name}");
     }
@@ -237,9 +233,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
                 variables: None,
             };
 
-            let response = connector.query(query_request.clone()).await?;
-
-            validate_response(&query_request, &response)?;
+            let _ = connector.query(query_request).await?;
         }
     } else {
         eprintln!("Skipping parameterized relationship {foreign_key_name}");
@@ -324,9 +318,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
             variables: None,
         };
 
-        let response = connector.query(query_request.clone()).await?;
-
-        validate_response(&query_request, &response)?;
+        let _ = connector.query(query_request).await?;
     } else {
         eprintln!("Skipping parameterized relationship {foreign_key_name}");
     }

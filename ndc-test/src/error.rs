@@ -23,10 +23,10 @@ pub enum Error {
     NamedTypeIsNotDefined(String),
     #[error("object type {0} is not a defined object or scalar type")]
     ObjectTypeIsNotDefined(String),
-    #[error("insertable column {0} is not defined on collection type")]
-    InsertableColumnNotDefined(String),
-    #[error("updatable column {0} is not defined on collection type")]
-    UpdatableColumnNotDefined(String),
+    #[error("field {0} is not defined on object type")]
+    FieldIsNotDefined(String),
+    #[error("relationship {0} is not defined in request")]
+    RelationshipIsNotDefined(String),
     #[error("expected null rows in RowSet")]
     RowsShouldBeNullInRowSet,
     #[error("expected non-null rows in RowSet")]
@@ -65,6 +65,10 @@ pub enum Error {
     BenchmarkExceededTolerance(f64),
     #[error("response from connector does not satisfy requirement: {0}")]
     ResponseDoesNotSatisfy(String),
+    #[error("invalid response at path {}: expected {1}", .0.join("."))]
+    InvalidValueInResponse(Vec<String>, String),
+    #[error("invalid request: {0}")]
+    InvalidRequest(String),
     #[error("other error: {0}")]
     OtherError(#[from] Box<dyn std::error::Error>),
 }

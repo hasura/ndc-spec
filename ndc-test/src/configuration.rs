@@ -4,7 +4,21 @@ use std::path::PathBuf;
 pub struct TestConfiguration {
     pub seed: Option<[u8; 32]>,
     pub snapshots_dir: Option<PathBuf>,
+    pub options: TestOptions,
     pub gen_config: TestGenerationConfiguration,
+}
+
+#[derive(Debug)]
+pub struct TestOptions {
+    pub validate_responses: bool,
+}
+
+impl Default for TestOptions {
+    fn default() -> Self {
+        Self {
+            validate_responses: true,
+        }
+    }
 }
 
 #[derive(Debug)]
