@@ -113,6 +113,7 @@ fn make_single_expressions(
             expr: models::Expression::UnaryComparisonOperator {
                 column: models::ComparisonTarget::Column {
                     name: field_name.clone(),
+                    field_path: None,
                     path: vec![],
                 },
                 operator: models::UnaryComparisonOperator::IsNull,
@@ -132,6 +133,7 @@ fn make_single_expressions(
                             expr: models::Expression::BinaryComparisonOperator {
                                 column: models::ComparisonTarget::Column {
                                     name: field_name.clone(),
+                                    field_path: None,
                                     path: vec![],
                                 },
                                 operator: operator_name.clone(),
@@ -154,6 +156,7 @@ fn make_single_expressions(
                             expr: models::Expression::BinaryComparisonOperator {
                                 column: models::ComparisonTarget::Column {
                                     name: field_name.clone(),
+                                    field_path: None,
                                     path: vec![],
                                 },
                                 operator: operator_name.clone(),

@@ -15,7 +15,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use models::{Argument, ArgumentInfo};
+use models::{Argument, ArgumentInfo, NestedFieldCapabilities};
 use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
@@ -218,6 +218,10 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
                 explain: None,
+                nested_fields: NestedFieldCapabilities {
+                    filter_by: Some(LeafCapability {}),
+                    order_by: Some(LeafCapability {}),
+                },
             },
             mutation: models::MutationCapabilities {
                 transactional: None,
@@ -1201,9 +1205,19 @@ fn eval_order_by_element(
     item: &Row,
 ) -> Result<serde_json::Value> {
     match element.target.clone() {
-        models::OrderByTarget::Column { name, path } => {
-            eval_order_by_column(collection_relationships, variables, state, item, path, name)
-        }
+        models::OrderByTarget::Column {
+            name,
+            field_path,
+            path,
+        } => eval_order_by_column(
+            collection_relationships,
+            variables,
+            state,
+            item,
+            path,
+            name,
+            field_path,
+        ),
         models::OrderByTarget::SingleColumnAggregate {
             column,
             function,
@@ -1265,6 +1279,31 @@ fn eval_order_by_single_column_aggregate(
     eval_aggregate_function(&function, values)
 }
 // ANCHOR_END: eval_order_by_single_column_aggregate
+
+// ANCHOR: eval_column_field_path
+fn eval_column_field_path(
+    row: &Row,
+    column_name: &str,
+    field_path: &Option<Vec<String>>,
+) -> Result<serde_json::Value> {
+    let column_value = eval_column(row, column_name)?;
+    match field_path {
+        None => Ok(column_value),
+        Some(path) => path
+            .iter()
+            .try_fold(&column_value, |value, field_name| value.get(field_name))
+            .cloned()
+            .ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "invalid field path".into(),
+                    details: serde_json::Value::Null,
+                }),
+            )),
+    }
+}
+// ANCHOR_END: eval_column_field_path
+
 // ANCHOR: eval_order_by_column
 fn eval_order_by_column(
     collection_relationships: &BTreeMap<String, models::Relationship>,
@@ -1273,6 +1312,7 @@ fn eval_order_by_column(
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
     name: String,
+    field_path: Option<Vec<String>>,
 ) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     if rows.len() > 1 {
@@ -1285,7 +1325,7 @@ fn eval_order_by_column(
         ));
     }
     match rows.first() {
-        Some(row) => eval_column(row, name.as_str()),
+        Some(row) => eval_column_field_path(row, &name, &field_path),
         None => Ok(serde_json::Value::Null),
     }
 }
@@ -1752,17 +1792,21 @@ fn eval_comparison_target(
     item: &Row,
 ) -> Result<Vec<serde_json::Value>> {
     match target {
-        models::ComparisonTarget::Column { name, path } => {
+        models::ComparisonTarget::Column {
+            name,
+            field_path,
+            path,
+        } => {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in &rows {
-                let value = eval_column(row, name.as_str())?;
+                let value = eval_column_field_path(row, name, field_path)?;
                 values.push(value);
             }
             Ok(values)
         }
-        models::ComparisonTarget::RootCollectionColumn { name } => {
-            let value = eval_column(root, name.as_str())?;
+        models::ComparisonTarget::RootCollectionColumn { name, field_path } => {
+            let value = eval_column_field_path(root, name, field_path)?;
             Ok(vec![value])
         }
     }

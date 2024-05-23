@@ -414,6 +414,16 @@
               "description": "The name of the column",
               "type": "string"
             },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
             "path": {
               "description": "Any relationships to traverse to reach this column",
               "type": "array",
@@ -732,6 +742,16 @@
               "description": "The name of the column",
               "type": "string"
             },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
             "path": {
               "description": "Any relationships to traverse to reach this column",
               "type": "array",
@@ -757,6 +777,16 @@
             "name": {
               "description": "The name of the column",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             }
           }
         }
