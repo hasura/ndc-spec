@@ -238,7 +238,6 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
 // ANCHOR: schema1
 async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR_END: schema1
-    // ANCHOR: schema_scalar_types
     let array_arguments: BTreeMap<String, _> = vec![(
         "limit".to_string(),
         ArgumentInfo {
@@ -250,6 +249,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     )]
     .into_iter()
     .collect();
+    // ANCHOR: schema_scalar_types
     let scalar_types = BTreeMap::from_iter([
         (
             "String".into(),

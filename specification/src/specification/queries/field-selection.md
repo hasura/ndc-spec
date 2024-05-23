@@ -13,21 +13,9 @@ Arguments can be supplied to fields via the `arguments` key. These match the for
 
 The [schema response](../schema/object-types.md) will specify which fields take arguments via its respective `arguments` key.
 
-- If a field has any arguments specified, then all arguments must be provided when that field is queried
-- Literal argument `null` values may be used for nullable arguments
+If a field has any arguments defined, then the `arguments` field must be provided wherever that field is referenced. All fields are required, including nullable fields.
 
-For example:
-
-```json
-{
-  "limit": {
-      "type": "literal",
-      "value": null
-  }
-}
-```
-
-**Note: Objects with field arguments cannot be used as input types.**
+_Note_: Objects with field arguments cannot be used as input types.
 
 ## Nested Fields
 

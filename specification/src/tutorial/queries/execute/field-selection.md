@@ -10,7 +10,7 @@ This is done by mapping over the computed rows, and using the `eval_field` funct
 
 The `eval_field` function works by pattern matching on the field type:
 
-- A `column` is selected using the `eval_column` function,
+- A `column` is selected using the `eval_column` function (or `eval_nested_field` if there are nested fields to fetch)
 - A `relationship` field is selected by evaluating the related collection using `eval_path_element` (we will cover this in the next section), and then recursively executing a query using `execute_query`:
 
 ```rust,no_run,noplayground
