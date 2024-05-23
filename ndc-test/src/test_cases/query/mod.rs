@@ -4,7 +4,7 @@ mod simple_queries;
 
 mod common;
 mod context;
-mod validate;
+pub mod validate;
 
 use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;

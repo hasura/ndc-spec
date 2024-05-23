@@ -14,7 +14,7 @@ use ndc_models as models;
 use indexmap::IndexMap;
 use rand::rngs::SmallRng;
 
-use super::validate::{expect_single_rows, validate_response};
+use super::validate::expect_single_rows;
 
 pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
@@ -93,8 +93,6 @@ async fn test_select_top_n_rows<C: Connector>(
     };
 
     let response = connector.query(query_request.clone()).await?;
-
-    validate_response(&query_request, &response)?;
 
     expect_single_rows(response)
 }

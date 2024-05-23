@@ -2241,7 +2241,7 @@ mod tests {
     use goldenfile::Mint;
     use ndc_models as models;
     use ndc_test::{
-        configuration::{TestConfiguration, TestGenerationConfiguration},
+        configuration::{TestConfiguration, TestGenerationConfiguration, TestOptions},
         connector::Connector,
         error::Error,
         reporter::TestResults,
@@ -2432,6 +2432,7 @@ mod tests {
                 seed: None,
                 snapshots_dir: None,
                 gen_config: TestGenerationConfiguration::default(),
+                options: TestOptions::default(),
             };
             let connector = Reference {
                 state: init_app_state(),

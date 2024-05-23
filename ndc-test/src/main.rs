@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 use ndc_test::{
     benchmark_report,
     client::Configuration,
-    configuration::{TestConfiguration, TestGenerationConfiguration},
+    configuration::{TestConfiguration, TestGenerationConfiguration, TestOptions},
     reporter::{ConsoleReporter, TestResults},
     ReportConfiguration,
 };
@@ -61,6 +61,8 @@ enum Commands {
             help = "increase complexity of generated queries",
         )]
         complexity: u8,
+        #[arg(long, help = "Turn off validations for query responses")]
+        no_validate_responses: bool,
     },
     Replay {
         #[arg(long, value_name = "ENDPOINT", help = "The NDC endpoint to test")]
@@ -71,6 +73,8 @@ enum Commands {
             help = "the directory used to store snapshot files"
         )]
         snapshots_dir: PathBuf,
+        #[arg(long, help = "Turn off validations for query responses")]
+        no_validate_responses: bool,
     },
     Bench {
         #[arg(long, value_name = "ENDPOINT", help = "The NDC endpoint to test")]
@@ -108,6 +112,7 @@ async fn main() {
             sample_size,
             max_limit,
             complexity,
+            no_validate_responses,
         } => {
             let seed: Option<[u8; 32]> = seed.map(|seed| seed.as_bytes().try_into().unwrap());
 
@@ -118,9 +123,14 @@ async fn main() {
                 complexity,
             };
 
+            let options = TestOptions {
+                validate_responses: !no_validate_responses,
+            };
+
             let test_configuration = TestConfiguration {
                 seed,
                 snapshots_dir,
+                options,
                 gen_config,
             };
 
@@ -143,6 +153,7 @@ async fn main() {
         Commands::Replay {
             endpoint,
             snapshots_dir,
+            no_validate_responses,
         } => {
             let configuration = Configuration {
                 base_path: endpoint,
@@ -151,8 +162,17 @@ async fn main() {
 
             let mut reporter = (ConsoleReporter::default(), TestResults::default());
 
-            ndc_test::test_snapshots_in_directory(&configuration, &mut reporter, snapshots_dir)
-                .await;
+            let options = TestOptions {
+                validate_responses: !no_validate_responses,
+            };
+
+            ndc_test::test_snapshots_in_directory(
+                &options,
+                &configuration,
+                &mut reporter,
+                snapshots_dir,
+            )
+            .await;
 
             if !reporter.1.failures.is_empty() {
                 println!();

@@ -31,6 +31,8 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use snapshot::{snapshot_test, SnapshottingConnector};
 
+use crate::test_cases::query::validate::ValidatingConnector;
+
 #[async_trait(?Send)]
 impl Connector for client::Configuration {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
@@ -62,12 +64,19 @@ pub async fn test_connector<C: Connector, R: Reporter>(
 
     let _ = match &configuration.snapshots_dir {
         None => {
-            test_cases::run_all_tests(&configuration.gen_config, connector, reporter, &mut rng)
-                .await
+            test_cases::run_all_tests(
+                &configuration.gen_config,
+                &configuration.options,
+                connector,
+                reporter,
+                &mut rng,
+            )
+            .await
         }
         Some(snapshot_path) => {
             test_cases::run_all_tests(
                 &configuration.gen_config,
+                &configuration.options,
                 &SnapshottingConnector {
                     snapshot_path,
                     connector,
@@ -81,32 +90,44 @@ pub async fn test_connector<C: Connector, R: Reporter>(
 }
 
 pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
+    options: &configuration::TestOptions,
     connector: &C,
     reporter: &mut R,
     snapshots_dir: PathBuf,
-) {
-    let _ = async {
-        nest!("Query", reporter, {
+) -> Option<()> {
+    let schema = test!("Schema", reporter, connector.get_schema())?;
+
+    nest!("Query", reporter, async {
+        if options.validate_responses {
+            let connector = ValidatingConnector {
+                connector,
+                schema: &schema,
+            };
             test_snapshots_in_directory_with::<C, R, _, _, _>(
                 reporter,
                 snapshots_dir.join("query"),
                 |req| connector.query(req),
             )
-        });
+            .await;
+        } else {
+            test_snapshots_in_directory_with::<C, R, _, _, _>(
+                reporter,
+                snapshots_dir.join("query"),
+                |req| connector.query(req),
+            )
+            .await;
+        }
+    });
 
-        nest!("Mutation", reporter, {
-            Box::pin({
-                test_snapshots_in_directory_with::<C, R, _, _, _>(
-                    reporter,
-                    snapshots_dir.join("mutation"),
-                    |req| connector.mutation(req),
-                )
-            })
-        });
+    nest!("Mutation", reporter, {
+        test_snapshots_in_directory_with::<C, R, _, _, _>(
+            reporter,
+            snapshots_dir.join("mutation"),
+            |req| connector.mutation(req),
+        )
+    });
 
-        Some(())
-    }
-    .await;
+    Some(())
 }
 
 pub async fn test_snapshots_in_directory_with<
