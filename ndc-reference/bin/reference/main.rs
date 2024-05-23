@@ -15,7 +15,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use models::{Argument, ArgumentInfo, NestedFieldCapabilities};
+use models::{ArgumentInfo, NestedFieldCapabilities};
 use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
@@ -1286,7 +1286,7 @@ fn eval_column_field_path(
     column_name: &str,
     field_path: &Option<Vec<String>>,
 ) -> Result<serde_json::Value> {
-    let column_value = eval_column(row, column_name)?;
+    let column_value = eval_column(&BTreeMap::default(), row, column_name, &BTreeMap::default())?;
     match field_path {
         None => Ok(column_value),
         Some(path) => path
@@ -1504,7 +1504,9 @@ fn eval_relationship_argument(
             Ok(value)
         }
         models::RelationshipArgument::Literal { value } => Ok(value.clone()),
-        models::RelationshipArgument::Column { name } => eval_column(row, name),
+        models::RelationshipArgument::Column { name } => {
+            eval_column(&BTreeMap::default(), row, name, &BTreeMap::default())
+        }
     }
 }
 // ANCHOR_END: eval_relationship_argument
@@ -1813,14 +1815,46 @@ fn eval_comparison_target(
 }
 // ANCHOR_END: eval_comparison_target
 // ANCHOR: eval_column
-fn eval_column(row: &Row, column_name: &str) -> Result<serde_json::Value> {
-    row.get(column_name).cloned().ok_or((
+fn eval_column(
+    variables: &BTreeMap<String, serde_json::Value>,
+    row: &Row,
+    column_name: &str,
+    arguments: &BTreeMap<String, models::Argument>,
+) -> Result<serde_json::Value> {
+    let column = row.get(column_name).cloned().ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
             message: "invalid column name".into(),
             details: serde_json::Value::Null,
         }),
-    ))
+    ))?;
+
+    if let Some(array) = column.as_array() {
+        let limit_argument = arguments.get("limit").ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "Expected argument 'limit'".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))?;
+        let limit =
+            serde_json::from_value::<Option<usize>>(eval_argument(variables, limit_argument)?)
+                .map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "limit must be null or an integer".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?;
+
+        let result_array = array[0..limit.unwrap_or(array.len())].to_vec();
+
+        Ok(serde_json::Value::Array(result_array))
+    } else {
+        Ok(column)
+    }
 }
 // ANCHOR_END: eval_column
 // ANCHOR: eval_comparison_value
@@ -1865,8 +1899,6 @@ fn eval_nested_field(
     state: &AppState,
     value: serde_json::Value,
     nested_field: &models::NestedField,
-    arguments: &BTreeMap<String, Argument>,
-    apply_array_arguments: bool,
 ) -> Result<models::RowFieldValue> {
     match nested_field {
         models::NestedField::Object(nested_object) => {
@@ -1909,36 +1941,8 @@ fn eval_nested_field(
                 )
             })?;
 
-            let limit = if apply_array_arguments {
-                let limit_argument = arguments
-                    .get("limit")
-                    .ok_or((
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "Expected argument 'limit'".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))?;
-                let limit = serde_json::from_value::<Option<usize>>(eval_argument(
-                    variables,
-                    limit_argument,
-                )?)
-                .map_err(|_| {
-                    (
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "limit must be null or an integer".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    )
-                })?;
-                Ok(limit)
-            } else {
-                Ok(None)
-            }?;
-
-            let result_array = array[0..limit.unwrap_or(array.len())]
-                .iter()
+            let result_array = array
+                .into_iter()
                 .map(|value| {
                     eval_nested_field(
                         collection_relationships,
@@ -1946,8 +1950,6 @@ fn eval_nested_field(
                         state,
                         value.clone(),
                         fields,
-                        &BTreeMap::default(),
-                        true,
                     )
                 })
                 .collect::<Result<Vec<_>>>()?;
@@ -1980,7 +1982,7 @@ fn eval_field(
             fields,
             arguments,
         } => {
-            let col_val = eval_column(item, column.as_str())?;
+            let col_val = eval_column(variables, item, column.as_str(), arguments)?;
             match fields {
                 None => Ok(models::RowFieldValue(col_val)),
                 Some(nested_field) => eval_nested_field(
@@ -1989,8 +1991,6 @@ fn eval_field(
                     state,
                     col_val,
                     nested_field,
-                    arguments,
-                    true,
                 ),
             }
         }
@@ -2214,8 +2214,6 @@ fn execute_upsert_article(
                     state,
                     old_row_value,
                     nested_field,
-                    &BTreeMap::default(),
-                    false,
                 ),
             }?;
 
@@ -2285,8 +2283,6 @@ fn execute_delete_articles(
             &state_snapshot,
             removed_value,
             nested_field,
-            &BTreeMap::default(),
-            false,
         ),
     }?;
 
@@ -2302,8 +2298,18 @@ fn eval_column_mapping(
     tgt_row: &Row,
 ) -> Result<bool> {
     for (src_column, tgt_column) in &relationship.column_mapping {
-        let src_value = eval_column(src_row, src_column)?;
-        let tgt_value = eval_column(tgt_row, tgt_column)?;
+        let src_value = eval_column(
+            &BTreeMap::default(),
+            src_row,
+            src_column,
+            &BTreeMap::default(),
+        )?;
+        let tgt_value = eval_column(
+            &BTreeMap::default(),
+            tgt_row,
+            tgt_column,
+            &BTreeMap::default(),
+        )?;
         if src_value != tgt_value {
             return Ok(false);
         }

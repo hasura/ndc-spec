@@ -4,7 +4,7 @@ The schema should define any named _object types_ which will be used as the type
 
 An object type consists of a name and a collection of named fields. Each field is defined by its [type](../types.md), and any [arguments](../queries/arguments.md).
 
-_Note_: field arguments are only used in a query context, and ignored when an object type is used in other contexts (such as the input type of a _procedure_).
+_Note_: field arguments are only used in a query context. Objects with field arguments cannot be used as input types, and fields with arguments cannot be used to define [column mappings](../queries/relationships.md#column-mappings), or in [nested field references](../queries/filtering.md#referencing-nested-fields-within-columns).
 
 To define an object type, add an [`ObjectType`
 ](../../reference/types.md#objecttype) to the `object_types` field of the schema response.

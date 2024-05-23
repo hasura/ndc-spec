@@ -15,8 +15,6 @@ The [schema response](../schema/object-types.md) will specify which fields take 
 
 If a field has any arguments defined, then the `arguments` field must be provided wherever that field is referenced. All fields are required, including nullable fields.
 
-_Note_: Objects with field arguments cannot be used as input types.
-
 ## Nested Fields
 
 Queries can specify nested field selections for columns which have structured types (that is, not simply a scalar type or a nullable scalar type).
