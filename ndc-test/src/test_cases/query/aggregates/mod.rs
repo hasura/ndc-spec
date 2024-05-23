@@ -29,14 +29,13 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     let total_count = test!(
         "star_count",
         reporter,
-        test_star_count_aggregate(schema, gen_config, connector, collection_info)
+        test_star_count_aggregate(gen_config, connector, collection_info)
     )?;
 
     let _ = test!(
         "column_count",
         reporter,
         test_column_count_aggregate(
-            schema,
             gen_config,
             connector,
             collection_info,
@@ -62,7 +61,6 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
 }
 
 pub async fn test_star_count_aggregate<C: Connector>(
-    _schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,
@@ -97,7 +95,6 @@ pub async fn test_star_count_aggregate<C: Connector>(
 }
 
 pub async fn test_column_count_aggregate<C: Connector>(
-    _schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,

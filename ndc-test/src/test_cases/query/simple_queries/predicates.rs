@@ -22,7 +22,6 @@ pub async fn test_predicates<C: Connector>(
         for _ in 0..gen_config.test_cases.max(1) {
             if let Some(predicate) = make_predicate(gen_config, schema, context, rng)? {
                 test_select_top_n_rows_with_predicate(
-                    schema,
                     gen_config,
                     connector,
                     &predicate,
@@ -174,7 +173,6 @@ fn make_single_expressions(
 }
 
 async fn test_select_top_n_rows_with_predicate<C: Connector>(
-    _schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     predicate: &GeneratedExpression,

@@ -30,7 +30,6 @@ pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
 
     let context = test!("Select top N", reporter, async {
         let rows = test_select_top_n_rows(
-            schema,
             connector,
             collection_type,
             collection_info,
@@ -72,7 +71,6 @@ pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
 }
 
 async fn test_select_top_n_rows<C: Connector>(
-    _schema: &models::SchemaResponse,
     connector: &C,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,

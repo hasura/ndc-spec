@@ -19,7 +19,6 @@ pub async fn test_sorting<C: Connector>(
             make_order_by_elements(collection_type.clone(), schema, rng, amount)
         {
             test_select_top_n_rows_with_sort(
-                schema,
                 gen_config,
                 connector,
                 order_by_elements,
@@ -80,7 +79,6 @@ fn make_order_by_elements(
 }
 
 async fn test_select_top_n_rows_with_sort<C: Connector>(
-    _schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     elements: Vec<models::OrderByElement>,
