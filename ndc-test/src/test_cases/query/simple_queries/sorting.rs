@@ -3,10 +3,7 @@ use std::collections::BTreeMap;
 use ndc_models as models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
-use crate::{
-    configuration::TestGenerationConfiguration, connector::Connector, error::Result,
-    test_cases::query::validate::validate_response,
-};
+use crate::{configuration::TestGenerationConfiguration, connector::Connector, error::Result};
 
 pub async fn test_sorting<C: Connector>(
     gen_config: &TestGenerationConfiguration,
@@ -83,7 +80,7 @@ fn make_order_by_elements(
 }
 
 async fn test_select_top_n_rows_with_sort<C: Connector>(
-    schema: &models::SchemaResponse,
+    _schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     elements: Vec<models::OrderByElement>,
@@ -108,9 +105,5 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
         variables: None,
     };
 
-    let response = connector.query(query_request.clone()).await?;
-
-    validate_response(schema, &query_request, &response)?;
-
-    Ok(response)
+    connector.query(query_request.clone()).await
 }

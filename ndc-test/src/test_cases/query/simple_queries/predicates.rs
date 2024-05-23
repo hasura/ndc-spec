@@ -3,7 +3,6 @@ use std::collections::BTreeMap;
 use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::error::{Error, Result};
-use crate::test_cases::query::validate::validate_response;
 
 use ndc_models as models;
 use rand::rngs::SmallRng;
@@ -175,7 +174,7 @@ fn make_single_expressions(
 }
 
 async fn test_select_top_n_rows_with_predicate<C: Connector>(
-    schema: &models::SchemaResponse,
+    _schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     predicate: &GeneratedExpression,
@@ -200,8 +199,6 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
     };
 
     let response = connector.query(query_request.clone()).await?;
-
-    validate_response(schema, &query_request, &response)?;
 
     if predicate.expect_nonempty {
         super::super::validate::expect_single_non_empty_rows(response)?;

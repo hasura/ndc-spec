@@ -1,8 +1,12 @@
+use async_trait::async_trait;
 use indexmap::IndexMap;
 use ndc_models as models;
 use std::collections::BTreeMap;
 
-use crate::error::{Error, Result};
+use crate::{
+    connector::Connector,
+    error::{Error, Result},
+};
 
 pub fn expect_single_non_empty_rows(
     response: models::QueryResponse,
@@ -469,5 +473,31 @@ pub(crate) fn check_value_has_object_type(
 
             Ok(())
         }
+    }
+}
+
+pub struct ValidatingConnector<'a, C: Connector> {
+    pub connector: &'a C,
+    pub schema: &'a models::SchemaResponse,
+}
+
+#[async_trait(?Send)]
+impl<'a, C: Connector> Connector for ValidatingConnector<'a, C> {
+    async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
+        self.connector.get_capabilities().await
+    }
+
+    async fn get_schema(&self) -> Result<models::SchemaResponse> {
+        self.connector.get_schema().await
+    }
+
+    async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse> {
+        let response = self.connector.query(request.clone()).await?;
+        validate_response(self.schema, &request, &response)?;
+        Ok(response)
+    }
+
+    async fn mutation(&self, request: models::MutationRequest) -> Result<models::MutationResponse> {
+        self.connector.mutation(request).await
     }
 }

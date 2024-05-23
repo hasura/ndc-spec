@@ -4,6 +4,7 @@ use std::path::PathBuf;
 pub struct TestConfiguration {
     pub seed: Option<[u8; 32]>,
     pub snapshots_dir: Option<PathBuf>,
+    pub options: TestOptions,
     pub gen_config: TestGenerationConfiguration,
 }
 

@@ -13,7 +13,6 @@ use rand::Rng;
 use std::collections::BTreeMap;
 
 use super::validate::expect_single_rowset;
-use super::validate::validate_response;
 
 pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
@@ -63,7 +62,7 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
 }
 
 pub async fn test_star_count_aggregate<C: Connector>(
-    schema: &models::SchemaResponse,
+    _schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,
@@ -85,8 +84,6 @@ pub async fn test_star_count_aggregate<C: Connector>(
     };
     let response = connector.query(query_request.clone()).await?;
 
-    validate_response(schema, &query_request, &response)?;
-
     let row_set = expect_single_rowset(response)?;
 
     if let Some(aggregates) = &row_set.aggregates {
@@ -100,7 +97,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
 }
 
 pub async fn test_column_count_aggregate<C: Connector>(
-    schema: &models::SchemaResponse,
+    _schema: &models::SchemaResponse,
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,
@@ -138,8 +135,6 @@ pub async fn test_column_count_aggregate<C: Connector>(
         variables: None,
     };
     let response = connector.query(query_request.clone()).await?;
-
-    validate_response(schema, &query_request, &response)?;
 
     let row_set = expect_single_rowset(response)?;
 
@@ -229,7 +224,6 @@ pub async fn test_single_column_aggregates<C: Connector>(
         collection_relationships: BTreeMap::new(),
         variables: None,
     };
-    let response = connector.query(query_request.clone()).await?;
-
-    validate_response(schema, &query_request, &response)
+    let _ = connector.query(query_request.clone()).await?;
+    Ok(())
 }

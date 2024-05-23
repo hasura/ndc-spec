@@ -31,7 +31,7 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use snapshot::{snapshot_test, SnapshottingConnector};
 
-use crate::test_cases::query::validate::validate_response;
+use crate::test_cases::query::validate::ValidatingConnector;
 
 #[async_trait(?Send)]
 impl Connector for client::Configuration {
@@ -64,12 +64,19 @@ pub async fn test_connector<C: Connector, R: Reporter>(
 
     let _ = match &configuration.snapshots_dir {
         None => {
-            test_cases::run_all_tests(&configuration.gen_config, connector, reporter, &mut rng)
-                .await
+            test_cases::run_all_tests(
+                &configuration.gen_config,
+                &configuration.options,
+                connector,
+                reporter,
+                &mut rng,
+            )
+            .await
         }
         Some(snapshot_path) => {
             test_cases::run_all_tests(
                 &configuration.gen_config,
+                &configuration.options,
                 &SnapshottingConnector {
                     snapshot_path,
                     connector,
@@ -90,23 +97,26 @@ pub async fn test_snapshots_in_directory<C: Connector, R: Reporter>(
 ) -> Option<()> {
     let schema = test!("Schema", reporter, connector.get_schema())?;
 
-    nest!("Query", reporter, {
-        test_snapshots_in_directory_with::<C, R, _, _, _>(
-            reporter,
-            snapshots_dir.join("query"),
-            move |req: models::QueryRequest| {
-                // Move the schema into the closure, and clone it on each invocation,
-                // then move the clone into the async block.
-                let schema = schema.clone();
-                async move {
-                    let res = connector.query(req.clone()).await?;
-                    if options.validate_responses {
-                        validate_response(&schema, &req, &res)?;
-                    }
-                    Ok(res)
-                }
-            },
-        )
+    nest!("Query", reporter, async {
+        if options.validate_responses {
+            let connector = ValidatingConnector {
+                connector,
+                schema: &schema,
+            };
+            test_snapshots_in_directory_with::<C, R, _, _, _>(
+                reporter,
+                snapshots_dir.join("query"),
+                |req| connector.query(req),
+            )
+            .await;
+        } else {
+            test_snapshots_in_directory_with::<C, R, _, _, _>(
+                reporter,
+                snapshots_dir.join("query"),
+                |req| connector.query(req),
+            )
+            .await;
+        }
     });
 
     nest!("Mutation", reporter, {
