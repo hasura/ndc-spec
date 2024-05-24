@@ -1833,7 +1833,7 @@ fn eval_column(
         let limit_argument = arguments.get("limit").ok_or((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
-                message: "Expected argument 'limit'".into(),
+                message: format!("Expected argument 'limit' in column {column_name}").into(),
                 details: serde_json::Value::Null,
             }),
         ))?;
@@ -2400,6 +2400,7 @@ mod tests {
                     let path = entry.path();
                     assert!(path.is_dir());
                     let req_path = path.join("request.json");
+                    println!("{req_path:?}");
                     let req_file = File::open(req_path).unwrap();
                     serde_json::from_reader::<_, models::QueryRequest>(req_file).unwrap()
                 };
@@ -2409,6 +2410,7 @@ mod tests {
                     let test_name = path.file_name().unwrap().to_str().unwrap();
                     PathBuf::from_iter(["query", test_name, "expected.json"])
                 };
+
 
                 let state = Arc::new(Mutex::new(crate::init_app_state()));
                 let response = crate::post_query(State(state), Json(request))

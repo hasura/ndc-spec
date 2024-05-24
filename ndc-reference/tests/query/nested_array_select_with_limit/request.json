@@ -42,7 +42,13 @@
             },
             "departments": {
                 "type":"column",
-                "column": "departments"
+                "column": "departments",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                }
             }
         }
     },

@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use indexmap::IndexMap;
 use models::Type;
 use ndc_models as models;
