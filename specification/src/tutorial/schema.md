@@ -40,6 +40,8 @@ For each collection, we define an object type for its rows. In addition, we defi
 
 ### Institution
 
+_Note_: the fields with array types have field-level arguments (`array_arguments`) in order to support nested array operations.
+
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_object_type_institution}}
 ```

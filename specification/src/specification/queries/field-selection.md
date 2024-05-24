@@ -7,6 +7,14 @@ A [`Query`](../../reference/types.md#query) can specify which fields to fetch. T
 
 The requested fields are specified as a collection of [`Field`](../../reference/types.md#field) structures in the `field` property on the [`Query`](../../reference/types.md#query).
 
+## Field Arguments
+
+Arguments can be supplied to fields via the `arguments` key. These match the format described in [the arguments documentation](../arguments.md).
+
+The [schema response](../schema/object-types.md) will specify which fields take arguments via its respective `arguments` key.
+
+If a field has any arguments defined, then the `arguments` field must be provided wherever that field is referenced. All fields are required, including nullable fields.
+
 ## Nested Fields
 
 Queries can specify nested field selections for columns which have structured types (that is, not simply a scalar type or a nullable scalar type).
@@ -52,6 +60,13 @@ Here is an example of a query which selects some columns from a nested array ins
 
 Notice that the `staff` column is fetched using a `fields` property of type `array`. For each staff member in each institution row, we apply the selection function denoted by its `fields` property (of type `object`). Specifically, the `last_name` and `specialities` properties are selected for each staff member.
 
+### Example with Field Arguments
+
+Here is an example of a query which selects some columns from a nested array inside the rows of the `institutions` collection of the reference data connector and uses the `limit` field argument to limit the number of items returned:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/nested_array_select_with_limit/request.json}}
+```
 
 ## Requirements
 

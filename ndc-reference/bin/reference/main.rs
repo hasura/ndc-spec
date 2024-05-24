@@ -15,7 +15,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use models::NestedFieldCapabilities;
+use models::{ArgumentInfo, NestedFieldCapabilities};
 use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
@@ -238,6 +238,17 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
 // ANCHOR: schema1
 async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR_END: schema1
+    let array_arguments: BTreeMap<String, _> = vec![(
+        "limit".to_string(),
+        ArgumentInfo {
+            description: None,
+            argument_type: models::Type::Nullable {
+                underlying_type: Box::new(models::Type::Named { name: "Int".into() }),
+            },
+        },
+    )]
+    .into_iter()
+    .collect();
     // ANCHOR: schema_scalar_types
     let scalar_types = BTreeMap::from_iter([
         (
@@ -302,6 +313,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The article's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -311,6 +323,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -318,6 +331,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
         ]),
@@ -332,6 +346,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The author's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -341,6 +356,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -350,6 +366,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
         ]),
@@ -364,6 +381,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The institution's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -373,6 +391,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -382,6 +401,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "location".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -393,6 +413,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "staff_member".into(),
                         }),
                     },
+                    arguments: array_arguments.clone(),
                 },
             ),
             (
@@ -404,6 +425,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
+                    arguments: array_arguments.clone(),
                 },
             ),
         ]),
@@ -420,6 +442,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -429,6 +452,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -440,6 +464,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
+                    arguments: array_arguments.clone(),
                 },
             ),
         ]),
@@ -456,6 +481,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -465,6 +491,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -476,6 +503,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
+                    arguments: array_arguments.clone(),
                 },
             ),
         ]),
@@ -1258,7 +1286,7 @@ fn eval_column_field_path(
     column_name: &str,
     field_path: &Option<Vec<String>>,
 ) -> Result<serde_json::Value> {
-    let column_value = eval_column(row, column_name)?;
+    let column_value = eval_column(&BTreeMap::default(), row, column_name, &BTreeMap::default())?;
     match field_path {
         None => Ok(column_value),
         Some(path) => path
@@ -1476,7 +1504,9 @@ fn eval_relationship_argument(
             Ok(value)
         }
         models::RelationshipArgument::Literal { value } => Ok(value.clone()),
-        models::RelationshipArgument::Column { name } => eval_column(row, name),
+        models::RelationshipArgument::Column { name } => {
+            eval_column(&BTreeMap::default(), row, name, &BTreeMap::default())
+        }
     }
 }
 // ANCHOR_END: eval_relationship_argument
@@ -1785,14 +1815,46 @@ fn eval_comparison_target(
 }
 // ANCHOR_END: eval_comparison_target
 // ANCHOR: eval_column
-fn eval_column(row: &Row, column_name: &str) -> Result<serde_json::Value> {
-    row.get(column_name).cloned().ok_or((
+fn eval_column(
+    variables: &BTreeMap<String, serde_json::Value>,
+    row: &Row,
+    column_name: &str,
+    arguments: &BTreeMap<String, models::Argument>,
+) -> Result<serde_json::Value> {
+    let column = row.get(column_name).cloned().ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
             message: "invalid column name".into(),
             details: serde_json::Value::Null,
         }),
-    ))
+    ))?;
+
+    if let Some(array) = column.as_array() {
+        let limit_argument = arguments.get("limit").ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: format!("Expected argument 'limit' in column {column_name}"),
+                details: serde_json::Value::Null,
+            }),
+        ))?;
+        let limit =
+            serde_json::from_value::<Option<usize>>(eval_argument(variables, limit_argument)?)
+                .map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "limit must be null or an integer".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?;
+
+        let result_array = array[0..limit.unwrap_or(array.len())].to_vec();
+
+        Ok(serde_json::Value::Array(result_array))
+    } else {
+        Ok(column)
+    }
 }
 // ANCHOR_END: eval_column
 // ANCHOR: eval_comparison_value
@@ -1878,10 +1940,17 @@ fn eval_nested_field(
                     }),
                 )
             })?;
+
             let result_array = array
                 .into_iter()
                 .map(|value| {
-                    eval_nested_field(collection_relationships, variables, state, value, fields)
+                    eval_nested_field(
+                        collection_relationships,
+                        variables,
+                        state,
+                        value.clone(),
+                        fields,
+                    )
                 })
                 .collect::<Result<Vec<_>>>()?;
             Ok(models::RowFieldValue(
@@ -1908,8 +1977,12 @@ fn eval_field(
     item: &Row,
 ) -> Result<models::RowFieldValue> {
     match field {
-        models::Field::Column { column, fields } => {
-            let col_val = eval_column(item, column.as_str())?;
+        models::Field::Column {
+            column,
+            fields,
+            arguments,
+        } => {
+            let col_val = eval_column(variables, item, column.as_str(), arguments)?;
             match fields {
                 None => Ok(models::RowFieldValue(col_val)),
                 Some(nested_field) => eval_nested_field(
@@ -2225,8 +2298,18 @@ fn eval_column_mapping(
     tgt_row: &Row,
 ) -> Result<bool> {
     for (src_column, tgt_column) in &relationship.column_mapping {
-        let src_value = eval_column(src_row, src_column)?;
-        let tgt_value = eval_column(tgt_row, tgt_column)?;
+        let src_value = eval_column(
+            &BTreeMap::default(),
+            src_row,
+            src_column,
+            &BTreeMap::default(),
+        )?;
+        let tgt_value = eval_column(
+            &BTreeMap::default(),
+            tgt_row,
+            tgt_column,
+            &BTreeMap::default(),
+        )?;
         if src_value != tgt_value {
             return Ok(false);
         }

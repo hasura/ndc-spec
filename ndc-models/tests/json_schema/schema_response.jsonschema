@@ -628,6 +628,37 @@
               "$ref": "#/definitions/Type"
             }
           ]
+        },
+        "arguments": {
+          "description": "The arguments available to the field - Matches implementation from CollectionInfo",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        }
+      }
+    },
+    "ArgumentInfo": {
+      "title": "Argument Info",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "description": {
+          "description": "Argument description",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "description": "The name of the type of this argument",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
         }
       }
     },
@@ -677,30 +708,6 @@
           "additionalProperties": {
             "$ref": "#/definitions/ForeignKeyConstraint"
           }
-        }
-      }
-    },
-    "ArgumentInfo": {
-      "title": "Argument Info",
-      "type": "object",
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "description": {
-          "description": "Argument description",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "type": {
-          "description": "The name of the type of this argument",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Type"
-            }
-          ]
         }
       }
     },

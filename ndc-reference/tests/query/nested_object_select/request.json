@@ -20,7 +20,13 @@
                         },
                         "campuses": {
                             "type": "column",
-                            "column": "campuses"
+                            "column": "campuses",
+                            "arguments": {
+                                "limit": {
+                                    "type": "literal",
+                                    "value": null
+                                }
+                            }
                         }
                     }
                 }

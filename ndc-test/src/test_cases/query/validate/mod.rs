@@ -134,6 +134,7 @@ fn find_collection_type_by_name(
                     models::ObjectField {
                         description: None,
                         r#type: function.result_type.clone(),
+                        arguments: BTreeMap::default(),
                     },
                 )]),
             })
@@ -199,7 +200,11 @@ pub fn validate_field(
     json_path: Vec<String>,
 ) -> Result<()> {
     match field {
-        models::Field::Column { column, fields } => {
+        models::Field::Column {
+            column,
+            fields,
+            arguments: _,
+        } => {
             let object_field = object_type
                 .fields
                 .get(column)

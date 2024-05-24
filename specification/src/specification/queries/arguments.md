@@ -1,6 +1,8 @@
 # Arguments
 
-_Collection arguments_ parameterize an entire collection, and must be provided in queries wherever the collection is referenced, either directly, or via relationships,
+_Collection arguments_ parameterize an entire collection, and must be provided in queries wherever the collection is referenced, either directly, or via relationships. 
+
+_Field_ arguments parameterize a single field, and must be provided wherever that field is referenced.
 
 ## Collection Arguments
 
@@ -59,3 +61,8 @@ For example, when ordering by an aggregate of rows in a related collection, and 
 {{#include ../../../../ndc-reference/tests/query/table_argument_order_by/request.json:1 }}
 {{#include ../../../../ndc-reference/tests/query/table_argument_order_by/request.json:3: }}
 ```
+
+## Field Arguments
+
+Field arguments can be provided to any field requested (in addition to those described for top-level collections).
+These are specified in the [schema response](../schema/object-types.md) and their use is described in [field selection](./field-selection.md). Their specification and usage matches that of collection arguments above.

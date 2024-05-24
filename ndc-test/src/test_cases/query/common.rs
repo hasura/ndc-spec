@@ -1,4 +1,5 @@
 use indexmap::IndexMap;
+use models::Type;
 use ndc_models as models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
@@ -6,14 +7,35 @@ pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<Stri
     collection_type
         .fields
         .iter()
-        .map(|f| {
-            (
-                f.0.clone(),
-                models::Field::Column {
-                    column: f.0.clone(),
-                    fields: None,
-                },
-            )
+        .filter_map(|f| {
+            if f.1
+                .arguments
+                .iter()
+                .all(|(_, v)| matches!(v.argument_type, Type::Nullable { underlying_type: _ }))
+            {
+                Some((
+                    f.0.clone(),
+                    models::Field::Column {
+                        column: f.0.clone(),
+                        fields: None,
+                        arguments: f
+                            .1
+                            .arguments
+                            .keys()
+                            .map(|k| {
+                                (
+                                    k.to_owned(),
+                                    models::Argument::Literal {
+                                        value: serde_json::Value::Null,
+                                    },
+                                )
+                            })
+                            .collect(),
+                    },
+                ))
+            } else {
+                None
+            }
         })
         .collect::<IndexMap<String, models::Field>>()
 }
@@ -27,6 +49,11 @@ pub fn select_columns(
     collection_type
         .fields
         .iter()
+        .filter(|f| {
+            f.1.arguments
+                .iter()
+                .all(|(_, v)| matches!(v.argument_type, Type::Nullable { underlying_type: _ }))
+        })
         .choose_multiple(rng, amount)
         .iter()
         .map(|f| {
@@ -35,6 +62,19 @@ pub fn select_columns(
                 models::Field::Column {
                     column: f.0.clone(),
                     fields: None,
+                    arguments: f
+                        .1
+                        .arguments
+                        .keys()
+                        .map(|k| {
+                            (
+                                k.to_owned(),
+                                models::Argument::Literal {
+                                    value: serde_json::Value::Null,
+                                },
+                            )
+                        })
+                        .collect(),
                 },
             )
         })

@@ -14,7 +14,7 @@
                 "arguments": {
                     "limit": {
                         "type": "literal",
-                        "value": null
+                        "value": 1
                     }
                 },
                 "fields": {
@@ -32,7 +32,7 @@
                                 "arguments": {
                                     "limit": {
                                         "type": "literal",
-                                        "value": null
+                                        "value": 2
                                     }
                                 }
                             }
@@ -41,7 +41,7 @@
                 }
             },
             "departments": {
-                "type": "column",
+                "type":"column",
                 "column": "departments",
                 "arguments": {
                     "limit": {
