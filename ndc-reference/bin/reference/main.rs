@@ -1833,7 +1833,7 @@ fn eval_column(
         let limit_argument = arguments.get("limit").ok_or((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
-                message: format!("Expected argument 'limit' in column {column_name}").into(),
+                message: format!("Expected argument 'limit' in column {column_name}"),
                 details: serde_json::Value::Null,
             }),
         ))?;
