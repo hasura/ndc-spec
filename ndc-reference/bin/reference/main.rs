@@ -2410,7 +2410,6 @@ mod tests {
                     PathBuf::from_iter(["query", test_name, "expected.json"])
                 };
 
-
                 let state = Arc::new(Mutex::new(crate::init_app_state()));
                 let response = crate::post_query(State(state), Json(request))
                     .await
