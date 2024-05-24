@@ -2400,7 +2400,6 @@ mod tests {
                     let path = entry.path();
                     assert!(path.is_dir());
                     let req_path = path.join("request.json");
-                    println!("{req_path:?}");
                     let req_file = File::open(req_path).unwrap();
                     serde_json::from_reader::<_, models::QueryRequest>(req_file).unwrap()
                 };
