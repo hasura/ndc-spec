@@ -1,11 +1,22 @@
 # Changelog
 
-## Unreleased
+## `0.1.3`
 
 ### Specification
 
+- Support field-level arguments
+- Support filtering and ordering by values of nested fields
 - Added a `biginteger` [type representation](./schema/scalar-types.md#type-representations)
 
+### `ndc-test`
+
+- Validate all response types
+- Release pipeline for ndc-test CLI
+
+### Rust Libraries
+
+- Upgrade Rust to v1.78.0, and the Rust dependencies to their latest versions
+- Add back features for native-tls vs rustls
 
 ## `0.1.2`
 
