@@ -272,17 +272,21 @@
     item: &amp;Row,
 ) -&gt; Result&lt;Vec&lt;serde_json::Value&gt;&gt; {
     match target {
-        models::ComparisonTarget::Column { name, path } =&gt; {
+        models::ComparisonTarget::Column {
+            name,
+            field_path,
+            path,
+        } =&gt; {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in &amp;rows {
-                let value = eval_column(row, name.as_str())?;
+                let value = eval_column_field_path(row, name, field_path)?;
                 values.push(value);
             }
             Ok(values)
         }
-        models::ComparisonTarget::RootCollectionColumn { name } =&gt; {
-            let value = eval_column(root, name.as_str())?;
+        models::ComparisonTarget::RootCollectionColumn { name, field_path } =&gt; {
+            let value = eval_column_field_path(root, name, field_path)?;
             Ok(vec![value])
         }
     }

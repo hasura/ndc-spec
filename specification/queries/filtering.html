@@ -309,6 +309,10 @@
 <h4 id="referencing-a-column-from-the-root-collection"><a class="header" href="#referencing-a-column-from-the-root-collection">Referencing a column from the root collection</a></h4>
 <p>If the <code>ComparisonTarget</code> has type <code>root_collection_column</code>, then the <code>name</code> property refers to a column in the <em>root collection</em>.</p>
 <p>The root collection is defined as the collection in scope at the nearest enclosing <a href="../../reference/types.html#query"><code>Query</code></a>, and the column should be chosen from the <em>row</em> in that collection which was in scope when that <code>Query</code> was being evaluated.</p>
+<h4 id="referencing-nested-fields-within-columns"><a class="header" href="#referencing-nested-fields-within-columns">Referencing nested fields within columns</a></h4>
+<p>If the <code>field_path</code> property is empty or not present then the target is the value of the named column.
+If <code>field_path</code> is non-empty then it refers to a path to a nested field within the named column.
+(A <code>ComparisonTarget</code> may only have a non-empty <code>field_path</code> if the connector supports capability <code>query.nested_fields.filter_by</code>.)</p>
 <h3 id="values-in-binary-operators"><a class="header" href="#values-in-binary-operators">Values in Binary Operators</a></h3>
 <p>Binary (including array-valued) operators compare columns to <em>values</em>, but there are several types of valid values:</p>
 <ul>

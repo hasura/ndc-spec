@@ -259,6 +259,7 @@
                 models::ObjectField {
                     description: Some("The author's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -268,6 +269,7 @@
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -277,6 +279,7 @@
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
         ]),
@@ -290,6 +293,7 @@
                 models::ObjectField {
                     description: Some("The article's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -299,6 +303,7 @@
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -306,11 +311,13 @@
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
         ]),
     };</code></pre>
 <h3 id="institution"><a class="header" href="#institution">Institution</a></h3>
+<p><em>Note</em>: the fields with array types have field-level arguments (<code>array_arguments</code>) in order to support nested array operations.</p>
 <pre><code class="language-rust no_run noplayground">    let institution_type = models::ObjectType {
         description: Some("An institution".into()),
         fields: BTreeMap::from_iter([
@@ -319,6 +326,7 @@
                 models::ObjectField {
                     description: Some("The institution's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -328,6 +336,7 @@
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -337,6 +346,7 @@
                     r#type: models::Type::Named {
                         name: "location".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -348,6 +358,7 @@
                             name: "staff_member".into(),
                         }),
                     },
+                    arguments: array_arguments.clone(),
                 },
             ),
             (
@@ -359,6 +370,7 @@
                             name: "String".into(),
                         }),
                     },
+                    arguments: array_arguments.clone(),
                 },
             ),
         ]),

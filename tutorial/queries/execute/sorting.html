@@ -254,6 +254,7 @@
     item: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     path: Vec&lt;models::PathElement&gt;,
     name: String,
+    field_path: Option&lt;Vec&lt;String&gt;&gt;,
 ) -&gt; Result&lt;serde_json::Value&gt; {
     let rows: Vec&lt;Row&gt; = eval_path(collection_relationships, variables, state, &amp;path, item)?;
     if rows.len() &gt; 1 {
@@ -266,7 +267,7 @@
         ));
     }
     match rows.first() {
-        Some(row) =&gt; eval_column(row, name.as_str()),
+        Some(row) =&gt; eval_column_field_path(row, &amp;name, &amp;field_path),
         None =&gt; Ok(serde_json::Value::Null),
     }
 }</code></pre>

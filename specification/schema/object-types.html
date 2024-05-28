@@ -176,7 +176,7 @@
                         <h1 id="object-types"><a class="header" href="#object-types">Object Types</a></h1>
 <p>The schema should define any named <em>object types</em> which will be used as the types of <a href="./collections.html">collection</a> row sets, or <a href="./procedures.html">procedure</a> inputs or outputs.</p>
 <p>An object type consists of a name and a collection of named fields. Each field is defined by its <a href="../types.html">type</a>, and any <a href="../queries/arguments.html">arguments</a>.</p>
-<p><em>Note</em>: field arguments are only used in a query context, and ignored when an object type is used in other contexts (such as the input type of a <em>procedure</em>).</p>
+<p><em>Note</em>: field arguments are only used in a query context. Objects with field arguments cannot be used as input types, and fields with arguments cannot be used to define <a href="../queries/relationships.html#column-mappings">column mappings</a>, or in <a href="../queries/filtering.html#referencing-nested-fields-within-columns">nested field references</a>.</p>
 <p>To define an object type, add an <a href="../../reference/types.html#objecttype"><code>ObjectType</code>
 </a> to the <code>object_types</code> field of the schema response.</p>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>

@@ -180,6 +180,10 @@
 <li>fields from <a href="./relationships.html">related collections</a></li>
 </ul>
 <p>The requested fields are specified as a collection of <a href="../../reference/types.html#field"><code>Field</code></a> structures in the <code>field</code> property on the <a href="../../reference/types.html#query"><code>Query</code></a>.</p>
+<h2 id="field-arguments"><a class="header" href="#field-arguments">Field Arguments</a></h2>
+<p>Arguments can be supplied to fields via the <code>arguments</code> key. These match the format described in <a href="../arguments.html">the arguments documentation</a>.</p>
+<p>The <a href="../schema/object-types.html">schema response</a> will specify which fields take arguments via its respective <code>arguments</code> key.</p>
+<p>If a field has any arguments defined, then the <code>arguments</code> field must be provided wherever that field is referenced. All fields are required, including nullable fields.</p>
 <h2 id="nested-fields"><a class="header" href="#nested-fields">Nested Fields</a></h2>
 <p>Queries can specify nested field selections for columns which have structured types (that is, not simply a scalar type or a nullable scalar type).</p>
 <p>In order to specify nested field selections, the <code>fields</code> property of the <code>Field</code> structure, which is a <a href="../../reference/types.html#nestedfield"><code>NestedField</code></a> structure.</p>
@@ -233,7 +237,13 @@
                         },
                         "campuses": {
                             "type": "column",
-                            "column": "campuses"
+                            "column": "campuses",
+                            "arguments": {
+                                "limit": {
+                                    "type": "literal",
+                                    "value": null
+                                }
+                            }
                         }
                     }
                 }
@@ -262,6 +272,12 @@
             "staff": {
                 "type": "column",
                 "column": "staff",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                },
                 "fields": {
                     "type": "array",
                     "fields": {
@@ -273,15 +289,27 @@
                             },
                             "fields_of_study": {
                                 "type": "column",
-                                "column": "specialities"
+                                "column": "specialities",
+                                "arguments": {
+                                    "limit": {
+                                        "type": "literal",
+                                        "value": null
+                                    }
+                                }
                             }
                         }
                     }
                 }
             },
             "departments": {
-                "type":"column",
-                "column": "departments"
+                "type": "column",
+                "column": "departments",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                }
             }
         }
     },
@@ -289,6 +317,65 @@
 }
 </code></pre>
 <p>Notice that the <code>staff</code> column is fetched using a <code>fields</code> property of type <code>array</code>. For each staff member in each institution row, we apply the selection function denoted by its <code>fields</code> property (of type <code>object</code>). Specifically, the <code>last_name</code> and <code>specialities</code> properties are selected for each staff member.</p>
+<h3 id="example-with-field-arguments"><a class="header" href="#example-with-field-arguments">Example with Field Arguments</a></h3>
+<p>Here is an example of a query which selects some columns from a nested array inside the rows of the <code>institutions</code> collection of the reference data connector and uses the <code>limit</code> field argument to limit the number of items returned:</p>
+<pre><code class="language-json">{
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+    "collection": "institutions",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id"
+            },
+            "staff": {
+                "type": "column",
+                "column": "staff",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": 1
+                    }
+                },
+                "fields": {
+                    "type": "array",
+                    "fields": {
+                        "type": "object",
+                        "fields": {
+                            "last_name": {
+                                "type": "column",
+                                "column": "last_name"
+                            },
+                            "fields_of_study": {
+                                "type": "column",
+                                "column": "specialities",
+                                "arguments": {
+                                    "limit": {
+                                        "type": "literal",
+                                        "value": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "departments": {
+                "type":"column",
+                "column": "departments",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                }
+            }
+        }
+    },
+    "collection_relationships": {}
+}
+</code></pre>
 <h2 id="requirements"><a class="header" href="#requirements">Requirements</a></h2>
 <ul>
 <li>If the <a href="../../reference/types.html#queryrequest"><code>QueryRequest</code></a> contains a <a href="../../reference/types.html#query"><code>Query</code></a> which specifies <code>fields</code>, then each <a href="../../reference/types.html#rowset"><code>RowSet</code></a> in the response should contain the <code>rows</code> property, and each row should contain all of the requested fields.</li>

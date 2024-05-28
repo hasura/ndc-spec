@@ -204,29 +204,46 @@
 <li>A <strong>metrics</strong> endpoint, which exposes runtime metrics about the data connector.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
-<h2 id="012"><a class="header" href="#012"><code>0.1.2</code></a></h2>
+<h2 id="013"><a class="header" href="#013"><code>0.1.3</code></a></h2>
 <h3 id="specification"><a class="header" href="#specification">Specification</a></h3>
+<ul>
+<li>Support field-level arguments</li>
+<li>Support filtering and ordering by values of nested fields</li>
+<li>Added a <code>biginteger</code> <a href="specification/./schema/scalar-types.html#type-representations">type representation</a></li>
+</ul>
+<h3 id="ndc-test"><a class="header" href="#ndc-test"><code>ndc-test</code></a></h3>
+<ul>
+<li>Validate all response types</li>
+<li>Release pipeline for ndc-test CLI</li>
+</ul>
+<h3 id="rust-libraries"><a class="header" href="#rust-libraries">Rust Libraries</a></h3>
+<ul>
+<li>Upgrade Rust to v1.78.0, and the Rust dependencies to their latest versions</li>
+<li>Add back features for native-tls vs rustls</li>
+</ul>
+<h2 id="012"><a class="header" href="#012"><code>0.1.2</code></a></h2>
+<h3 id="specification-1"><a class="header" href="#specification-1">Specification</a></h3>
 <ul>
 <li>More <a href="specification/./schema/scalar-types.html#type-representations">type representations</a> were added, and some were deprecated.</li>
 </ul>
-<h3 id="rust-libraries"><a class="header" href="#rust-libraries">Rust Libraries</a></h3>
+<h3 id="rust-libraries-1"><a class="header" href="#rust-libraries-1">Rust Libraries</a></h3>
 <ul>
 <li>Upgrade to Rust v1.77</li>
 <li>The <code>ndc-client</code> library was removed. Clients are advised to use the new <code>ndc-models</code> library for type definitions, and to use a HTTP client library of their choice directly.</li>
 </ul>
 <h2 id="011"><a class="header" href="#011"><code>0.1.1</code></a></h2>
-<h3 id="specification-1"><a class="header" href="#specification-1">Specification</a></h3>
+<h3 id="specification-2"><a class="header" href="#specification-2">Specification</a></h3>
 <ul>
 <li><a href="specification/./schema/scalar-types.html#note-syntactic-equality">Equality operators were more precisely specified</a></li>
 <li>Scalar types can now specify <a href="specification/./schema/scalar-types.html#type-representations">representations</a></li>
 </ul>
-<h3 id="ndc-test"><a class="header" href="#ndc-test"><code>ndc-test</code></a></h3>
+<h3 id="ndc-test-1"><a class="header" href="#ndc-test-1"><code>ndc-test</code></a></h3>
 <ul>
 <li>Aggregate tests are gated behind the aggregates capability</li>
 <li>Automatic tests are now generated for exists predicates</li>
 <li>Automatic tests are now generated for <code>single_column</code> aggregates</li>
 </ul>
-<h3 id="rust-libraries-1"><a class="header" href="#rust-libraries-1">Rust Libraries</a></h3>
+<h3 id="rust-libraries-2"><a class="header" href="#rust-libraries-2">Rust Libraries</a></h3>
 <ul>
 <li><code>rustls</code> is supported instead of <code>native-tls</code> using a Cargo feature.</li>
 <li>Upgrade <code>opentelemetry</code> to v0.22.0</li>
@@ -327,11 +344,15 @@ mutation_total 5000 1685405427000
 <p>See <a href="specification/../reference/types.html#capabilitiesresponse"><code>CapabilitiesResponse</code></a></p>
 <h3 id="example-1"><a class="header" href="#example-1">Example</a></h3>
 <pre><code class="language-json">{
-  "version": "0.1.2",
+  "version": "0.1.3",
   "capabilities": {
     "query": {
       "aggregates": {},
-      "variables": {}
+      "variables": {},
+      "nested_fields": {
+        "filter_by": {},
+        "order_by": {}
+      }
     },
     "mutation": {},
     "relationships": {
@@ -347,6 +368,8 @@ mutation_total 5000 1685405427000
 <tr><td><code>capabilities.query.aggregates</code></td><td>Whether the data connector supports <a href="specification/queries/aggregates.html">aggregate queries</a></td></tr>
 <tr><td><code>capabilities.query.variables</code></td><td>Whether the data connector supports <a href="specification/queries/variables.html">queries with variables</a></td></tr>
 <tr><td><code>capabilities.query.explain</code></td><td>Whether the data connector is capable of describing query plans</td></tr>
+<tr><td><code>capabilities.query.nested_fields.filter_by</code></td><td>Whether the data connector is capable of filtering by nested fields</td></tr>
+<tr><td><code>capabilities.query.nested_fields.order_by</code></td><td>Whether the data connector is capable of ordering by nested fields</td></tr>
 <tr><td><code>capabilities.mutation.transactional</code></td><td>Whether the data connector is capable of executing multiple mutations in a transaction</td></tr>
 <tr><td><code>capabilities.mutation.explain</code></td><td>Whether the data connector is capable of describing mutation plans</td></tr>
 <tr><td><code>capabilities.relationships</code></td><td>Whether the data connector supports <a href="specification/queries/relationships.html">relationships</a></td></tr>
@@ -359,7 +382,9 @@ mutation_total 5000 1685405427000
 <li>Type <a href="specification/../reference/types.html#capabilities"><code>Capabilities</code></a></li>
 <li>Type <a href="specification/../reference/types.html#capabilitiesresponse"><code>CapabilitiesResponse</code></a></li>
 <li>Type <a href="specification/../reference/types.html#querycapabilities"><code>QueryCapabilities</code></a></li>
+<li>Type <a href="specification/../reference/types.html#nestedfieldcapabilities"><code>NestedFieldCapabilities</code></a></li>
 <li>Type <a href="specification/../reference/types.html#mutationcapabilities"><code>MutationCapabilities</code></a></li>
+<li>Type <a href="specification/../reference/types.html#relationshipcapabilities"><code>RelationshipCapabilities</code></a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="types"><a class="header" href="#types">Types</a></h1>
 <p>Several definitions in this specification make mention of <em>types</em>. Types are used to categorize the sorts of data returned and accepted by a data connector.</p>
@@ -553,6 +578,17 @@ mutation_total 5000 1685405427000
               "type": "named",
               "name": "String"
             }
+          },
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
           }
         },
         "id": {
@@ -584,6 +620,17 @@ mutation_total 5000 1685405427000
               "type": "named",
               "name": "staff_member"
             }
+          },
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
           }
         }
       }
@@ -598,6 +645,17 @@ mutation_total 5000 1685405427000
             "element_type": {
               "type": "named",
               "name": "String"
+            }
+          },
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
             }
           }
         },
@@ -641,6 +699,17 @@ mutation_total 5000 1685405427000
             "element_type": {
               "type": "named",
               "name": "String"
+            }
+          },
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
             }
           }
         }
@@ -807,6 +876,7 @@ mutation_total 5000 1685405427000
 <tr><td><code>int64</code></td><td>A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1</td><td>String</td></tr>
 <tr><td><code>float32</code></td><td>An IEEE-754 single-precision floating-point number</td><td>Number</td></tr>
 <tr><td><code>float64</code></td><td>An IEEE-754 double-precision floating-point number</td><td>Number</td></tr>
+<tr><td><code>biginteger</code></td><td>Arbitrary-precision integer string</td><td>String</td></tr>
 <tr><td><code>bigdecimal</code></td><td>Arbitrary-precision decimal string</td><td>String</td></tr>
 <tr><td><code>uuid</code></td><td>UUID string (8-4-4-4-12 format)</td><td>String</td></tr>
 <tr><td><code>date</code></td><td>ISO 8601 date</td><td>String</td></tr>
@@ -907,7 +977,7 @@ mutation_total 5000 1685405427000
 <div style="break-before: page; page-break-before: always;"></div><h1 id="object-types"><a class="header" href="#object-types">Object Types</a></h1>
 <p>The schema should define any named <em>object types</em> which will be used as the types of <a href="specification/schema/./collections.html">collection</a> row sets, or <a href="specification/schema/./procedures.html">procedure</a> inputs or outputs.</p>
 <p>An object type consists of a name and a collection of named fields. Each field is defined by its <a href="specification/schema/../types.html">type</a>, and any <a href="specification/schema/../queries/arguments.html">arguments</a>.</p>
-<p><em>Note</em>: field arguments are only used in a query context, and ignored when an object type is used in other contexts (such as the input type of a <em>procedure</em>).</p>
+<p><em>Note</em>: field arguments are only used in a query context. Objects with field arguments cannot be used as input types, and fields with arguments cannot be used to define <a href="specification/schema/../queries/relationships.html#column-mappings">column mappings</a>, or in <a href="specification/schema/../queries/filtering.html#referencing-nested-fields-within-columns">nested field references</a>.</p>
 <p>To define an object type, add an <a href="specification/schema/../../reference/types.html#objecttype"><code>ObjectType</code>
 </a> to the <code>object_types</code> field of the schema response.</p>
 <h2 id="example-3"><a class="header" href="#example-3">Example</a></h2>
@@ -1141,6 +1211,10 @@ mutation_total 5000 1685405427000
 <li>fields from <a href="specification/queries/./relationships.html">related collections</a></li>
 </ul>
 <p>The requested fields are specified as a collection of <a href="specification/queries/../../reference/types.html#field"><code>Field</code></a> structures in the <code>field</code> property on the <a href="specification/queries/../../reference/types.html#query"><code>Query</code></a>.</p>
+<h2 id="field-arguments-1"><a class="header" href="#field-arguments-1">Field Arguments</a></h2>
+<p>Arguments can be supplied to fields via the <code>arguments</code> key. These match the format described in <a href="specification/queries/../arguments.html">the arguments documentation</a>.</p>
+<p>The <a href="specification/queries/../schema/object-types.html">schema response</a> will specify which fields take arguments via its respective <code>arguments</code> key.</p>
+<p>If a field has any arguments defined, then the <code>arguments</code> field must be provided wherever that field is referenced. All fields are required, including nullable fields.</p>
 <h2 id="nested-fields"><a class="header" href="#nested-fields">Nested Fields</a></h2>
 <p>Queries can specify nested field selections for columns which have structured types (that is, not simply a scalar type or a nullable scalar type).</p>
 <p>In order to specify nested field selections, the <code>fields</code> property of the <code>Field</code> structure, which is a <a href="specification/queries/../../reference/types.html#nestedfield"><code>NestedField</code></a> structure.</p>
@@ -1194,7 +1268,13 @@ mutation_total 5000 1685405427000
                         },
                         "campuses": {
                             "type": "column",
-                            "column": "campuses"
+                            "column": "campuses",
+                            "arguments": {
+                                "limit": {
+                                    "type": "literal",
+                                    "value": null
+                                }
+                            }
                         }
                     }
                 }
@@ -1223,6 +1303,12 @@ mutation_total 5000 1685405427000
             "staff": {
                 "type": "column",
                 "column": "staff",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                },
                 "fields": {
                     "type": "array",
                     "fields": {
@@ -1234,15 +1320,27 @@ mutation_total 5000 1685405427000
                             },
                             "fields_of_study": {
                                 "type": "column",
-                                "column": "specialities"
+                                "column": "specialities",
+                                "arguments": {
+                                    "limit": {
+                                        "type": "literal",
+                                        "value": null
+                                    }
+                                }
                             }
                         }
                     }
                 }
             },
             "departments": {
-                "type":"column",
-                "column": "departments"
+                "type": "column",
+                "column": "departments",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                }
             }
         }
     },
@@ -1250,6 +1348,65 @@ mutation_total 5000 1685405427000
 }
 </code></pre>
 <p>Notice that the <code>staff</code> column is fetched using a <code>fields</code> property of type <code>array</code>. For each staff member in each institution row, we apply the selection function denoted by its <code>fields</code> property (of type <code>object</code>). Specifically, the <code>last_name</code> and <code>specialities</code> properties are selected for each staff member.</p>
+<h3 id="example-with-field-arguments"><a class="header" href="#example-with-field-arguments">Example with Field Arguments</a></h3>
+<p>Here is an example of a query which selects some columns from a nested array inside the rows of the <code>institutions</code> collection of the reference data connector and uses the <code>limit</code> field argument to limit the number of items returned:</p>
+<pre><code class="language-json">{
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+    "collection": "institutions",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id"
+            },
+            "staff": {
+                "type": "column",
+                "column": "staff",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": 1
+                    }
+                },
+                "fields": {
+                    "type": "array",
+                    "fields": {
+                        "type": "object",
+                        "fields": {
+                            "last_name": {
+                                "type": "column",
+                                "column": "last_name"
+                            },
+                            "fields_of_study": {
+                                "type": "column",
+                                "column": "specialities",
+                                "arguments": {
+                                    "limit": {
+                                        "type": "literal",
+                                        "value": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "departments": {
+                "type":"column",
+                "column": "departments",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                }
+            }
+        }
+    },
+    "collection_relationships": {}
+}
+</code></pre>
 <h2 id="requirements-2"><a class="header" href="#requirements-2">Requirements</a></h2>
 <ul>
 <li>If the <a href="specification/queries/../../reference/types.html#queryrequest"><code>QueryRequest</code></a> contains a <a href="specification/queries/../../reference/types.html#query"><code>Query</code></a> which specifies <code>fields</code>, then each <a href="specification/queries/../../reference/types.html#rowset"><code>RowSet</code></a> in the response should contain the <code>rows</code> property, and each row should contain all of the requested fields.</li>
@@ -1396,6 +1553,10 @@ mutation_total 5000 1685405427000
 <h4 id="referencing-a-column-from-the-root-collection"><a class="header" href="#referencing-a-column-from-the-root-collection">Referencing a column from the root collection</a></h4>
 <p>If the <code>ComparisonTarget</code> has type <code>root_collection_column</code>, then the <code>name</code> property refers to a column in the <em>root collection</em>.</p>
 <p>The root collection is defined as the collection in scope at the nearest enclosing <a href="specification/queries/../../reference/types.html#query"><code>Query</code></a>, and the column should be chosen from the <em>row</em> in that collection which was in scope when that <code>Query</code> was being evaluated.</p>
+<h4 id="referencing-nested-fields-within-columns"><a class="header" href="#referencing-nested-fields-within-columns">Referencing nested fields within columns</a></h4>
+<p>If the <code>field_path</code> property is empty or not present then the target is the value of the named column.
+If <code>field_path</code> is non-empty then it refers to a path to a nested field within the named column.
+(A <code>ComparisonTarget</code> may only have a non-empty <code>field_path</code> if the connector supports capability <code>query.nested_fields.filter_by</code>.)</p>
 <h3 id="values-in-binary-operators"><a class="header" href="#values-in-binary-operators">Values in Binary Operators</a></h3>
 <p>Binary (including array-valued) operators compare columns to <em>values</em>, but there are several types of valid values:</p>
 <ul>
@@ -1643,6 +1804,8 @@ mutation_total 5000 1685405427000
 </li>
 </ul>
 <h3 id="type-column"><a class="header" href="#type-column">Type <code>column</code></a></h3>
+<p>The property <code>element.target.name</code> refers to a column name.
+If the connector supports capability <code>query.nested_fields.order_by</code> then the target may also <a href="specification/queries/./filtering.html#referencing-nested-fields-within-columns">reference nested fields within a column</a> using the <code>field_path</code> property.</p>
 <p>If <code>element.order_direction</code> is <code>asc</code>, then the row with the smaller column comes first.</p>
 <p>If <code>element.order_direction</code> is <code>asc</code>, then the row with the smaller column comes second.</p>
 <p>If the column values are incomparable, continue to the next <a href="specification/queries/../../reference/types.html#orderbyelement"><code>OrderByElement</code></a>.</p>
@@ -1963,7 +2126,8 @@ mutation_total 5000 1685405427000
 <li>Type <a href="specification/queries/../../reference/types.html#aggregate"><code>Aggregate</code></a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="arguments"><a class="header" href="#arguments">Arguments</a></h1>
-<p><em>Collection arguments</em> parameterize an entire collection, and must be provided in queries wherever the collection is referenced, either directly, or via relationships,</p>
+<p><em>Collection arguments</em> parameterize an entire collection, and must be provided in queries wherever the collection is referenced, either directly, or via relationships.</p>
+<p><em>Field</em> arguments parameterize a single field, and must be provided wherever that field is referenced.</p>
 <h2 id="collection-arguments-1"><a class="header" href="#collection-arguments-1">Collection Arguments</a></h2>
 <p>Collection arguments should be provided in the <code>QueryRequest</code> anywhere a collection is referenced. The set of provided arguments should be compatible with the list of arguments required by the corresponding <a href="specification/queries/../schema/collections.html">collection in the schema response</a>.</p>
 <h3 id="specifying-arguments-to-the-top-level-collection"><a class="header" href="#specifying-arguments-to-the-top-level-collection">Specifying arguments to the top-level collection</a></h3>
@@ -2242,6 +2406,9 @@ mutation_total 5000 1685405427000
     }
 }
 </code></pre>
+<h2 id="field-arguments-2"><a class="header" href="#field-arguments-2">Field Arguments</a></h2>
+<p>Field arguments can be provided to any field requested (in addition to those described for top-level collections).
+These are specified in the <a href="specification/queries/../schema/object-types.html">schema response</a> and their use is described in <a href="specification/queries/./field-selection.html">field selection</a>. Their specification and usage matches that of collection arguments above.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="relationships-1"><a class="header" href="#relationships-1">Relationships</a></h1>
 <p>Queries can request data from other collections via relationships. A relationship identifies rows in one collection (the "source collection") with possibly-many related rows in a second collection (the "target collection") in two ways:</p>
 <ul>
@@ -2773,7 +2940,7 @@ docker run -it reference_connector
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="testing"><a class="header" href="#testing">Testing</a></h1>
 <p>Testing tools are provided in the specification repository to aid in the development of connectors.</p>
-<h2 id="ndc-test-1"><a class="header" href="#ndc-test-1"><code>ndc-test</code></a></h2>
+<h2 id="ndc-test-2"><a class="header" href="#ndc-test-2"><code>ndc-test</code></a></h2>
 <p>The <code>ndc-test</code> executable performs basic validation of the data returned by the capabilities and schema endpoints, and performs some basic queries.</p>
 <p>To test a connector, provide its endpoint to <code>ndc-test</code> on the command line:</p>
 <pre><code class="language-sh">ndc-test --endpoint &lt;ENDPOINT&gt;
@@ -2892,12 +3059,16 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 <p>The reference implementation returns a static <code>CapabilitiesResponse</code>:</p>
 <pre><code class="language-rust no_run noplayground">async fn get_capabilities() -&gt; Json&lt;models::CapabilitiesResponse&gt; {
     Json(models::CapabilitiesResponse {
-        version: "0.1.2".into(),
+        version: "0.1.3".into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
                 explain: None,
+                nested_fields: NestedFieldCapabilities {
+                    filter_by: Some(LeafCapability {}),
+                    order_by: Some(LeafCapability {}),
+                },
             },
             mutation: models::MutationCapabilities {
                 transactional: None,
@@ -2997,6 +3168,7 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                 models::ObjectField {
                     description: Some("The author's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -3006,6 +3178,7 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -3015,6 +3188,7 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
         ]),
@@ -3028,6 +3202,7 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                 models::ObjectField {
                     description: Some("The article's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -3037,6 +3212,7 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -3044,11 +3220,13 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
         ]),
     };</code></pre>
 <h3 id="institution"><a class="header" href="#institution">Institution</a></h3>
+<p><em>Note</em>: the fields with array types have field-level arguments (<code>array_arguments</code>) in order to support nested array operations.</p>
 <pre><code class="language-rust no_run noplayground">    let institution_type = models::ObjectType {
         description: Some("An institution".into()),
         fields: BTreeMap::from_iter([
@@ -3057,6 +3235,7 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                 models::ObjectField {
                     description: Some("The institution's primary key".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -3066,6 +3245,7 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -3075,6 +3255,7 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                     r#type: models::Type::Named {
                         name: "location".into(),
                     },
+                    arguments: BTreeMap::new(),
                 },
             ),
             (
@@ -3086,6 +3267,7 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                             name: "staff_member".into(),
                         }),
                     },
+                    arguments: array_arguments.clone(),
                 },
             ),
             (
@@ -3097,6 +3279,7 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
                             name: "String".into(),
                         }),
                     },
+                    arguments: array_arguments.clone(),
                 },
             ),
         ]),
@@ -3534,6 +3717,7 @@ Once we have computed the full collection, we can move onto evaluating the query
     item: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
     path: Vec&lt;models::PathElement&gt;,
     name: String,
+    field_path: Option&lt;Vec&lt;String&gt;&gt;,
 ) -&gt; Result&lt;serde_json::Value&gt; {
     let rows: Vec&lt;Row&gt; = eval_path(collection_relationships, variables, state, &amp;path, item)?;
     if rows.len() &gt; 1 {
@@ -3546,7 +3730,7 @@ Once we have computed the full collection, we can move onto evaluating the query
         ));
     }
     match rows.first() {
-        Some(row) =&gt; eval_column(row, name.as_str()),
+        Some(row) =&gt; eval_column_field_path(row, &amp;name, &amp;field_path),
         None =&gt; Ok(serde_json::Value::Null),
     }
 }</code></pre>
@@ -3651,17 +3835,21 @@ Once we have computed the full collection, we can move onto evaluating the query
     item: &amp;Row,
 ) -&gt; Result&lt;Vec&lt;serde_json::Value&gt;&gt; {
     match target {
-        models::ComparisonTarget::Column { name, path } =&gt; {
+        models::ComparisonTarget::Column {
+            name,
+            field_path,
+            path,
+        } =&gt; {
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in &amp;rows {
-                let value = eval_column(row, name.as_str())?;
+                let value = eval_column_field_path(row, name, field_path)?;
                 values.push(value);
             }
             Ok(values)
         }
-        models::ComparisonTarget::RootCollectionColumn { name } =&gt; {
-            let value = eval_column(root, name.as_str())?;
+        models::ComparisonTarget::RootCollectionColumn { name, field_path } =&gt; {
+            let value = eval_column_field_path(root, name, field_path)?;
             Ok(vec![value])
         }
     }
@@ -4045,7 +4233,7 @@ Once we have computed the full collection, we can move onto evaluating the query
         .transpose()?;</code></pre>
 <p>The <code>eval_field</code> function works by pattern matching on the field type:</p>
 <ul>
-<li>A <code>column</code> is selected using the <code>eval_column</code> function,</li>
+<li>A <code>column</code> is selected using the <code>eval_column</code> function (or <code>eval_nested_field</code> if there are nested fields to fetch)</li>
 <li>A <code>relationship</code> field is selected by evaluating the related collection using <code>eval_path_element</code> (we will cover this in the next section), and then recursively executing a query using <code>execute_query</code>:</li>
 </ul>
 <pre><code class="language-rust no_run noplayground">fn eval_field(
@@ -4056,8 +4244,12 @@ Once we have computed the full collection, we can move onto evaluating the query
     item: &amp;Row,
 ) -&gt; Result&lt;models::RowFieldValue&gt; {
     match field {
-        models::Field::Column { column, fields } =&gt; {
-            let col_val = eval_column(item, column.as_str())?;
+        models::Field::Column {
+            column,
+            fields,
+            arguments,
+        } =&gt; {
+            let col_val = eval_column(variables, item, column.as_str(), arguments)?;
             match fields {
                 None =&gt; Ok(models::RowFieldValue(col_val)),
                 Some(nested_field) =&gt; eval_nested_field(
@@ -4628,12 +4820,16 @@ pub enum ComparisonTarget {
     Column {
         /// The name of the column
         name: String,
+        /// Path to a nested field within an object column
+        field_path: Option&lt;Vec&lt;String&gt;&gt;,
         /// Any relationships to traverse to reach this column
         path: Vec&lt;PathElement&gt;,
     },
     RootCollectionColumn {
         /// The name of the column
         name: String,
+        /// Path to a nested field within an object column
+        field_path: Option&lt;Vec&lt;String&gt;&gt;,
     },
 }</code></pre>
 <h2 id="comparisonvalue"><a class="header" href="#comparisonvalue"><code>ComparisonValue</code></a></h2>
@@ -4724,6 +4920,8 @@ pub enum Field {
         /// by specifying fields to fetch here.
         /// If omitted, the column data will be fetched in full.
         fields: Option&lt;NestedField&gt;,
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap&lt;String, Argument&gt;,
     },
     Relationship {
         query: Box&lt;Query&gt;,
@@ -4814,6 +5012,16 @@ pub enum NestedField {
     Object(NestedObject),
     Array(NestedArray),
 }</code></pre>
+<h2 id="nestedfieldcapabilities"><a class="header" href="#nestedfieldcapabilities"><code>NestedFieldCapabilities</code></a></h2>
+<pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Nested Field Capabilities")]
+pub struct NestedFieldCapabilities {
+    /// Does the connector support filtering by values of nested fields
+    pub filter_by: Option&lt;LeafCapability&gt;,
+    /// Does the connector support ordering by values of nested fields
+    pub order_by: Option&lt;LeafCapability&gt;,
+}</code></pre>
 <h2 id="nestedobject"><a class="header" href="#nestedobject"><code>NestedObject</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
@@ -4832,6 +5040,9 @@ pub struct ObjectField {
     /// The type of this field
     #[serde(rename = "type")]
     pub r#type: Type,
+    /// The arguments available to the field - Matches implementation from CollectionInfo
+    #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
 }</code></pre>
 <h2 id="objecttype"><a class="header" href="#objecttype"><code>ObjectType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an object type
@@ -4867,6 +5078,8 @@ pub enum OrderByTarget {
     Column {
         /// The name of the column
         name: String,
+        /// Path to a nested field within an object column
+        field_path: Option&lt;Vec&lt;String&gt;&gt;,
         /// Any relationships to traverse to reach this column
         path: Vec&lt;PathElement&gt;,
     },
@@ -4946,6 +5159,8 @@ pub struct QueryCapabilities {
     pub variables: Option&lt;LeafCapability&gt;,
     /// Does the connector support explaining queries
     pub explain: Option&lt;LeafCapability&gt;,
+    /// Does the connector support nested fields
+    pub nested_fields: NestedFieldCapabilities,
 }</code></pre>
 <h2 id="queryrequest"><a class="header" href="#queryrequest"><code>QueryRequest</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// This is the request body of the query POST endpoint
@@ -5158,6 +5373,9 @@ pub enum TypeRepresentation {
     Float32,
     /// An IEEE-754 double-precision floating-point number
     Float64,
+    /// Arbitrary-precision integer string
+    #[serde(rename = "biginteger")]
+    BigInteger,
     /// Arbitrary-precision decimal string
     #[serde(rename = "bigdecimal")]
     BigDecimal,
@@ -5248,6 +5466,9 @@ pub struct UniquenessConstraint {
     "QueryCapabilities": {
       "title": "Query Capabilities",
       "type": "object",
+      "required": [
+        "nested_fields"
+      ],
       "properties": {
         "aggregates": {
           "description": "Does the connector support aggregate queries",
@@ -5281,12 +5502,48 @@ pub struct UniquenessConstraint {
               "type": "null"
             }
           ]
+        },
+        "nested_fields": {
+          "description": "Does the connector support nested fields",
+          "allOf": [
+            {
+              "$ref": "#/definitions/NestedFieldCapabilities"
+            }
+          ]
         }
       }
     },
     "LeafCapability": {
       "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
       "type": "object"
+    },
+    "NestedFieldCapabilities": {
+      "title": "Nested Field Capabilities",
+      "type": "object",
+      "properties": {
+        "filter_by": {
+          "description": "Does the connector support filtering by values of nested fields",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order_by": {
+          "description": "Does the connector support ordering by values of nested fields",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
     },
     "MutationCapabilities": {
       "title": "Mutation Capabilities",
@@ -5528,6 +5785,12 @@ pub struct UniquenessConstraint {
                   "type": "null"
                 }
               ]
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
             }
           }
         },
@@ -5560,6 +5823,47 @@ pub struct UniquenessConstraint {
                 "$ref": "#/definitions/RelationshipArgument"
               }
             }
+          }
+        }
+      ]
+    },
+    "Argument": {
+      "title": "Argument",
+      "oneOf": [
+        {
+          "description": "The argument is provided by reference to a variable",
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variable"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "The argument is provided as a literal value",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "literal"
+              ]
+            },
+            "value": true
           }
         }
       ]
@@ -5755,6 +6059,16 @@ pub struct UniquenessConstraint {
             "name": {
               "description": "The name of the column",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "path": {
               "description": "Any relationships to traverse to reach this column",
@@ -6074,6 +6388,16 @@ pub struct UniquenessConstraint {
               "description": "The name of the column",
               "type": "string"
             },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
             "path": {
               "description": "Any relationships to traverse to reach this column",
               "type": "array",
@@ -6099,6 +6423,16 @@ pub struct UniquenessConstraint {
             "name": {
               "description": "The name of the column",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             }
           }
         }
@@ -6524,6 +6858,12 @@ pub struct UniquenessConstraint {
                   "type": "null"
                 }
               ]
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
             }
           }
         },
@@ -6602,6 +6942,47 @@ pub struct UniquenessConstraint {
             "fields": {
               "$ref": "#/definitions/NestedField"
             }
+          }
+        }
+      ]
+    },
+    "Argument": {
+      "title": "Argument",
+      "oneOf": [
+        {
+          "description": "The argument is provided by reference to a variable",
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variable"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "The argument is provided as a literal value",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "literal"
+              ]
+            },
+            "value": true
           }
         }
       ]
@@ -6725,6 +7106,16 @@ pub struct UniquenessConstraint {
             "name": {
               "description": "The name of the column",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "path": {
               "description": "Any relationships to traverse to reach this column",
@@ -6985,6 +7376,16 @@ pub struct UniquenessConstraint {
               "description": "The name of the column",
               "type": "string"
             },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
             "path": {
               "description": "Any relationships to traverse to reach this column",
               "type": "array",
@@ -7010,6 +7411,16 @@ pub struct UniquenessConstraint {
             "name": {
               "description": "The name of the column",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             }
           }
         }
@@ -7133,47 +7544,6 @@ pub struct UniquenessConstraint {
                 "$ref": "#/definitions/RelationshipArgument"
               }
             }
-          }
-        }
-      ]
-    },
-    "Argument": {
-      "title": "Argument",
-      "oneOf": [
-        {
-          "description": "The argument is provided by reference to a variable",
-          "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "variable"
-              ]
-            },
-            "name": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "The argument is provided as a literal value",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "literal"
-              ]
-            },
-            "value": true
           }
         }
       ]
@@ -7477,6 +7847,12 @@ pub struct UniquenessConstraint {
                   "type": "null"
                 }
               ]
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
             }
           }
         },
@@ -7555,6 +7931,47 @@ pub struct UniquenessConstraint {
             "fields": {
               "$ref": "#/definitions/NestedField"
             }
+          }
+        }
+      ]
+    },
+    "Argument": {
+      "title": "Argument",
+      "oneOf": [
+        {
+          "description": "The argument is provided by reference to a variable",
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variable"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "The argument is provided as a literal value",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "literal"
+              ]
+            },
+            "value": true
           }
         }
       ]
@@ -7678,6 +8095,16 @@ pub struct UniquenessConstraint {
             "name": {
               "description": "The name of the column",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "path": {
               "description": "Any relationships to traverse to reach this column",
@@ -7938,6 +8365,16 @@ pub struct UniquenessConstraint {
               "description": "The name of the column",
               "type": "string"
             },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
             "path": {
               "description": "Any relationships to traverse to reach this column",
               "type": "array",
@@ -7963,6 +8400,16 @@ pub struct UniquenessConstraint {
             "name": {
               "description": "The name of the column",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             }
           }
         }
@@ -8086,47 +8533,6 @@ pub struct UniquenessConstraint {
                 "$ref": "#/definitions/RelationshipArgument"
               }
             }
-          }
-        }
-      ]
-    },
-    "Argument": {
-      "title": "Argument",
-      "oneOf": [
-        {
-          "description": "The argument is provided by reference to a variable",
-          "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "variable"
-              ]
-            },
-            "name": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "The argument is provided as a literal value",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "literal"
-              ]
-            },
-            "value": true
           }
         }
       ]
@@ -8413,6 +8819,21 @@ pub struct UniquenessConstraint {
               "type": "string",
               "enum": [
                 "float64"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Arbitrary-precision integer string",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "biginteger"
               ]
             }
           }
@@ -8791,6 +9212,37 @@ pub struct UniquenessConstraint {
               "$ref": "#/definitions/Type"
             }
           ]
+        },
+        "arguments": {
+          "description": "The arguments available to the field - Matches implementation from CollectionInfo",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        }
+      }
+    },
+    "ArgumentInfo": {
+      "title": "Argument Info",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "description": {
+          "description": "Argument description",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "description": "The name of the type of this argument",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
         }
       }
     },
@@ -8840,30 +9292,6 @@ pub struct UniquenessConstraint {
           "additionalProperties": {
             "$ref": "#/definitions/ForeignKeyConstraint"
           }
-        }
-      }
-    },
-    "ArgumentInfo": {
-      "title": "Argument Info",
-      "type": "object",
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "description": {
-          "description": "Argument description",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "type": {
-          "description": "The name of the type of this argument",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Type"
-            }
-          ]
         }
       }
     },

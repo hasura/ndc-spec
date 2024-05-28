@@ -174,7 +174,8 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="arguments"><a class="header" href="#arguments">Arguments</a></h1>
-<p><em>Collection arguments</em> parameterize an entire collection, and must be provided in queries wherever the collection is referenced, either directly, or via relationships,</p>
+<p><em>Collection arguments</em> parameterize an entire collection, and must be provided in queries wherever the collection is referenced, either directly, or via relationships.</p>
+<p><em>Field</em> arguments parameterize a single field, and must be provided wherever that field is referenced.</p>
 <h2 id="collection-arguments"><a class="header" href="#collection-arguments">Collection Arguments</a></h2>
 <p>Collection arguments should be provided in the <code>QueryRequest</code> anywhere a collection is referenced. The set of provided arguments should be compatible with the list of arguments required by the corresponding <a href="../schema/collections.html">collection in the schema response</a>.</p>
 <h3 id="specifying-arguments-to-the-top-level-collection"><a class="header" href="#specifying-arguments-to-the-top-level-collection">Specifying arguments to the top-level collection</a></h3>
@@ -453,6 +454,9 @@
     }
 }
 </code></pre>
+<h2 id="field-arguments"><a class="header" href="#field-arguments">Field Arguments</a></h2>
+<p>Field arguments can be provided to any field requested (in addition to those described for top-level collections).
+These are specified in the <a href="../schema/object-types.html">schema response</a> and their use is described in <a href="./field-selection.html">field selection</a>. Their specification and usage matches that of collection arguments above.</p>
 
                     </main>
 

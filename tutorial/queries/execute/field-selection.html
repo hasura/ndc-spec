@@ -190,7 +190,7 @@
         .transpose()?;</code></pre>
 <p>The <code>eval_field</code> function works by pattern matching on the field type:</p>
 <ul>
-<li>A <code>column</code> is selected using the <code>eval_column</code> function,</li>
+<li>A <code>column</code> is selected using the <code>eval_column</code> function (or <code>eval_nested_field</code> if there are nested fields to fetch)</li>
 <li>A <code>relationship</code> field is selected by evaluating the related collection using <code>eval_path_element</code> (we will cover this in the next section), and then recursively executing a query using <code>execute_query</code>:</li>
 </ul>
 <pre><code class="language-rust no_run noplayground">fn eval_field(
@@ -201,8 +201,12 @@
     item: &amp;Row,
 ) -&gt; Result&lt;models::RowFieldValue&gt; {
     match field {
-        models::Field::Column { column, fields } =&gt; {
-            let col_val = eval_column(item, column.as_str())?;
+        models::Field::Column {
+            column,
+            fields,
+            arguments,
+        } =&gt; {
+            let col_val = eval_column(variables, item, column.as_str(), arguments)?;
             match fields {
                 None =&gt; Ok(models::RowFieldValue(col_val)),
                 Some(nested_field) =&gt; eval_nested_field(

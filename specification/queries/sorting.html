@@ -189,6 +189,8 @@
 </li>
 </ul>
 <h3 id="type-column"><a class="header" href="#type-column">Type <code>column</code></a></h3>
+<p>The property <code>element.target.name</code> refers to a column name.
+If the connector supports capability <code>query.nested_fields.order_by</code> then the target may also <a href="./filtering.html#referencing-nested-fields-within-columns">reference nested fields within a column</a> using the <code>field_path</code> property.</p>
 <p>If <code>element.order_direction</code> is <code>asc</code>, then the row with the smaller column comes first.</p>
 <p>If <code>element.order_direction</code> is <code>asc</code>, then the row with the smaller column comes second.</p>
 <p>If the column values are incomparable, continue to the next <a href="../../reference/types.html#orderbyelement"><code>OrderByElement</code></a>.</p>

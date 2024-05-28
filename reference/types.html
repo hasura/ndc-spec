@@ -262,12 +262,16 @@ pub enum ComparisonTarget {
     Column {
         /// The name of the column
         name: String,
+        /// Path to a nested field within an object column
+        field_path: Option&lt;Vec&lt;String&gt;&gt;,
         /// Any relationships to traverse to reach this column
         path: Vec&lt;PathElement&gt;,
     },
     RootCollectionColumn {
         /// The name of the column
         name: String,
+        /// Path to a nested field within an object column
+        field_path: Option&lt;Vec&lt;String&gt;&gt;,
     },
 }</code></pre>
 <h2 id="comparisonvalue"><a class="header" href="#comparisonvalue"><code>ComparisonValue</code></a></h2>
@@ -358,6 +362,8 @@ pub enum Field {
         /// by specifying fields to fetch here.
         /// If omitted, the column data will be fetched in full.
         fields: Option&lt;NestedField&gt;,
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap&lt;String, Argument&gt;,
     },
     Relationship {
         query: Box&lt;Query&gt;,
@@ -448,6 +454,16 @@ pub enum NestedField {
     Object(NestedObject),
     Array(NestedArray),
 }</code></pre>
+<h2 id="nestedfieldcapabilities"><a class="header" href="#nestedfieldcapabilities"><code>NestedFieldCapabilities</code></a></h2>
+<pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Nested Field Capabilities")]
+pub struct NestedFieldCapabilities {
+    /// Does the connector support filtering by values of nested fields
+    pub filter_by: Option&lt;LeafCapability&gt;,
+    /// Does the connector support ordering by values of nested fields
+    pub order_by: Option&lt;LeafCapability&gt;,
+}</code></pre>
 <h2 id="nestedobject"><a class="header" href="#nestedobject"><code>NestedObject</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
@@ -466,6 +482,9 @@ pub struct ObjectField {
     /// The type of this field
     #[serde(rename = "type")]
     pub r#type: Type,
+    /// The arguments available to the field - Matches implementation from CollectionInfo
+    #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
 }</code></pre>
 <h2 id="objecttype"><a class="header" href="#objecttype"><code>ObjectType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an object type
@@ -501,6 +520,8 @@ pub enum OrderByTarget {
     Column {
         /// The name of the column
         name: String,
+        /// Path to a nested field within an object column
+        field_path: Option&lt;Vec&lt;String&gt;&gt;,
         /// Any relationships to traverse to reach this column
         path: Vec&lt;PathElement&gt;,
     },
@@ -580,6 +601,8 @@ pub struct QueryCapabilities {
     pub variables: Option&lt;LeafCapability&gt;,
     /// Does the connector support explaining queries
     pub explain: Option&lt;LeafCapability&gt;,
+    /// Does the connector support nested fields
+    pub nested_fields: NestedFieldCapabilities,
 }</code></pre>
 <h2 id="queryrequest"><a class="header" href="#queryrequest"><code>QueryRequest</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// This is the request body of the query POST endpoint
@@ -792,6 +815,9 @@ pub enum TypeRepresentation {
     Float32,
     /// An IEEE-754 double-precision floating-point number
     Float64,
+    /// Arbitrary-precision integer string
+    #[serde(rename = "biginteger")]
+    BigInteger,
     /// Arbitrary-precision decimal string
     #[serde(rename = "bigdecimal")]
     BigDecimal,
