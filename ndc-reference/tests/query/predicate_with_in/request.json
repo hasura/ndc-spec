@@ -17,8 +17,7 @@
             "type": "binary_comparison_operator",
             "column": {
                 "type": "column",
-                "name": "author_id",
-                "path": []
+                "name": "author_id"
             },
             "operator": "in",
             "value": {

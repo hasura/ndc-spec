@@ -49,8 +49,7 @@
                                     "type": "binary_comparison_operator",
                                     "column": {
                                         "type": "column",
-                                        "name": "author_id",
-                                        "path": []
+                                        "name": "author_id"
                                     },
                                     "operator": "eq",
                                     "value": {
@@ -65,8 +64,7 @@
                                     "type": "binary_comparison_operator",
                                     "column": {
                                         "type": "column",
-                                        "name": "title",
-                                        "path": []
+                                        "name": "title"
                                     },
                                     "operator": "like",
                                     "value": {

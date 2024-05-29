@@ -31,23 +31,26 @@
             }
         },
         "predicate": {
-            "type": "binary_comparison_operator",
-            "column": {
-                "type": "column",
-                "name": "title",
-                "path": [{
-                    "arguments": {},
-                    "relationship": "author_articles",
-                    "predicate": {
-                        "type": "and",
-                        "expressions": []
-                    }
-                }]
+            "type": "exists",
+            "in_collection": {
+                "type": "related",
+                "arguments": {},
+                "relationship": "author_articles"
             },
-            "operator": "like",
-            "value": {
-                "type": "scalar",
-                "value": "Functional"
+            "predicate": {
+                "type": "binary_comparison_operator",
+                "column": {
+                    "type": "column",
+                    "name": "title"
+                },
+                "operator": "in",
+                "value": {
+                    "type": "scalar",
+                    "value": [
+                        "The Next 700 Programming Languages",
+                        "Why Functional Programming Matters"
+                    ]
+                }
             }
         }
     },

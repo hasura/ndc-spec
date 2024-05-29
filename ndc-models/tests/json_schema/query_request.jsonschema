@@ -713,7 +713,6 @@
           "type": "object",
           "required": [
             "name",
-            "path",
             "type"
           ],
           "properties": {
@@ -735,13 +734,6 @@
               ],
               "items": {
                 "type": "string"
-              }
-            },
-            "path": {
-              "description": "Any relationships to traverse to reach this column",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
               }
             }
           }

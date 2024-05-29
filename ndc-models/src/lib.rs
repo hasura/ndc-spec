@@ -605,8 +605,6 @@ pub enum ComparisonTarget {
         name: String,
         /// Path to a nested field within an object column
         field_path: Option<Vec<String>>,
-        /// Any relationships to traverse to reach this column
-        path: Vec<PathElement>,
     },
     RootCollectionColumn {
         /// The name of the column

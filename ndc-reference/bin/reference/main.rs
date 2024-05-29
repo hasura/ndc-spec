@@ -1554,15 +1554,8 @@ fn eval_expression(
         // ANCHOR: eval_expression_unary_operators
         models::Expression::UnaryComparisonOperator { column, operator } => match operator {
             models::UnaryComparisonOperator::IsNull => {
-                let vals = eval_comparison_target(
-                    collection_relationships,
-                    variables,
-                    state,
-                    column,
-                    root,
-                    item,
-                )?;
-                Ok(vals.iter().any(serde_json::Value::is_null))
+                let vals = eval_comparison_target(column, root, item)?;
+                Ok(vals.is_null())
             }
         },
         // ANCHOR_END: eval_expression_unary_operators
@@ -1573,121 +1566,58 @@ fn eval_expression(
             value,
         } => match operator.as_str() {
             "eq" => {
-                let left_vals = eval_comparison_target(
-                    collection_relationships,
-                    variables,
-                    state,
-                    column,
-                    root,
-                    item,
-                )?;
-                let right_vals = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    state,
-                    value,
-                    root,
-                    item,
-                )?;
-                for left_val in &left_vals {
-                    for right_val in &right_vals {
-                        if left_val == right_val {
-                            return Ok(true);
-                        }
-                    }
-                }
+                let left_val = eval_comparison_target(column, root, item)?;
+                let right_val = eval_comparison_value(variables, value, root, item)?;
 
-                Ok(false)
+                Ok(left_val == right_val)
             }
             // ANCHOR_END: eval_expression_binary_operators
             // ANCHOR: eval_expression_custom_binary_operators
             "like" => {
-                let column_vals = eval_comparison_target(
-                    collection_relationships,
-                    variables,
-                    state,
-                    column,
-                    root,
-                    item,
-                )?;
-                let regex_vals = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    state,
-                    value,
-                    root,
-                    item,
-                )?;
-                for column_val in &column_vals {
-                    for regex_val in &regex_vals {
-                        let column_str = column_val.as_str().ok_or((
-                            StatusCode::BAD_REQUEST,
-                            Json(models::ErrorResponse {
-                                message: "column is not a string".into(),
-                                details: serde_json::Value::Null,
-                            }),
-                        ))?;
-                        let regex_str = regex_val.as_str().ok_or((
-                            StatusCode::BAD_REQUEST,
-                            Json(models::ErrorResponse {
-                                message: " ".into(),
-                                details: serde_json::Value::Null,
-                            }),
-                        ))?;
-                        let regex = Regex::new(regex_str).map_err(|_| {
-                            (
-                                StatusCode::BAD_REQUEST,
-                                Json(models::ErrorResponse {
-                                    message: "invalid regular expression".into(),
-                                    details: serde_json::Value::Null,
-                                }),
-                            )
-                        })?;
-                        if regex.is_match(column_str) {
-                            return Ok(true);
-                        }
-                    }
-                }
-                Ok(false)
+                let column_val = eval_comparison_target(column, root, item)?;
+                let regex_val = eval_comparison_value(variables, value, root, item)?;
+
+                let column_str = column_val.as_str().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "column is not a string".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
+                let regex_str = regex_val.as_str().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
+                let regex = Regex::new(regex_str).map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "invalid regular expression".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?;
+
+                Ok(regex.is_match(column_str))
             }
             // ANCHOR: eval_expression_binary_array_operators
             "in" => {
-                let left_vals = eval_comparison_target(
-                    collection_relationships,
-                    variables,
-                    state,
-                    column,
-                    root,
-                    item,
-                )?;
+                let left_val = eval_comparison_target(column, root, item)?;
 
-                let right_val_sets = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    state,
-                    value,
-                    root,
-                    item,
-                )?;
+                let comparison_value = eval_comparison_value(variables, value, root, item)?;
 
-                for comparison_value in &right_val_sets {
-                    let right_vals = comparison_value.as_array().ok_or((
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "expected array".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))?;
+                let right_vals = comparison_value.as_array().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "expected array".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
 
-                    for left_val in &left_vals {
-                        for right_val in right_vals {
-                            if left_val == right_val {
-                                return Ok(true);
-                            }
-                        }
-                    }
-                }
-                Ok(false)
+                return Ok(right_vals.contains(&left_val));
             }
             // ANCHOR_END: eval_expression_binary_array_operators
             _ => Err((
@@ -1786,30 +1716,16 @@ fn eval_in_collection(
 // ANCHOR_END: eval_in_collection
 // ANCHOR: eval_comparison_target
 fn eval_comparison_target(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
-    state: &AppState,
     target: &models::ComparisonTarget,
     root: &Row,
     item: &Row,
-) -> Result<Vec<serde_json::Value>> {
+) -> Result<serde_json::Value> {
     match target {
-        models::ComparisonTarget::Column {
-            name,
-            field_path,
-            path,
-        } => {
-            let rows = eval_path(collection_relationships, variables, state, path, item)?;
-            let mut values = vec![];
-            for row in &rows {
-                let value = eval_column_field_path(row, name, field_path)?;
-                values.push(value);
-            }
-            Ok(values)
+        models::ComparisonTarget::Column { name, field_path } => {
+            eval_column_field_path(item, name, field_path)
         }
         models::ComparisonTarget::RootCollectionColumn { name, field_path } => {
-            let value = eval_column_field_path(root, name, field_path)?;
-            Ok(vec![value])
+            eval_column_field_path(root, name, field_path)
         }
     }
 }
@@ -1859,23 +1775,14 @@ fn eval_column(
 // ANCHOR_END: eval_column
 // ANCHOR: eval_comparison_value
 fn eval_comparison_value(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
-    state: &AppState,
     comparison_value: &models::ComparisonValue,
     root: &Row,
     item: &Row,
-) -> Result<Vec<serde_json::Value>> {
+) -> Result<serde_json::Value> {
     match comparison_value {
-        models::ComparisonValue::Column { column } => eval_comparison_target(
-            collection_relationships,
-            variables,
-            state,
-            column,
-            root,
-            item,
-        ),
-        models::ComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
+        models::ComparisonValue::Column { column } => eval_comparison_target(column, root, item),
+        models::ComparisonValue::Scalar { value } => Ok(value.clone()),
         models::ComparisonValue::Variable { name } => {
             let value = variables
                 .get(name.as_str())
@@ -1887,7 +1794,7 @@ fn eval_comparison_value(
                     }),
                 ))
                 .cloned()?;
-            Ok(vec![value])
+            Ok(value)
         }
     }
 }
