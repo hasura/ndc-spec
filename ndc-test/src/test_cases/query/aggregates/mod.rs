@@ -12,6 +12,7 @@ use rand::seq::IteratorRandom;
 use rand::Rng;
 use std::collections::BTreeMap;
 
+use super::common;
 use super::validate::expect_single_rowset;
 
 pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
@@ -103,15 +104,21 @@ pub async fn test_column_count_aggregate<C: Connector>(
 ) -> Result<()> {
     let mut aggregates = IndexMap::new();
 
-    for field_name in collection_type.fields.keys() {
+    let field_names: Vec<String> = common::select_all_columns_without_arguments(collection_type)
+        .map(|(field_name, _field)| field_name.clone())
+        .collect();
+
+    for field_name in field_names.iter() {
         let aggregate = models::Aggregate::ColumnCount {
             column: field_name.clone(),
+            field_path: None,
             distinct: false,
         };
         aggregates.insert(format!("{field_name}_count"), aggregate);
 
         let aggregate = models::Aggregate::ColumnCount {
             column: field_name.clone(),
+            field_path: None,
             distinct: true,
         };
         aggregates.insert(format!("{field_name}_distinct_count"), aggregate);
@@ -136,7 +143,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
     let row_set = expect_single_rowset(response)?;
 
     if let Some(aggregates) = &row_set.aggregates {
-        for field_name in collection_type.fields.keys() {
+        for field_name in field_names.iter() {
             let count_field = format!("{field_name}_count");
             let count = aggregates
                 .get(count_field.as_str())
@@ -184,6 +191,7 @@ pub async fn test_single_column_aggregates<C: Connector>(
                 for function_name in scalar_type.aggregate_functions.keys() {
                     let aggregate = models::Aggregate::SingleColumn {
                         column: field_name.clone(),
+                        field_path: None,
                         function: function_name.clone(),
                     };
                     available_aggregates.insert(

@@ -6,7 +6,8 @@
       "variables": {},
       "nested_fields": {
         "filter_by": {},
-        "order_by": {}
+        "order_by": {},
+        "aggregates": {}
       }
     },
     "mutation": {},

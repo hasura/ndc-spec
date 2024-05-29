@@ -3,6 +3,15 @@ use models::Type;
 use ndc_models as models;
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
+pub fn select_all_columns_without_arguments(
+    collection_type: &models::ObjectType,
+) -> impl Iterator<Item = (&String, &models::ObjectField)> {
+    collection_type
+        .fields
+        .iter()
+        .filter(|f| f.1.arguments.is_empty())
+}
+
 pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, models::Field> {
     collection_type
         .fields

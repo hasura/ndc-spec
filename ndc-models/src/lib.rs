@@ -74,6 +74,8 @@ pub struct NestedFieldCapabilities {
     pub filter_by: Option<LeafCapability>,
     /// Does the connector support ordering by values of nested fields
     pub order_by: Option<LeafCapability>,
+    /// Does the connector support aggregating values within nested fields
+    pub aggregates: Option<LeafCapability>,
 }
 // ANCHOR_END: NestedFieldCapabilities
 
@@ -422,18 +424,23 @@ pub struct Query {
 
 // ANCHOR: Aggregate
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[skip_serializing_none]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate")]
 pub enum Aggregate {
     ColumnCount {
         /// The column to apply the count aggregate function to
         column: String,
+        /// Path to a nested field within an object column
+        field_path: Option<Vec<String>>,
         /// Whether or not only distinct items should be counted
         distinct: bool,
     },
     SingleColumn {
         /// The column to apply the aggregation function to
         column: String,
+        /// Path to a nested field within an object column
+        field_path: Option<Vec<String>>,
         /// Single column aggregate function name.
         function: String,
     },
@@ -529,6 +536,8 @@ pub enum OrderByTarget {
     SingleColumnAggregate {
         /// The column to apply the aggregation function to
         column: String,
+        /// Path to a nested field within an object column
+        field_path: Option<Vec<String>>,
         /// Single column aggregate function name.
         function: String,
         /// Non-empty collection of relationships to traverse
