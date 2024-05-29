@@ -61,6 +61,7 @@ pub struct QueryCapabilities {
     /// Does the connector support explaining queries
     pub explain: Option<LeafCapability>,
     /// Does the connector support nested fields
+    #[serde(default)]
     pub nested_fields: NestedFieldCapabilities,
 }
 // ANCHOR_END: QueryCapabilities
@@ -76,6 +77,15 @@ pub struct NestedFieldCapabilities {
     pub order_by: Option<LeafCapability>,
 }
 // ANCHOR_END: NestedFieldCapabilities
+
+impl Default for NestedFieldCapabilities {
+    fn default() -> Self {
+        NestedFieldCapabilities {
+            filter_by: None,
+            order_by: None,
+        }
+    }
+}
 
 // ANCHOR: MutationCapabilities
 #[skip_serializing_none]
