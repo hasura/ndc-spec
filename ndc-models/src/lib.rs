@@ -68,7 +68,7 @@ pub struct QueryCapabilities {
 
 // ANCHOR: NestedFieldCapabilities
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Nested Field Capabilities")]
 pub struct NestedFieldCapabilities {
     /// Does the connector support filtering by values of nested fields
@@ -77,15 +77,6 @@ pub struct NestedFieldCapabilities {
     pub order_by: Option<LeafCapability>,
 }
 // ANCHOR_END: NestedFieldCapabilities
-
-impl Default for NestedFieldCapabilities {
-    fn default() -> Self {
-        NestedFieldCapabilities {
-            filter_by: None,
-            order_by: None,
-        }
-    }
-}
 
 // ANCHOR: MutationCapabilities
 #[skip_serializing_none]
