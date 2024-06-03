@@ -108,7 +108,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
         .map(|(field_name, _field)| field_name.clone())
         .collect();
 
-    for field_name in field_names.iter() {
+    for field_name in &field_names {
         let aggregate = models::Aggregate::ColumnCount {
             column: field_name.clone(),
             field_path: None,
@@ -143,7 +143,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
     let row_set = expect_single_rowset(response)?;
 
     if let Some(aggregates) = &row_set.aggregates {
-        for field_name in field_names.iter() {
+        for field_name in &field_names {
             let count_field = format!("{field_name}_count");
             let count = aggregates
                 .get(count_field.as_str())
