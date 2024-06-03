@@ -61,13 +61,14 @@ pub struct QueryCapabilities {
     /// Does the connector support explaining queries
     pub explain: Option<LeafCapability>,
     /// Does the connector support nested fields
+    #[serde(default)]
     pub nested_fields: NestedFieldCapabilities,
 }
 // ANCHOR_END: QueryCapabilities
 
 // ANCHOR: NestedFieldCapabilities
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Nested Field Capabilities")]
 pub struct NestedFieldCapabilities {
     /// Does the connector support filtering by values of nested fields
