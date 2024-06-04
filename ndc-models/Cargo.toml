@@ -1,8 +1,8 @@
 [package]
 name = "ndc-models"
 description = "Protocol definitions for the Hasura NDC specification"
-version = "0.1.3"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [lints]
 workspace = true
