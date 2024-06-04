@@ -809,6 +809,13 @@
             },
             "column": {
               "$ref": "#/definitions/ComparisonTarget"
+            },
+            "path": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
             }
           }
         },

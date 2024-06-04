@@ -634,9 +634,17 @@ pub struct PathElement {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Comparison Value")]
 pub enum ComparisonValue {
-    Column { column: ComparisonTarget },
-    Scalar { value: serde_json::Value },
-    Variable { name: String },
+    Column {
+        column: ComparisonTarget,
+        #[serde(default)]
+        path: Vec<PathElement>,
+    },
+    Scalar {
+        value: serde_json::Value,
+    },
+    Variable {
+        name: String,
+    },
 }
 // ANCHOR_END: ComparisonValue
 
