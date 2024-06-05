@@ -44,6 +44,19 @@ If we feel it is necessary to support queries with column comparisons in `EXISTS
 
 If a connector supports "named scopes" then we can send IR which refers to columns in an outer scope. We can do this by adding a new optional `scope: Option<u8>` field to `ComparisonValue::Column`. The integer-valued scope refers to one of the enclosing scopes (outside an enclosing `EXISTS`): `1` refers to the immediately-enclosing scope, `2` refers to the next enclosing scope, and so on.
 
+For example `tracks.title = artist.name` becomes `∃ track ∈ tracks. track.title = {1}.artist.name` where `{1}` refers to the immediately enclosing `albums` scope.
+
+The earlier `foo.bar.baz.{column} = quux.{column}` example becomes 
+
+```
+∃ foo ∈ foo. 
+  ∃ bar ∈ bar.
+    ∃ baz ∈ baz.
+      baz.{column} = {3}.quux.{column}
+```
+
+where `{3}` is used to escape 3 levels of existential quantification.
+
 ## Alternatives
 
 ### Disallow array relationships in `path`
