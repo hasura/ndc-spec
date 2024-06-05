@@ -44,6 +44,14 @@ If we feel it is necessary to support queries with column comparisons in `EXISTS
 
 If a connector supports "named scopes" then we can send IR which refers to columns in an outer scope. We can do this by adding a new optional `scope: Option<u8>` field to `ComparisonValue::Column`. The integer-valued scope refers to one of the enclosing scopes (outside an enclosing `EXISTS`): `1` refers to the immediately-enclosing scope, `2` refers to the next enclosing scope, and so on.
 
+## Alternatives
+
+### Disallow array relationships in `path`
+
+A simpler change is to only allow object relationships in `path`s. This is already the case for `path` in `OrderByTarget::Column`.
+
+We can disallow array relationships on the left-hand and right-hand sides independently, and we can also use capabilities to turn these features back on.
+
 ## Open Questions
 
 - Are there permissions use cases which we would lose, which we consider essential?
