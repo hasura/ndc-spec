@@ -1249,6 +1249,7 @@ fn eval_order_by_star_count_aggregate(
 }
 // ANCHOR_END: eval_order_by_star_count_aggregate
 // ANCHOR: eval_order_by_single_column_aggregate
+#[allow(clippy::too_many_arguments)]
 fn eval_order_by_single_column_aggregate(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
