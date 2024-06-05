@@ -55,38 +55,10 @@ pub fn select_columns(
 ) -> IndexMap<String, models::Field> {
     let amount = rng.gen_range(0..=collection_type.fields.len());
 
-    collection_type
-        .fields
-        .iter()
-        .filter(|f| {
-            f.1.arguments
-                .iter()
-                .all(|(_, v)| matches!(v.argument_type, Type::Nullable { underlying_type: _ }))
-        })
+    select_all_columns(collection_type)
+        .into_iter()
         .choose_multiple(rng, amount)
-        .iter()
-        .map(|f| {
-            (
-                format!("{}_{:04}", f.0.clone(), rng.gen_range(0..=9999)),
-                models::Field::Column {
-                    column: f.0.clone(),
-                    fields: None,
-                    arguments: f
-                        .1
-                        .arguments
-                        .keys()
-                        .map(|k| {
-                            (
-                                k.to_owned(),
-                                models::Argument::Literal {
-                                    value: serde_json::Value::Null,
-                                },
-                            )
-                        })
-                        .collect(),
-                },
-            )
-        })
+        .into_iter()
         .collect::<IndexMap<String, models::Field>>()
 }
 
