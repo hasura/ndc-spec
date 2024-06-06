@@ -119,6 +119,17 @@
               "type": "null"
             }
           ]
+        },
+        "aggregates": {
+          "description": "Does the connector support aggregating values within nested fields",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },

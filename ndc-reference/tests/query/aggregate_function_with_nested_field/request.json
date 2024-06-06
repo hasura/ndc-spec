@@ -1,0 +1,16 @@
+{
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+    "collection": "institutions",
+    "arguments": {},
+    "query": {
+        "aggregates": {
+            "locations": {
+                "type": "column_count",
+                "column": "location",
+                "field_path": ["city"],
+                "distinct": true
+            }
+        }
+    },
+    "collection_relationships": {}
+}
