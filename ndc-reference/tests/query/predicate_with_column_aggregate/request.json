@@ -1,0 +1,45 @@
+{
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+    "collection": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "first_name": {
+                "type": "column",
+                "column": "first_name"
+            },
+            "last_name": {
+                "type": "column",
+                "column": "last_name"
+            }
+        },
+        "predicate": {
+            "type": "binary_comparison_operator",
+            "column": {
+                "type": "single_column_aggregate",
+                "function": "max",
+                "column": "id",
+                "path": [{
+                    "arguments": {},
+                    "relationship": "author_articles"
+                }]
+            },
+            "operator": "eq",
+            "value": {
+                "type": "scalar",
+                "value": 1
+            }
+        }
+    },
+    "collection_relationships": {
+        "author_articles": {
+            "arguments": {},
+            "column_mapping": {
+                "id": "author_id"
+            },
+            "relationship_type": "array",
+            "source_collection_or_type": "author",
+            "target_collection": "articles"
+        }
+    }
+}

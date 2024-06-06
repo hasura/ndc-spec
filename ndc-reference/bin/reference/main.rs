@@ -1216,17 +1216,17 @@ fn eval_order_by_element(
             field_path,
             function,
             path,
-        } => eval_order_by_single_column_aggregate(
+        } => eval_single_column_aggregate(
             collection_relationships,
             variables,
             state,
             item,
-            path,
-            column,
-            field_path,
-            function,
+            &path,
+            &column,
+            &field_path,
+            &function,
         ),
-        models::OrderByTarget::StarCountAggregate { path } => eval_order_by_star_count_aggregate(
+        models::OrderByTarget::StarCountAggregate { path } => eval_star_count_aggregate(
             collection_relationships,
             variables,
             state,
@@ -1236,8 +1236,8 @@ fn eval_order_by_element(
     }
 }
 // ANCHOR_END: eval_order_by_element
-// ANCHOR: eval_order_by_star_count_aggregate
-fn eval_order_by_star_count_aggregate(
+// ANCHOR: eval_star_count_aggregate
+fn eval_star_count_aggregate(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
@@ -1247,27 +1247,27 @@ fn eval_order_by_star_count_aggregate(
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     Ok(rows.len().into())
 }
-// ANCHOR_END: eval_order_by_star_count_aggregate
-// ANCHOR: eval_order_by_single_column_aggregate
+// ANCHOR_END: eval_star_count_aggregate
+// ANCHOR: eval_single_column_aggregate
 #[allow(clippy::too_many_arguments)]
-fn eval_order_by_single_column_aggregate(
+fn eval_single_column_aggregate(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     item: &BTreeMap<String, serde_json::Value>,
-    path: Vec<models::PathElement>,
-    column_name: String,
-    field_path: Option<Vec<String>>,
-    function: String,
+    path: &Vec<models::PathElement>,
+    column_name: &String,
+    field_path: &Option<Vec<String>>,
+    function: &String,
 ) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
+    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, path, item)?;
     let values = rows
         .iter()
-        .map(|row| eval_column_field_path(row, &column_name, &field_path))
+        .map(|row| eval_column_field_path(row, column_name, field_path))
         .collect::<Result<Vec<_>>>()?;
     eval_aggregate_function(&function, values)
 }
-// ANCHOR_END: eval_order_by_single_column_aggregate
+// ANCHOR_END: eval_single_column_aggregate
 
 // ANCHOR: eval_column_field_path
 fn eval_column_field_path(
@@ -1748,6 +1748,34 @@ fn eval_comparison_target(
     match target {
         models::ComparisonTarget::Column { name, field_path } => {
             eval_column_field_path(item, name, field_path)
+        }
+        ndc_models::ComparisonTarget::SingleColumnAggregate {
+            column,
+            field_path,
+            function,
+            path,
+        } => {
+            let value = eval_single_column_aggregate(
+                collection_relationships,
+                variables,
+                state,
+                item,
+                path,
+                column,
+                field_path,
+                function,
+            )?;
+            Ok(vec![value])
+        }
+        ndc_models::ComparisonTarget::StarCountAggregate { path } => {
+            let value = eval_star_count_aggregate(
+                collection_relationships,
+                variables,
+                state,
+                item,
+                path.clone(),
+            )?;
+            Ok(vec![value])
         }
     }
 }

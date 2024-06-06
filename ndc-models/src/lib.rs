@@ -618,6 +618,20 @@ pub enum ComparisonTarget {
         /// Path to a nested field within an object column
         field_path: Option<Vec<String>>,
     },
+    SingleColumnAggregate {
+        /// The column to apply the aggregation function to
+        column: String,
+        /// Path to a nested field within an object column
+        field_path: Option<Vec<String>>,
+        /// Single column aggregate function name.
+        function: String,
+        /// Non-empty collection of relationships to traverse
+        path: Vec<PathElement>,
+    },
+    StarCountAggregate {
+        /// Non-empty collection of relationships to traverse
+        path: Vec<PathElement>,
+    },
 }
 // ANCHOR_END: ComparisonTarget
 
