@@ -141,11 +141,11 @@ pub async fn test_snapshots_in_directory_with<
     snapshots_dir: PathBuf,
     f: impl Fn(Req) -> F,
 ) {
-    match std::fs::read_dir(snapshots_dir) {
-        Ok(dir) => {
-            for entry in dir {
-                let entry = entry.expect("Error reading snapshot directory entry");
-
+    if snapshots_dir.exists() {
+        let entries =
+            read_dir_sorted_by_name(snapshots_dir).expect("Unable to read snapshot directory");
+        for entry in entries {
+            if entry.metadata().is_ok_and(|md| md.is_dir()) {
                 test!(
                     entry.file_name().to_str().unwrap_or("{unknown}"),
                     reporter,
@@ -168,8 +168,18 @@ pub async fn test_snapshots_in_directory_with<
                 );
             }
         }
-        Err(e) => println!("Warning: a snapshot folder could not be found: {e}"),
+    } else {
+        println!("Warning: a snapshot folder could not be found: {snapshots_dir:?}");
     }
+}
+
+// Read directory and sort inner files by alphabet
+fn read_dir_sorted_by_name(snapshots_dir: PathBuf) -> std::io::Result<Vec<std::fs::DirEntry>> {
+    let mut paths: Vec<_> =
+        std::fs::read_dir(snapshots_dir)?.collect::<std::io::Result<Vec<_>>>()?;
+    paths.sort_by_key(std::fs::DirEntry::path);
+
+    Ok(paths)
 }
 
 #[derive(Debug, Clone)]
