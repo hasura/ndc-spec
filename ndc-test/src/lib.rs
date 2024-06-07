@@ -141,35 +141,45 @@ pub async fn test_snapshots_in_directory_with<
     snapshots_dir: PathBuf,
     f: impl Fn(Req) -> F,
 ) {
-    match std::fs::read_dir(snapshots_dir) {
+    match read_dir_sorted_by_name(snapshots_dir) {
         Ok(dir) => {
             for entry in dir {
-                let entry = entry.expect("Error reading snapshot directory entry");
+                if entry.metadata().is_ok_and(|md| md.is_dir()) {
+                    test!(
+                        entry.file_name().to_str().unwrap_or("{unknown}"),
+                        reporter,
+                        {
+                            async {
+                                let path = entry.path();
 
-                test!(
-                    entry.file_name().to_str().unwrap_or("{unknown}"),
-                    reporter,
-                    {
-                        async {
-                            let path = entry.path();
+                                let snapshot_pathbuf = path.join("expected.json");
+                                let snapshot_path = snapshot_pathbuf.as_path();
 
-                            let snapshot_pathbuf = path.join("expected.json");
-                            let snapshot_path = snapshot_pathbuf.as_path();
+                                let request_file = File::open(path.join("request.json"))
+                                    .map_err(Error::CannotOpenSnapshotFile)?;
+                                let request = serde_json::from_reader(request_file)?;
 
-                            let request_file = File::open(path.join("request.json"))
-                                .map_err(Error::CannotOpenSnapshotFile)?;
-                            let request = serde_json::from_reader(request_file)?;
+                                let response = f(request).await?;
 
-                            let response = f(request).await?;
-
-                            snapshot_test(snapshot_path, &response)
+                                snapshot_test(snapshot_path, &response)
+                            }
                         }
-                    }
-                );
+                    );
+                }
             }
         }
         Err(e) => println!("Warning: a snapshot folder could not be found: {e}"),
     }
+}
+
+// Read directory and sort inner files by alphabet
+fn read_dir_sorted_by_name(snapshots_dir: PathBuf) -> std::io::Result<Vec<std::fs::DirEntry>> {
+    let mut paths: Vec<_> = std::fs::read_dir(snapshots_dir)?
+        .map(|r| r.expect("Error reading snapshot directory entry"))
+        .collect();
+    paths.sort_by_key(std::fs::DirEntry::path);
+
+    Ok(paths)
 }
 
 #[derive(Debug, Clone)]
