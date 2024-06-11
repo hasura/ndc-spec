@@ -1,5 +1,19 @@
 # Changelog
 
+## `0.1.4`
+
+### Specification
+
+- Aggregates over nested fields
+
+### `ndc-test`
+
+- Replay test folders in alphabetical order
+
+### Fixes
+
+- Add `impl Default` for `NestedFieldCapabilities`
+
 ## `0.1.3`
 
 ### Specification
