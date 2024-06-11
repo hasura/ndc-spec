@@ -178,7 +178,7 @@
 <p>The reference implementation returns a static <code>CapabilitiesResponse</code>:</p>
 <pre><code class="language-rust no_run noplayground">async fn get_capabilities() -&gt; Json&lt;models::CapabilitiesResponse&gt; {
     Json(models::CapabilitiesResponse {
-        version: "0.1.3".into(),
+        version: "0.1.4".into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
                 aggregates: Some(LeafCapability {}),
@@ -187,6 +187,7 @@
                 nested_fields: NestedFieldCapabilities {
                     filter_by: Some(LeafCapability {}),
                     order_by: Some(LeafCapability {}),
+                    aggregates: Some(LeafCapability {}),
                 },
             },
             mutation: models::MutationCapabilities {

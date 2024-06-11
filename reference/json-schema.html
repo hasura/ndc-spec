@@ -222,9 +222,6 @@
     "QueryCapabilities": {
       "title": "Query Capabilities",
       "type": "object",
-      "required": [
-        "nested_fields"
-      ],
       "properties": {
         "aggregates": {
           "description": "Does the connector support aggregate queries",
@@ -261,6 +258,7 @@
         },
         "nested_fields": {
           "description": "Does the connector support nested fields",
+          "default": {},
           "allOf": [
             {
               "$ref": "#/definitions/NestedFieldCapabilities"
@@ -290,6 +288,17 @@
         },
         "order_by": {
           "description": "Does the connector support ordering by values of nested fields",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "aggregates": {
+          "description": "Does the connector support aggregating values within nested fields",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -709,6 +718,16 @@
               "description": "The column to apply the count aggregate function to",
               "type": "string"
             },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
             "distinct": {
               "description": "Whether or not only distinct items should be counted",
               "type": "boolean"
@@ -732,6 +751,16 @@
             "column": {
               "description": "The column to apply the aggregation function to",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "function": {
               "description": "Single column aggregate function name.",
@@ -853,6 +882,16 @@
             "column": {
               "description": "The column to apply the aggregation function to",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "function": {
               "description": "Single column aggregate function name.",
@@ -1539,6 +1578,16 @@
               "description": "The column to apply the count aggregate function to",
               "type": "string"
             },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
             "distinct": {
               "description": "Whether or not only distinct items should be counted",
               "type": "boolean"
@@ -1562,6 +1611,16 @@
             "column": {
               "description": "The column to apply the aggregation function to",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "function": {
               "description": "Single column aggregate function name.",
@@ -1900,6 +1959,16 @@
             "column": {
               "description": "The column to apply the aggregation function to",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "function": {
               "description": "Single column aggregate function name.",
@@ -2528,6 +2597,16 @@
               "description": "The column to apply the count aggregate function to",
               "type": "string"
             },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
             "distinct": {
               "description": "Whether or not only distinct items should be counted",
               "type": "boolean"
@@ -2551,6 +2630,16 @@
             "column": {
               "description": "The column to apply the aggregation function to",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "function": {
               "description": "Single column aggregate function name.",
@@ -2889,6 +2978,16 @@
             "column": {
               "description": "The column to apply the aggregation function to",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "function": {
               "description": "Single column aggregate function name.",

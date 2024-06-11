@@ -182,6 +182,7 @@
 <li><code>column_count</code> aggregates count the number of rows with non-null values in the specified columns. If the <code>distinct</code> flag is set, then the count should only count unique non-null values of those columns,</li>
 <li><code>star_count</code> aggregates count all matched rows.</li>
 </ul>
+<p>If the connector supports capability <code>query.nested_fields.aggregates</code> then <code>single_column</code> and <code>column_count</code> aggregates may also <a href="./filtering.html#referencing-nested-fields-within-columns">reference nested fields within a column</a> using the <code>field_path</code> property.</p>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
 <p>The following query object requests the aggregated sum of all order totals, along with the count of all orders, and the count of all orders which have associated invoices (via the nullable <code>invoice_id</code> column):</p>
 <pre><code class="language-json">{

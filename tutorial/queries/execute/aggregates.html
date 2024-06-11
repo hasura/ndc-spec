@@ -202,18 +202,14 @@
 ) -&gt; Result&lt;serde_json::Value&gt; {
     match aggregate {
         models::Aggregate::StarCount {} =&gt; Ok(serde_json::Value::from(paginated.len())),
-        models::Aggregate::ColumnCount { column, distinct } =&gt; {
+        models::Aggregate::ColumnCount {
+            column,
+            field_path,
+            distinct,
+        } =&gt; {
             let values = paginated
                 .iter()
-                .map(|row| {
-                    row.get(column).ok_or((
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "invalid column name".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))
-                })
+                .map(|row| eval_column_field_path(row, column, field_path))
                 .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
 
             let non_null_values = values.iter().filter(|value| !value.is_null());
@@ -246,18 +242,14 @@
                 )
             })
         }
-        models::Aggregate::SingleColumn { column, function } =&gt; {
+        models::Aggregate::SingleColumn {
+            column,
+            field_path,
+            function,
+        } =&gt; {
             let values = paginated
                 .iter()
-                .map(|row| {
-                    row.get(column).ok_or((
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "invalid column name".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))
-                })
+                .map(|row| eval_column_field_path(row, column, field_path))
                 .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
             eval_aggregate_function(function, values)
         }
@@ -266,7 +258,7 @@
 <p>The <code>eval_aggregate_function</code> function implements the custom aggregate operators <code>min</code> and <code>max</code>, which are provided for integer-valued columns:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_aggregate_function(
     function: &amp;str,
-    values: Vec&lt;&amp;serde_json::Value&gt;,
+    values: Vec&lt;serde_json::Value&gt;,
 ) -&gt; Result&lt;serde_json::Value&gt; {
     let int_values = values
         .iter()

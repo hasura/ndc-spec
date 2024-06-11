@@ -176,18 +176,23 @@
                         <h1 id="types"><a class="header" href="#types">Types</a></h1>
 <h2 id="aggregate"><a class="header" href="#aggregate"><code>Aggregate</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[skip_serializing_none]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate")]
 pub enum Aggregate {
     ColumnCount {
         /// The column to apply the count aggregate function to
         column: String,
+        /// Path to a nested field within an object column
+        field_path: Option&lt;Vec&lt;String&gt;&gt;,
         /// Whether or not only distinct items should be counted
         distinct: bool,
     },
     SingleColumn {
         /// The column to apply the aggregation function to
         column: String,
+        /// Path to a nested field within an object column
+        field_path: Option&lt;Vec&lt;String&gt;&gt;,
         /// Single column aggregate function name.
         function: String,
     },
@@ -456,13 +461,15 @@ pub enum NestedField {
 }</code></pre>
 <h2 id="nestedfieldcapabilities"><a class="header" href="#nestedfieldcapabilities"><code>NestedFieldCapabilities</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Nested Field Capabilities")]
 pub struct NestedFieldCapabilities {
     /// Does the connector support filtering by values of nested fields
     pub filter_by: Option&lt;LeafCapability&gt;,
     /// Does the connector support ordering by values of nested fields
     pub order_by: Option&lt;LeafCapability&gt;,
+    /// Does the connector support aggregating values within nested fields
+    pub aggregates: Option&lt;LeafCapability&gt;,
 }</code></pre>
 <h2 id="nestedobject"><a class="header" href="#nestedobject"><code>NestedObject</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -528,6 +535,8 @@ pub enum OrderByTarget {
     SingleColumnAggregate {
         /// The column to apply the aggregation function to
         column: String,
+        /// Path to a nested field within an object column
+        field_path: Option&lt;Vec&lt;String&gt;&gt;,
         /// Single column aggregate function name.
         function: String,
         /// Non-empty collection of relationships to traverse
@@ -602,6 +611,7 @@ pub struct QueryCapabilities {
     /// Does the connector support explaining queries
     pub explain: Option&lt;LeafCapability&gt;,
     /// Does the connector support nested fields
+    #[serde(default)]
     pub nested_fields: NestedFieldCapabilities,
 }</code></pre>
 <h2 id="queryrequest"><a class="header" href="#queryrequest"><code>QueryRequest</code></a></h2>

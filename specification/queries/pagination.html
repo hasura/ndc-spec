@@ -176,9 +176,10 @@
                         <h1 id="pagination"><a class="header" href="#pagination">Pagination</a></h1>
 <p>The <code>limit</code> and <code>offset</code> parameters on the <a href="../../reference/types.html#query"><code>Query</code></a> object control pagination:</p>
 <ul>
-<li><code>limit</code> specifies the maximum number of rows to return from a query in the rows property. <code>limit</code> does not influence the rows considered by aggregations.</li>
-<li><code>offset</code>: The index of the first row to return. This affects the rows returned, and also the rows considered by aggregations.</li>
+<li><code>limit</code> specifies the maximum number of rows to return from a query in the rows property.</li>
+<li><code>offset</code>: The index of the first row to return.</li>
 </ul>
+<p>Both <code>limit</code> and <code>offset</code> affect the rows returned, and also the rows considered by aggregations.</p>
 <h2 id="requirements"><a class="header" href="#requirements">Requirements</a></h2>
 <ul>
 <li>If <code>limit</code> is specified, the response should contain at most that many rows.</li>
