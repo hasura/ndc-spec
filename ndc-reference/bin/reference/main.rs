@@ -212,7 +212,7 @@ async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String
 // ANCHOR: capabilities
 async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
     Json(models::CapabilitiesResponse {
-        version: "0.1.3".into(),
+        version: "0.1.4".into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
                 aggregates: Some(LeafCapability {}),
@@ -221,6 +221,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 nested_fields: NestedFieldCapabilities {
                     filter_by: Some(LeafCapability {}),
                     order_by: Some(LeafCapability {}),
+                    aggregates: Some(LeafCapability {}),
                 },
             },
             mutation: models::MutationCapabilities {
@@ -986,18 +987,14 @@ fn eval_aggregate(
 ) -> Result<serde_json::Value> {
     match aggregate {
         models::Aggregate::StarCount {} => Ok(serde_json::Value::from(paginated.len())),
-        models::Aggregate::ColumnCount { column, distinct } => {
+        models::Aggregate::ColumnCount {
+            column,
+            field_path,
+            distinct,
+        } => {
             let values = paginated
                 .iter()
-                .map(|row| {
-                    row.get(column).ok_or((
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "invalid column name".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))
-                })
+                .map(|row| eval_column_field_path(row, column, field_path))
                 .collect::<Result<Vec<_>>>()?;
 
             let non_null_values = values.iter().filter(|value| !value.is_null());
@@ -1030,18 +1027,14 @@ fn eval_aggregate(
                 )
             })
         }
-        models::Aggregate::SingleColumn { column, function } => {
+        models::Aggregate::SingleColumn {
+            column,
+            field_path,
+            function,
+        } => {
             let values = paginated
                 .iter()
-                .map(|row| {
-                    row.get(column).ok_or((
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "invalid column name".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))
-                })
+                .map(|row| eval_column_field_path(row, column, field_path))
                 .collect::<Result<Vec<_>>>()?;
             eval_aggregate_function(function, values)
         }
@@ -1051,7 +1044,7 @@ fn eval_aggregate(
 // ANCHOR: eval_aggregate_function
 fn eval_aggregate_function(
     function: &str,
-    values: Vec<&serde_json::Value>,
+    values: Vec<serde_json::Value>,
 ) -> Result<serde_json::Value> {
     let int_values = values
         .iter()
@@ -1220,6 +1213,7 @@ fn eval_order_by_element(
         ),
         models::OrderByTarget::SingleColumnAggregate {
             column,
+            field_path,
             function,
             path,
         } => eval_order_by_single_column_aggregate(
@@ -1229,6 +1223,7 @@ fn eval_order_by_element(
             item,
             path,
             column,
+            field_path,
             function,
         ),
         models::OrderByTarget::StarCountAggregate { path } => eval_order_by_star_count_aggregate(
@@ -1254,27 +1249,21 @@ fn eval_order_by_star_count_aggregate(
 }
 // ANCHOR_END: eval_order_by_star_count_aggregate
 // ANCHOR: eval_order_by_single_column_aggregate
+#[allow(clippy::too_many_arguments)]
 fn eval_order_by_single_column_aggregate(
     collection_relationships: &BTreeMap<String, models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     item: &BTreeMap<String, serde_json::Value>,
     path: Vec<models::PathElement>,
-    column: String,
+    column_name: String,
+    field_path: Option<Vec<String>>,
     function: String,
 ) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     let values = rows
         .iter()
-        .map(|row| {
-            row.get(column.as_str()).ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "invalid column name".into(),
-                    details: serde_json::Value::Null,
-                }),
-            ))
-        })
+        .map(|row| eval_column_field_path(row, &column_name, &field_path))
         .collect::<Result<Vec<_>>>()?;
     eval_aggregate_function(&function, values)
 }

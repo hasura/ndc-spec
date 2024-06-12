@@ -10,6 +10,8 @@ There are three types of aggregate:
 - `column_count` aggregates count the number of rows with non-null values in the specified columns. If the `distinct` flag is set, then the count should only count unique non-null values of those columns,
 - `star_count` aggregates count all matched rows.
 
+If the connector supports capability `query.nested_fields.aggregates` then `single_column` and `column_count` aggregates may also [reference nested fields within a column](./filtering.md#referencing-nested-fields-within-columns) using the `field_path` property.
+
 ## Example
 
 The following query object requests the aggregated sum of all order totals, along with the count of all orders, and the count of all orders which have associated invoices (via the nullable `invoice_id` column):

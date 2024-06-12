@@ -307,6 +307,16 @@
               "description": "The column to apply the count aggregate function to",
               "type": "string"
             },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
             "distinct": {
               "description": "Whether or not only distinct items should be counted",
               "type": "boolean"
@@ -330,6 +340,16 @@
             "column": {
               "description": "The column to apply the aggregation function to",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "function": {
               "description": "Single column aggregate function name.",
@@ -451,6 +471,16 @@
             "column": {
               "description": "The column to apply the aggregation function to",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "function": {
               "description": "Single column aggregate function name.",

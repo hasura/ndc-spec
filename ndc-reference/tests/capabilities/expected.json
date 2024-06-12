@@ -1,12 +1,13 @@
 {
-  "version": "0.1.3",
+  "version": "0.1.4",
   "capabilities": {
     "query": {
       "aggregates": {},
       "variables": {},
       "nested_fields": {
         "filter_by": {},
-        "order_by": {}
+        "order_by": {},
+        "aggregates": {}
       }
     },
     "mutation": {},

@@ -1,8 +1,8 @@
 [package]
 name = "ndc-test"
 description = "A tool to verify that a data connector is somewhat compatible with the specification"
-version = "0.1.3"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [lints]
 workspace = true
@@ -16,15 +16,15 @@ rustls = ["reqwest/rustls"]
 [dependencies]
 ndc-models = { path = "../ndc-models" }
 
-async-trait = "0.1"
-clap = { version = "4", features = ["derive"] }
-colorful = "0.2"
-indexmap = { version = "2", features = ["serde"] }
-rand = { version = "0.8", features = ["small_rng"] }
-reqwest = { version = "0.11", features = ["json", "multipart"], default-features = false }
-semver = "1"
-serde = "1"
-serde_json = { version = "1", features = ["preserve_order"] }
-thiserror = "1"
-tokio = { version = "1", features = ["macros", "rt-multi-thread", "parking_lot"] }
-url = "2"
+async-trait = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+colorful = { workspace = true }
+indexmap = { workspace = true, features = ["serde"] }
+rand = { workspace = true, features = ["small_rng"] }
+reqwest = { workspace = true, features = ["json", "multipart"] }
+semver = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true, features = ["preserve_order"] }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "parking_lot"] }
+url = { workspace = true }

@@ -7,6 +7,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 // ANCHOR: ErrorResponse
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -61,19 +63,22 @@ pub struct QueryCapabilities {
     /// Does the connector support explaining queries
     pub explain: Option<LeafCapability>,
     /// Does the connector support nested fields
+    #[serde(default)]
     pub nested_fields: NestedFieldCapabilities,
 }
 // ANCHOR_END: QueryCapabilities
 
 // ANCHOR: NestedFieldCapabilities
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Nested Field Capabilities")]
 pub struct NestedFieldCapabilities {
     /// Does the connector support filtering by values of nested fields
     pub filter_by: Option<LeafCapability>,
     /// Does the connector support ordering by values of nested fields
     pub order_by: Option<LeafCapability>,
+    /// Does the connector support aggregating values within nested fields
+    pub aggregates: Option<LeafCapability>,
 }
 // ANCHOR_END: NestedFieldCapabilities
 
@@ -422,18 +427,23 @@ pub struct Query {
 
 // ANCHOR: Aggregate
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[skip_serializing_none]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate")]
 pub enum Aggregate {
     ColumnCount {
         /// The column to apply the count aggregate function to
         column: String,
+        /// Path to a nested field within an object column
+        field_path: Option<Vec<String>>,
         /// Whether or not only distinct items should be counted
         distinct: bool,
     },
     SingleColumn {
         /// The column to apply the aggregation function to
         column: String,
+        /// Path to a nested field within an object column
+        field_path: Option<Vec<String>>,
         /// Single column aggregate function name.
         function: String,
     },
@@ -529,6 +539,8 @@ pub enum OrderByTarget {
     SingleColumnAggregate {
         /// The column to apply the aggregation function to
         column: String,
+        /// Path to a nested field within an object column
+        field_path: Option<Vec<String>>,
         /// Single column aggregate function name.
         function: String,
         /// Non-empty collection of relationships to traverse
