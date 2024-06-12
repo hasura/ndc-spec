@@ -1,0 +1,49 @@
+[
+  {
+    "rows": [
+      {
+        "first_name": "Peter",
+        "last_name": "Landin",
+        "articles": {
+          "groups": [
+            {
+              "dimensions": {
+                "author": "The Next 700 Programming Languages"
+              },
+              "aggregates": {
+                "min_id": 1,
+                "max_id": 1
+              }
+            }
+          ]
+        }
+      },
+      {
+        "first_name": "John",
+        "last_name": "Hughes",
+        "articles": {
+          "groups": [
+            {
+              "dimensions": {
+                "author": "Why Functional Programming Matters"
+              },
+              "aggregates": {
+                "min_id": 2,
+                "max_id": 2
+              }
+            },
+            {
+              "dimensions": {
+                "author": "The Design And Implementation Of Programming Languages"
+              },
+              "aggregates": {
+                "min_id": 3,
+                "max_id": 3
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

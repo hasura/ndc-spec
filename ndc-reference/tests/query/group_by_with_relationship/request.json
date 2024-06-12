@@ -1,0 +1,65 @@
+{
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+    "collection": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "first_name": {
+                "type": "column",
+                "column": "first_name"
+            },
+            "last_name": {
+                "type": "column",
+                "column": "last_name"
+            },
+            "articles": {
+                "type": "relationship",
+                "arguments": {},
+                "relationship": "author_articles",
+                "query": {
+                    "groups": {
+                        "aggregates": {
+                            "min_id": {
+                                "type": "single_column",
+                                "column": "id",
+                                "function": "min"
+                            },
+                            "max_id": {
+                                "type": "single_column",
+                                "column": "id",
+                                "function": "max"
+                            }
+                        },
+                        "dimensions": {
+                            "author": {
+                                "type": "column",
+                                "column_name": "title"
+                            }
+                        },
+                        "fields": {
+                            "id": {
+                                "type": "column",
+                                "column": "id"
+                            },
+                            "title": {
+                                "type": "column",
+                                "column": "title"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "collection_relationships": {
+        "author_articles": {
+            "arguments": {},
+            "column_mapping": {
+                "id": "author_id"
+            },
+            "relationship_type": "array",
+            "source_collection_or_type": "author",
+            "target_collection": "articles"
+        }
+    }
+}
