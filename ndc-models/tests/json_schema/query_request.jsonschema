@@ -767,35 +767,6 @@
               }
             }
           }
-        },
-        {
-          "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "root_collection_column"
-              ]
-            },
-            "name": {
-              "description": "The name of the column",
-              "type": "string"
-            },
-            "field_path": {
-              "description": "Path to a nested field within an object column",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "string"
-              }
-            }
-          }
         }
       ]
     },
@@ -812,7 +783,7 @@
         {
           "type": "object",
           "required": [
-            "column",
+            "name",
             "type"
           ],
           "properties": {
@@ -822,10 +793,22 @@
                 "column"
               ]
             },
-            "column": {
-              "$ref": "#/definitions/ComparisonTarget"
+            "name": {
+              "description": "The name of the column",
+              "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "path": {
+              "description": "Path to a related collection",
               "default": [],
               "type": "array",
               "items": {
@@ -888,33 +871,6 @@
               ]
             },
             "relationship": {
-              "type": "string"
-            },
-            "arguments": {
-              "description": "Values to be provided to any collection arguments",
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/RelationshipArgument"
-              }
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "arguments",
-            "collection",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "unrelated"
-              ]
-            },
-            "collection": {
-              "description": "The name of a collection",
               "type": "string"
             },
             "arguments": {

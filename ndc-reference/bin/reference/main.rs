@@ -739,7 +739,6 @@ fn execute_query_with_variables(
         variables,
         state,
         query,
-        Root::CurrentRow,
         collection,
     )
 }
@@ -864,21 +863,6 @@ fn get_collection_by_name(
     }
 }
 // ANCHOR_END: get_collection_by_name
-/// ANCHOR: Root
-#[derive(Clone, Copy)]
-enum Root<'a> {
-    /// References to the root collection actually
-    /// refer to the current row, because the path to
-    /// the nearest enclosing [`models::Query`] does not pass
-    /// an [`models::Expression::Exists`] node.
-    CurrentRow,
-    /// References to the root collection refer to the
-    /// explicitly-identified row, which is the row
-    /// being evaluated in the context of the nearest enclosing
-    /// [`models::Query`].
-    ExplicitRow(&'a Row),
-}
-/// ANCHOR_END: Root
 // ANCHOR: execute_query
 // ANCHOR: execute_query_signature
 fn execute_query(
@@ -886,7 +870,6 @@ fn execute_query(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     query: &models::Query,
-    root: Root,
     collection: Vec<Row>,
 ) -> Result<models::RowSet> {
     // ANCHOR_END: execute_query_signature
@@ -905,18 +888,7 @@ fn execute_query(
         Some(expr) => {
             let mut filtered: Vec<Row> = vec![];
             for item in sorted {
-                let root = match root {
-                    Root::CurrentRow => &item,
-                    Root::ExplicitRow(root) => root,
-                };
-                if eval_expression(
-                    collection_relationships,
-                    variables,
-                    state,
-                    expr,
-                    root,
-                    &item,
-                )? {
+                if eval_expression(collection_relationships, variables, state, expr, &item)? {
                     filtered.push(item);
                 }
             }
@@ -1435,7 +1407,6 @@ fn eval_path_element(
                         state,
                         expression,
                         tgt_row,
-                        tgt_row,
                     )?
                 } else {
                     true
@@ -1506,7 +1477,6 @@ fn eval_expression(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     expr: &models::Expression,
-    root: &Row,
     item: &Row,
 ) -> Result<bool> {
     // ANCHOR_END: eval_expression_signature
@@ -1514,7 +1484,7 @@ fn eval_expression(
     match expr {
         models::Expression::And { expressions } => {
             for expr in expressions {
-                if !eval_expression(collection_relationships, variables, state, expr, root, item)? {
+                if !eval_expression(collection_relationships, variables, state, expr, item)? {
                     return Ok(false);
                 }
             }
@@ -1522,28 +1492,21 @@ fn eval_expression(
         }
         models::Expression::Or { expressions } => {
             for expr in expressions {
-                if eval_expression(collection_relationships, variables, state, expr, root, item)? {
+                if eval_expression(collection_relationships, variables, state, expr, item)? {
                     return Ok(true);
                 }
             }
             Ok(false)
         }
         models::Expression::Not { expression } => {
-            let b = eval_expression(
-                collection_relationships,
-                variables,
-                state,
-                expression,
-                root,
-                item,
-            )?;
+            let b = eval_expression(collection_relationships, variables, state, expression, item)?;
             Ok(!b)
         }
         // ANCHOR_END: eval_expression_logical
         // ANCHOR: eval_expression_unary_operators
         models::Expression::UnaryComparisonOperator { column, operator } => match operator {
             models::UnaryComparisonOperator::IsNull => {
-                let vals = eval_comparison_target(column, root, item)?;
+                let vals = eval_comparison_target(column, item)?;
                 Ok(vals.is_null())
             }
         },
@@ -1555,15 +1518,9 @@ fn eval_expression(
             value,
         } => match operator.as_str() {
             "eq" => {
-                let left_val = eval_comparison_target(column, root, item)?;
-                let right_vals = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    value,
-                    state,
-                    root,
-                    item,
-                )?;
+                let left_val = eval_comparison_target(column, item)?;
+                let right_vals =
+                    eval_comparison_value(collection_relationships, variables, value, state, item)?;
 
                 Ok(right_vals
                     .into_iter()
@@ -1572,15 +1529,9 @@ fn eval_expression(
             // ANCHOR_END: eval_expression_binary_operators
             // ANCHOR: eval_expression_custom_binary_operators
             "like" => {
-                let column_val = eval_comparison_target(column, root, item)?;
-                let regex_vals = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    value,
-                    state,
-                    root,
-                    item,
-                )?;
+                let column_val = eval_comparison_target(column, item)?;
+                let regex_vals =
+                    eval_comparison_value(collection_relationships, variables, value, state, item)?;
 
                 let column_str = column_val.as_str().ok_or((
                     StatusCode::BAD_REQUEST,
@@ -1618,16 +1569,10 @@ fn eval_expression(
 
             // ANCHOR: eval_expression_binary_array_operators
             "in" => {
-                let left_val = eval_comparison_target(column, root, item)?;
+                let left_val = eval_comparison_target(column, item)?;
 
-                let comparison_values = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    value,
-                    state,
-                    root,
-                    item,
-                )?;
+                let comparison_values =
+                    eval_comparison_value(collection_relationships, variables, value, state, item)?;
 
                 for comparison_value in comparison_values {
                     let right_vals = comparison_value.as_array().ok_or((
@@ -1679,7 +1624,6 @@ fn eval_expression(
                 variables,
                 state,
                 &query,
-                Root::ExplicitRow(root),
                 collection,
             )?;
             let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
@@ -1725,32 +1669,17 @@ fn eval_in_collection(
                 &None,
             )
         }
-        models::ExistsInCollection::Unrelated {
-            collection,
-            arguments,
-        } => {
-            let arguments = arguments
-                .iter()
-                .map(|(k, v)| Ok((k.clone(), eval_relationship_argument(variables, item, v)?)))
-                .collect::<Result<BTreeMap<_, _>>>()?;
-
-            get_collection_by_name(collection.as_str(), &arguments, state)
-        }
     }
 }
 // ANCHOR_END: eval_in_collection
 // ANCHOR: eval_comparison_target
 fn eval_comparison_target(
     target: &models::ComparisonTarget,
-    root: &Row,
     item: &Row,
 ) -> Result<serde_json::Value> {
     match target {
         models::ComparisonTarget::Column { name, field_path } => {
             eval_column_field_path(item, name, field_path)
-        }
-        models::ComparisonTarget::RootCollectionColumn { name, field_path } => {
-            eval_column_field_path(root, name, field_path)
         }
     }
 }
@@ -1804,16 +1733,19 @@ fn eval_comparison_value(
     variables: &BTreeMap<String, serde_json::Value>,
     comparison_value: &models::ComparisonValue,
     state: &AppState,
-    root: &Row,
     item: &Row,
 ) -> Result<Vec<serde_json::Value>> {
     match comparison_value {
-        models::ComparisonValue::Column { column, path } => {
+        models::ComparisonValue::Column {
+            name,
+            field_path,
+            path,
+        } => {
             let items = eval_path(collection_relationships, variables, state, path, item)?;
 
             items
                 .iter()
-                .map(|item| eval_comparison_target(column, root, item))
+                .map(|item| eval_column_field_path(item, name, field_path))
                 .collect()
         }
         models::ComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
@@ -1962,7 +1894,6 @@ fn eval_field(
                 variables,
                 state,
                 query,
-                Root::CurrentRow,
                 collection,
             )?;
             let rows_json = serde_json::to_value(rows).map_err(|_| {
@@ -2199,7 +2130,6 @@ fn execute_delete_articles(
             &BTreeMap::new(),
             &state_snapshot,
             &predicate,
-            article,
             article,
         )? {
             removed.push(article.clone());
