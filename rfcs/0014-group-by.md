@@ -94,3 +94,4 @@ The exact semantics of this partitioning operation are unspecified. For example,
 ## Open Questions
 
 - A `Grouping` with no dimensions is just a regular aggregation, do we want to unify the two?
+- Do we want to support multiple grouping operations in the same query?
