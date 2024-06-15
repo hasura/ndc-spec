@@ -15,7 +15,7 @@ ndc-test --endpoint <ENDPOINT>
 For example, running the reference connector and passing its URL to `ndc-test`, we will see that it issues test queries against the `articles` and `authors` collections:
 
 ```text
-ndc-test test --endpoint http://localhost:8100
+ndc-test test --endpoint http://localhost:8080
 
 Capabilities
 ├ Fetching /capabilities ... ... OK

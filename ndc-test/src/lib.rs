@@ -372,3 +372,26 @@ pub fn benchmark_report(
         String::new()
     }
 }
+
+/// Generate snapshot fixtures for replay tests
+pub async fn generate_fixtures<C: Connector, R: Reporter>(
+    config: &configuration::FixtureConfiguration,
+    connector: &C,
+    reporter: &mut R,
+) -> Option<()> {
+    let schema = test!("Schema", reporter, connector.get_schema())?;
+    let mut rng = match config.seed {
+        None => rand::rngs::SmallRng::from_entropy(),
+        Some(seed) => rand::rngs::SmallRng::from_seed(seed),
+    };
+
+    nest!("Query", reporter, async {
+        test_cases::query::make_query_fixtures(config, reporter, &schema, &mut rng).await;
+    });
+
+    nest!("Mutation", reporter, async {
+        test_cases::mutation::make_mutation_fixtures(config, reporter, &schema, &mut rng).await;
+    });
+
+    Some(())
+}

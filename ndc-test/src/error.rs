@@ -69,6 +69,8 @@ pub enum Error {
     InvalidValueInResponse(Vec<String>, String),
     #[error("invalid request: {0}")]
     InvalidRequest(String),
+    #[error("cannot create snapshot folder: {0:?}")]
+    CannotCreateSnapshotFolder(std::io::Error),
     #[error("other error: {0}")]
     OtherError(#[from] Box<dyn std::error::Error>),
 }

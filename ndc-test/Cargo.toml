@@ -17,7 +17,9 @@ rustls = ["reqwest/rustls"]
 ndc-models = { path = "../ndc-models" }
 
 async-trait = { workspace = true }
+base64 = { workspace = true }
 clap = { workspace = true, features = ["derive"] }
+chrono = { workspace = true }
 colorful = { workspace = true }
 indexmap = { workspace = true, features = ["serde"] }
 rand = { workspace = true, features = ["small_rng"] }
@@ -28,3 +30,4 @@ serde_json = { workspace = true, features = ["preserve_order"] }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "parking_lot"] }
 url = { workspace = true }
+uuid = { workspace = true }
