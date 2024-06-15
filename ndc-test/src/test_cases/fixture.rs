@@ -230,6 +230,7 @@ fn make_nested_field_recursive(
     }
 }
 
+#[allow(deprecated)]
 fn make_scalar_value(
     scalar: &ScalarType,
     rng: &mut SmallRng,

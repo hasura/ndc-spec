@@ -139,7 +139,7 @@ enum Commands {
             value_parser, 
             num_args = 0.., 
             value_delimiter = ',',
-            help = "the list of field names to be excluded from result type"
+            help = "the list of field names to be excluded from the result type"
         )]
         exclude_fields: Vec<String>,
         #[arg(
