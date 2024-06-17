@@ -386,11 +386,15 @@ pub async fn generate_fixtures<C: Connector, R: Reporter>(
     };
 
     nest!("Query", reporter, async {
-        test_cases::query::make_query_fixtures(config, reporter, &schema, &mut rng).await;
+        test_cases::query::make_query_fixtures(config, connector, reporter, &schema, &mut rng)
+            .await;
     });
 
     nest!("Mutation", reporter, async {
-        test_cases::mutation::make_mutation_fixtures(config, reporter, &schema, &mut rng).await;
+        test_cases::mutation::make_mutation_fixtures(
+            config, connector, reporter, &schema, &mut rng,
+        )
+        .await;
     });
 
     Some(())

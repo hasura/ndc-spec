@@ -171,6 +171,12 @@ enum Commands {
             help = "the write mode to be applied for existing files"
         )]
         write_mode: configuration::FixtureWriteMode,
+        #[arg(
+            long,
+            default_value = "false",
+            help = "generate random responses locally without fetching them from the connector endpoint"
+        )]
+        dry_run: bool,
     },
 }
 
@@ -296,7 +302,8 @@ async fn main() {
             field_depth,
             exclude_arguments,
             exclude_fields,
-            write_mode
+            write_mode,
+            dry_run
         } => {
             let configuration = Configuration {
                 base_path: endpoint,
@@ -312,7 +319,13 @@ async fn main() {
                 operation_types: operation_type,
                 operations: operation,
                 write_mode,
-                gen_config: configuration::FixtureGenerationConfiguration { argument_depth, field_depth, exclude_fields, exclude_arguments }
+                gen_config: configuration::FixtureGenerationConfiguration { 
+                    argument_depth, 
+                    field_depth, 
+                    exclude_fields, 
+                    exclude_arguments, 
+                    dry_run
+                }
             };
 
             ndc_test::generate_fixtures(

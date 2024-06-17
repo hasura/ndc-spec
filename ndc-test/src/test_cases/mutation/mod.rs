@@ -2,11 +2,14 @@ mod procedure;
 
 use rand::rngs::SmallRng;
 
-use crate::{configuration, nest, reporter::Reporter, test, test_cases::fixture};
+use crate::{
+    configuration, connector::Connector, nest, reporter::Reporter, test, test_cases::fixture,
+};
 
 /// Generate mutation fixture for replay tests
-pub async fn make_mutation_fixtures<R: Reporter>(
+pub async fn make_mutation_fixtures<C: Connector, R: Reporter>(
     config: &configuration::FixtureConfiguration,
+    connector: &C,
     reporter: &mut R,
     schema: &ndc_models::SchemaResponse,
     rng: &mut SmallRng,
@@ -37,10 +40,12 @@ pub async fn make_mutation_fixtures<R: Reporter>(
                     async {
                         let (request, response) = procedure::make_procedure_fixture(
                             &config.gen_config,
+                            connector,
                             rng,
                             schema,
                             procedure_info,
-                        )?;
+                        )
+                        .await?;
                         fixture::write_fixture_files(snapshot_subdir, request, response)
                     }
                 });

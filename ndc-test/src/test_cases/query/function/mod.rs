@@ -5,15 +5,15 @@ use ndc_models::{Field, QueryRequest, QueryResponse, RowSet};
 use rand::rngs::SmallRng;
 
 use crate::{
-    configuration::FixtureGenerationConfiguration,
-    error::Result,
-    test_cases::fixture::{self},
+    configuration::FixtureGenerationConfiguration, connector::Connector, error::Result,
+    test_cases::fixture,
 };
 
 const QUERY_COLUMN_KEY_VALUE: &str = "__value";
 
-pub fn make_function_fixture<'a>(
+pub async fn make_function_fixture<'a, C: Connector>(
     gen_config: &FixtureGenerationConfiguration,
+    connector: &C,
     rng: &mut SmallRng,
     schema_response: &'a ndc_models::SchemaResponse,
     function_info: &'a ndc_models::FunctionInfo,
@@ -61,10 +61,17 @@ pub fn make_function_fixture<'a>(
         ndc_models::RowFieldValue(nested_value),
     );
 
-    let query_response = ndc_models::QueryResponse(vec![RowSet {
+    let mut query_response = ndc_models::QueryResponse(vec![RowSet {
         rows: Some(vec![response_row]),
         aggregates: None,
     }]);
+
+    if !gen_config.dry_run {
+        // fallback to the mock response. The connector may reject the request by some custom validation and logic.
+        if let Ok(response) = connector.query(query_request.clone()).await {
+            query_response = response;
+        };
+    }
 
     Ok((query_request, query_response))
 }

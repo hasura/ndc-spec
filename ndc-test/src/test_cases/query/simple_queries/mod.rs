@@ -10,7 +10,7 @@ use crate::reporter::Reporter;
 use crate::test;
 use crate::test_cases::fixture;
 
-use ndc_models as models;
+use ndc_models::{self as models};
 
 use indexmap::IndexMap;
 use rand::rngs::SmallRng;
@@ -98,8 +98,9 @@ async fn test_select_top_n_rows<C: Connector>(
     expect_single_rows(response)
 }
 
-pub fn make_simple_query_fixture<'a>(
+pub async fn make_simple_query_fixture<'a, C: Connector>(
     gen_config: &configuration::FixtureGenerationConfiguration,
+    connector: &C,
     rng: &mut SmallRng,
     schema_response: &'a ndc_models::SchemaResponse,
     collection_info: &'a models::CollectionInfo,
@@ -126,7 +127,13 @@ pub fn make_simple_query_fixture<'a>(
             fields: Some(fields.clone()),
             limit: Some(3),
             offset: None,
-            order_by: None,
+            order_by: sorting::make_order_by_elements(
+                collection_type.clone(),
+                schema_response,
+                rng,
+                1,
+            )
+            .map(|elements| models::OrderBy { elements }),
             predicate,
         },
         arguments: fixture::make_query_arguments(
@@ -139,10 +146,17 @@ pub fn make_simple_query_fixture<'a>(
         variables: None,
     };
 
-    let query_response = ndc_models::QueryResponse(vec![ndc_models::RowSet {
+    let mut query_response = ndc_models::QueryResponse(vec![ndc_models::RowSet {
         rows: Some(vec![values]),
         aggregates: None,
     }]);
+
+    if !gen_config.dry_run {
+        // fallback to the mock response. The connector may reject the request by some custom validation and logic.
+        if let Ok(response) = connector.query(query_request.clone()).await {
+            query_response = response;
+        };
+    }
 
     Ok((query_request, query_response))
 }

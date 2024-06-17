@@ -35,7 +35,7 @@ pub async fn test_sorting<C: Connector>(
     Ok(())
 }
 
-fn make_order_by_elements(
+pub fn make_order_by_elements(
     collection_type: models::ObjectType,
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,

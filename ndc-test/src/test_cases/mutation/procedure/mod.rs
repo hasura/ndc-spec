@@ -3,10 +3,14 @@ use std::collections::BTreeMap;
 use ndc_models::{MutationRequest, MutationResponse, ProcedureInfo, SchemaResponse};
 use rand::rngs::SmallRng;
 
-use crate::{configuration::FixtureGenerationConfiguration, error::Result, test_cases::fixture};
+use crate::{
+    configuration::FixtureGenerationConfiguration, connector::Connector, error::Result,
+    test_cases::fixture,
+};
 
-pub fn make_procedure_fixture<'a>(
+pub async fn make_procedure_fixture<'a, C: Connector>(
     gen_config: &FixtureGenerationConfiguration,
+    connector: &C,
     rng: &mut SmallRng,
     schema_response: &'a SchemaResponse,
     procedure_info: &'a ProcedureInfo,
@@ -32,11 +36,18 @@ pub fn make_procedure_fixture<'a>(
         collection_relationships: BTreeMap::new(),
     };
 
-    let mutation_response = MutationResponse {
+    let mut mutation_response = MutationResponse {
         operation_results: vec![ndc_models::MutationOperationResults::Procedure {
             result: nested_value,
         }],
     };
+
+    if !gen_config.dry_run {
+        // fallback to the mock response. The connector may reject the request by some custom validation and logic.
+        if let Ok(response) = connector.mutation(mutation_request.clone()).await {
+            mutation_response = response;
+        };
+    }
 
     Ok((mutation_request, mutation_response))
 }

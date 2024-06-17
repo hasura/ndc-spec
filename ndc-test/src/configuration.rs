@@ -69,8 +69,9 @@ pub struct FixtureConfiguration {
 
 #[derive(Debug)]
 pub struct FixtureGenerationConfiguration {
-    pub argument_depth: u32,
+    pub dry_run: bool,
     pub field_depth: u32,
+    pub argument_depth: u32,
     pub exclude_fields: Vec<String>,
     pub exclude_arguments: Vec<String>,
 }
@@ -82,6 +83,7 @@ impl Default for FixtureGenerationConfiguration {
             field_depth: 4,
             exclude_fields: vec![],
             exclude_arguments: vec![],
+            dry_run: false,
         }
     }
 }

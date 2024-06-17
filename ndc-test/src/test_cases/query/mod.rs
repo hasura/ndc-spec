@@ -75,8 +75,9 @@ pub async fn test_query<C: Connector, R: Reporter>(
     }
 }
 
-pub async fn make_query_fixtures<R: Reporter>(
+pub async fn make_query_fixtures<C: Connector, R: Reporter>(
     config: &configuration::FixtureConfiguration,
+    connector: &C,
     reporter: &mut R,
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
@@ -108,10 +109,12 @@ pub async fn make_query_fixtures<R: Reporter>(
                     async {
                         let (request, response) = simple_queries::make_simple_query_fixture(
                             &config.gen_config,
+                            connector,
                             rng,
                             schema,
                             collection_info,
-                        )?;
+                        )
+                        .await?;
                         fixture::write_fixture_files(snapshot_subdir, request, response)
                     }
                 });
@@ -144,10 +147,12 @@ pub async fn make_query_fixtures<R: Reporter>(
                     async {
                         let (request, response) = function::make_function_fixture(
                             &config.gen_config,
+                            connector,
                             rng,
                             schema,
                             function_info,
-                        )?;
+                        )
+                        .await?;
                         fixture::write_fixture_files(snapshot_subdir, request, response)
                     }
                 });
