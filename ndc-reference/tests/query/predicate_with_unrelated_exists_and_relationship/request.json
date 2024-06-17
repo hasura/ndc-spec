@@ -38,41 +38,22 @@
                     "predicate": {
                         "type": "exists",
                         "in_collection": {
-                            "type": "unrelated",
+                            "type": "related",
                             "arguments": {},
-                            "collection": "articles"
+                            "collection": "articles",
+                            "relationship": "author_articles"
                         },
                         "predicate": {
-                            "type": "and",
-                            "expressions": [
-                                {
-                                    "type": "binary_comparison_operator",
-                                    "column": {
-                                        "type": "column",
-                                        "name": "author_id"
-                                    },
-                                    "operator": "eq",
-                                    "value": {
-                                        "type": "column",
-                                        "column": {
-                                            "type": "root_collection_column",
-                                            "name": "id"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "binary_comparison_operator",
-                                    "column": {
-                                        "type": "column",
-                                        "name": "title"
-                                    },
-                                    "operator": "like",
-                                    "value": {
-                                        "type": "scalar",
-                                        "value": "Functional"
-                                    }
-                                }
-                            ]
+                            "type": "binary_comparison_operator",
+                            "column": {
+                                "type": "column",
+                                "name": "title"
+                            },
+                            "operator": "like",
+                            "value": {
+                                "type": "scalar",
+                                "value": "Functional"
+                            }
                         }
                     }
                 },

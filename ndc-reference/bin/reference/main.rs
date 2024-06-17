@@ -1749,9 +1749,6 @@ fn eval_comparison_target(
         models::ComparisonTarget::Column { name, field_path } => {
             eval_column_field_path(item, name, field_path)
         }
-        models::ComparisonTarget::RootCollectionColumn { name, field_path } => {
-            eval_column_field_path(root, name, field_path)
-        }
     }
 }
 // ANCHOR_END: eval_comparison_target
@@ -1808,12 +1805,12 @@ fn eval_comparison_value(
     item: &Row,
 ) -> Result<Vec<serde_json::Value>> {
     match comparison_value {
-        models::ComparisonValue::Column { column, path } => {
+        models::ComparisonValue::Column { name, field_path, path } => {
             let items = eval_path(collection_relationships, variables, state, path, item)?;
 
             items
                 .iter()
-                .map(|item| eval_comparison_target(column, root, item))
+                .map(|item| eval_column_field_path(item, name, field_path))
                 .collect()
         }
         models::ComparisonValue::Scalar { value } => Ok(vec![value.clone()]),

@@ -12,15 +12,9 @@
         "predicate": {
             "type": "exists",
             "in_collection": {
-                "type": "unrelated",
-                "collection": "articles_by_author",
-                "arguments": {
-                    "author_id": {
-                        "type": "column",
-                        "name": "id"
-                    }
-                },
-                "relationship": "author_articles"
+                "type": "related",
+                "relationship": "author_articles",
+                "arguments": {}
             },
             "predicate": {
                 "type": "binary_comparison_operator",
@@ -37,5 +31,16 @@
         }
     },
     "collection_relationships": {
+        "author_articles": {
+            "arguments": {
+                "author_id": {
+                    "type": "column",
+                    "name": "id"
+                }
+            },
+            "column_mapping": {},
+            "relationship_type": "array",
+            "target_collection": "articles_by_author"
+        }
     }
 }

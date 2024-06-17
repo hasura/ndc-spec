@@ -618,12 +618,6 @@ pub enum ComparisonTarget {
         /// Path to a nested field within an object column
         field_path: Option<Vec<String>>,
     },
-    RootCollectionColumn {
-        /// The name of the column
-        name: String,
-        /// Path to a nested field within an object column
-        field_path: Option<Vec<String>>,
-    },
 }
 // ANCHOR_END: ComparisonTarget
 
@@ -647,7 +641,11 @@ pub struct PathElement {
 #[schemars(title = "Comparison Value")]
 pub enum ComparisonValue {
     Column {
-        column: ComparisonTarget,
+        /// The name of the column
+        name: String,
+        /// Path to a nested field within an object column
+        field_path: Option<Vec<String>>,
+        /// Any relationships to traverse to reach this column
         #[serde(default)]
         path: Vec<PathElement>,
     },

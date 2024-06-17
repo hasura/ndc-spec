@@ -782,35 +782,6 @@
               }
             }
           }
-        },
-        {
-          "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "root_collection_column"
-              ]
-            },
-            "name": {
-              "description": "The name of the column",
-              "type": "string"
-            },
-            "field_path": {
-              "description": "Path to a nested field within an object column",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "string"
-              }
-            }
-          }
         }
       ]
     },
@@ -827,7 +798,7 @@
         {
           "type": "object",
           "required": [
-            "column",
+            "name",
             "type"
           ],
           "properties": {
@@ -837,10 +808,22 @@
                 "column"
               ]
             },
-            "column": {
-              "$ref": "#/definitions/ComparisonTarget"
+            "name": {
+              "description": "The name of the column",
+              "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             },
             "path": {
+              "description": "Any relationships to traverse to reach this column",
               "default": [],
               "type": "array",
               "items": {
