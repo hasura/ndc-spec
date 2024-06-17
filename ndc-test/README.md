@@ -14,13 +14,13 @@ In order to properly validate a connector for release, authors should augment th
 ### Test a connector
 
 ```sh
-cargo run --bin ndc-test -- test --endpoint http://localhost:8100
+cargo run --bin ndc-test -- test --endpoint http://localhost:8080
 ```
 
 To modify the random seed used to generate test data, use the `--seed` argument with a 32-character string:
 
 ```sh
-cargo run --bin ndc-test -- test --endpoint http://localhost:8100 --seed 'ABD1FFEA148FE165FAC69B66B58972A8'
+cargo run --bin ndc-test -- test --endpoint http://localhost:8080 --seed 'ABD1FFEA148FE165FAC69B66B58972A8'
 ```
 
 ### Generate/replay snapshot tests
@@ -28,7 +28,7 @@ cargo run --bin ndc-test -- test --endpoint http://localhost:8100 --seed 'ABD1FF
 `ndc-test` generates sample query requests which are issued against a connector. These requests can be saved to disk using the `--snapshot-dir` argument:
 
 ```sh
-cargo run --bin ndc-test -- test --endpoint http://localhost:8100 --snapshots-dir snapshots
+cargo run --bin ndc-test -- test --endpoint http://localhost:8080 --snapshots-dir snapshots
 ```
 
 If the files already exist on disk, they will be validated against the actual responses received. If not, new snapshot files will be written.
@@ -38,29 +38,46 @@ _Note_: different values for `--seed` can generate different snapshot tests.
 To replay existing snapshot tests from disk without regenerating the requests, use the `replay` command:
 
 ```sh
-cargo run --bin ndc-test -- replay --endpoint http://localhost:8100 --snapshots-dir snapshots
+cargo run --bin ndc-test -- replay --endpoint http://localhost:8080 --snapshots-dir snapshots
 ```
 
 ### Customizing the test generation strategy
 
 Several options are available to customize the test generation:
 
-| Option | Description | Default |
-|-|-|-|
-| `-x`, `-xx`, ... | Increases the complexity level of generated queris in general, e.g. generates more deeply-nested boolean expressions | None |
-| `--test-cases` | The number of test cases to generate per scenario | 10 |
-| `--sample-size` | The number of example rows to fetch from each collection | 10 |
-| `--max-limit` | The maximum number of rows to fetch per test query | 10 |
+| Option           | Description                                                                                                           | Default |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------- | ------- |
+| `-x`, `-xx`, ... | Increases the complexity level of generated queries in general, e.g. generates more deeply-nested boolean expressions | None    |
+| `--test-cases`   | The number of test cases to generate per scenario                                                                     | 10      |
+| `--sample-size`  | The number of example rows to fetch from each collection                                                              | 10      |
+| `--max-limit`    | The maximum number of rows to fetch per test query                                                                    | 10      |
 
 ### Custom tests
 
-Connector developers can add custom query and mutation snapshot tests to the snapshot directory. The `test` command does not generate mutation tests by default, because it is up to the connector developer to ensure a reproducible test environment.
+Connector developers can add custom query and mutation snapshot tests to the snapshot directory. The `test` command does not generate queries that have arguments, and mutation tests by default, because it is up to the connector developer to ensure a reproducible test environment.
 
-For example, to run the existing suite of snapshot tests for `ndc-reference`, we can use the replay command (assuming the reference connector is running on port 8100):
+For example, to run the existing suite of snapshot tests for `ndc-reference`, we can use the replay command (assuming the reference connector is running on port 8080):
 
 ```sh
-cargo run --bin ndc-test -- replay --endpoint http://localhost:8100 --snapshots-dir ndc-reference/tests
+cargo run --bin ndc-test -- replay --endpoint http://localhost:8080 --snapshots-dir ndc-reference/tests
 ```
+
+You can generate test fixtures for all operations with the `generate` command.
+
+```sh
+cargo run --bin ndc-test -- generate --endpoint http://localhost:8080 --snapshots-dir ndc-reference/tests
+```
+
+Several options are available to customize the test generation:
+
+| Option                | Description                                                                                         | Default |
+| --------------------- | --------------------------------------------------------------------------------------------------- | ------- |
+| `--type`              | The list of operation types to be generated. Possible values: `collection`, `function`, `procedure` | All     |
+| `--operation`         | Specify individual query or mutation names to be generated                                          | All     |
+| `--exclude-arguments` | The list of input arguments to be excluded                                                          | None    |
+| `--exclude-fields`    | The list of result fields to be excluded                                                            | None    |
+| `--argument-depth`    | The depth of nested arguments                                                                       | 4       |
+| `--field-depth`       | The depth of nested result fields                                                                   | 4       |
 
 ### Benchmarks
 
@@ -69,9 +86,9 @@ cargo run --bin ndc-test -- replay --endpoint http://localhost:8100 --snapshots-
 To benchmark the reference connector:
 
 ```sh
-cargo run --bin ndc-test -- bench --endpoint http://localhost:8100 --snapshots-dir ndc-reference/tests
+cargo run --bin ndc-test -- bench --endpoint http://localhost:8080 --snapshots-dir ndc-reference/tests
 ```
 
-Benchmark reports will be stored alongside the query request JSON files, as `report.json`. 
+Benchmark reports will be stored alongside the query request JSON files, as `report.json`.
 
 To test for performance regressions, use the `--tolerance` argument. For example, to fail if any test averages 10% longer than the previous recorded mean time, use `--tolerance 0.1`.

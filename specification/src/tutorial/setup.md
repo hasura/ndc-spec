@@ -18,8 +18,8 @@ docker build -t reference_connector .
 docker run -it reference_connector
 ```
 
-Either way, you should have a working data connector running on <http://localhost:8100/>, which you can test as follows:
+Either way, you should have a working data connector running on <http://localhost:8080/>, which you can test as follows:
 
 ```bash
-curl http://localhost:8100/schema
+curl http://localhost:8080/schema
 ```

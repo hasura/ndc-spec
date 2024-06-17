@@ -1,6 +1,11 @@
 mod capabilities;
-pub mod query;
+mod common;
+mod fixture;
+mod predicate;
 mod schema;
+
+pub mod mutation;
+pub mod query;
 
 use crate::configuration::{TestGenerationConfiguration, TestOptions};
 use crate::connector::Connector;

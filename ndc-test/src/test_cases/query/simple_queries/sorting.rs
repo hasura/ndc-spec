@@ -35,7 +35,7 @@ pub async fn test_sorting<C: Connector>(
     Ok(())
 }
 
-fn make_order_by_elements(
+pub fn make_order_by_elements(
     collection_type: models::ObjectType,
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
@@ -44,7 +44,7 @@ fn make_order_by_elements(
     let mut sortable_fields = vec![];
 
     for (field_name, field) in collection_type.fields {
-        if let Some(name) = super::super::common::as_named_type(&field.r#type) {
+        if let Some(name) = crate::test_cases::common::as_named_type(&field.r#type) {
             if schema.scalar_types.contains_key(name) {
                 sortable_fields.push(field_name);
             }
