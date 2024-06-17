@@ -1742,7 +1742,7 @@ fn eval_in_collection(
 // ANCHOR: eval_comparison_target
 fn eval_comparison_target(
     target: &models::ComparisonTarget,
-    root: &Row,
+    _root: &Row,
     item: &Row,
 ) -> Result<serde_json::Value> {
     match target {
@@ -1801,7 +1801,7 @@ fn eval_comparison_value(
     variables: &BTreeMap<String, serde_json::Value>,
     comparison_value: &models::ComparisonValue,
     state: &AppState,
-    root: &Row,
+    _root: &Row,
     item: &Row,
 ) -> Result<Vec<serde_json::Value>> {
     match comparison_value {
