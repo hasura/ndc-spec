@@ -648,6 +648,8 @@ pub enum ComparisonValue {
         /// Any relationships to traverse to reach this column
         #[serde(default)]
         path: Vec<PathElement>,
+
+        scope: Option<usize>,
     },
     Scalar {
         value: serde_json::Value,
