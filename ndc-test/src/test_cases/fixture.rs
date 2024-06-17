@@ -12,7 +12,7 @@ use rand::{rngs::SmallRng, seq::SliceRandom, Rng, RngCore};
 use serde_json::{json, Map, Value};
 
 use crate::{
-    configuration::FixtureGenerationConfiguration,
+    configuration,
     error::{Error, Result},
 };
 
@@ -22,7 +22,7 @@ struct MakeNestedFieldConfig {
 }
 
 pub fn make_query_arguments(
-    config: &FixtureGenerationConfiguration,
+    config: &configuration::FixtureGenerationConfiguration,
     rng: &mut SmallRng,
     schema_response: &SchemaResponse,
     argument_infos: &BTreeMap<String, ndc_models::ArgumentInfo>,
@@ -50,7 +50,7 @@ pub fn make_query_arguments(
 }
 
 pub fn make_mutation_arguments(
-    config: &FixtureGenerationConfiguration,
+    config: &configuration::FixtureGenerationConfiguration,
     rng: &mut SmallRng,
     schema_response: &SchemaResponse,
     argument_infos: &BTreeMap<String, ndc_models::ArgumentInfo>,
@@ -78,7 +78,7 @@ pub fn make_mutation_arguments(
 }
 
 pub fn make_collection_fields(
-    gen_config: &FixtureGenerationConfiguration,
+    gen_config: &configuration::FixtureGenerationConfiguration,
     schema_response: &SchemaResponse,
     rng: &mut SmallRng,
     collection_type: &ndc_models::ObjectType,
@@ -116,7 +116,7 @@ pub fn make_collection_fields(
 
 /// Generate nested field selection and value recursively from connector schema
 pub fn make_nested_field(
-    gen_config: &FixtureGenerationConfiguration,
+    gen_config: &configuration::FixtureGenerationConfiguration,
     schema_response: &SchemaResponse,
     rng: &mut SmallRng,
     schema_type: Box<Type>,
@@ -318,6 +318,24 @@ fn make_geometry_point_json(rng: &mut SmallRng) -> Value {
     })
 }
 
+/// Evaluate the snapshot directory and determine whether the test case can be ignored
+pub fn eval_snapshot_directory(
+    snapshots_dir: std::path::PathBuf,
+    paths: Vec<&str>,
+    write_mode: configuration::FixtureWriteMode,
+) -> (std::path::PathBuf, bool) {
+    let snapshot_subdir = {
+        let mut builder = snapshots_dir;
+        builder.extend(paths);
+        builder
+    };
+
+    let writable = !snapshot_subdir.join("request.json").exists()
+        || write_mode != configuration::FixtureWriteMode::Ignore;
+    (snapshot_subdir, writable)
+}
+
+/// Write request and response fixtures into disks
 pub fn write_fixture_files<R, E>(snapshot_subdir: PathBuf, request: R, expected: E) -> Result<()>
 where
     R: serde::Serialize,
@@ -339,4 +357,60 @@ where
     )
     .map_err(Error::CannotOpenSnapshotFile)?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+
+    use crate::configuration;
+
+    #[test]
+    fn test_eval_snapshot_directory_writable() {
+        let path: PathBuf = PathBuf::new().join("query");
+        let (snapshot_dir, writable) = super::eval_snapshot_directory(
+            path,
+            vec!["foo"],
+            configuration::FixtureWriteMode::Ignore,
+        );
+        assert_eq!(
+            snapshot_dir.to_str(),
+            PathBuf::new().join("query/foo").to_str()
+        );
+        assert!(writable);
+
+        // overwrite the existing snapshot
+        let current_dir = std::env::current_dir().unwrap();
+        let path: PathBuf = current_dir.join("../ndc-reference/tests");
+        let (snapshot_dir, writable) = super::eval_snapshot_directory(
+            path,
+            vec!["query", "aggregate_function"],
+            configuration::FixtureWriteMode::Overwrite,
+        );
+        assert_eq!(
+            snapshot_dir.to_str(),
+            current_dir
+                .join("../ndc-reference/tests/query/aggregate_function")
+                .to_str()
+        );
+        assert!(writable);
+    }
+
+    #[test]
+    fn test_eval_snapshot_directory_not_writable() {
+        let current_dir = std::env::current_dir().unwrap();
+        let path: PathBuf = current_dir.join("../ndc-reference/tests");
+        let (snapshot_dir, writable) = super::eval_snapshot_directory(
+            path,
+            vec!["query", "aggregate_function"],
+            configuration::FixtureWriteMode::Ignore,
+        );
+        assert_eq!(
+            snapshot_dir.to_str(),
+            current_dir
+                .join("../ndc-reference/tests/query/aggregate_function")
+                .to_str()
+        );
+        assert!(!writable);
+    }
 }

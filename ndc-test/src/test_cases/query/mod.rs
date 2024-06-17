@@ -7,19 +7,17 @@ mod context;
 pub mod function;
 pub mod validate;
 
-use crate::configuration::{
-    FixtureConfiguration, FixtureOperationType, TestGenerationConfiguration,
-};
+use crate::configuration;
 use crate::connector::Connector;
 use crate::reporter::Reporter;
-use crate::test_cases::fixture::write_fixture_files;
+use crate::test_cases::fixture;
 use crate::{nest, test};
 
 use ndc_models as models;
 use rand::rngs::SmallRng;
 
 pub async fn test_query<C: Connector, R: Reporter>(
-    gen_config: &TestGenerationConfiguration,
+    gen_config: &configuration::TestGenerationConfiguration,
     connector: &C,
     reporter: &mut R,
     capabilities: &models::CapabilitiesResponse,
@@ -78,7 +76,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
 }
 
 pub async fn make_query_fixtures<R: Reporter>(
-    config: &FixtureConfiguration,
+    config: &configuration::FixtureConfiguration,
     reporter: &mut R,
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
@@ -86,13 +84,23 @@ pub async fn make_query_fixtures<R: Reporter>(
     if config.operation_types.is_empty()
         || config
             .operation_types
-            .contains(&FixtureOperationType::Collection)
+            .contains(&configuration::FixtureOperationType::Collection)
     {
         nest!("Collection", reporter, async {
             for collection_info in &schema.collections {
                 if !config.operations.is_empty()
                     && !config.operations.contains(&collection_info.name)
                 {
+                    continue;
+                }
+
+                let (snapshot_subdir, writable) = fixture::eval_snapshot_directory(
+                    config.snapshots_dir.clone(),
+                    vec!["query", collection_info.name.as_str()],
+                    config.write_mode.clone(),
+                );
+
+                if !writable {
                     continue;
                 }
 
@@ -104,12 +112,7 @@ pub async fn make_query_fixtures<R: Reporter>(
                             schema,
                             collection_info,
                         );
-                        let snapshot_subdir = {
-                            let mut builder = config.snapshots_dir.clone();
-                            builder.extend(vec!["query", collection_info.name.as_str()]);
-                            builder
-                        };
-                        write_fixture_files(snapshot_subdir, request, response)
+                        fixture::write_fixture_files(snapshot_subdir, request, response)
                     }
                 });
             }
@@ -119,12 +122,21 @@ pub async fn make_query_fixtures<R: Reporter>(
     if config.operation_types.is_empty()
         || config
             .operation_types
-            .contains(&FixtureOperationType::Function)
+            .contains(&configuration::FixtureOperationType::Function)
     {
         nest!("Function", reporter, async {
             for function_info in &schema.functions {
                 if !config.operations.is_empty() && !config.operations.contains(&function_info.name)
                 {
+                    continue;
+                }
+                let (snapshot_subdir, writable) = fixture::eval_snapshot_directory(
+                    config.snapshots_dir.clone(),
+                    vec!["query", function_info.name.as_str()],
+                    config.write_mode.clone(),
+                );
+
+                if !writable {
                     continue;
                 }
 
@@ -136,12 +148,7 @@ pub async fn make_query_fixtures<R: Reporter>(
                             schema,
                             function_info,
                         )?;
-                        let snapshot_subdir = {
-                            let mut builder = config.snapshots_dir.clone();
-                            builder.extend(vec!["query", function_info.name.as_str()]);
-                            builder
-                        };
-                        write_fixture_files(snapshot_subdir, request, response)
+                        fixture::write_fixture_files(snapshot_subdir, request, response)
                     }
                 });
             }

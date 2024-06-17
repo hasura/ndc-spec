@@ -50,12 +50,20 @@ pub enum FixtureOperationType {
     Procedure,
 }
 
+#[derive(Debug, Clone, clap::ValueEnum, Serialize, std::cmp::PartialEq)]
+#[serde[rename_all = "kebab-case"]]
+pub enum FixtureWriteMode {
+    Ignore,
+    Overwrite,
+}
+
 #[derive(Debug)]
 pub struct FixtureConfiguration {
     pub seed: Option<[u8; 32]>,
     pub snapshots_dir: PathBuf,
     pub operation_types: Vec<FixtureOperationType>,
     pub operations: Vec<String>,
+    pub write_mode: FixtureWriteMode,
     pub gen_config: FixtureGenerationConfiguration,
 }
 
