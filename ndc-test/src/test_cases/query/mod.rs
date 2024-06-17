@@ -1,9 +1,9 @@
 mod aggregates;
+mod common;
 mod relationships;
 mod simple_queries;
 
-mod common;
-mod context;
+pub mod context;
 pub mod function;
 pub mod validate;
 
@@ -106,12 +106,12 @@ pub async fn make_query_fixtures<R: Reporter>(
 
                 test!(collection_info.name.as_str(), reporter, {
                     async {
-                        let (request, response) = simple_queries::make_select_top_n_rows_fixture(
+                        let (request, response) = simple_queries::make_simple_query_fixture(
                             &config.gen_config,
                             rng,
                             schema,
                             collection_info,
-                        );
+                        )?;
                         fixture::write_fixture_files(snapshot_subdir, request, response)
                     }
                 });

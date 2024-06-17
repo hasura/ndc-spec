@@ -5,6 +5,7 @@ use crate::connector::Connector;
 use crate::error::Error;
 use crate::error::Result;
 use crate::reporter::Reporter;
+use crate::test_cases::predicate;
 use crate::{nest, test};
 
 use ndc_models as models;
@@ -199,9 +200,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
 
     if other_collection.arguments.is_empty() {
         for _ in 0..gen_config.test_cases.max(1) {
-            let predicate = super::simple_queries::predicates::make_predicate(
-                gen_config, schema, context, rng,
-            )?;
+            let predicate = predicate::make_predicate(gen_config, schema, context, rng)?;
             let predicate = predicate.map(|e| e.expr);
 
             let query_request = models::QueryRequest {

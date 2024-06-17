@@ -44,7 +44,7 @@ fn make_order_by_elements(
     let mut sortable_fields = vec![];
 
     for (field_name, field) in collection_type.fields {
-        if let Some(name) = super::super::common::as_named_type(&field.r#type) {
+        if let Some(name) = crate::test_cases::common::as_named_type(&field.r#type) {
             if schema.scalar_types.contains_key(name) {
                 sortable_fields.push(field_name);
             }

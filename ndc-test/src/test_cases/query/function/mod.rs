@@ -18,13 +18,13 @@ pub fn make_function_fixture<'a>(
     schema_response: &'a ndc_models::SchemaResponse,
     function_info: &'a ndc_models::FunctionInfo,
 ) -> Result<(QueryRequest, QueryResponse)> {
-    let (nested_fields, nested_value) = fixture::make_nested_field(
+    let (nested_fields, nested_value) = fixture::make_nested_result_fields(
         gen_config,
         schema_response,
         rng,
         Box::new(function_info.result_type.clone()),
         None,
-    );
+    )?;
     let mut fields: IndexMap<String, Field> = IndexMap::new();
     fields.insert(
         QUERY_COLUMN_KEY_VALUE.to_string(),
@@ -50,7 +50,7 @@ pub fn make_function_fixture<'a>(
             rng,
             schema_response,
             &function_info.arguments,
-        ),
+        )?,
         collection_relationships: BTreeMap::new(),
         variables: None,
     };

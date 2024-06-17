@@ -165,7 +165,7 @@ enum Commands {
         )]
         field_depth: u32,
         #[arg(
-            long = "type",
+            long,
             value_name = "STRING",
             default_value = "ignore",
             help = "the write mode to be applied for existing files"

@@ -98,19 +98,27 @@ async fn test_select_top_n_rows<C: Connector>(
     expect_single_rows(response)
 }
 
-pub fn make_select_top_n_rows_fixture<'a>(
+pub fn make_simple_query_fixture<'a>(
     gen_config: &configuration::FixtureGenerationConfiguration,
     rng: &mut SmallRng,
     schema_response: &'a ndc_models::SchemaResponse,
     collection_info: &'a models::CollectionInfo,
-) -> (models::QueryRequest, models::QueryResponse) {
+) -> Result<(models::QueryRequest, models::QueryResponse)> {
     let collection_type = schema_response
         .object_types
         .get(collection_info.collection_type.as_str())
         .unwrap();
 
     let (fields, values) =
-        fixture::make_collection_fields(gen_config, schema_response, rng, collection_type);
+        fixture::make_collection_fields(gen_config, schema_response, rng, collection_type)?;
+
+    let predicate = fixture::make_predicate_fixture(
+        schema_response,
+        rng,
+        collection_type,
+        vec![values.clone()],
+    )?;
+
     let query_request: ndc_models::QueryRequest = models::QueryRequest {
         collection: collection_info.name.clone(),
         query: models::Query {
@@ -119,14 +127,14 @@ pub fn make_select_top_n_rows_fixture<'a>(
             limit: Some(3),
             offset: None,
             order_by: None,
-            predicate: None,
+            predicate,
         },
         arguments: fixture::make_query_arguments(
             gen_config,
             rng,
             schema_response,
             &collection_info.arguments,
-        ),
+        )?,
         collection_relationships: BTreeMap::new(),
         variables: None,
     };
@@ -136,5 +144,5 @@ pub fn make_select_top_n_rows_fixture<'a>(
         aggregates: None,
     }]);
 
-    (query_request, query_response)
+    Ok((query_request, query_response))
 }

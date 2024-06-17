@@ -40,7 +40,7 @@ pub async fn make_mutation_fixtures<R: Reporter>(
                             rng,
                             schema,
                             procedure_info,
-                        );
+                        )?;
                         fixture::write_fixture_files(snapshot_subdir, request, response)
                     }
                 });

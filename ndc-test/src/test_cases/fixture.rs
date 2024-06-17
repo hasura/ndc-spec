@@ -5,8 +5,8 @@ use std::{collections::BTreeMap, path::PathBuf};
 
 use indexmap::IndexMap;
 use ndc_models::{
-    Field, NestedArray, NestedField, NestedObject, RowFieldValue, ScalarType, SchemaResponse, Type,
-    TypeRepresentation,
+    Expression, Field, NestedArray, NestedField, NestedObject, RowFieldValue, ScalarType,
+    SchemaResponse, Type, TypeRepresentation,
 };
 use rand::{rngs::SmallRng, seq::SliceRandom, Rng, RngCore};
 use serde_json::{json, Map, Value};
@@ -16,65 +16,67 @@ use crate::{
     error::{Error, Result},
 };
 
-struct MakeNestedFieldConfig {
-    pub exclude_fields: Vec<String>,
-    pub field_depth: u32,
+use super::predicate;
+
+struct MakeNestedFieldState {
+    pub current_depth: u32,
+    pub is_argument: bool,
 }
 
 pub fn make_query_arguments(
-    config: &configuration::FixtureGenerationConfiguration,
+    gen_config: &configuration::FixtureGenerationConfiguration,
     rng: &mut SmallRng,
     schema_response: &SchemaResponse,
     argument_infos: &BTreeMap<String, ndc_models::ArgumentInfo>,
-) -> BTreeMap<String, ndc_models::Argument> {
+) -> Result<BTreeMap<String, ndc_models::Argument>> {
     let mut result: BTreeMap<String, ndc_models::Argument> = BTreeMap::new();
     for (key, argument_info) in argument_infos {
-        if !config.exclude_arguments.is_empty() && config.exclude_arguments.contains(key) {
+        if !gen_config.exclude_arguments.is_empty() && gen_config.exclude_arguments.contains(key) {
             continue;
         }
         let (_, value) = make_nested_field_recursive(
-            &MakeNestedFieldConfig {
-                exclude_fields: config.exclude_arguments.clone(),
-                field_depth: config.argument_depth,
-            },
+            gen_config,
             schema_response,
             rng,
             Box::new(argument_info.argument_type.clone()),
             None,
-            0,
-        );
+            &MakeNestedFieldState {
+                current_depth: 0,
+                is_argument: true,
+            },
+        )?;
         result.insert(key.clone(), ndc_models::Argument::Literal { value });
     }
 
-    result
+    Ok(result)
 }
 
 pub fn make_mutation_arguments(
-    config: &configuration::FixtureGenerationConfiguration,
+    gen_config: &configuration::FixtureGenerationConfiguration,
     rng: &mut SmallRng,
     schema_response: &SchemaResponse,
     argument_infos: &BTreeMap<String, ndc_models::ArgumentInfo>,
-) -> BTreeMap<String, Value> {
+) -> Result<BTreeMap<String, Value>> {
     let mut result: BTreeMap<String, Value> = BTreeMap::new();
     for (key, argument_info) in argument_infos {
-        if !config.exclude_arguments.is_empty() && config.exclude_arguments.contains(key) {
+        if !gen_config.exclude_arguments.is_empty() && gen_config.exclude_arguments.contains(key) {
             continue;
         }
         let (_, value) = make_nested_field_recursive(
-            &MakeNestedFieldConfig {
-                exclude_fields: config.exclude_arguments.clone(),
-                field_depth: config.argument_depth,
-            },
+            gen_config,
             schema_response,
             rng,
             Box::new(argument_info.argument_type.clone()),
             None,
-            0,
-        );
+            &MakeNestedFieldState {
+                current_depth: 0,
+                is_argument: true,
+            },
+        )?;
         result.insert(key.clone(), value);
     }
 
-    result
+    Ok(result)
 }
 
 pub fn make_collection_fields(
@@ -82,7 +84,7 @@ pub fn make_collection_fields(
     schema_response: &SchemaResponse,
     rng: &mut SmallRng,
     collection_type: &ndc_models::ObjectType,
-) -> (IndexMap<String, Field>, IndexMap<String, RowFieldValue>) {
+) -> Result<(IndexMap<String, Field>, IndexMap<String, RowFieldValue>)> {
     let mut fields: IndexMap<String, Field> = IndexMap::new();
     let mut values: IndexMap<String, RowFieldValue> = IndexMap::new();
 
@@ -90,59 +92,65 @@ pub fn make_collection_fields(
         if !gen_config.exclude_fields.is_empty() && gen_config.exclude_fields.contains(&key) {
             continue;
         }
+
         let (field, value) = make_nested_field_recursive(
-            &MakeNestedFieldConfig {
-                exclude_fields: gen_config.exclude_fields.clone(),
-                field_depth: gen_config.field_depth,
-            },
+            gen_config,
             schema_response,
             rng,
             Box::new(object_field.r#type),
             None,
-            0,
-        );
+            &MakeNestedFieldState {
+                current_depth: 0,
+                is_argument: false,
+            },
+        )?;
         fields.insert(
             key.clone(),
             Field::Column {
                 column: key.clone(),
                 fields: field,
-                arguments: BTreeMap::new(),
+                arguments: make_query_arguments(
+                    gen_config,
+                    rng,
+                    schema_response,
+                    &object_field.arguments,
+                )?,
             },
         );
         values.insert(key, RowFieldValue(value));
     }
-    (fields, values)
+    Ok((fields, values))
 }
 
-/// Generate nested field selection and value recursively from connector schema
-pub fn make_nested_field(
+/// Generate nested result field selection and value recursively from connector schema
+pub fn make_nested_result_fields(
     gen_config: &configuration::FixtureGenerationConfiguration,
     schema_response: &SchemaResponse,
     rng: &mut SmallRng,
     schema_type: Box<Type>,
     parent_type: Option<Box<Type>>,
-) -> (Option<NestedField>, Value) {
+) -> Result<(Option<NestedField>, Value)> {
     make_nested_field_recursive(
-        &MakeNestedFieldConfig {
-            exclude_fields: gen_config.exclude_fields.clone(),
-            field_depth: gen_config.field_depth,
-        },
+        gen_config,
         schema_response,
         rng,
         schema_type,
         parent_type,
-        0,
+        &MakeNestedFieldState {
+            current_depth: 0,
+            is_argument: false,
+        },
     )
 }
 
 fn make_nested_field_recursive(
-    gen_config: &MakeNestedFieldConfig,
+    gen_config: &configuration::FixtureGenerationConfiguration,
     schema_response: &SchemaResponse,
     rng: &mut SmallRng,
     schema_type: Box<Type>,
     parent_type: Option<Box<Type>>,
-    current_depth: u32,
-) -> (Option<NestedField>, Value) {
+    state: &MakeNestedFieldState,
+) -> Result<(Option<NestedField>, Value)> {
     match *schema_type.clone() {
         Type::Nullable { underlying_type } => make_nested_field_recursive(
             gen_config,
@@ -150,7 +158,7 @@ fn make_nested_field_recursive(
             rng,
             underlying_type,
             Some(schema_type),
-            current_depth,
+            state,
         ),
         Type::Array { element_type } => {
             let (maybe_field, nested_value) = make_nested_field_recursive(
@@ -159,14 +167,14 @@ fn make_nested_field_recursive(
                 rng,
                 element_type,
                 Some(schema_type),
-                current_depth,
-            );
+                state,
+            )?;
             let array_value = if nested_value == Value::Null {
                 Value::Array(vec![])
             } else {
                 Value::Array(vec![nested_value])
             };
-            match maybe_field {
+            let result = match maybe_field {
                 None => (None, array_value),
                 Some(field) => (
                     Some(NestedField::Array(NestedArray {
@@ -174,27 +182,32 @@ fn make_nested_field_recursive(
                     })),
                     array_value,
                 ),
-            }
+            };
+            Ok(result)
         }
         Type::Named { name } => {
             if let Some(scalar) = schema_response.scalar_types.get(name.as_str()) {
-                return (None, make_scalar_value(scalar, rng, parent_type));
+                return Ok((None, make_scalar_value(scalar, rng, parent_type)));
             }
 
-            if current_depth == gen_config.field_depth {
-                return (None, Value::Null);
+            if state.current_depth == gen_config.field_depth {
+                return Ok((None, Value::Null));
             }
 
             match schema_response.object_types.get(name.as_str()) {
-                None => (None, Value::Null),
+                None => Ok((None, Value::Null)),
                 Some(object) => {
                     let mut object_fields: IndexMap<String, Field> = IndexMap::new();
                     let mut object_value = Map::new();
 
                     for (key, field) in object.fields.clone() {
                         // ignore the argument or field which is in the exclude list
-                        if !gen_config.exclude_fields.is_empty()
-                            && gen_config.exclude_fields.contains(&key)
+                        if (state.is_argument
+                            && (!gen_config.exclude_arguments.is_empty()
+                                && gen_config.exclude_arguments.contains(&key)))
+                            || (!state.is_argument
+                                && (!gen_config.exclude_fields.is_empty()
+                                    && gen_config.exclude_fields.contains(&key)))
                         {
                             continue;
                         }
@@ -205,28 +218,66 @@ fn make_nested_field_recursive(
                             rng,
                             Box::new(field.r#type),
                             Some(schema_type.clone()),
-                            current_depth + 1,
-                        );
+                            &MakeNestedFieldState {
+                                current_depth: state.current_depth + 1,
+                                is_argument: state.is_argument,
+                            },
+                        )?;
                         object_fields.insert(
                             key.clone(),
                             Field::Column {
                                 column: key.clone(),
                                 fields: property,
-                                arguments: BTreeMap::new(),
+                                arguments: make_query_arguments(
+                                    gen_config,
+                                    rng,
+                                    schema_response,
+                                    &field.arguments,
+                                )?,
                             },
                         );
                         object_value.insert(key.clone(), property_value);
                     }
-                    (
+                    Ok((
                         Some(NestedField::Object(NestedObject {
                             fields: object_fields,
                         })),
                         Value::Object(object_value),
-                    )
+                    ))
                 }
             }
         }
-        Type::Predicate { .. } => (None, Value::Null),
+        Type::Predicate { object_type_name } => {
+            let collection_type = schema_response
+                .object_types
+                .get(object_type_name.as_str())
+                .unwrap();
+
+            let (_, values) =
+                make_collection_fields(gen_config, schema_response, rng, collection_type)?;
+            let expression =
+                make_predicate_fixture(schema_response, rng, collection_type, vec![values])?;
+            Ok((None, json!(expression)))
+        }
+    }
+}
+
+pub fn make_predicate_fixture(
+    schema_response: &SchemaResponse,
+    rng: &mut SmallRng,
+    collection_type: &ndc_models::ObjectType,
+    rows: Vec<IndexMap<String, ndc_models::RowFieldValue>>,
+) -> Result<Option<Expression>> {
+    if let Some(context) = super::query::context::make_context(collection_type, rows)? {
+        let pred = predicate::make_predicate(
+            &configuration::TestGenerationConfiguration::default(),
+            schema_response,
+            &context,
+            rng,
+        )?;
+        Ok(pred.map(|p| p.expr))
+    } else {
+        Ok(None)
     }
 }
 
