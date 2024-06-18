@@ -7,22 +7,26 @@ We can order by aggregates, but not filter. This proposal adds filtering capabil
 ## Proposal
 
 - Add a new sub-capability `capabilities.relationships.filter_by_aggregate`.
-- Add new alternatives to `ComparisonTarget` based on the existing members of `OrderByTarget`:
+- Add a new alternative to `ComparisonTarget`:
 
   ```rust
   pub enum ComparisonTarget {
       ...
-      SingleColumnAggregate {
-          /// The column to apply the aggregation function to
-          column: String,
-          /// Path to a nested field within an object column
-          field_path: Option<Vec<String>>,
-          /// Single column aggregate function name.
-          function: String,
+      Aggregate {
+          /// Aggregation method to use
+          aggregate: Aggregate,
           /// Non-empty collection of relationships to traverse
           path: Vec<PathElement>,
       },
-      StarCountAggregate {
+  }
+  ```
+- Break `OrderByTarget` while we have the chance as well, to reuse the same structure (and support column count aggregates):
+  ```rust
+  pub enum OrderByTarget {
+      ...
+      Aggregate {
+          /// Aggregation method to use
+          aggregate: Aggregate,
           /// Non-empty collection of relationships to traverse
           path: Vec<PathElement>,
       },
