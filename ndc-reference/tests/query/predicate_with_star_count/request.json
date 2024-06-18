@@ -16,11 +16,16 @@
         "predicate": {
             "type": "binary_comparison_operator",
             "column": {
-                "type": "star_count_aggregate",
-                "path": [{
-                    "arguments": {},
-                    "relationship": "author_articles"
-                }]
+                "type": "aggregate",
+                "aggregate": {
+                    "type": "star_count"
+                },
+                "path": [
+                    {
+                        "arguments": {},
+                        "relationship": "author_articles"
+                    }
+                ]
             },
             "operator": "eq",
             "value": {

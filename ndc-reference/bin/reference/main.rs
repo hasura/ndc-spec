@@ -15,8 +15,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use models::{ArgumentInfo, NestedFieldCapabilities};
-use ndc_models::{self as models, LeafCapability, RelationshipCapabilities};
+use ndc_models::{self as models};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
@@ -215,22 +214,22 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
         version: "0.1.4".into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
-                aggregates: Some(LeafCapability {}),
-                variables: Some(LeafCapability {}),
+                aggregates: Some(models::LeafCapability {}),
+                variables: Some(models::LeafCapability {}),
                 explain: None,
-                nested_fields: NestedFieldCapabilities {
-                    filter_by: Some(LeafCapability {}),
-                    order_by: Some(LeafCapability {}),
-                    aggregates: Some(LeafCapability {}),
+                nested_fields: models::NestedFieldCapabilities {
+                    filter_by: Some(models::LeafCapability {}),
+                    order_by: Some(models::LeafCapability {}),
+                    aggregates: Some(models::LeafCapability {}),
                 },
             },
             mutation: models::MutationCapabilities {
                 transactional: None,
                 explain: None,
             },
-            relationships: Some(RelationshipCapabilities {
-                order_by_aggregate: Some(LeafCapability {}),
-                relation_comparisons: Some(LeafCapability {}),
+            relationships: Some(models::RelationshipCapabilities {
+                order_by_aggregate: Some(models::LeafCapability {}),
+                relation_comparisons: Some(models::LeafCapability {}),
             }),
         },
     })
@@ -241,7 +240,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR_END: schema1
     let array_arguments: BTreeMap<String, _> = vec![(
         "limit".to_string(),
-        ArgumentInfo {
+        models::ArgumentInfo {
             description: None,
             argument_type: models::Type::Nullable {
                 underlying_type: Box::new(models::Type::Named { name: "Int".into() }),
@@ -981,10 +980,7 @@ fn eval_row(
 }
 // ANCHOR_END: eval_row
 // ANCHOR: eval_aggregate
-fn eval_aggregate(
-    aggregate: &models::Aggregate,
-    paginated: &[BTreeMap<String, serde_json::Value>],
-) -> Result<serde_json::Value> {
+fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<serde_json::Value> {
     match aggregate {
         models::Aggregate::StarCount {} => Ok(serde_json::Value::from(paginated.len())),
         models::Aggregate::ColumnCount {
@@ -1211,64 +1207,13 @@ fn eval_order_by_element(
             name,
             field_path,
         ),
-        models::OrderByTarget::SingleColumnAggregate {
-            column,
-            field_path,
-            function,
-            path,
-        } => eval_single_column_aggregate(
-            collection_relationships,
-            variables,
-            state,
-            item,
-            &path,
-            &column,
-            &field_path,
-            &function,
-        ),
-        models::OrderByTarget::StarCountAggregate { path } => eval_star_count_aggregate(
-            collection_relationships,
-            variables,
-            state,
-            item,
-            path,
-        ),
+        models::OrderByTarget::Aggregate { aggregate, path } => {
+            let rows = eval_path(collection_relationships, variables, state, &path, item)?;
+            eval_aggregate(&aggregate, &rows)
+        }
     }
 }
 // ANCHOR_END: eval_order_by_element
-// ANCHOR: eval_star_count_aggregate
-fn eval_star_count_aggregate(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
-    state: &AppState,
-    item: &BTreeMap<String, serde_json::Value>,
-    path: Vec<models::PathElement>,
-) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
-    Ok(rows.len().into())
-}
-// ANCHOR_END: eval_star_count_aggregate
-// ANCHOR: eval_single_column_aggregate
-#[allow(clippy::too_many_arguments)]
-fn eval_single_column_aggregate(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
-    state: &AppState,
-    item: &BTreeMap<String, serde_json::Value>,
-    path: &Vec<models::PathElement>,
-    column_name: &String,
-    field_path: &Option<Vec<String>>,
-    function: &String,
-) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, path, item)?;
-    let values = rows
-        .iter()
-        .map(|row| eval_column_field_path(row, column_name, field_path))
-        .collect::<Result<Vec<_>>>()?;
-    eval_aggregate_function(&function, values)
-}
-// ANCHOR_END: eval_single_column_aggregate
-
 // ANCHOR: eval_column_field_path
 fn eval_column_field_path(
     row: &Row,
@@ -1543,7 +1488,14 @@ fn eval_expression(
         // ANCHOR: eval_expression_unary_operators
         models::Expression::UnaryComparisonOperator { column, operator } => match operator {
             models::UnaryComparisonOperator::IsNull => {
-                let vals = eval_comparison_target(column, root, item)?;
+                let vals = eval_comparison_target(
+                    collection_relationships,
+                    variables,
+                    state,
+                    column,
+                    root,
+                    item,
+                )?;
                 Ok(vals.is_null())
             }
         },
@@ -1555,7 +1507,14 @@ fn eval_expression(
             value,
         } => match operator.as_str() {
             "eq" => {
-                let left_val = eval_comparison_target(column, root, item)?;
+                let left_val = eval_comparison_target(
+                    collection_relationships,
+                    variables,
+                    state,
+                    column,
+                    root,
+                    item,
+                )?;
                 let right_vals = eval_comparison_value(
                     collection_relationships,
                     variables,
@@ -1572,7 +1531,14 @@ fn eval_expression(
             // ANCHOR_END: eval_expression_binary_operators
             // ANCHOR: eval_expression_custom_binary_operators
             "like" => {
-                let column_val = eval_comparison_target(column, root, item)?;
+                let column_val = eval_comparison_target(
+                    collection_relationships,
+                    variables,
+                    state,
+                    column,
+                    root,
+                    item,
+                )?;
                 let regex_vals = eval_comparison_value(
                     collection_relationships,
                     variables,
@@ -1618,7 +1584,14 @@ fn eval_expression(
 
             // ANCHOR: eval_expression_binary_array_operators
             "in" => {
-                let left_val = eval_comparison_target(column, root, item)?;
+                let left_val = eval_comparison_target(
+                    collection_relationships,
+                    variables,
+                    state,
+                    column,
+                    root,
+                    item,
+                )?;
 
                 let comparison_values = eval_comparison_value(
                     collection_relationships,
@@ -1741,6 +1714,9 @@ fn eval_in_collection(
 // ANCHOR_END: eval_in_collection
 // ANCHOR: eval_comparison_target
 fn eval_comparison_target(
+    collection_relationships: &BTreeMap<String, models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
     target: &models::ComparisonTarget,
     _root: &Row,
     item: &Row,
@@ -1749,33 +1725,10 @@ fn eval_comparison_target(
         models::ComparisonTarget::Column { name, field_path } => {
             eval_column_field_path(item, name, field_path)
         }
-        ndc_models::ComparisonTarget::SingleColumnAggregate {
-            column,
-            field_path,
-            function,
-            path,
-        } => {
-            let value = eval_single_column_aggregate(
-                collection_relationships,
-                variables,
-                state,
-                item,
-                path,
-                column,
-                field_path,
-                function,
-            )?;
-            Ok(vec![value])
-        }
-        ndc_models::ComparisonTarget::StarCountAggregate { path } => {
-            let value = eval_star_count_aggregate(
-                collection_relationships,
-                variables,
-                state,
-                item,
-                path.clone(),
-            )?;
-            Ok(vec![value])
+        models::ComparisonTarget::Aggregate { aggregate, path } => {
+            let rows: Vec<Row> =
+                eval_path(collection_relationships, variables, state, &path, item)?;
+            eval_aggregate(aggregate, &rows)
         }
     }
 }
@@ -1833,7 +1786,11 @@ fn eval_comparison_value(
     item: &Row,
 ) -> Result<Vec<serde_json::Value>> {
     match comparison_value {
-        models::ComparisonValue::Column { name, field_path, path } => {
+        models::ComparisonValue::Column {
+            name,
+            field_path,
+            path,
+        } => {
             let items = eval_path(collection_relationships, variables, state, path, item)?;
 
             items

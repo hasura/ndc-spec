@@ -500,8 +500,7 @@
         {
           "type": "object",
           "required": [
-            "column",
-            "function",
+            "aggregate",
             "path",
             "type"
           ],
@@ -509,47 +508,15 @@
             "type": {
               "type": "string",
               "enum": [
-                "single_column_aggregate"
+                "aggregate"
               ]
             },
-            "column": {
-              "description": "The column to apply the aggregation function to",
-              "type": "string"
-            },
-            "field_path": {
-              "description": "Path to a nested field within an object column",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "string"
-              }
-            },
-            "function": {
-              "description": "Single column aggregate function name.",
-              "type": "string"
-            },
-            "path": {
-              "description": "Non-empty collection of relationships to traverse",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
-              }
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "path",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "star_count_aggregate"
+            "aggregate": {
+              "description": "The aggregation method to use",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Aggregate"
+                }
               ]
             },
             "path": {
@@ -771,8 +738,7 @@
         {
           "type": "object",
           "required": [
-            "column",
-            "function",
+            "aggregate",
             "path",
             "type"
           ],
@@ -780,47 +746,15 @@
             "type": {
               "type": "string",
               "enum": [
-                "single_column_aggregate"
+                "aggregate"
               ]
             },
-            "column": {
-              "description": "The column to apply the aggregation function to",
-              "type": "string"
-            },
-            "field_path": {
-              "description": "Path to a nested field within an object column",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "string"
-              }
-            },
-            "function": {
-              "description": "Single column aggregate function name.",
-              "type": "string"
-            },
-            "path": {
-              "description": "Non-empty collection of relationships to traverse",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
-              }
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "path",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "star_count_aggregate"
+            "aggregate": {
+              "description": "The aggregation method to use",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Aggregate"
+                }
               ]
             },
             "path": {

@@ -16,13 +16,18 @@
         "predicate": {
             "type": "binary_comparison_operator",
             "column": {
-                "type": "single_column_aggregate",
-                "function": "max",
-                "column": "id",
-                "path": [{
-                    "arguments": {},
-                    "relationship": "author_articles"
-                }]
+                "type": "aggregate",
+                "aggregate": {
+                    "type": "single_column",
+                    "column": "id",
+                    "function": "max"
+                },
+                "path": [
+                    {
+                        "arguments": {},
+                        "relationship": "author_articles"
+                    }
+                ]
             },
             "operator": "eq",
             "value": {

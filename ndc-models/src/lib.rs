@@ -536,17 +536,9 @@ pub enum OrderByTarget {
         /// Any relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
-    SingleColumnAggregate {
-        /// The column to apply the aggregation function to
-        column: String,
-        /// Path to a nested field within an object column
-        field_path: Option<Vec<String>>,
-        /// Single column aggregate function name.
-        function: String,
-        /// Non-empty collection of relationships to traverse
-        path: Vec<PathElement>,
-    },
-    StarCountAggregate {
+    Aggregate {
+        /// The aggregation method to use
+        aggregate: Aggregate,
         /// Non-empty collection of relationships to traverse
         path: Vec<PathElement>,
     },
@@ -618,17 +610,9 @@ pub enum ComparisonTarget {
         /// Path to a nested field within an object column
         field_path: Option<Vec<String>>,
     },
-    SingleColumnAggregate {
-        /// The column to apply the aggregation function to
-        column: String,
-        /// Path to a nested field within an object column
-        field_path: Option<Vec<String>>,
-        /// Single column aggregate function name.
-        function: String,
-        /// Non-empty collection of relationships to traverse
-        path: Vec<PathElement>,
-    },
-    StarCountAggregate {
+    Aggregate {
+        /// The aggregation method to use
+        aggregate: Aggregate,
         /// Non-empty collection of relationships to traverse
         path: Vec<PathElement>,
     },
