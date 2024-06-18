@@ -1726,8 +1726,7 @@ fn eval_comparison_target(
             eval_column_field_path(item, name, field_path)
         }
         models::ComparisonTarget::Aggregate { aggregate, path } => {
-            let rows: Vec<Row> =
-                eval_path(collection_relationships, variables, state, &path, item)?;
+            let rows: Vec<Row> = eval_path(collection_relationships, variables, state, path, item)?;
             eval_aggregate(aggregate, &rows)
         }
     }
