@@ -823,7 +823,7 @@ fn get_collection_by_name(
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
-                        message: " ".into(),
+                        message: "unable to encode value".into(),
                         details: serde_json::Value::Null,
                     }),
                 )
@@ -843,7 +843,7 @@ fn get_collection_by_name(
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
-                        message: " ".into(),
+                        message: "unable to encode value".into(),
                         details: serde_json::Value::Null,
                     }),
                 )
@@ -1017,7 +1017,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<se
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
-                        message: " ".into(),
+                        message: "unable to encode value".into(),
                         details: serde_json::Value::Null,
                     }),
                 )
@@ -1081,7 +1081,7 @@ fn eval_aggregate_function(
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(models::ErrorResponse {
-                message: " ".into(),
+                message: "unable to encode value".into(),
                 details: serde_json::Value::Null,
             }),
         )
@@ -1253,7 +1253,7 @@ fn eval_order_by_column(
         return Err((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
-                message: " ".into(),
+                message: "order by target cannot select multiple rows".into(),
                 details: serde_json::Value::Null,
             }),
         ));
@@ -1560,7 +1560,7 @@ fn eval_expression(
                     let regex_str = regex_val.as_str().ok_or((
                         StatusCode::BAD_REQUEST,
                         Json(models::ErrorResponse {
-                            message: " ".into(),
+                            message: "regex must be a string".into(),
                             details: serde_json::Value::Null,
                         }),
                     ))?;
@@ -1621,7 +1621,7 @@ fn eval_expression(
             _ => Err((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
-                    message: " ".into(),
+                    message: "unknown binary comparison operator".into(),
                     details: serde_json::Value::Null,
                 }),
             )),
@@ -1658,7 +1658,7 @@ fn eval_expression(
             let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(models::ErrorResponse {
-                    message: " ".into(),
+                    message: "expected 'rows'".into(),
                     details: serde_json::Value::Null,
                 }),
             ))?;
@@ -1683,7 +1683,7 @@ fn eval_in_collection(
             let relationship = collection_relationships.get(relationship.as_str()).ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
-                    message: " ".into(),
+                    message: "relationship is undefined".into(),
                     details: serde_json::Value::Null,
                 }),
             ))?;
@@ -1925,7 +1925,7 @@ fn eval_field(
             let relationship = collection_relationships.get(relationship.as_str()).ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
-                    message: " ".into(),
+                    message: "relationship is undefined".into(),
                     details: serde_json::Value::Null,
                 }),
             ))?;
