@@ -52,6 +52,7 @@
     - [Pagination](tutorial/queries/execute/pagination.md)
     - [Aggregates](tutorial/queries/execute/aggregates.md)
     - [Field Selection](tutorial/queries/execute/field-selection.md)
+    - [Grouping](tutorial/queries/execute/grouping.md)
     - [Relationships](tutorial/queries/execute/relationships.md)
 - [Mutations](tutorial/mutations/README.md)
   - [Handling Operations](tutorial/mutations/operations.md)

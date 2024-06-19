@@ -992,6 +992,7 @@ fn execute_query(
 }
 // ANCHOR_END: execute_query
 // ANCHOR: eval_groups
+// ANCHOR: eval_groups_partition
 fn eval_groups(
     collection_relationships: &BTreeMap<String, ndc_models::Relationship>,
     variables: &BTreeMap<String, serde_json::Value>,
@@ -1005,7 +1006,8 @@ fn eval_groups(
         .into_iter()
         .map(|(dimensions, rows)| (dimensions, rows.cloned().collect()))
         .collect();
-
+    // ANCHOR_END: eval_groups_partition
+    // ANCHOR: eval_groups_sort
     let sorted = group_sort(
         collection_relationships,
         variables,
@@ -1013,7 +1015,8 @@ fn eval_groups(
         chunks,
         &grouping.order_by,
     )?;
-
+    // ANCHOR_END: eval_groups_sort
+    // ANCHOR: eval_groups_filter
     let mut groups: Vec<models::Group> = vec![];
 
     for (dimensions, chunk) in &sorted {
@@ -1040,12 +1043,14 @@ fn eval_groups(
             });
         }
     }
-
+    // ANCHOR_END: eval_groups_filter
+    // ANCHOR: eval_groups_paginate
     let paginated: Vec<models::Group> =
         paginate(groups.into_iter(), grouping.limit, grouping.offset);
 
     Ok(paginated)
 }
+// ANCHOR_END: eval_groups_paginate
 // ANCHOR_END: eval_groups
 // ANCHOR: eval_group_expression
 fn eval_group_expression(
