@@ -73,17 +73,13 @@ Comparison operators compare columns to values. The column on the left hand side
 
 If the `ComparisonTarget` has type `column`, then the `name` property refers to a column in the current collection.
 
-#### Referencing a column from the root collection
-
-If the `ComparisonTarget` has type `root_collection_column`, then the `name` property refers to a column in the _root collection_.
-
-The root collection is defined as the collection in scope at the nearest enclosing [`Query`](../../reference/types.md#query), and the column should be chosen from the _row_ in that collection which was in scope when that `Query` was being evaluated.
-
 #### Referencing nested fields within columns
 
 If the `field_path` property is empty or not present then the target is the value of the named column.
-If `field_path` is non-empty then it refers to a path to a nested field within the named column.
-(A `ComparisonTarget` may only have a non-empty `field_path` if the connector supports capability `query.nested_fields.filter_by`.)
+
+If `field_path` is non-empty then it refers to a path to a nested field within the named column
+
+_Note_: a `ComparisonTarget` may only have a non-empty `field_path` if the connector supports capability `query.nested_fields.filter_by`).
 
 ### Values in Binary Operators
 
