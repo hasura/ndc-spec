@@ -958,54 +958,13 @@ fn execute_query(
         .groups
         .as_ref()
         .map(|grouping| {
-            let chunks = paginated
-                .iter()
-                .chunk_by(|row| {
-                    eval_dimensions(row, &grouping.dimensions).expect("cannot eval dimensions")
-                })
-                .into_iter()
-                .map(|(dimensions, rows)| (dimensions, rows.cloned().collect()))
-                .collect();
-
-            let sorted = group_sort(
+            eval_groups(
                 collection_relationships,
                 variables,
                 state,
-                chunks,
-                &grouping.order_by,
-            )?;
-
-            let mut groups: Vec<models::Group> = vec![];
-
-            for (dimensions, chunk) in &sorted {
-                let dimensions = dimensions.clone();
-
-                let mut aggregates: IndexMap<String, serde_json::Value> = IndexMap::new();
-                for (aggregate_name, aggregate) in &grouping.aggregates {
-                    aggregates.insert(
-                        aggregate_name.clone(),
-                        eval_aggregate(aggregate, chunk.as_slice())?,
-                    );
-                }
-                if let Some(predicate) = &grouping.predicate {
-                    if eval_group_expression(variables, predicate, chunk.as_slice())? {
-                        groups.push(models::Group {
-                            dimensions,
-                            aggregates,
-                        });
-                    }
-                } else {
-                    groups.push(models::Group {
-                        dimensions,
-                        aggregates,
-                    });
-                }
-            }
-
-            let paginated: Vec<models::Group> =
-                paginate(groups.into_iter(), grouping.limit, grouping.offset);
-
-            Ok(paginated)
+                grouping,
+                &paginated,
+            )
         })
         .transpose()?;
     // ANCHOR_END: execute_query_groups
@@ -1032,6 +991,62 @@ fn execute_query(
     // ANCHOR_END: execute_query_rowset
 }
 // ANCHOR_END: execute_query
+// ANCHOR: eval_groups
+fn eval_groups(
+    collection_relationships: &BTreeMap<String, ndc_models::Relationship>,
+    variables: &BTreeMap<String, serde_json::Value>,
+    state: &AppState,
+    grouping: &ndc_models::Grouping,
+    paginated: &[Row],
+) -> Result<Vec<ndc_models::Group>> {
+    let chunks = paginated
+        .iter()
+        .chunk_by(|row| eval_dimensions(row, &grouping.dimensions).expect("cannot eval dimensions"))
+        .into_iter()
+        .map(|(dimensions, rows)| (dimensions, rows.cloned().collect()))
+        .collect();
+
+    let sorted = group_sort(
+        collection_relationships,
+        variables,
+        state,
+        chunks,
+        &grouping.order_by,
+    )?;
+
+    let mut groups: Vec<models::Group> = vec![];
+
+    for (dimensions, chunk) in &sorted {
+        let dimensions = dimensions.clone();
+
+        let mut aggregates: IndexMap<String, serde_json::Value> = IndexMap::new();
+        for (aggregate_name, aggregate) in &grouping.aggregates {
+            aggregates.insert(
+                aggregate_name.clone(),
+                eval_aggregate(aggregate, chunk.as_slice())?,
+            );
+        }
+        if let Some(predicate) = &grouping.predicate {
+            if eval_group_expression(variables, predicate, chunk.as_slice())? {
+                groups.push(models::Group {
+                    dimensions,
+                    aggregates,
+                });
+            }
+        } else {
+            groups.push(models::Group {
+                dimensions,
+                aggregates,
+            });
+        }
+    }
+
+    let paginated: Vec<models::Group> =
+        paginate(groups.into_iter(), grouping.limit, grouping.offset);
+
+    Ok(paginated)
+}
+// ANCHOR_END: eval_groups
 // ANCHOR: eval_group_expression
 fn eval_group_expression(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
