@@ -982,6 +982,24 @@
               "type": "null"
             }
           ]
+        },
+        "limit": {
+          "description": "Optionally limit to N groups",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "offset": {
+          "description": "Optionally offset from the Nth group",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
         }
       }
     },

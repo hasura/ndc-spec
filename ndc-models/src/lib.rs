@@ -463,6 +463,10 @@ pub struct Grouping {
     pub predicate: Option<GroupExpression>,
     /// Optionally specify how rows should be ordered
     pub order_by: Option<GroupOrderBy>,
+    /// Optionally limit to N groups
+    pub limit: Option<u32>,
+    /// Optionally offset from the Nth group
+    pub offset: Option<u32>,
 }
 // ANCHOR_END: Grouping
 

@@ -8,14 +8,6 @@
         "aggregates": {
           "article_count": 2
         }
-      },
-      {
-        "dimensions": [
-          1
-        ],
-        "aggregates": {
-          "article_count": 1
-        }
       }
     ]
   }

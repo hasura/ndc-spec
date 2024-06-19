@@ -1000,7 +1000,9 @@ fn execute_query(
                 }
             }
 
-            Ok(groups)
+            let paginated: Vec<models::Group> = paginate(groups.into_iter(), grouping.limit, grouping.offset);
+
+            Ok(paginated)
         })
         .transpose()?;
     // ANCHOR_END: execute_query_groups
@@ -1351,11 +1353,11 @@ fn sort(
 }
 // ANCHOR_END: sort
 // ANCHOR: paginate
-fn paginate<I: Iterator<Item = Row>>(
+fn paginate<I: Iterator>(
     collection: I,
     limit: Option<u32>,
     offset: Option<u32>,
-) -> Vec<Row> {
+) -> Vec<I::Item> {
     let start = offset.unwrap_or(0).try_into().unwrap();
     match limit {
         Some(n) => collection.skip(start).take(n.try_into().unwrap()).collect(),
