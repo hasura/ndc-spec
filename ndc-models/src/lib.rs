@@ -57,7 +57,7 @@ pub struct Capabilities {
 #[schemars(title = "Query Capabilities")]
 pub struct QueryCapabilities {
     /// Does the connector support aggregate queries
-    pub aggregates: Option<LeafCapability>,
+    pub aggregates: Option<AggregateCapabilities>,
     /// Does the connector support queries which use variables
     pub variables: Option<LeafCapability>,
     /// Does the connector support explaining queries
@@ -81,6 +81,16 @@ pub struct NestedFieldCapabilities {
     pub aggregates: Option<LeafCapability>,
 }
 // ANCHOR_END: NestedFieldCapabilities
+
+// ANCHOR: AggregateCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Aggregate Capabilities")]
+pub struct AggregateCapabilities {
+    /// Does the connector support filtering based on aggregated values
+    pub filter_by: Option<LeafCapability>,
+}
+// ANCHOR_END: AggregateCapabilities
 
 // ANCHOR: MutationCapabilities
 #[skip_serializing_none]

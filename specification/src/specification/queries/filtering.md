@@ -92,6 +92,8 @@ For example, this query finds authors who have written exactly 2 articles:
 {{#include ../../../../ndc-reference/tests/query/predicate_with_star_count/request.json:3: }}
 ```
 
+_Note_: type `aggregate` will only be sent if the `query.aggregates.filter_by` capability is turned on.
+
 ### Values in Binary Operators
 
 Binary (including array-valued) operators compare columns to _values_, but there are several types of valid values:

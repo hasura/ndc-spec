@@ -50,7 +50,7 @@
           "description": "Does the connector support aggregate queries",
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/AggregateCapabilities"
             },
             {
               "type": "null"
@@ -85,6 +85,23 @@
           "allOf": [
             {
               "$ref": "#/definitions/NestedFieldCapabilities"
+            }
+          ]
+        }
+      }
+    },
+    "AggregateCapabilities": {
+      "title": "Aggregate Capabilities",
+      "type": "object",
+      "properties": {
+        "filter_by": {
+          "description": "Does the connector support filtering based on aggregated values",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
             }
           ]
         }
