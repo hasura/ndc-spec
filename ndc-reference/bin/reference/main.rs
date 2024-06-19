@@ -217,7 +217,9 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
             query: models::QueryCapabilities {
                 aggregates: Some(models::AggregateCapabilities {
                     group_by: Some(models::GroupByCapabilities {
-                        having: Some(models::LeafCapability {}),
+                        filter: Some(models::LeafCapability {}),
+                        order: Some(models::LeafCapability {}),
+                        paginate: Some(models::LeafCapability {}),
                     }),
                 }),
                 variables: Some(models::LeafCapability {}),

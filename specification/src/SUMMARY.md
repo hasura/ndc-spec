@@ -26,6 +26,7 @@
   - [Sorting](specification/queries/sorting.md)
   - [Pagination](specification/queries/pagination.md)
   - [Aggregates](specification/queries/aggregates.md)
+  - [Grouping](specification/queries/grouping.md)
   - [Arguments](specification/queries/arguments.md)
   - [Relationships](specification/queries/relationships.md)
   - [Variables](specification/queries/variables.md)

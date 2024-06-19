@@ -99,7 +99,11 @@ pub struct AggregateCapabilities {
 #[schemars(title = "Group By Capabilities")]
 pub struct GroupByCapabilities {
     /// Does the connector support post-grouping predicates
-    pub having: Option<LeafCapability>,
+    pub filter: Option<LeafCapability>,
+    /// Does the connector support post-grouping ordering
+    pub order: Option<LeafCapability>,
+    /// Does the connector support post-grouping pagination
+    pub paginate: Option<LeafCapability>,
 }
 // ANCHOR_END: GroupByCapabilities
 

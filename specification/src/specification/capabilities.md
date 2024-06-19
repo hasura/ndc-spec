@@ -24,6 +24,10 @@ See [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 |------|-------------|
 | `version` | A [semantic version number](https://semver.org) of this specification which the data connector claims to implement |
 | `capabilities.query.aggregates` | Whether the data connector supports [aggregate queries](queries/aggregates.md) |
+| `capabilities.query.aggregates.group_by` | Whether the data connector supports [grouping operations](queries/grouping.md) |
+| `capabilities.query.aggregates.group_by.filter` | Whether the data connector supports [filtering on groups](queries/grouping.md#filtering) |
+| `capabilities.query.aggregates.group_by.order` | Whether the data connector supports [ordering on groups](queries/grouping.md#ordering) |
+| `capabilities.query.aggregates.group_by.paginate` | Whether the data connector supports [pagination on groups](queries/grouping.md#pagination) |
 | `capabilities.query.variables` | Whether the data connector supports [queries with variables](queries/variables.md) |
 | `capabilities.query.explain` | Whether the data connector is capable of describing query plans |
 | `capabilities.query.nested_fields.filter_by` | Whether the data connector is capable of filtering by nested fields |
