@@ -867,7 +867,7 @@ fn get_collection_by_name(
 /// ANCHOR: Root
 #[derive(Clone, Copy)]
 enum Root<'a> {
-    PushCurrentRow(&'a Vec<&'a Row>),
+    PushCurrentRow(&'a [&'a Row]),
     Reset,
 }
 /// ANCHOR_END: Root
@@ -899,7 +899,7 @@ fn execute_query(
             for item in sorted {
                 let scopes: Vec<&Row> = match root {
                     Root::PushCurrentRow(scopes) => {
-                        let mut scopes = scopes.clone();
+                        let mut scopes = scopes.to_vec();
                         scopes.push(&item);
                         scopes
                     }
@@ -1430,7 +1430,7 @@ fn eval_path_element(
                         variables,
                         state,
                         expression,
-                        &vec![],
+                        &[],
                         tgt_row,
                     )?
                 } else {
@@ -1502,7 +1502,7 @@ fn eval_expression(
     variables: &BTreeMap<String, serde_json::Value>,
     state: &AppState,
     expr: &models::Expression,
-    scopes: &Vec<&Row>,
+    scopes: &[&Row],
     item: &Row,
 ) -> Result<bool> {
     // ANCHOR_END: eval_expression_signature
@@ -1810,7 +1810,7 @@ fn eval_comparison_value(
     variables: &BTreeMap<String, serde_json::Value>,
     comparison_value: &models::ComparisonValue,
     state: &AppState,
-    scopes: &Vec<&Row>,
+    scopes: &[&Row],
     item: &Row,
 ) -> Result<Vec<serde_json::Value>> {
     match comparison_value {
@@ -2218,7 +2218,7 @@ fn execute_delete_articles(
             &BTreeMap::new(),
             &state_snapshot,
             &predicate,
-            &vec![],
+            &[],
             article,
         )? {
             removed.push(article.clone());
