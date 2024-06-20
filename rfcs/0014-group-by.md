@@ -26,13 +26,24 @@ The `Grouping` structure looks like this:
 ```rust
 pub struct Grouping {
     /// Dimensions along which to partition the data
-    pub dimensions: IndexMap<String, Dimension>,
+    pub dimensions: Vec<Dimension>,
     /// Aggregates to compute in each group
     pub aggregates: IndexMap<String, Aggregate>,
+
+    /// Optionally specify a predicate to apply after grouping rows
+    pub predicate: Option<GroupExpression>,
+    /// Optionally specify how rows should be ordered
+    pub order_by: Option<GroupOrderBy>,
+    /// Optionally limit to N groups
+    pub limit: Option<u32>,
+    /// Optionally offset from the Nth group
+    pub offset: Option<u32>,
 }
 ```
 
-A `Grouping` slices a row set along several dimensions, and then performs some aggregations over each slice.
+A `Grouping` slices a row set along several (ordered) dimensions, and then performs some aggregations over each slice. 
+
+Groups can be filtered, ordered and paginated _after grouping_. The `GroupExpression` and `GroupOrderBy` types are slightly different from their row-based counterparts `Expression` and `OrderBy`, since the set of names in scope is different after grouping. See the updated specification for details.
 
 A `Dimension` is an enum, but there is only one option right now, which is to slice by the value of a column:
 
@@ -71,7 +82,7 @@ A `Group` is defined as follows:
 ```rust
 pub struct Group {
     /// Values of dimensions which identify this group
-    pub dimensions: IndexMap<String, serde_json::Value>,
+    pub dimensions: Vec<serde_json::Value>,
     /// Aggregates computed within this group
     pub aggregates: IndexMap<String, serde_json::Value>,
 }
@@ -85,13 +96,3 @@ Requirements:
   - `aggregates` are computed over each partition in turn, in the same way as the aggregates API would compute them over the selected rows.
 
 The exact semantics of this partitioning operation are unspecified. For example, one connector might implement sort-then-group, and another might choose not to sort and return multiple groups for the same dimensions instead.
-
-## Future Work
-
-- Support ordering and filtering after the grouping operation
-  - Post-group filtering is called `HAVING` in SQL.
-
-## Open Questions
-
-- A `Grouping` with no dimensions is just a regular aggregation, do we want to unify the two?
-- Do we want to support multiple grouping operations in the same query?
