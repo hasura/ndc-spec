@@ -57,7 +57,7 @@ pub fn make_predicate(
 
     for (field_name, values) in fields {
         let available_expressions: Vec<GeneratedExpression> =
-            make_single_expressions(schema, context, field_name, values, rng)?;
+            make_single_expressions(schema, context, &field_name, values, rng)?;
 
         let amount = rng.gen_range(1..=gen_config.complexity.max(1)).into();
         let chosen = available_expressions
@@ -94,14 +94,14 @@ pub fn make_predicate(
 fn make_single_expressions(
     schema: &models::SchemaResponse,
     context: &super::super::context::Context,
-    field_name: String,
+    field_name: &models::FieldName,
     values: Vec<serde_json::Value>,
     rng: &mut SmallRng,
 ) -> Result<Vec<GeneratedExpression>> {
     let field_type = &context
         .collection_type
         .fields
-        .get(field_name.as_str())
+        .get(field_name)
         .ok_or(Error::UnexpectedField(field_name.clone()))?
         .r#type;
 
@@ -122,7 +122,10 @@ fn make_single_expressions(
     }
 
     if let Some(field_type_name) = super::super::common::get_named_type(field_type) {
-        if let Some(field_scalar_type) = schema.scalar_types.get(field_type_name.as_str()) {
+        if let Some(field_scalar_type) = schema
+            .scalar_types
+            .get(&models::ScalarTypeName(field_type_name.clone()))
+        {
             for (operator_name, operator) in &field_scalar_type.comparison_operators {
                 match operator {
                     models::ComparisonOperatorDefinition::Equal => {

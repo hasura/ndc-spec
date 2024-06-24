@@ -73,7 +73,7 @@ pub async fn validate_schema<R: Reporter>(
                         let _ = test!("Collection type", reporter, async {
                             let _ = schema
                                 .object_types
-                                .get(collection_info.collection_type.as_str())
+                                .get(&collection_info.collection_type)
                                 .ok_or(Error::CollectionTypeIsNotDefined(
                                     collection_info.collection_type.clone(),
                                 ))?;
@@ -136,8 +136,12 @@ pub async fn validate_schema<R: Reporter>(
 pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> Result<()> {
     match r#type {
         models::Type::Named { name } => {
-            if !schema.object_types.contains_key(name.as_str())
-                && !schema.scalar_types.contains_key(name.as_str())
+            if !schema
+                .object_types
+                .contains_key(&ndc_models::ObjectTypeName(name.clone()))
+                && !schema
+                    .scalar_types
+                    .contains_key(&ndc_models::ScalarTypeName(name.clone()))
             {
                 return Err(Error::NamedTypeIsNotDefined(name.clone()));
             }
@@ -149,7 +153,7 @@ pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> 
             validate_type(schema, underlying_type)?;
         }
         models::Type::Predicate { object_type_name } => {
-            if !schema.object_types.contains_key(object_type_name.as_str()) {
+            if !schema.object_types.contains_key(object_type_name) {
                 return Err(Error::ObjectTypeIsNotDefined(object_type_name.clone()));
             }
         }

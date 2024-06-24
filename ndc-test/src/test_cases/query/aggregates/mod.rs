@@ -23,9 +23,7 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     collection_info: &models::CollectionInfo,
     rng: &mut SmallRng,
 ) -> Option<()> {
-    let collection_type = schema
-        .object_types
-        .get(collection_info.collection_type.as_str())?;
+    let collection_type = schema.object_types.get(&collection_info.collection_type)?;
 
     let total_count = test!(
         "star_count",
@@ -86,7 +84,10 @@ pub async fn test_star_count_aggregate<C: Connector>(
     let row_set = expect_single_rowset(response)?;
 
     if let Some(aggregates) = &row_set.aggregates {
-        match aggregates.get("count").and_then(serde_json::Value::as_u64) {
+        match aggregates
+            .get(&models::FieldName::from("count"))
+            .and_then(serde_json::Value::as_u64)
+        {
             None => Err(Error::MissingField("count".into())),
             Some(count) => Ok(count),
         }
@@ -104,9 +105,10 @@ pub async fn test_column_count_aggregate<C: Connector>(
 ) -> Result<()> {
     let mut aggregates = IndexMap::new();
 
-    let field_names: Vec<String> = common::select_all_columns_without_arguments(collection_type)
-        .map(|(field_name, _field)| field_name.clone())
-        .collect();
+    let field_names: Vec<models::FieldName> =
+        common::select_all_columns_without_arguments(collection_type)
+            .map(|(field_name, _field)| field_name.clone())
+            .collect();
 
     for field_name in &field_names {
         let aggregate = models::Aggregate::ColumnCount {
@@ -114,14 +116,20 @@ pub async fn test_column_count_aggregate<C: Connector>(
             field_path: None,
             distinct: false,
         };
-        aggregates.insert(format!("{field_name}_count"), aggregate);
+        aggregates.insert(
+            models::FieldName::from(format!("{field_name}_count")),
+            aggregate,
+        );
 
         let aggregate = models::Aggregate::ColumnCount {
             column: field_name.clone(),
             field_path: None,
             distinct: true,
         };
-        aggregates.insert(format!("{field_name}_distinct_count"), aggregate);
+        aggregates.insert(
+            models::FieldName::from(format!("{field_name}_distinct_count")),
+            aggregate,
+        );
     }
 
     let query_request = models::QueryRequest {
@@ -144,15 +152,15 @@ pub async fn test_column_count_aggregate<C: Connector>(
 
     if let Some(aggregates) = &row_set.aggregates {
         for field_name in &field_names {
-            let count_field = format!("{field_name}_count");
+            let count_field = models::FieldName::from(format!("{field_name}_count"));
             let count = aggregates
-                .get(count_field.as_str())
+                .get(&count_field)
                 .and_then(serde_json::Value::as_u64)
                 .ok_or(Error::MissingField(count_field))?;
 
-            let distinct_field = format!("{field_name}_distinct_count");
+            let distinct_field = models::FieldName::from(format!("{field_name}_distinct_count"));
             let distinct_count = aggregates
-                .get(distinct_field.as_str())
+                .get(&distinct_field)
                 .and_then(serde_json::Value::as_u64)
                 .ok_or(Error::MissingField(distinct_field))?;
 
@@ -183,11 +191,15 @@ pub async fn test_single_column_aggregates<C: Connector>(
     collection_type: &models::ObjectType,
     rng: &mut SmallRng,
 ) -> Result<()> {
-    let mut available_aggregates = IndexMap::new();
+    let mut available_aggregates: IndexMap<models::FieldName, ndc_models::Aggregate> =
+        IndexMap::new();
 
     for (field_name, field) in &collection_type.fields {
         if let Some(name) = super::common::as_named_type(&field.r#type) {
-            if let Some(scalar_type) = schema.scalar_types.get(name) {
+            if let Some(scalar_type) = schema
+                .scalar_types
+                .get(&models::ScalarTypeName(name.clone()))
+            {
                 for function_name in scalar_type.aggregate_functions.keys() {
                     let aggregate = models::Aggregate::SingleColumn {
                         column: field_name.clone(),
@@ -195,12 +207,12 @@ pub async fn test_single_column_aggregates<C: Connector>(
                         function: function_name.clone(),
                     };
                     available_aggregates.insert(
-                        format!(
+                        models::FieldName::from(format!(
                             "{}_{}_{:04}",
                             field_name,
                             function_name,
                             rng.gen_range(0..=9999)
-                        ),
+                        )),
                         aggregate,
                     );
                 }
