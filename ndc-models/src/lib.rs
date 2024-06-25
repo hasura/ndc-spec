@@ -65,8 +65,24 @@ pub struct QueryCapabilities {
     /// Does the connector support nested fields
     #[serde(default)]
     pub nested_fields: NestedFieldCapabilities,
+    /// Does the connector support EXISTS predicates
+    #[serde(default)]
+    pub exists: ExistsCapabilities,
 }
 // ANCHOR_END: QueryCapabilities
+
+// ANCHOR: ExistsCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Exists Capabilities")]
+pub struct ExistsCapabilities {
+    /// Does the connector support named scopes in column references inside
+    /// EXISTS predicates
+    pub named_scopes: Option<LeafCapability>,
+    /// Does the connector support ExistsInCollection::Unrelated
+    pub unrelated: Option<LeafCapability>,
+}
+// ANCHOR_END: ExistsCapabilities
 
 // ANCHOR: NestedFieldCapabilities
 #[skip_serializing_none]

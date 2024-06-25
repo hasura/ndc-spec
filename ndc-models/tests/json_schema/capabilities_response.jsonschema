@@ -87,6 +87,15 @@
               "$ref": "#/definitions/NestedFieldCapabilities"
             }
           ]
+        },
+        "exists": {
+          "description": "Does the connector support EXISTS predicates",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/ExistsCapabilities"
+            }
+          ]
         }
       }
     },
@@ -122,6 +131,34 @@
         },
         "aggregates": {
           "description": "Does the connector support aggregating values within nested fields",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ExistsCapabilities": {
+      "title": "Exists Capabilities",
+      "type": "object",
+      "properties": {
+        "named_scopes": {
+          "description": "Does the connector support named scopes in column references inside EXISTS predicates",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unrelated": {
+          "description": "Does the connector support ExistsInCollection::Unrelated",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"

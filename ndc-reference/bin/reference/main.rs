@@ -217,6 +217,10 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
             query: models::QueryCapabilities {
                 aggregates: Some(LeafCapability {}),
                 variables: Some(LeafCapability {}),
+                exists: models::ExistsCapabilities {
+                    named_scopes: Some(models::LeafCapability {}),
+                    unrelated: Some(models::LeafCapability {}),
+                },
                 explain: None,
                 nested_fields: NestedFieldCapabilities {
                     filter_by: Some(LeafCapability {}),
