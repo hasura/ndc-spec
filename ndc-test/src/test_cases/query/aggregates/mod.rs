@@ -198,7 +198,7 @@ pub async fn test_single_column_aggregates<C: Connector>(
         if let Some(name) = super::common::as_named_type(&field.r#type) {
             if let Some(scalar_type) = schema
                 .scalar_types
-                .get(&models::ScalarTypeName(name.clone()))
+                .get(&models::ScalarTypeName::new(name.clone()))
             {
                 for function_name in scalar_type.aggregate_functions.keys() {
                     let aggregate = models::Aggregate::SingleColumn {

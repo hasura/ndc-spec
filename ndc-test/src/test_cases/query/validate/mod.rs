@@ -127,7 +127,7 @@ fn find_collection_type_by_name(
         let function = schema
             .functions
             .iter()
-            .find(|f| f.name.0 == collection_name);
+            .find(|f| f.name.inner() == &collection_name);
 
         if let Some(function) = function {
             Ok(models::ObjectType {
@@ -306,7 +306,7 @@ pub fn check_value_has_type(
         models::Type::Named { name } => {
             if let Some(object_type) = schema
                 .object_types
-                .get(&ndc_models::ObjectTypeName(name.clone()))
+                .get(&ndc_models::ObjectTypeName::new(name.clone()))
             {
                 if let Some(object_fields) = value.as_object() {
                     let object = object_fields
@@ -331,7 +331,7 @@ pub fn check_value_has_type(
                 }
             } else if let Some(scalar_type) = schema
                 .scalar_types
-                .get(&ndc_models::ScalarTypeName(name.clone()))
+                .get(&ndc_models::ScalarTypeName::new(name.clone()))
             {
                 if let Some(representation) = &scalar_type.representation {
                     representations::check_value_has_representation(

@@ -45,7 +45,7 @@ fn read_json_lines(contents: &str) -> core::result::Result<BTreeMap<i32, Row>, B
     for line in contents.lines() {
         let row: BTreeMap<models::FieldName, serde_json::Value> = serde_json::from_str(line)?;
         let id: i32 = row
-            .get(&models::FieldName("id".into()))
+            .get(&models::FieldName::new("id".into()))
             .ok_or("'id' field not found in json file")?
             .as_i64()
             .ok_or("'id' field was not an integer in json file")?
@@ -786,8 +786,9 @@ fn get_collection_by_name(
             let mut articles_by_author = vec![];
 
             for article in state.articles.values() {
-                let article_author_id =
-                    article.get(&models::FieldName("author_id".into())).ok_or((
+                let article_author_id = article
+                    .get(&models::FieldName::new("author_id".into()))
+                    .ok_or((
                         StatusCode::INTERNAL_SERVER_ERROR,
                         Json(models::ErrorResponse {
                             message: "author_id not found".into(),
@@ -2154,13 +2155,15 @@ fn execute_upsert_article(
             }),
         )
     })?;
-    let id = article_obj.get(&models::FieldName("id".into())).ok_or((
-        StatusCode::BAD_REQUEST,
-        Json(models::ErrorResponse {
-            message: "article missing field 'id'".into(),
-            details: serde_json::Value::Null,
-        }),
-    ))?;
+    let id = article_obj
+        .get(&models::FieldName::new("id".into()))
+        .ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "article missing field 'id'".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))?;
     let id_int = id
         .as_i64()
         .ok_or((

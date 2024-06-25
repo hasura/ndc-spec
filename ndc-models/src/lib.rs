@@ -823,7 +823,7 @@ macro_rules! newtype {
         #[derive(
             Clone, Debug, Default, Hash, Eq, Ord, PartialEq, PartialOrd, Serialize, Deserialize,
         )]
-        pub struct $name(pub $oldtype);
+        pub struct $name($oldtype);
 
         impl JsonSchema for $name {
             fn schema_name() -> String {
@@ -880,6 +880,14 @@ macro_rules! newtype {
 
             pub fn as_str(&self) -> &str {
                 self.0.as_str()
+            }
+
+            pub fn into_inner(self) -> $oldtype {
+                self.0
+            }
+
+            pub fn inner(&self) -> &$oldtype {
+                &self.0
             }
         }
     };

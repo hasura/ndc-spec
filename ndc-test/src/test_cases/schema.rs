@@ -138,10 +138,10 @@ pub fn validate_type(schema: &models::SchemaResponse, r#type: &models::Type) -> 
         models::Type::Named { name } => {
             if !schema
                 .object_types
-                .contains_key(&ndc_models::ObjectTypeName(name.clone()))
+                .contains_key(&ndc_models::ObjectTypeName::new(name.clone()))
                 && !schema
                     .scalar_types
-                    .contains_key(&ndc_models::ScalarTypeName(name.clone()))
+                    .contains_key(&ndc_models::ScalarTypeName::new(name.clone()))
             {
                 return Err(Error::NamedTypeIsNotDefined(name.clone()));
             }
