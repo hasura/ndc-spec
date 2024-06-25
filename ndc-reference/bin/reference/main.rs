@@ -27,7 +27,7 @@ const AUTHORS_JSON: &str = include_str!("../../authors.json");
 const INSTITUTIONS_JSON: &str = include_str!("../../institutions.json");
 
 // ANCHOR: row-type
-type Row = BTreeMap<String, serde_json::Value>;
+type Row = BTreeMap<models::FieldName, serde_json::Value>;
 // ANCHOR_END: row-type
 // ANCHOR: app-state
 #[derive(Debug, Clone)]
@@ -43,9 +43,9 @@ pub struct AppState {
 fn read_json_lines(contents: &str) -> core::result::Result<BTreeMap<i32, Row>, Box<dyn Error>> {
     let mut records: BTreeMap<i32, Row> = BTreeMap::new();
     for line in contents.lines() {
-        let row: BTreeMap<String, serde_json::Value> = serde_json::from_str(line)?;
+        let row: BTreeMap<models::FieldName, serde_json::Value> = serde_json::from_str(line)?;
         let id: i32 = row
-            .get("id")
+            .get(&models::FieldName::new("id".into()))
             .ok_or("'id' field not found in json file")?
             .as_i64()
             .ok_or("'id' field was not an integer in json file")?
@@ -240,8 +240,8 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
 // ANCHOR: schema1
 async fn get_schema() -> Json<models::SchemaResponse> {
     // ANCHOR_END: schema1
-    let array_arguments: BTreeMap<String, _> = vec![(
-        "limit".to_string(),
+    let array_arguments: BTreeMap<models::ArgumentName, models::ArgumentInfo> = vec![(
+        models::ArgumentName::from("limit"),
         models::ArgumentInfo {
             description: None,
             argument_type: models::Type::Nullable {
@@ -705,11 +705,11 @@ pub async fn post_query(
 // ANCHOR: execute_query_with_variables
 // ANCHOR: execute_query_with_variables_signature
 fn execute_query_with_variables(
-    collection: &str,
-    arguments: &BTreeMap<String, models::Argument>,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
+    collection: &models::CollectionName,
+    arguments: &BTreeMap<models::ArgumentName, models::Argument>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     query: &models::Query,
-    variables: &BTreeMap<String, serde_json::Value>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
 ) -> Result<models::RowSet> {
     // ANCHOR_END: execute_query_with_variables_signature
@@ -747,22 +747,24 @@ fn execute_query_with_variables(
 // ANCHOR_END: execute_query_with_variables
 // ANCHOR: get_collection_by_name
 fn get_collection_by_name(
-    collection_name: &str,
-    arguments: &BTreeMap<String, serde_json::Value>,
+    collection_name: &models::CollectionName,
+    arguments: &BTreeMap<models::ArgumentName, serde_json::Value>,
     state: &AppState,
 ) -> Result<Vec<Row>> {
-    match collection_name {
+    match collection_name.as_str() {
         "articles" => Ok(state.articles.values().cloned().collect()),
         "authors" => Ok(state.authors.values().cloned().collect()),
         "institutions" => Ok(state.institutions.values().cloned().collect()),
         "articles_by_author" => {
-            let author_id = arguments.get("author_id").ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "missing argument author_id".into(),
-                    details: serde_json::Value::Null,
-                }),
-            ))?;
+            let author_id = arguments
+                .get(&models::ArgumentName::from("author_id"))
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "missing argument author_id".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
             let author_id_int: i32 = author_id
                 .as_i64()
                 .ok_or((
@@ -786,13 +788,15 @@ fn get_collection_by_name(
             let mut articles_by_author = vec![];
 
             for article in state.articles.values() {
-                let article_author_id = article.get("author_id").ok_or((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(models::ErrorResponse {
-                        message: "author_id not found".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
+                let article_author_id = article
+                    .get(&models::FieldName::new("author_id".into()))
+                    .ok_or((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(models::ErrorResponse {
+                            message: "author_id not found".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))?;
                 let article_author_id_int: i32 = article_author_id
                     .as_i64()
                     .ok_or((
@@ -883,8 +887,8 @@ enum Root<'a> {
 // ANCHOR: execute_query
 // ANCHOR: execute_query_signature
 fn execute_query(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     query: &models::Query,
     root: Root,
@@ -933,7 +937,7 @@ fn execute_query(
         .aggregates
         .as_ref()
         .map(|aggregates| {
-            let mut row: IndexMap<String, serde_json::Value> = IndexMap::new();
+            let mut row: IndexMap<models::FieldName, serde_json::Value> = IndexMap::new();
             for (aggregate_name, aggregate) in aggregates {
                 row.insert(
                     aggregate_name.clone(),
@@ -949,7 +953,7 @@ fn execute_query(
         .fields
         .as_ref()
         .map(|fields| {
-            let mut rows: Vec<IndexMap<String, models::RowFieldValue>> = vec![];
+            let mut rows: Vec<IndexMap<models::FieldName, models::RowFieldValue>> = vec![];
             for item in &paginated {
                 let row = eval_row(fields, collection_relationships, variables, state, item)?;
                 rows.push(row);
@@ -965,12 +969,12 @@ fn execute_query(
 // ANCHOR_END: execute_query
 // ANCHOR: eval_row
 fn eval_row(
-    fields: &IndexMap<String, models::Field>,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    fields: &IndexMap<models::FieldName, models::Field>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
-    item: &BTreeMap<String, serde_json::Value>,
-) -> Result<IndexMap<String, models::RowFieldValue>> {
+    item: &BTreeMap<models::FieldName, serde_json::Value>,
+) -> Result<IndexMap<models::FieldName, models::RowFieldValue>> {
     let mut row = IndexMap::new();
     for (field_name, field) in fields {
         row.insert(
@@ -1041,7 +1045,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<se
 // ANCHOR_END: eval_aggregate
 // ANCHOR: eval_aggregate_function
 fn eval_aggregate_function(
-    function: &str,
+    function: &models::AggregateFunctionName,
     values: Vec<serde_json::Value>,
 ) -> Result<serde_json::Value> {
     let int_values = values
@@ -1068,7 +1072,7 @@ fn eval_aggregate_function(
                 })
         })
         .collect::<Result<Vec<i32>>>()?;
-    let agg_value = match function {
+    let agg_value = match function.as_str() {
         "min" => Ok(int_values.iter().min()),
         "max" => Ok(int_values.iter().max()),
         _ => Err((
@@ -1092,8 +1096,8 @@ fn eval_aggregate_function(
 // ANCHOR_END: eval_aggregate_function
 // ANCHOR: sort
 fn sort(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     collection: Vec<Row>,
     order_by: &Option<models::OrderBy>,
@@ -1139,8 +1143,8 @@ fn paginate<I: Iterator<Item = Row>>(
 // ANCHOR_END: paginate
 // ANCHOR: eval_order_by
 fn eval_order_by(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     order_by: &models::OrderBy,
     t1: &Row,
@@ -1189,8 +1193,8 @@ fn compare(v1: serde_json::Value, v2: serde_json::Value) -> Result<Ordering> {
 // ANCHOR_END: compare
 // ANCHOR: eval_order_by_element
 fn eval_order_by_element(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     element: &models::OrderByElement,
     item: &Row,
@@ -1219,15 +1223,17 @@ fn eval_order_by_element(
 // ANCHOR: eval_column_field_path
 fn eval_column_field_path(
     row: &Row,
-    column_name: &str,
-    field_path: &Option<Vec<String>>,
+    column_name: &models::FieldName,
+    field_path: &Option<Vec<models::FieldName>>,
 ) -> Result<serde_json::Value> {
     let column_value = eval_column(&BTreeMap::default(), row, column_name, &BTreeMap::default())?;
     match field_path {
         None => Ok(column_value),
         Some(path) => path
             .iter()
-            .try_fold(&column_value, |value, field_name| value.get(field_name))
+            .try_fold(&column_value, |value, field_name| {
+                value.get(field_name.as_str())
+            })
             .cloned()
             .ok_or((
                 StatusCode::BAD_REQUEST,
@@ -1242,13 +1248,13 @@ fn eval_column_field_path(
 
 // ANCHOR: eval_order_by_column
 fn eval_order_by_column(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
-    item: &BTreeMap<String, serde_json::Value>,
+    item: &Row,
     path: Vec<models::PathElement>,
-    name: String,
-    field_path: Option<Vec<String>>,
+    name: models::FieldName,
+    field_path: Option<Vec<models::FieldName>>,
 ) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     if rows.len() > 1 {
@@ -1268,8 +1274,8 @@ fn eval_order_by_column(
 // ANCHOR_END: eval_order_by_column
 // ANCHOR: eval_path
 fn eval_path(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     path: &[models::PathElement],
     item: &Row,
@@ -1277,14 +1283,15 @@ fn eval_path(
     let mut result: Vec<Row> = vec![item.clone()];
 
     for path_element in path {
-        let relationship_name = path_element.relationship.as_str();
-        let relationship = collection_relationships.get(relationship_name).ok_or((
-            StatusCode::BAD_REQUEST,
-            Json(models::ErrorResponse {
-                message: "invalid relationship name in path".into(),
-                details: serde_json::Value::Null,
-            }),
-        ))?;
+        let relationship = collection_relationships
+            .get(&path_element.relationship)
+            .ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "invalid relationship name in path".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
         result = eval_path_element(
             collection_relationships,
             variables,
@@ -1301,11 +1308,11 @@ fn eval_path(
 // ANCHOR_END: eval_path
 // ANCHOR: eval_path_element
 fn eval_path_element(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     relationship: &models::Relationship,
-    arguments: &BTreeMap<String, models::RelationshipArgument>,
+    arguments: &BTreeMap<models::ArgumentName, models::RelationshipArgument>,
     source: &[Row],
     predicate: &Option<Box<models::Expression>>,
 ) -> Result<Vec<Row>> {
@@ -1367,11 +1374,8 @@ fn eval_path_element(
             }
         }
 
-        let target = get_collection_by_name(
-            relationship.target_collection.as_str(),
-            &all_arguments,
-            state,
-        )?;
+        let target =
+            get_collection_by_name(&relationship.target_collection, &all_arguments, state)?;
 
         for tgt_row in &target {
             if eval_column_mapping(relationship, src_row, tgt_row)?
@@ -1398,13 +1402,13 @@ fn eval_path_element(
 // ANCHOR_END: eval_path_element
 // ANCHOR: eval_argument
 fn eval_argument(
-    variables: &BTreeMap<String, serde_json::Value>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     argument: &models::Argument,
 ) -> Result<serde_json::Value> {
     match argument {
         models::Argument::Variable { name } => {
             let value = variables
-                .get(name.as_str())
+                .get(name)
                 .ok_or((
                     StatusCode::BAD_REQUEST,
                     Json(models::ErrorResponse {
@@ -1421,14 +1425,14 @@ fn eval_argument(
 // ANCHOR_END: eval_argument
 // ANCHOR: eval_relationship_argument
 fn eval_relationship_argument(
-    variables: &BTreeMap<String, serde_json::Value>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     row: &Row,
     argument: &models::RelationshipArgument,
 ) -> Result<serde_json::Value> {
     match argument {
         models::RelationshipArgument::Variable { name } => {
             let value = variables
-                .get(name.as_str())
+                .get(name)
                 .ok_or((
                     StatusCode::BAD_REQUEST,
                     Json(models::ErrorResponse {
@@ -1449,8 +1453,8 @@ fn eval_relationship_argument(
 // ANCHOR: eval_expression
 // ANCHOR: eval_expression_signature
 fn eval_expression(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     expr: &models::Expression,
     root: &Row,
@@ -1671,9 +1675,9 @@ fn eval_expression(
 // ANCHOR_END: eval_expression
 // ANCHOR: eval_in_collection
 fn eval_in_collection(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    item: &BTreeMap<String, serde_json::Value>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    item: &Row,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     in_collection: &models::ExistsInCollection,
 ) -> Result<Vec<Row>> {
@@ -1682,7 +1686,7 @@ fn eval_in_collection(
             relationship,
             arguments,
         } => {
-            let relationship = collection_relationships.get(relationship.as_str()).ok_or((
+            let relationship = collection_relationships.get(relationship).ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
                     message: "relationship is undefined".into(),
@@ -1709,15 +1713,15 @@ fn eval_in_collection(
                 .map(|(k, v)| Ok((k.clone(), eval_relationship_argument(variables, item, v)?)))
                 .collect::<Result<BTreeMap<_, _>>>()?;
 
-            get_collection_by_name(collection.as_str(), &arguments, state)
+            get_collection_by_name(collection, &arguments, state)
         }
     }
 }
 // ANCHOR_END: eval_in_collection
 // ANCHOR: eval_comparison_target
 fn eval_comparison_target(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     target: &models::ComparisonTarget,
     _root: &Row,
@@ -1736,10 +1740,10 @@ fn eval_comparison_target(
 // ANCHOR_END: eval_comparison_target
 // ANCHOR: eval_column
 fn eval_column(
-    variables: &BTreeMap<String, serde_json::Value>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     row: &Row,
-    column_name: &str,
-    arguments: &BTreeMap<String, models::Argument>,
+    column_name: &models::FieldName,
+    arguments: &BTreeMap<models::ArgumentName, models::Argument>,
 ) -> Result<serde_json::Value> {
     let column = row.get(column_name).cloned().ok_or((
         StatusCode::BAD_REQUEST,
@@ -1750,7 +1754,7 @@ fn eval_column(
     ))?;
 
     if let Some(array) = column.as_array() {
-        let limit_argument = arguments.get("limit").ok_or((
+        let limit_argument = arguments.get(&models::ArgumentName::from("limit")).ok_or((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
                 message: format!("Expected argument 'limit' in column {column_name}"),
@@ -1779,8 +1783,8 @@ fn eval_column(
 // ANCHOR_END: eval_column
 // ANCHOR: eval_comparison_value
 fn eval_comparison_value(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     comparison_value: &models::ComparisonValue,
     state: &AppState,
     _root: &Row,
@@ -1802,7 +1806,7 @@ fn eval_comparison_value(
         models::ComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
         models::ComparisonValue::Variable { name } => {
             let value = variables
-                .get(name.as_str())
+                .get(name)
                 .ok_or((
                     StatusCode::BAD_REQUEST,
                     Json(models::ErrorResponse {
@@ -1818,8 +1822,8 @@ fn eval_comparison_value(
 // ANCHOR_END: eval_comparison_value
 // ANCHOR: eval_nested_field
 fn eval_nested_field(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     value: serde_json::Value,
     nested_field: &models::NestedField,
@@ -1894,8 +1898,8 @@ fn eval_nested_field(
 // ANCHOR_END: eval_nested_field
 // ANCHOR: eval_field
 fn eval_field(
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     field: &models::Field,
     item: &Row,
@@ -1906,7 +1910,7 @@ fn eval_field(
             fields,
             arguments,
         } => {
-            let col_val = eval_column(variables, item, column.as_str(), arguments)?;
+            let col_val = eval_column(variables, item, column, arguments)?;
             match fields {
                 None => Ok(models::RowFieldValue(col_val)),
                 Some(nested_field) => eval_nested_field(
@@ -1923,7 +1927,7 @@ fn eval_field(
             arguments,
             query,
         } => {
-            let relationship = collection_relationships.get(relationship.as_str()).ok_or((
+            let relationship = collection_relationships.get(relationship).ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
                     message: "relationship is undefined".into(),
@@ -2024,7 +2028,7 @@ async fn post_mutation(
 // ANCHOR: execute_mutation_operation
 fn execute_mutation_operation(
     state: &mut AppState,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     operation: &models::MutationOperation,
 ) -> Result<models::MutationOperationResults> {
     match operation {
@@ -2039,15 +2043,15 @@ fn execute_mutation_operation(
 // ANCHOR: execute_procedure_signature
 fn execute_procedure(
     state: &mut AppState,
-    name: &str,
-    arguments: &BTreeMap<String, serde_json::Value>,
+    name: &models::ProcedureName,
+    arguments: &BTreeMap<models::ArgumentName, serde_json::Value>,
     fields: &Option<models::NestedField>,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 // ANCHOR_END: execute_procedure_signature
 // ANCHOR: execute_procedure_signature_impl
 {
-    match name {
+    match name.as_str() {
         "upsert_article" => {
             execute_upsert_article(state, arguments, fields, collection_relationships)
         }
@@ -2067,32 +2071,38 @@ fn execute_procedure(
 // ANCHOR: execute_upsert_article
 fn execute_upsert_article(
     state: &mut AppState,
-    arguments: &BTreeMap<String, serde_json::Value>,
+    arguments: &BTreeMap<models::ArgumentName, serde_json::Value>,
     fields: &Option<models::NestedField>,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 {
-    let article = arguments.get("article").ok_or((
-        StatusCode::BAD_REQUEST,
-        Json(models::ErrorResponse {
-            message: "Expected argument 'article'".into(),
-            details: serde_json::Value::Null,
-        }),
-    ))?;
-    let article_obj = article.as_object().ok_or((
-        StatusCode::BAD_REQUEST,
-        Json(models::ErrorResponse {
-            message: "article must be an object".into(),
-            details: serde_json::Value::Null,
-        }),
-    ))?;
-    let id = article_obj.get("id").ok_or((
-        StatusCode::BAD_REQUEST,
-        Json(models::ErrorResponse {
-            message: "article missing field 'id'".into(),
-            details: serde_json::Value::Null,
-        }),
-    ))?;
+    let article = arguments
+        .get(&models::ArgumentName::from("article"))
+        .ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "Expected argument 'article'".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))?;
+    let article_obj: Row = serde_json::from_value(article.clone()).map_err(|_| {
+        (
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "article must be an object".into(),
+                details: serde_json::Value::Null,
+            }),
+        )
+    })?;
+    let id = article_obj
+        .get(&models::FieldName::new("id".into()))
+        .ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "article missing field 'id'".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))?;
     let id_int = id
         .as_i64()
         .ok_or((
@@ -2112,11 +2122,7 @@ fn execute_upsert_article(
                 }),
             )
         })?;
-    let new_row = article_obj
-        .iter()
-        .map(|(k, v)| (k.clone(), v.clone()))
-        .collect::<BTreeMap<_, _>>();
-    let old_row = state.articles.insert(id_int, new_row);
+    let old_row = state.articles.insert(id_int, article_obj);
 
     Ok(models::MutationOperationResults::Procedure {
         result: old_row.map_or(Ok(serde_json::Value::Null), |old_row| {
@@ -2149,12 +2155,12 @@ fn execute_upsert_article(
 // ANCHOR: execute_delete_articles
 fn execute_delete_articles(
     state: &mut AppState,
-    arguments: &BTreeMap<String, serde_json::Value>,
+    arguments: &BTreeMap<models::ArgumentName, serde_json::Value>,
     fields: &Option<models::NestedField>,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 {
-    let predicate_value = arguments.get("where").ok_or((
+    let predicate_value = arguments.get(&models::ArgumentName::from("where")).ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
             message: "Expected argument 'where'".into(),

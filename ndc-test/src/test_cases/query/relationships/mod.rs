@@ -21,7 +21,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
 ) -> Option<()> {
     let collection_type = schema
         .object_types
-        .get(collection_info.collection_type.as_str())
+        .get(&collection_info.collection_type)
         .ok_or(Error::CollectionTypeIsNotDefined(
             collection_info.collection_type.clone(),
         ))
@@ -109,7 +109,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
     if other_collection.arguments.is_empty() {
         let other_collection_type = schema
             .object_types
-            .get(other_collection.collection_type.as_str())
+            .get(&other_collection.collection_type)
             .ok_or(Error::CollectionTypeIsNotDefined(
                 other_collection.collection_type.clone(),
             ))?;
@@ -184,7 +184,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
 
     let other_collection_type = schema
         .object_types
-        .get(other_collection.collection_type.as_str())
+        .get(&other_collection.collection_type)
         .ok_or(Error::CollectionTypeIsNotDefined(
             other_collection.collection_type.clone(),
         ))?;
@@ -266,7 +266,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
     if other_collection.arguments.is_empty() {
         let other_collection_type = schema
             .object_types
-            .get(other_collection.collection_type.as_str())
+            .get(&other_collection.collection_type)
             .ok_or(Error::CollectionTypeIsNotDefined(
                 other_collection.collection_type.clone(),
             ))?;
