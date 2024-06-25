@@ -1,5 +1,6 @@
 use super::client;
 
+use ndc_models::{self as models};
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -16,17 +17,17 @@ pub enum Error {
     )]
     IncompatibleSpecification(semver::Version, semver::VersionReq),
     #[error("collection {0} is not a defined collection")]
-    CollectionIsNotDefined(String),
+    CollectionIsNotDefined(models::CollectionName),
     #[error("collection type {0} is not a defined object type")]
-    CollectionTypeIsNotDefined(String),
+    CollectionTypeIsNotDefined(models::ObjectTypeName),
     #[error("named type {0} is not a defined object or scalar type")]
-    NamedTypeIsNotDefined(String),
+    NamedTypeIsNotDefined(models::TypeName),
     #[error("object type {0} is not a defined object or scalar type")]
-    ObjectTypeIsNotDefined(String),
+    ObjectTypeIsNotDefined(models::ObjectTypeName),
     #[error("field {0} is not defined on object type")]
-    FieldIsNotDefined(String),
+    FieldIsNotDefined(models::FieldName),
     #[error("relationship {0} is not defined in request")]
-    RelationshipIsNotDefined(String),
+    RelationshipIsNotDefined(models::RelationshipName),
     #[error("expected null rows in RowSet")]
     RowsShouldBeNullInRowSet,
     #[error("expected non-null rows in RowSet")]
@@ -38,17 +39,17 @@ pub enum Error {
     #[error("expected {0} RowSet(s) in the QueryResponse, got {1}")]
     UnexpectedRowsets(usize, usize),
     #[error("expected RowSet in response for field {0}")]
-    ExpectedRowSet(String),
+    ExpectedRowSet(models::FieldName),
     #[error("expected <= {0} rows in RowSet, got {1}")]
     TooManyRowsInResponse(u32, u32),
     #[error("expected non-empty rows in RowSet")]
     ExpectedNonEmptyRows,
     #[error("requested field {0} was missing in response")]
-    MissingField(String),
+    MissingField(models::FieldName),
     #[error("field {0} was not expected in response")]
-    UnexpectedField(String),
+    UnexpectedField(models::FieldName),
     #[error("scalar type {0} has multiple equality operators")]
-    MultipleEqualityOperators(String),
+    MultipleEqualityOperators(models::ScalarTypeName),
     #[error("error response from connector: {0:?}")]
     ConnectorError(ndc_models::ErrorResponse),
     #[error("cannot open snapshot file: {0:?}")]

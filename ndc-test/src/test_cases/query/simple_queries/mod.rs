@@ -24,9 +24,7 @@ pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
     schema: &'a models::SchemaResponse,
     collection_info: &'a models::CollectionInfo,
 ) -> Option<Option<super::context::Context<'a>>> {
-    let collection_type = schema
-        .object_types
-        .get(collection_info.collection_type.as_str())?;
+    let collection_type = schema.object_types.get(&collection_info.collection_type)?;
 
     let context = test!("Select top N", reporter, async {
         let rows = test_select_top_n_rows(
@@ -75,7 +73,7 @@ async fn test_select_top_n_rows<C: Connector>(
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
     limit: u32,
-) -> Result<Vec<IndexMap<String, models::RowFieldValue>>> {
+) -> Result<Vec<IndexMap<models::FieldName, models::RowFieldValue>>> {
     let fields = super::common::select_all_columns(collection_type);
     let query_request = models::QueryRequest {
         collection: collection_info.name.clone(),

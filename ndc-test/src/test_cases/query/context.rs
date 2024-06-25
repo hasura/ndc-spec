@@ -11,18 +11,18 @@ use rand::seq::SliceRandom;
 #[derive(Clone, Debug)]
 pub struct Context<'a> {
     pub collection_type: &'a models::ObjectType,
-    pub values: BTreeMap<String, Vec<serde_json::Value>>,
+    pub values: BTreeMap<models::FieldName, Vec<serde_json::Value>>,
 }
 
 pub fn make_context(
     collection_type: &models::ObjectType,
-    rows: Vec<IndexMap<String, models::RowFieldValue>>,
+    rows: Vec<IndexMap<models::FieldName, models::RowFieldValue>>,
 ) -> Result<Option<Context<'_>>> {
     let mut values = BTreeMap::new();
 
     for row in rows {
         for field_name in collection_type.fields.keys() {
-            if !row.contains_key(field_name.as_str()) {
+            if !row.contains_key(field_name) {
                 return Err(Error::MissingField(field_name.clone()));
             }
         }
@@ -52,7 +52,7 @@ impl<'a> Context<'a> {
         self: &'a Context<'a>,
         rng: &mut SmallRng,
         amount: usize,
-    ) -> Vec<(String, Vec<serde_json::Value>)> {
+    ) -> Vec<(models::FieldName, Vec<serde_json::Value>)> {
         self.values
             .iter()
             .collect::<Vec<_>>()

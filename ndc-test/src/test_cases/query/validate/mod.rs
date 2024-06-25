@@ -10,7 +10,7 @@ use crate::{
 
 pub fn expect_single_non_empty_rows(
     response: models::QueryResponse,
-) -> Result<Vec<IndexMap<String, models::RowFieldValue>>> {
+) -> Result<Vec<IndexMap<models::FieldName, models::RowFieldValue>>> {
     let rows = expect_single_rows(response)?;
 
     if rows.is_empty() {
@@ -22,7 +22,7 @@ pub fn expect_single_non_empty_rows(
 
 pub fn expect_single_rows(
     response: models::QueryResponse,
-) -> Result<Vec<IndexMap<String, models::RowFieldValue>>> {
+) -> Result<Vec<IndexMap<models::FieldName, models::RowFieldValue>>> {
     let row_set = expect_single_rowset(response)?;
     let rows = row_set.rows.ok_or(Error::RowsShouldBeNonNullInRowSet)?;
 
@@ -70,8 +70,8 @@ pub fn validate_response(
 
 pub fn validate_rowset(
     schema: &models::SchemaResponse,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    collection_name: String,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    collection_name: models::CollectionName,
     query: &models::Query,
     rowset: &models::RowSet,
     json_path: Vec<String>,
@@ -111,7 +111,7 @@ pub fn validate_rowset(
 
 fn find_collection_type_by_name(
     schema: &models::SchemaResponse,
-    collection_name: String,
+    collection_name: models::CollectionName,
 ) -> Result<models::ObjectType> {
     let collection = schema
         .collections
@@ -124,7 +124,10 @@ fn find_collection_type_by_name(
         )?;
         Ok(object_type.clone())
     } else {
-        let function = schema.functions.iter().find(|f| f.name == collection_name);
+        let function = schema
+            .functions
+            .iter()
+            .find(|f| f.name.inner() == &collection_name);
 
         if let Some(function) = function {
             Ok(models::ObjectType {
@@ -146,11 +149,11 @@ fn find_collection_type_by_name(
 
 pub fn validate_rows(
     schema: &models::SchemaResponse,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     object_type: &models::ObjectType,
     query: &models::Query,
-    fields: &IndexMap<String, models::Field>,
-    rows: &[IndexMap<String, models::RowFieldValue>],
+    fields: &IndexMap<models::FieldName, models::Field>,
+    rows: &[IndexMap<models::FieldName, models::RowFieldValue>],
     json_path: Vec<String>,
 ) -> Result<()> {
     if let Some(limit) = query.limit {
@@ -170,7 +173,8 @@ pub fn validate_rows(
 
         for (field_name, field) in fields {
             if let Some(row_field_value) = row_copy.swap_remove(field_name) {
-                let new_json_path = [new_json_path.as_slice(), &[field_name.clone()]].concat();
+                let new_json_path =
+                    [new_json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
 
                 validate_field(
                     schema,
@@ -192,9 +196,9 @@ pub fn validate_rows(
 
 pub fn validate_field(
     schema: &models::SchemaResponse,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     object_type: &models::ObjectType,
-    field_name: &str,
+    field_name: &models::FieldName,
     field: &models::Field,
     row_field_value: models::RowFieldValue,
     json_path: Vec<String>,
@@ -240,15 +244,15 @@ pub fn validate_field(
                     json_path,
                 )
             } else {
-                Err(Error::ExpectedRowSet(field_name.into()))
+                Err(Error::ExpectedRowSet(field_name.clone()))
             }
         }
     }
 }
 
 pub fn validate_aggregates(
-    requested_aggregates: &IndexMap<String, models::Aggregate>,
-    aggregates: &IndexMap<String, serde_json::Value>,
+    requested_aggregates: &IndexMap<models::FieldName, models::Aggregate>,
+    aggregates: &IndexMap<models::FieldName, serde_json::Value>,
 ) -> Result<()> {
     let mut aggregates_copy = aggregates.clone();
 
@@ -278,7 +282,7 @@ pub fn validate_aggregates(
 
 pub fn check_value_has_type(
     schema: &models::SchemaResponse,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     value: serde_json::Value,
     r#type: &models::Type,
     fields: Option<&models::NestedField>,
@@ -300,11 +304,19 @@ pub fn check_value_has_type(
             }
         }
         models::Type::Named { name } => {
-            if let Some(object_type) = schema.object_types.get(name) {
+            if let Some(object_type) = schema
+                .object_types
+                .get(&ndc_models::ObjectTypeName::new(name.clone()))
+            {
                 if let Some(object_fields) = value.as_object() {
                     let object = object_fields
                         .iter()
-                        .map(|(k, v)| (k.clone(), models::RowFieldValue(v.clone())))
+                        .map(|(k, v)| {
+                            (
+                                models::FieldName::new(k.into()),
+                                models::RowFieldValue(v.clone()),
+                            )
+                        })
                         .collect();
                     check_value_has_object_type(
                         schema,
@@ -317,7 +329,10 @@ pub fn check_value_has_type(
                 } else {
                     Err(Error::InvalidValueInResponse(json_path, "object".into()))
                 }
-            } else if let Some(scalar_type) = schema.scalar_types.get(name) {
+            } else if let Some(scalar_type) = schema
+                .scalar_types
+                .get(&ndc_models::ScalarTypeName::new(name.clone()))
+            {
                 if let Some(representation) = &scalar_type.representation {
                     representations::check_value_has_representation(
                         representation,
@@ -428,8 +443,8 @@ mod representations {
 
 pub(crate) fn check_value_has_object_type(
     schema: &models::SchemaResponse,
-    collection_relationships: &BTreeMap<String, models::Relationship>,
-    object: &IndexMap<String, models::RowFieldValue>,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    object: &IndexMap<models::FieldName, models::RowFieldValue>,
     object_type: &models::ObjectType,
     fields: Option<&models::NestedField>,
     json_path: Vec<String>,
@@ -439,7 +454,8 @@ pub(crate) fn check_value_has_object_type(
         Some(models::NestedField::Object(nested_object)) => {
             for (field_name, field) in &nested_object.fields {
                 if let Some(row_field_value) = row_copy.swap_remove(field_name) {
-                    let new_json_path = [json_path.as_slice(), &[field_name.clone()]].concat();
+                    let new_json_path =
+                        [json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
 
                     validate_field(
                         schema,
@@ -461,7 +477,8 @@ pub(crate) fn check_value_has_object_type(
         None => {
             for (field_name, field) in &object_type.fields {
                 if let Some(row_field_value) = row_copy.swap_remove(field_name) {
-                    let new_json_path = [json_path.as_slice(), &[field_name.clone()]].concat();
+                    let new_json_path =
+                        [json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
 
                     check_value_has_type(
                         schema,
