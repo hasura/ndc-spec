@@ -45,7 +45,10 @@ fn make_order_by_elements(
 
     for (field_name, field) in collection_type.fields {
         if let Some(name) = super::super::common::as_named_type(&field.r#type) {
-            if schema.scalar_types.contains_key(name) {
+            if schema
+                .scalar_types
+                .contains_key(&ndc_models::ScalarTypeName::new(name.clone()))
+            {
                 sortable_fields.push(field_name);
             }
         }

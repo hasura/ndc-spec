@@ -5,14 +5,16 @@ use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
 pub fn select_all_columns_without_arguments(
     collection_type: &models::ObjectType,
-) -> impl Iterator<Item = (&String, &models::ObjectField)> {
+) -> impl Iterator<Item = (&models::FieldName, &models::ObjectField)> {
     collection_type
         .fields
         .iter()
         .filter(|f| f.1.arguments.is_empty())
 }
 
-pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<String, models::Field> {
+pub fn select_all_columns(
+    collection_type: &models::ObjectType,
+) -> IndexMap<models::FieldName, models::Field> {
     collection_type
         .fields
         .iter()
@@ -46,20 +48,20 @@ pub fn select_all_columns(collection_type: &models::ObjectType) -> IndexMap<Stri
                 None
             }
         })
-        .collect::<IndexMap<String, models::Field>>()
+        .collect::<IndexMap<models::FieldName, models::Field>>()
 }
 
 pub fn select_columns(
     collection_type: &models::ObjectType,
     rng: &mut SmallRng,
-) -> IndexMap<String, models::Field> {
+) -> IndexMap<models::FieldName, models::Field> {
     let amount = rng.gen_range(0..=collection_type.fields.len());
 
     select_all_columns(collection_type)
         .into_iter()
         .choose_multiple(rng, amount)
         .into_iter()
-        .collect::<IndexMap<String, models::Field>>()
+        .collect::<IndexMap<models::FieldName, models::Field>>()
 }
 
 pub fn is_nullable_type(ty: &models::Type) -> bool {
@@ -73,7 +75,7 @@ pub fn is_nullable_type(ty: &models::Type) -> bool {
     }
 }
 
-pub fn as_named_type(ty: &models::Type) -> Option<&String> {
+pub fn as_named_type(ty: &models::Type) -> Option<&models::TypeName> {
     match ty {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => as_named_type(underlying_type),
@@ -84,7 +86,7 @@ pub fn as_named_type(ty: &models::Type) -> Option<&String> {
     }
 }
 
-pub fn get_named_type(ty: &models::Type) -> Option<&String> {
+pub fn get_named_type(ty: &models::Type) -> Option<&models::TypeName> {
     match ty {
         models::Type::Named { name } => Some(name),
         models::Type::Nullable { underlying_type } => get_named_type(underlying_type),
