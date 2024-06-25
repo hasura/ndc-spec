@@ -1824,13 +1824,19 @@ fn eval_comparison_value(
             path,
             scope,
         } => {
-            let scope = scope.map_or(item, |scope| {
+            let scope = scope.map_or(Ok(&item), |scope| {
                 if scope == 0 {
-                    item
+                    Ok(&item)
                 } else {
-                    scopes.get(scopes.len() - 1 - scope).unwrap() // TODO: error handling
+                    scopes.get(scopes.len() - 1 - scope).ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "named scope is invalid".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))
                 }
-            });
+            })?;
 
             let items = eval_path(collection_relationships, variables, state, path, scope)?;
 
