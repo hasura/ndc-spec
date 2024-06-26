@@ -665,7 +665,13 @@ pub enum ComparisonValue {
         /// Any relationships to traverse to reach this column
         #[serde(default)]
         path: Vec<PathElement>,
-
+        /// The scope in which this column exists, identified
+        /// by an top-down index into the stack of scopes.
+        /// The stack grows inside each `Expression::Exists`,
+        /// so scope 0 (the default) refers to the current collection,
+        /// and each subsequent index refers to the collection outside
+        /// its predecessor's immediately enclosing `Expression::Exists`
+        /// expression.
         scope: Option<usize>,
     },
     Scalar {

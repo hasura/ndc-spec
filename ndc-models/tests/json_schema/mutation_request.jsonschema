@@ -831,6 +831,7 @@
               }
             },
             "scope": {
+              "description": "The scope in which this column exists, identified by an top-down index into the stack of scopes. The stack grows inside each `Expression::Exists`, so scope 0 (the default) refers to the current collection, and each subsequent index refers to the collection outside its predecessor's immediately enclosing `Expression::Exists` expression.",
               "type": [
                 "integer",
                 "null"
