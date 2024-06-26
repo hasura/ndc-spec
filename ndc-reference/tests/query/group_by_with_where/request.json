@@ -16,12 +16,12 @@
                     "function": "max"
                 }
             },
-            "dimensions": {
-                "author": {
+            "dimensions": [
+                {
                     "type": "column",
                     "column_name": "author_id"
                 }
-            },
+            ],
             "fields": {
                 "id": {
                     "type": "column",

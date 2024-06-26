@@ -2,9 +2,9 @@
   {
     "groups": [
       {
-        "dimensions": {
-          "author": 2
-        },
+        "dimensions": [
+          2
+        ],
         "aggregates": {
           "min_id": 2,
           "max_id": 3

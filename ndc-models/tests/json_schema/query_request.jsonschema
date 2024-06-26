@@ -932,8 +932,8 @@
       "properties": {
         "dimensions": {
           "description": "Dimensions along which to partition the data",
-          "type": "object",
-          "additionalProperties": {
+          "type": "array",
+          "items": {
             "$ref": "#/definitions/Dimension"
           }
         },

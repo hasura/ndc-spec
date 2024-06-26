@@ -30,12 +30,12 @@
                                 "function": "max"
                             }
                         },
-                        "dimensions": {
-                            "author": {
+                        "dimensions": [
+                            {
                                 "type": "column",
                                 "column_name": "title"
                             }
-                        },
+                        ],
                         "fields": {
                             "id": {
                                 "type": "column",

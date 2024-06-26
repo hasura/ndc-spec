@@ -1080,12 +1080,12 @@ fn eval_aggregate_comparison_value(
 // ANCHOR: eval_dimensions
 fn eval_dimensions(
     row: &Row,
-    dimensions: &IndexMap<String, models::Dimension>,
-) -> Result<IndexMap<String, serde_json::Value>> {
-    let mut values = IndexMap::new();
-    for (name, dimension) in dimensions {
+    dimensions: &Vec<ndc_models::Dimension>,
+) -> Result<Vec<serde_json::Value>> {
+    let mut values = vec![];
+    for dimension in dimensions {
         let value = eval_dimension(row, dimension)?;
-        values.insert(name.into(), value);
+        values.push(value);
     }
     Ok(values)
 }

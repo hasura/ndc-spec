@@ -57,8 +57,8 @@
       "properties": {
         "dimensions": {
           "description": "Values of dimensions which identify this group",
-          "type": "object",
-          "additionalProperties": true
+          "type": "array",
+          "items": true
         },
         "aggregates": {
           "description": "Aggregates computed within this group",

@@ -454,7 +454,7 @@ pub struct Query {
 #[schemars(title = "Grouping")]
 pub struct Grouping {
     /// Dimensions along which to partition the data
-    pub dimensions: IndexMap<String, Dimension>,
+    pub dimensions: Vec<Dimension>,
     /// Aggregates to compute in each group
     pub aggregates: IndexMap<String, Aggregate>,
     /// A predicate to apply after grouping rows
@@ -790,7 +790,7 @@ pub struct RowSet {
 #[schemars(title = "Group")]
 pub struct Group {
     /// Values of dimensions which identify this group
-    pub dimensions: IndexMap<String, serde_json::Value>,
+    pub dimensions: Vec<serde_json::Value>,
     /// Aggregates computed within this group
     pub aggregates: IndexMap<String, serde_json::Value>,
 }
