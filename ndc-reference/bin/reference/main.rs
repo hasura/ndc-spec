@@ -986,7 +986,7 @@ fn execute_query(
                     );
                 }
                 if let Some(predicate) = &grouping.predicate {
-                    if eval_group_expression(variables, state, predicate, chunk.as_slice())? {
+                    if eval_group_expression(variables, predicate, chunk.as_slice())? {
                         groups.push(models::Group {
                             dimensions,
                             aggregates,
@@ -1030,14 +1030,13 @@ fn execute_query(
 // ANCHOR: eval_group_expression
 fn eval_group_expression(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
-    state: &AppState,
     expr: &models::GroupExpression,
     rows: &[Row],
 ) -> Result<bool> {
     match expr {
         models::GroupExpression::And { expressions } => {
             for expr in expressions {
-                if !eval_group_expression(variables, state, expr, rows)? {
+                if !eval_group_expression(variables, expr, rows)? {
                     return Ok(false);
                 }
             }
@@ -1045,14 +1044,14 @@ fn eval_group_expression(
         }
         models::GroupExpression::Or { expressions } => {
             for expr in expressions {
-                if eval_group_expression(variables, state, expr, rows)? {
+                if eval_group_expression(variables, expr, rows)? {
                     return Ok(true);
                 }
             }
             Ok(false)
         }
         models::GroupExpression::Not { expression } => {
-            let b = eval_group_expression(variables, state, expression, rows)?;
+            let b = eval_group_expression(variables, expression, rows)?;
             Ok(!b)
         }
         models::GroupExpression::AggregateComparison {
@@ -1131,8 +1130,8 @@ fn eval_group_order_by(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     order_by: &models::GroupOrderBy,
-    t1: &Vec<Row>,
-    t2: &Vec<Row>,
+    t1: &[Row],
+    t2: &[Row],
 ) -> Result<Ordering> {
     let mut result = Ordering::Equal;
 
@@ -1157,7 +1156,7 @@ fn eval_group_order_by_element(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     element: &models::GroupOrderByElement,
-    item: &Vec<Row>,
+    item: &[Row],
 ) -> Result<serde_json::Value> {
     match element.target.clone() {
         models::GroupOrderByTarget::Aggregate { aggregate, path } => {
@@ -1474,7 +1473,7 @@ fn eval_order_by_star_count_aggregate(
         variables,
         state,
         &path,
-        &vec![item.clone()],
+        &[item.clone()],
     )?;
     Ok(rows.len().into())
 }
