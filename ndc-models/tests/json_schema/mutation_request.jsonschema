@@ -285,6 +285,7 @@
           ]
         },
         "groups": {
+          "description": "Optionally group and aggregate the selected rows",
           "anyOf": [
             {
               "$ref": "#/definitions/Grouping"
@@ -941,8 +942,7 @@
       "type": "object",
       "required": [
         "aggregates",
-        "dimensions",
-        "fields"
+        "dimensions"
       ],
       "properties": {
         "dimensions": {
@@ -950,13 +950,6 @@
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/Dimension"
-          }
-        },
-        "fields": {
-          "description": "Fields to fetch in each group",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/Field"
           }
         },
         "aggregates": {
@@ -985,7 +978,18 @@
               ]
             },
             "column_name": {
+              "description": "The name of the column",
               "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             }
           }
         }

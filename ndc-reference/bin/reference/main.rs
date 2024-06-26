@@ -958,31 +958,20 @@ fn execute_query(
 
             let mut groups: Vec<models::Group> = vec![];
 
-            for (dimensions, chunk) in chunks.into_iter() {
+            for (dimensions, chunk) in &chunks {
                 let chunk: Vec<_> = chunk.cloned().collect();
-                let mut rows: Vec<IndexMap<models::FieldName, models::RowFieldValue>> = vec![];
-                for item in chunk.iter() {
-                    let row = eval_row(
-                        &grouping.fields,
-                        collection_relationships,
-                        variables,
-                        state,
-                        item,
-                    )?;
-                    rows.push(row);
-                }
+
                 let mut aggregates: IndexMap<String, serde_json::Value> = IndexMap::new();
-                for (aggregate_name, aggregate) in grouping.aggregates.iter() {
+                for (aggregate_name, aggregate) in &grouping.aggregates {
                     aggregates.insert(
                         aggregate_name.clone(),
-                        eval_aggregate(&aggregate, chunk.as_slice())?,
+                        eval_aggregate(aggregate, chunk.as_slice())?,
                     );
                 }
                 groups.push(models::Group {
                     dimensions,
                     aggregates,
-                    rows,
-                })
+                });
             }
 
             Ok(groups)
@@ -1018,7 +1007,7 @@ fn eval_dimensions(
     dimensions: &IndexMap<String, ndc_models::Dimension>,
 ) -> Result<IndexMap<String, serde_json::Value>> {
     let mut values = IndexMap::new();
-    for (name, dimension) in dimensions.iter() {
+    for (name, dimension) in dimensions {
         let value = eval_dimension(row, dimension)?;
         values.insert(name.into(), value);
     }
@@ -1028,12 +1017,10 @@ fn eval_dimensions(
 // ANCHOR: eval_dimension
 fn eval_dimension(row: &Row, dimension: &ndc_models::Dimension) -> Result<serde_json::Value> {
     match dimension {
-        models::Dimension::Column { column_name } => eval_column(
-            &BTreeMap::new(),
-            row,
+        models::Dimension::Column {
             column_name,
-            &BTreeMap::new(),
-        ),
+            field_path,
+        } => eval_column_field_path(row, column_name, field_path),
     }
 }
 // ANCHOR_END: eval_dimension

@@ -423,7 +423,7 @@ pub struct Query {
     pub offset: Option<u32>,
     pub order_by: Option<OrderBy>,
     pub predicate: Option<Expression>,
-    ///
+    /// Optionally group and aggregate the selected rows
     pub groups: Option<Grouping>,
 }
 // ANCHOR_END: Query
@@ -435,8 +435,6 @@ pub struct Query {
 pub struct Grouping {
     /// Dimensions along which to partition the data
     pub dimensions: IndexMap<String, Dimension>,
-    /// Fields to fetch in each group
-    pub fields: IndexMap<FieldName, Field>,
     /// Aggregates to compute in each group
     pub aggregates: IndexMap<String, Aggregate>,
 }
@@ -449,8 +447,11 @@ pub struct Grouping {
 #[schemars(title = "Dimension")]
 pub enum Dimension {
     Column {
+        /// The name of the column
         column_name: FieldName,
-    }
+        /// Path to a nested field within an object column
+        field_path: Option<Vec<FieldName>>,
+    },
 }
 // ANCHOR_END: Dimension
 
@@ -734,12 +735,10 @@ pub struct RowSet {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Group")]
 pub struct Group {
-    /// 
+    /// Values of dimensions which identify this group
     pub dimensions: IndexMap<String, serde_json::Value>,
-    ///
+    /// Aggregates computed within this group
     pub aggregates: IndexMap<String, serde_json::Value>,
-    ///
-    pub rows: Vec<IndexMap<FieldName, RowFieldValue>>,
 }
 // ANCHOR_END: Group
 

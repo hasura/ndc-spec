@@ -33,6 +33,7 @@
           }
         },
         "groups": {
+          "description": "The results of any grouping operation",
           "type": [
             "array",
             "null"
@@ -51,26 +52,18 @@
       "type": "object",
       "required": [
         "aggregates",
-        "dimensions",
-        "rows"
+        "dimensions"
       ],
       "properties": {
         "dimensions": {
+          "description": "Values of dimensions which identify this group",
           "type": "object",
           "additionalProperties": true
         },
         "aggregates": {
+          "description": "Aggregates computed within this group",
           "type": "object",
           "additionalProperties": true
-        },
-        "rows": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/definitions/RowFieldValue"
-            }
-          }
         }
       }
     }
