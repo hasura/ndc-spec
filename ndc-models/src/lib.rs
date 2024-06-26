@@ -441,7 +441,9 @@ pub struct Query {
     pub limit: Option<u32>,
     /// Optionally offset from the Nth result
     pub offset: Option<u32>,
+    /// Optionally specify how rows should be ordered
     pub order_by: Option<OrderBy>,
+    /// Optionally specify a predicate to apply to the rows
     pub predicate: Option<Expression>,
     /// Optionally group and aggregate the selected rows
     pub groups: Option<Grouping>,
@@ -457,8 +459,10 @@ pub struct Grouping {
     pub dimensions: Vec<Dimension>,
     /// Aggregates to compute in each group
     pub aggregates: IndexMap<String, Aggregate>,
-    /// A predicate to apply after grouping rows
+    /// Optionally specify a predicate to apply after grouping rows
     pub predicate: Option<GroupExpression>,
+    /// Optionally specify how rows should be ordered
+    pub order_by: Option<GroupOrderBy>,
 }
 // ANCHOR_END: Grouping
 
@@ -508,6 +512,39 @@ pub enum Dimension {
     },
 }
 // ANCHOR_END: Dimension
+
+// ANCHOR: GroupOrderBy
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Group Order By")]
+pub struct GroupOrderBy {
+    /// The elements to order by, in priority order
+    pub elements: Vec<GroupOrderByElement>,
+}
+// ANCHOR_END: GroupOrderBy
+
+// ANCHOR: GroupOrderByElement
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Group Order By Element")]
+pub struct GroupOrderByElement {
+    pub order_direction: OrderDirection,
+    pub target: GroupOrderByTarget,
+}
+// ANCHOR_END: GroupOrderByElement
+
+// ANCHOR: GroupOrderByTarget
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Group Order By Target")]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum GroupOrderByTarget {
+    Aggregate {
+        /// Aggregation method to apply
+        aggregate: Aggregate,
+        /// Non-empty collection of relationships to traverse
+        path: Vec<PathElement>,
+    },
+}
+// ANCHOR_END: GroupOrderByTarget
 
 // ANCHOR: Aggregate
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]

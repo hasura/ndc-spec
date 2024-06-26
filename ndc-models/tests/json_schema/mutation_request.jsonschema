@@ -265,6 +265,7 @@
           "minimum": 0.0
         },
         "order_by": {
+          "description": "Optionally specify how rows should be ordered",
           "anyOf": [
             {
               "$ref": "#/definitions/OrderBy"
@@ -275,6 +276,7 @@
           ]
         },
         "predicate": {
+          "description": "Optionally specify a predicate to apply to the rows",
           "anyOf": [
             {
               "$ref": "#/definitions/Expression"
@@ -960,10 +962,21 @@
           }
         },
         "predicate": {
-          "description": "A predicate to apply after grouping rows",
+          "description": "Optionally specify a predicate to apply after grouping rows",
           "anyOf": [
             {
               "$ref": "#/definitions/GroupExpression"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order_by": {
+          "description": "Optionally specify how rows should be ordered",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/GroupOrderBy"
             },
             {
               "type": "null"
@@ -1131,6 +1144,74 @@
             },
             "name": {
               "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "GroupOrderBy": {
+      "title": "Group Order By",
+      "type": "object",
+      "required": [
+        "elements"
+      ],
+      "properties": {
+        "elements": {
+          "description": "The elements to order by, in priority order",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GroupOrderByElement"
+          }
+        }
+      }
+    },
+    "GroupOrderByElement": {
+      "title": "Group Order By Element",
+      "type": "object",
+      "required": [
+        "order_direction",
+        "target"
+      ],
+      "properties": {
+        "order_direction": {
+          "$ref": "#/definitions/OrderDirection"
+        },
+        "target": {
+          "$ref": "#/definitions/GroupOrderByTarget"
+        }
+      }
+    },
+    "GroupOrderByTarget": {
+      "title": "Group Order By Target",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "aggregate",
+            "path",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "aggregate"
+              ]
+            },
+            "aggregate": {
+              "description": "Aggregation method to apply",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Aggregate"
+                }
+              ]
+            },
+            "path": {
+              "description": "Non-empty collection of relationships to traverse",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
             }
           }
         }

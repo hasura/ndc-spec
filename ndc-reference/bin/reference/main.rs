@@ -956,14 +956,27 @@ fn execute_query(
         .groups
         .as_ref()
         .map(|grouping| {
-            let chunks = paginated.iter().chunk_by(|row| {
-                eval_dimensions(row, &grouping.dimensions).expect("cannot eval dimensions")
-            });
+            let chunks = paginated
+                .iter()
+                .chunk_by(|row| {
+                    eval_dimensions(row, &grouping.dimensions).expect("cannot eval dimensions")
+                })
+                .into_iter()
+                .map(|(dimensions, rows)| (dimensions, rows.cloned().collect()))
+                .collect();
+
+            let sorted = group_sort(
+                collection_relationships,
+                variables,
+                state,
+                chunks,
+                &grouping.order_by,
+            )?;
 
             let mut groups: Vec<models::Group> = vec![];
 
-            for (dimensions, chunk) in &chunks {
-                let chunk: Vec<_> = chunk.cloned().collect();
+            for (dimensions, chunk) in &sorted {
+                let dimensions = dimensions.clone();
 
                 let mut aggregates: IndexMap<String, serde_json::Value> = IndexMap::new();
                 for (aggregate_name, aggregate) in &grouping.aggregates {
@@ -1077,6 +1090,83 @@ fn eval_aggregate_comparison_value(
     }
 }
 // ANCHOR_END: eval_aggregate_comparison_value
+// ANCHOR: group_sort
+fn group_sort(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    groups: Vec<(Vec<serde_json::Value>, Vec<Row>)>,
+    order_by: &Option<models::GroupOrderBy>,
+) -> Result<Vec<(Vec<serde_json::Value>, Vec<Row>)>> {
+    match order_by {
+        None => Ok(groups),
+        Some(order_by) => {
+            let mut copy: Vec<(Vec<serde_json::Value>, Vec<Row>)> = vec![];
+            for item_to_insert in groups {
+                let mut index = 0;
+                for other in &copy {
+                    if let Ordering::Greater = eval_group_order_by(
+                        collection_relationships,
+                        variables,
+                        state,
+                        order_by,
+                        &other.1,
+                        &item_to_insert.1,
+                    )? {
+                        break;
+                    }
+                    index += 1;
+                }
+                copy.insert(index, item_to_insert);
+            }
+            Ok(copy)
+        }
+    }
+}
+// ANCHOR_END: group_sort
+
+// ANCHOR: eval_group_order_by
+fn eval_group_order_by(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    order_by: &models::GroupOrderBy,
+    t1: &Vec<Row>,
+    t2: &Vec<Row>,
+) -> Result<Ordering> {
+    let mut result = Ordering::Equal;
+
+    for element in &order_by.elements {
+        let v1 =
+            eval_group_order_by_element(collection_relationships, variables, state, element, t1)?;
+        let v2 =
+            eval_group_order_by_element(collection_relationships, variables, state, element, t2)?;
+        let x = match element.order_direction {
+            models::OrderDirection::Asc => compare(v1, v2)?,
+            models::OrderDirection::Desc => compare(v2, v1)?,
+        };
+        result = result.then(x);
+    }
+
+    Ok(result)
+}
+// ANCHOR_END: eval_group_order_by
+// ANCHOR: eval_group_order_by_element
+fn eval_group_order_by_element(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    element: &models::GroupOrderByElement,
+    item: &Vec<Row>,
+) -> Result<serde_json::Value> {
+    match element.target.clone() {
+        models::GroupOrderByTarget::Aggregate { aggregate, path } => {
+            let rows = eval_path(collection_relationships, variables, state, &path, item)?;
+            eval_aggregate(&aggregate, &rows)
+        }
+    }
+}
+// ANCHOR_END: eval_group_order_by_element
 // ANCHOR: eval_dimensions
 fn eval_dimensions(
     row: &Row,
@@ -1379,7 +1469,13 @@ fn eval_order_by_star_count_aggregate(
     item: &Row,
     path: Vec<models::PathElement>,
 ) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
+    let rows: Vec<Row> = eval_path(
+        collection_relationships,
+        variables,
+        state,
+        &path,
+        &vec![item.clone()],
+    )?;
     Ok(rows.len().into())
 }
 // ANCHOR_END: eval_order_by_star_count_aggregate
@@ -1395,7 +1491,13 @@ fn eval_order_by_single_column_aggregate(
     field_path: Option<Vec<models::FieldName>>,
     function: models::AggregateFunctionName,
 ) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
+    let rows: Vec<Row> = eval_path(
+        collection_relationships,
+        variables,
+        state,
+        &path,
+        &[item.clone()],
+    )?;
     let values = rows
         .iter()
         .map(|row| eval_column_field_path(row, &column_name, &field_path))
@@ -1440,7 +1542,13 @@ fn eval_order_by_column(
     name: models::FieldName,
     field_path: Option<Vec<models::FieldName>>,
 ) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
+    let rows: Vec<Row> = eval_path(
+        collection_relationships,
+        variables,
+        state,
+        &path,
+        &[item.clone()],
+    )?;
     if rows.len() > 1 {
         return Err((
             StatusCode::BAD_REQUEST,
@@ -1462,9 +1570,9 @@ fn eval_path(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     path: &[models::PathElement],
-    item: &Row,
+    items: &[Row],
 ) -> Result<Vec<Row>> {
-    let mut result: Vec<Row> = vec![item.clone()];
+    let mut result: Vec<Row> = items.to_vec();
 
     for path_element in path {
         let relationship = collection_relationships
@@ -1938,7 +2046,13 @@ fn eval_comparison_value(
             field_path,
             path,
         } => {
-            let items = eval_path(collection_relationships, variables, state, path, item)?;
+            let items = eval_path(
+                collection_relationships,
+                variables,
+                state,
+                path,
+                &[item.clone()],
+            )?;
 
             items
                 .iter()

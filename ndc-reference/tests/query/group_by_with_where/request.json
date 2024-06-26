@@ -21,17 +21,7 @@
                     "type": "column",
                     "column_name": "author_id"
                 }
-            ],
-            "fields": {
-                "id": {
-                    "type": "column",
-                    "column": "id"
-                },
-                "title": {
-                    "type": "column",
-                    "column": "title"
-                }
-            }
+            ]
         },
         "predicate": {
             "type": "binary_comparison_operator",

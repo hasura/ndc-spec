@@ -22,16 +22,6 @@
                     "column_name": "author_id"
                 }
             ],
-            "fields": {
-                "id": {
-                    "type": "column",
-                    "column": "id"
-                },
-                "title": {
-                    "type": "column",
-                    "column": "title"
-                }
-            },
             "predicate": {
                 "type": "aggregate_comparison",
                 "aggregate": {
