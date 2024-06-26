@@ -457,8 +457,42 @@ pub struct Grouping {
     pub dimensions: IndexMap<String, Dimension>,
     /// Aggregates to compute in each group
     pub aggregates: IndexMap<String, Aggregate>,
+    /// A predicate to apply after grouping rows
+    pub predicate: Option<GroupExpression>,
 }
 // ANCHOR_END: Grouping
+
+// ANCHOR: GroupExpression
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Group Expression")]
+pub enum GroupExpression {
+    And {
+        expressions: Vec<GroupExpression>,
+    },
+    Or {
+        expressions: Vec<GroupExpression>,
+    },
+    Not {
+        expression: Box<GroupExpression>,
+    },
+    AggregateComparison {
+        aggregate: Aggregate,
+        operator: ComparisonOperatorName,
+        value: AggregateComparisonValue,
+    },
+}
+// ANCHOR_END: GroupExpression
+
+// ANCHOR: AggregateComparisonValue
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Aggregate Comparison Value")]
+pub enum AggregateComparisonValue {
+    Scalar { value: serde_json::Value },
+    Variable { name: VariableName },
+}
+// ANCHOR_END: AggregateComparisonValue
 
 // ANCHOR: Dimension
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]

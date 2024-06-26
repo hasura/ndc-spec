@@ -16,7 +16,7 @@ use axum::{
 
 use indexmap::IndexMap;
 use itertools::Itertools;
-use ndc_models::{self as models};
+use ndc_models::{self as models, ComparisonOperatorName};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
@@ -972,10 +972,19 @@ fn execute_query(
                         eval_aggregate(aggregate, chunk.as_slice())?,
                     );
                 }
-                groups.push(models::Group {
-                    dimensions,
-                    aggregates,
-                });
+                if let Some(predicate) = &grouping.predicate {
+                    if eval_group_expression(variables, state, predicate, chunk.as_slice())? {
+                        groups.push(models::Group {
+                            dimensions,
+                            aggregates,
+                        });
+                    }
+                } else {
+                    groups.push(models::Group {
+                        dimensions,
+                        aggregates,
+                    });
+                }
             }
 
             Ok(groups)
@@ -1005,10 +1014,73 @@ fn execute_query(
     // ANCHOR_END: execute_query_rowset
 }
 // ANCHOR_END: execute_query
+// ANCHOR: eval_group_expression
+fn eval_group_expression(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    expr: &models::GroupExpression,
+    rows: &[Row],
+) -> Result<bool> {
+    match expr {
+        models::GroupExpression::And { expressions } => {
+            for expr in expressions {
+                if !eval_group_expression(variables, state, expr, rows)? {
+                    return Ok(false);
+                }
+            }
+            Ok(true)
+        }
+        models::GroupExpression::Or { expressions } => {
+            for expr in expressions {
+                if eval_group_expression(variables, state, expr, rows)? {
+                    return Ok(true);
+                }
+            }
+            Ok(false)
+        }
+        models::GroupExpression::Not { expression } => {
+            let b = eval_group_expression(variables, state, expression, rows)?;
+            Ok(!b)
+        }
+        models::GroupExpression::AggregateComparison {
+            aggregate,
+            operator,
+            value,
+        } => {
+            let left_val = eval_aggregate(&aggregate, rows)?;
+            let right_vals = eval_aggregate_comparison_value(variables, &value)?;
+            eval_comparison_operator(operator, &left_val, right_vals)
+        }
+    }
+}
+// ANCHOR_END: eval_group_expression
+// ANCHOR: eval_aggregate_comparison_value
+fn eval_aggregate_comparison_value(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    comparison_value: &models::AggregateComparisonValue,
+) -> Result<Vec<serde_json::Value>> {
+    match comparison_value {
+        models::AggregateComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
+        models::AggregateComparisonValue::Variable { name } => {
+            let value = variables
+                .get(name)
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "invalid variable name".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))
+                .cloned()?;
+            Ok(vec![value])
+        }
+    }
+}
+// ANCHOR_END: eval_aggregate_comparison_value
 // ANCHOR: eval_dimensions
 fn eval_dimensions(
     row: &Row,
-    dimensions: &IndexMap<String, ndc_models::Dimension>,
+    dimensions: &IndexMap<String, models::Dimension>,
 ) -> Result<IndexMap<String, serde_json::Value>> {
     let mut values = IndexMap::new();
     for (name, dimension) in dimensions {
@@ -1019,7 +1091,7 @@ fn eval_dimensions(
 }
 // ANCHOR_END: eval_dimensions
 // ANCHOR: eval_dimension
-fn eval_dimension(row: &Row, dimension: &ndc_models::Dimension) -> Result<serde_json::Value> {
+fn eval_dimension(row: &Row, dimension: &models::Dimension) -> Result<serde_json::Value> {
     match dimension {
         models::Dimension::Column {
             column_name,
@@ -1616,107 +1688,19 @@ fn eval_expression(
             column,
             operator,
             value,
-        } => match operator.as_str() {
-            "eq" => {
-                let left_val = eval_comparison_target(column, root, item)?;
-                let right_vals = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    value,
-                    state,
-                    root,
-                    item,
-                )?;
-
-                Ok(right_vals
-                    .into_iter()
-                    .any(|right_val| left_val == right_val))
-            }
-            // ANCHOR_END: eval_expression_binary_operators
-            // ANCHOR: eval_expression_custom_binary_operators
-            "like" => {
-                let column_val = eval_comparison_target(column, root, item)?;
-                let regex_vals = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    value,
-                    state,
-                    root,
-                    item,
-                )?;
-
-                let column_str = column_val.as_str().ok_or((
-                    StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: "column is not a string".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
-
-                for regex_val in regex_vals {
-                    let regex_str = regex_val.as_str().ok_or((
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: " ".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))?;
-                    let regex = Regex::new(regex_str).map_err(|_| {
-                        (
-                            StatusCode::BAD_REQUEST,
-                            Json(models::ErrorResponse {
-                                message: "invalid regular expression".into(),
-                                details: serde_json::Value::Null,
-                            }),
-                        )
-                    })?;
-
-                    if regex.is_match(column_str) {
-                        return Ok(true);
-                    }
-                }
-
-                Ok(false)
-            }
-
-            // ANCHOR: eval_expression_binary_array_operators
-            "in" => {
-                let left_val = eval_comparison_target(column, root, item)?;
-
-                let comparison_values = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    value,
-                    state,
-                    root,
-                    item,
-                )?;
-
-                for comparison_value in comparison_values {
-                    let right_vals = comparison_value.as_array().ok_or((
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "expected array".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))?;
-
-                    if right_vals.contains(&left_val) {
-                        return Ok(true);
-                    }
-                }
-                Ok(false)
-            }
-            // ANCHOR_END: eval_expression_binary_array_operators
-            _ => Err((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: " ".into(),
-                    details: serde_json::Value::Null,
-                }),
-            )),
-            // ANCHOR_END: eval_expression_custom_binary_operators
-        },
+        } => {
+            let left_val = eval_comparison_target(column, root, item)?;
+            let right_vals = eval_comparison_value(
+                collection_relationships,
+                variables,
+                value,
+                state,
+                root,
+                item,
+            )?;
+            eval_comparison_operator(operator, &left_val, right_vals)
+        }
+        // ANCHOR_END: eval_expression_binary_operators
         // ANCHOR: eval_expression_exists
         models::Expression::Exists {
             in_collection,
@@ -1758,6 +1742,86 @@ fn eval_expression(
     }
 }
 // ANCHOR_END: eval_expression
+// ANCHOR: eval_comparison_operator
+fn eval_comparison_operator(
+    operator: &ComparisonOperatorName,
+    left_val: &serde_json::Value,
+    right_vals: Vec<serde_json::Value>,
+) -> std::prelude::v1::Result<bool, (StatusCode, Json<models::ErrorResponse>)> {
+    match operator.as_str() {
+        "eq" => {
+            for right_val in &right_vals {
+                if left_val == right_val {
+                    return Ok(true);
+                }
+            }
+
+            Ok(false)
+        }
+        // ANCHOR: eval_expression_custom_binary_operators
+        "like" => {
+            for regex_val in &right_vals {
+                let column_str = left_val.as_str().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "column is not a string".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
+                let regex_str = regex_val.as_str().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: " ".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
+                let regex = Regex::new(regex_str).map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "invalid regular expression".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?;
+                if regex.is_match(column_str) {
+                    return Ok(true);
+                }
+            }
+
+            Ok(false)
+        }
+        // ANCHOR_END: eval_expression_custom_binary_operators
+        // ANCHOR: eval_expression_binary_array_operators
+        "in" => {
+            for comparison_value in &right_vals {
+                let right_vals = comparison_value.as_array().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "expected array".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
+
+                for right_val in right_vals {
+                    if left_val == right_val {
+                        return Ok(true);
+                    }
+                }
+            }
+            Ok(false)
+        }
+        // ANCHOR_END: eval_expression_binary_array_operators
+        _ => Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: " ".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
+    }
+}
+// ANCHOR_END: eval_comparison_operator
 // ANCHOR: eval_in_collection
 fn eval_in_collection(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,

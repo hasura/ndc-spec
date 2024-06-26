@@ -958,6 +958,17 @@
           "additionalProperties": {
             "$ref": "#/definitions/Aggregate"
           }
+        },
+        "predicate": {
+          "description": "A predicate to apply after grouping rows",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/GroupExpression"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -990,6 +1001,136 @@
               "items": {
                 "type": "string"
               }
+            }
+          }
+        }
+      ]
+    },
+    "GroupExpression": {
+      "title": "Group Expression",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "expressions",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "and"
+              ]
+            },
+            "expressions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GroupExpression"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expressions",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "or"
+              ]
+            },
+            "expressions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GroupExpression"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expression",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "not"
+              ]
+            },
+            "expression": {
+              "$ref": "#/definitions/GroupExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "aggregate",
+            "operator",
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "aggregate_comparison"
+              ]
+            },
+            "aggregate": {
+              "$ref": "#/definitions/Aggregate"
+            },
+            "operator": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/definitions/AggregateComparisonValue"
+            }
+          }
+        }
+      ]
+    },
+    "AggregateComparisonValue": {
+      "title": "Aggregate Comparison Value",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "scalar"
+              ]
+            },
+            "value": true
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variable"
+              ]
+            },
+            "name": {
+              "type": "string"
             }
           }
         }
