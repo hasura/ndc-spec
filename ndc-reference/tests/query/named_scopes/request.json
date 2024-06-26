@@ -1,0 +1,56 @@
+{
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+    "collection": "authors",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "first_name": {
+                "type": "column",
+                "column": "first_name"
+            },
+            "last_name": {
+                "type": "column",
+                "column": "last_name"
+            }
+        },
+        "predicate": {
+            "type": "exists",
+            "in_collection": {
+                "type": "unrelated",
+                "arguments": {},
+                "collection": "articles"
+            },
+            "predicate": {
+                "type": "and",
+                "expressions": [
+                    {
+                        "type": "binary_comparison_operator",
+                        "column": {
+                            "type": "column",
+                            "name": "author_id"
+                        },
+                        "operator": "eq",
+                        "value": {
+                            "type": "column",
+                            "name": "id",
+                            "scope": 1
+                        }
+                    },
+                    {
+                        "type": "binary_comparison_operator",
+                        "column": {
+                            "type": "column",
+                            "name": "title"
+                        },
+                        "operator": "like",
+                        "value": {
+                            "type": "scalar",
+                            "value": "Functional"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "collection_relationships": {}
+}

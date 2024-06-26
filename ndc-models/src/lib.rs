@@ -66,8 +66,24 @@ pub struct QueryCapabilities {
     /// Does the connector support nested fields
     #[serde(default)]
     pub nested_fields: NestedFieldCapabilities,
+    /// Does the connector support EXISTS predicates
+    #[serde(default)]
+    pub exists: ExistsCapabilities,
 }
 // ANCHOR_END: QueryCapabilities
+
+// ANCHOR: ExistsCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Exists Capabilities")]
+pub struct ExistsCapabilities {
+    /// Does the connector support named scopes in column references inside
+    /// EXISTS predicates
+    pub named_scopes: Option<LeafCapability>,
+    /// Does the connector support ExistsInCollection::Unrelated
+    pub unrelated: Option<LeafCapability>,
+}
+// ANCHOR_END: ExistsCapabilities
 
 // ANCHOR: NestedFieldCapabilities
 #[skip_serializing_none]
@@ -649,6 +665,14 @@ pub enum ComparisonValue {
         /// Any relationships to traverse to reach this column
         #[serde(default)]
         path: Vec<PathElement>,
+        /// The scope in which this column exists, identified
+        /// by an top-down index into the stack of scopes.
+        /// The stack grows inside each `Expression::Exists`,
+        /// so scope 0 (the default) refers to the current collection,
+        /// and each subsequent index refers to the collection outside
+        /// its predecessor's immediately enclosing `Expression::Exists`
+        /// expression.
+        scope: Option<usize>,
     },
     Scalar {
         value: serde_json::Value,
