@@ -23,8 +23,8 @@ pub async fn test_grouping<C: Connector, R: Reporter>(
     test!("Simple grouping", reporter, async {
         let collection_type = schema
             .object_types
-            .get(collection_info.collection_type.as_str())
-            .ok_or(Error::CollectionIsNotDefined(
+            .get(&collection_info.collection_type)
+            .ok_or(Error::ObjectTypeIsNotDefined(
                 collection_info.collection_type.clone(),
             ))?;
 

@@ -16,7 +16,7 @@ use axum::{
 
 use indexmap::IndexMap;
 use itertools::Itertools;
-use ndc_models::{self as models, ComparisonOperatorName};
+use ndc_models::{self as models};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
@@ -994,8 +994,8 @@ fn execute_query(
 // ANCHOR: eval_groups
 // ANCHOR: eval_groups_partition
 fn eval_groups(
-    collection_relationships: &BTreeMap<String, ndc_models::Relationship>,
-    variables: &BTreeMap<String, serde_json::Value>,
+    collection_relationships: &BTreeMap<models::RelationshipName, ndc_models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     grouping: &ndc_models::Grouping,
     paginated: &[Row],
@@ -1084,8 +1084,8 @@ fn eval_group_expression(
             operator,
             value,
         } => {
-            let left_val = eval_group_comparison_target(&target, rows)?;
-            let right_vals = eval_aggregate_comparison_value(variables, &value)?;
+            let left_val = eval_group_comparison_target(target, rows)?;
+            let right_vals = eval_aggregate_comparison_value(variables, value)?;
             eval_comparison_operator(operator, &left_val, right_vals)
         }
         ndc_models::GroupExpression::UnaryComparisonOperator { target, operator } => match operator
@@ -1889,7 +1889,7 @@ fn eval_expression(
 // ANCHOR_END: eval_expression
 // ANCHOR: eval_comparison_operator
 fn eval_comparison_operator(
-    operator: &ComparisonOperatorName,
+    operator: &models::ComparisonOperatorName,
     left_val: &serde_json::Value,
     right_vals: Vec<serde_json::Value>,
 ) -> std::prelude::v1::Result<bool, (StatusCode, Json<models::ErrorResponse>)> {
