@@ -4,7 +4,9 @@
     "query": {
       "aggregates": {
         "group_by": {
-          "having": {}
+          "filter": {},
+          "order": {},
+          "paginate": {}
         }
       },
       "variables": {},

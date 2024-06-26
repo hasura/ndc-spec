@@ -1002,7 +1002,8 @@ fn execute_query(
                 }
             }
 
-            let paginated: Vec<models::Group> = paginate(groups.into_iter(), grouping.limit, grouping.offset);
+            let paginated: Vec<models::Group> =
+                paginate(groups.into_iter(), grouping.limit, grouping.offset);
 
             Ok(paginated)
         })
@@ -1058,26 +1059,33 @@ fn eval_group_expression(
             let b = eval_group_expression(variables, expression, rows)?;
             Ok(!b)
         }
-        models::GroupExpression::AggregateComparison {
-            aggregate,
+        models::GroupExpression::BinaryComparisonOperator {
+            target,
             operator,
             value,
         } => {
-            let left_val = eval_aggregate(&aggregate, rows)?;
+            let left_val = eval_group_comparison_target(&target, rows)?;
             let right_vals = eval_aggregate_comparison_value(variables, &value)?;
             eval_comparison_operator(operator, &left_val, right_vals)
         }
+        ndc_models::GroupExpression::UnaryComparisonOperator { target, operator } => match operator
+        {
+            models::UnaryComparisonOperator::IsNull => {
+                let val = eval_group_comparison_target(target, rows)?;
+                Ok(val.is_null())
+            }
+        },
     }
 }
 // ANCHOR_END: eval_group_expression
 // ANCHOR: eval_aggregate_comparison_value
 fn eval_aggregate_comparison_value(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
-    comparison_value: &models::AggregateComparisonValue,
+    comparison_value: &models::GroupComparisonValue,
 ) -> Result<Vec<serde_json::Value>> {
     match comparison_value {
-        models::AggregateComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
-        models::AggregateComparisonValue::Variable { name } => {
+        models::GroupComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
+        models::GroupComparisonValue::Variable { name } => {
             let value = variables
                 .get(name)
                 .ok_or((
@@ -1211,16 +1219,26 @@ fn eval_row(
     Ok(row)
 }
 // ANCHOR_END: eval_row
+// ANCHOR: eval_group_comparison_target
+fn eval_group_comparison_target(
+    target: &models::GroupComparisonTarget,
+    rows: &[Row],
+) -> Result<serde_json::Value> {
+    match target {
+        models::GroupComparisonTarget::Aggregate { aggregate } => eval_aggregate(aggregate, rows),
+    }
+}
+// ANCHOR_END: eval_group_comparison_target
 // ANCHOR: eval_aggregate
-fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<serde_json::Value> {
+fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_json::Value> {
     match aggregate {
-        models::Aggregate::StarCount {} => Ok(serde_json::Value::from(paginated.len())),
+        models::Aggregate::StarCount {} => Ok(serde_json::Value::from(rows.len())),
         models::Aggregate::ColumnCount {
             column,
             field_path,
             distinct,
         } => {
-            let values = paginated
+            let values = rows
                 .iter()
                 .map(|row| eval_column_field_path(row, column, field_path))
                 .collect::<Result<Vec<_>>>()?;
@@ -1260,7 +1278,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<se
             field_path,
             function,
         } => {
-            let values = paginated
+            let values = rows
                 .iter()
                 .map(|row| eval_column_field_path(row, column, field_path))
                 .collect::<Result<Vec<_>>>()?;
@@ -1355,11 +1373,7 @@ fn sort(
 }
 // ANCHOR_END: sort
 // ANCHOR: paginate
-fn paginate<I: Iterator>(
-    collection: I,
-    limit: Option<u32>,
-    offset: Option<u32>,
-) -> Vec<I::Item> {
+fn paginate<I: Iterator>(collection: I, limit: Option<u32>, offset: Option<u32>) -> Vec<I::Item> {
     let start = offset.unwrap_or(0).try_into().unwrap();
     match limit {
         Some(n) => collection.skip(start).take(n.try_into().unwrap()).collect(),

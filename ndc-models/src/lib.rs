@@ -488,23 +488,36 @@ pub enum GroupExpression {
     Not {
         expression: Box<GroupExpression>,
     },
-    AggregateComparison {
-        aggregate: Aggregate,
+    UnaryComparisonOperator {
+        target: GroupComparisonTarget,
+        operator: UnaryComparisonOperator,
+    },
+    BinaryComparisonOperator {
+        target: GroupComparisonTarget,
         operator: ComparisonOperatorName,
-        value: AggregateComparisonValue,
+        value: GroupComparisonValue,
     },
 }
 // ANCHOR_END: GroupExpression
 
-// ANCHOR: AggregateComparisonValue
+// ANCHOR: GroupComparisonTarget
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Aggregate Comparison Target")]
+pub enum GroupComparisonTarget {
+    Aggregate { aggregate: Aggregate },
+}
+// ANCHOR_END: GroupComparisonTarget
+
+// ANCHOR: GroupComparisonValue
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate Comparison Value")]
-pub enum AggregateComparisonValue {
+pub enum GroupComparisonValue {
     Scalar { value: serde_json::Value },
     Variable { name: VariableName },
 }
-// ANCHOR_END: AggregateComparisonValue
+// ANCHOR_END: GroupComparisonValue
 
 // ANCHOR: Dimension
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]

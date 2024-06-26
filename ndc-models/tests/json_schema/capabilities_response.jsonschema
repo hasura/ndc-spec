@@ -111,8 +111,30 @@
       "title": "Group By Capabilities",
       "type": "object",
       "properties": {
-        "having": {
+        "filter": {
           "description": "Does the connector support post-grouping predicates",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order": {
+          "description": "Does the connector support post-grouping ordering",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "paginate": {
+          "description": "Does the connector support post-grouping pagination",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"

@@ -23,9 +23,12 @@
                 }
             ],
             "predicate": {
-                "type": "aggregate_comparison",
-                "aggregate": {
-                    "type": "star_count"
+                "type": "binary_comparison_operator",
+                "target": {
+                    "type": "aggregate",
+                    "aggregate": {
+                        "type": "star_count"
+                    }
                 },
                 "operator": "eq",
                 "value": {

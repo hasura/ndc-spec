@@ -1103,8 +1103,30 @@
         {
           "type": "object",
           "required": [
-            "aggregate",
             "operator",
+            "target",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "unary_comparison_operator"
+              ]
+            },
+            "target": {
+              "$ref": "#/definitions/GroupComparisonTarget"
+            },
+            "operator": {
+              "$ref": "#/definitions/UnaryComparisonOperator"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "operator",
+            "target",
             "type",
             "value"
           ],
@@ -1112,23 +1134,46 @@
             "type": {
               "type": "string",
               "enum": [
-                "aggregate_comparison"
+                "binary_comparison_operator"
               ]
             },
-            "aggregate": {
-              "$ref": "#/definitions/Aggregate"
+            "target": {
+              "$ref": "#/definitions/GroupComparisonTarget"
             },
             "operator": {
               "type": "string"
             },
             "value": {
-              "$ref": "#/definitions/AggregateComparisonValue"
+              "$ref": "#/definitions/GroupComparisonValue"
             }
           }
         }
       ]
     },
-    "AggregateComparisonValue": {
+    "GroupComparisonTarget": {
+      "title": "Aggregate Comparison Target",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "aggregate",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "aggregate"
+              ]
+            },
+            "aggregate": {
+              "$ref": "#/definitions/Aggregate"
+            }
+          }
+        }
+      ]
+    },
+    "GroupComparisonValue": {
       "title": "Aggregate Comparison Value",
       "oneOf": [
         {
