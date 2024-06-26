@@ -6,6 +6,12 @@
 {{#include ../../../ndc-models/src/lib.rs:Aggregate}}
 ```
 
+## `AggregateCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:AggregateCapabilities}}
+```
+
 ## `AggregateFunctionDefinition`
 
 ```rust,no_run,noplayground
@@ -94,6 +100,12 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-models/src/lib.rs:FunctionInfo}}
+```
+
+## `GroupByCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupByCapabilities}}
 ```
 
 ## `LeafCapability`

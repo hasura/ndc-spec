@@ -215,7 +215,11 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
         version: "0.1.4".into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
-                aggregates: Some(models::LeafCapability {}),
+                aggregates: Some(models::AggregateCapabilities {
+                    group_by: Some(models::GroupByCapabilities {
+                        having: Some(models::LeafCapability {}),
+                    }),
+                }),
                 variables: Some(models::LeafCapability {}),
                 explain: None,
                 nested_fields: models::NestedFieldCapabilities {
