@@ -31,11 +31,48 @@
               "$ref": "#/definitions/RowFieldValue"
             }
           }
+        },
+        "groups": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Group"
+          }
         }
       }
     },
     "RowFieldValue": {
       "title": "Row Field Value"
+    },
+    "Group": {
+      "title": "Group",
+      "type": "object",
+      "required": [
+        "aggregates",
+        "dimensions",
+        "rows"
+      ],
+      "properties": {
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "aggregates": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/RowFieldValue"
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -110,6 +110,16 @@
               "type": "null"
             }
           ]
+        },
+        "groups": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Grouping"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -906,6 +916,61 @@
               "additionalProperties": {
                 "$ref": "#/definitions/RelationshipArgument"
               }
+            }
+          }
+        }
+      ]
+    },
+    "Grouping": {
+      "title": "Grouping",
+      "type": "object",
+      "required": [
+        "aggregates",
+        "dimensions",
+        "fields"
+      ],
+      "properties": {
+        "dimensions": {
+          "description": "Dimensions along which to partition the data",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Dimension"
+          }
+        },
+        "fields": {
+          "description": "Fields to fetch in each group",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Field"
+          }
+        },
+        "aggregates": {
+          "description": "Aggregates to compute in each group",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Aggregate"
+          }
+        }
+      }
+    },
+    "Dimension": {
+      "title": "Dimension",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "column_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "column"
+              ]
+            },
+            "column_name": {
+              "type": "string"
             }
           }
         }

@@ -15,7 +15,8 @@ use axum::{
 };
 
 use indexmap::IndexMap;
-use ndc_models::{self as models, AggregateFunctionName};
+use itertools::Itertools;
+use ndc_models::{self as models};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
 use tokio::sync::Mutex;
@@ -946,6 +947,48 @@ fn execute_query(
         })
         .transpose()?;
     // ANCHOR_END: execute_query_aggregates
+    // ANCHOR: execute_query_groups
+    let groups = query
+        .groups
+        .as_ref()
+        .map(|grouping| {
+            let chunks = paginated.iter().chunk_by(|row| {
+                eval_dimensions(row, &grouping.dimensions).expect("cannot eval dimensions")
+            });
+
+            let mut groups: Vec<models::Group> = vec![];
+
+            for (dimensions, chunk) in chunks.into_iter() {
+                let chunk: Vec<_> = chunk.cloned().collect();
+                let mut rows: Vec<IndexMap<models::FieldName, models::RowFieldValue>> = vec![];
+                for item in chunk.iter() {
+                    let row = eval_row(
+                        &grouping.fields,
+                        collection_relationships,
+                        variables,
+                        state,
+                        item,
+                    )?;
+                    rows.push(row);
+                }
+                let mut aggregates: IndexMap<String, serde_json::Value> = IndexMap::new();
+                for (aggregate_name, aggregate) in grouping.aggregates.iter() {
+                    aggregates.insert(
+                        aggregate_name.clone(),
+                        eval_aggregate(&aggregate, chunk.as_slice())?,
+                    );
+                }
+                groups.push(models::Group {
+                    dimensions,
+                    aggregates,
+                    rows,
+                })
+            }
+
+            Ok(groups)
+        })
+        .transpose()?;
+    // ANCHOR_END: execute_query_groups
     // ANCHOR: execute_query_fields
     let rows = query
         .fields
@@ -961,10 +1004,39 @@ fn execute_query(
         .transpose()?;
     // ANCHOR_END: execute_query_fields
     // ANCHOR: execute_query_rowset
-    Ok(models::RowSet { aggregates, rows })
+    Ok(models::RowSet {
+        aggregates,
+        rows,
+        groups,
+    })
     // ANCHOR_END: execute_query_rowset
 }
 // ANCHOR_END: execute_query
+// ANCHOR: eval_dimensions
+fn eval_dimensions(
+    row: &Row,
+    dimensions: &IndexMap<String, ndc_models::Dimension>,
+) -> Result<IndexMap<String, serde_json::Value>> {
+    let mut values = IndexMap::new();
+    for (name, dimension) in dimensions.iter() {
+        let value = eval_dimension(row, dimension)?;
+        values.insert(name.into(), value);
+    }
+    Ok(values)
+}
+// ANCHOR_END: eval_dimensions
+// ANCHOR: eval_dimension
+fn eval_dimension(row: &Row, dimension: &ndc_models::Dimension) -> Result<serde_json::Value> {
+    match dimension {
+        models::Dimension::Column { column_name } => eval_column(
+            &BTreeMap::new(),
+            row,
+            column_name,
+            &BTreeMap::new(),
+        ),
+    }
+}
+// ANCHOR_END: eval_dimension
 // ANCHOR: eval_row
 fn eval_row(
     fields: &IndexMap<models::FieldName, models::Field>,
@@ -1258,7 +1330,7 @@ fn eval_order_by_single_column_aggregate(
     path: Vec<models::PathElement>,
     column_name: models::FieldName,
     field_path: Option<Vec<models::FieldName>>,
-    function: AggregateFunctionName,
+    function: models::AggregateFunctionName,
 ) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     let values = rows
@@ -1666,6 +1738,7 @@ fn eval_expression(
                 offset: None,
                 order_by: None,
                 predicate: predicate.clone().map(|e| *e),
+                groups: None,
             };
             let collection = eval_in_collection(
                 collection_relationships,

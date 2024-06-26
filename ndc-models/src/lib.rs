@@ -423,8 +423,36 @@ pub struct Query {
     pub offset: Option<u32>,
     pub order_by: Option<OrderBy>,
     pub predicate: Option<Expression>,
+    ///
+    pub groups: Option<Grouping>,
 }
 // ANCHOR_END: Query
+
+// ANCHOR: Grouping
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Grouping")]
+pub struct Grouping {
+    /// Dimensions along which to partition the data
+    pub dimensions: IndexMap<String, Dimension>,
+    /// Fields to fetch in each group
+    pub fields: IndexMap<FieldName, Field>,
+    /// Aggregates to compute in each group
+    pub aggregates: IndexMap<String, Aggregate>,
+}
+// ANCHOR_END: Grouping
+
+// ANCHOR: Dimension
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[skip_serializing_none]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Dimension")]
+pub enum Dimension {
+    Column {
+        column_name: FieldName,
+    }
+}
+// ANCHOR_END: Dimension
 
 // ANCHOR: Aggregate
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -696,8 +724,24 @@ pub struct RowSet {
     pub aggregates: Option<IndexMap<FieldName, serde_json::Value>>,
     /// The rows returned by the query, corresponding to the query's fields
     pub rows: Option<Vec<IndexMap<FieldName, RowFieldValue>>>,
+    /// The results of any grouping operation
+    pub groups: Option<Vec<Group>>,
 }
 // ANCHOR_END: RowSet
+
+// ANCHOR: Group
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Group")]
+pub struct Group {
+    /// 
+    pub dimensions: IndexMap<String, serde_json::Value>,
+    ///
+    pub aggregates: IndexMap<String, serde_json::Value>,
+    ///
+    pub rows: Vec<IndexMap<FieldName, RowFieldValue>>,
+}
+// ANCHOR_END: Group
 
 // ANCHOR: RowFieldValue
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]

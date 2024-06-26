@@ -193,6 +193,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
             offset: None,
             order_by: None,
             predicate: Some(predicate.expr.clone()),
+            groups: None,
         },
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
