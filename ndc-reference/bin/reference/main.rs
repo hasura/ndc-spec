@@ -223,6 +223,10 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                     }),
                 }),
                 variables: Some(models::LeafCapability {}),
+                exists: models::ExistsCapabilities {
+                    named_scopes: Some(models::LeafCapability {}),
+                    unrelated: Some(models::LeafCapability {}),
+                },
                 explain: None,
                 nested_fields: models::NestedFieldCapabilities {
                     filter_by: Some(models::LeafCapability {}),
@@ -745,7 +749,7 @@ fn execute_query_with_variables(
         variables,
         state,
         query,
-        Root::CurrentRow,
+        Root::Reset,
         collection,
     )
 }
@@ -877,16 +881,8 @@ fn get_collection_by_name(
 /// ANCHOR: Root
 #[derive(Clone, Copy)]
 enum Root<'a> {
-    /// References to the root collection actually
-    /// refer to the current row, because the path to
-    /// the nearest enclosing [`models::Query`] does not pass
-    /// an [`models::Expression::Exists`] node.
-    CurrentRow,
-    /// References to the root collection refer to the
-    /// explicitly-identified row, which is the row
-    /// being evaluated in the context of the nearest enclosing
-    /// [`models::Query`].
-    ExplicitRow(&'a Row),
+    PushCurrentRow(&'a [&'a Row]),
+    Reset,
 }
 /// ANCHOR_END: Root
 // ANCHOR: execute_query
@@ -915,16 +911,20 @@ fn execute_query(
         Some(expr) => {
             let mut filtered: Vec<Row> = vec![];
             for item in sorted {
-                let root = match root {
-                    Root::CurrentRow => &item,
-                    Root::ExplicitRow(root) => root,
+                let scopes: Vec<&Row> = match root {
+                    Root::PushCurrentRow(scopes) => {
+                        let mut scopes = scopes.to_vec();
+                        scopes.push(&item);
+                        scopes
+                    }
+                    Root::Reset => vec![&item],
                 };
                 if eval_expression(
                     collection_relationships,
                     variables,
                     state,
                     expr,
-                    root,
+                    &scopes,
                     &item,
                 )? {
                     filtered.push(item);
@@ -1714,7 +1714,7 @@ fn eval_path_element(
                         variables,
                         state,
                         expression,
-                        tgt_row,
+                        &[],
                         tgt_row,
                     )?
                 } else {
@@ -1786,7 +1786,7 @@ fn eval_expression(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     expr: &models::Expression,
-    root: &Row,
+    scopes: &[&Row],
     item: &Row,
 ) -> Result<bool> {
     // ANCHOR_END: eval_expression_signature
@@ -1794,7 +1794,14 @@ fn eval_expression(
     match expr {
         models::Expression::And { expressions } => {
             for expr in expressions {
-                if !eval_expression(collection_relationships, variables, state, expr, root, item)? {
+                if !eval_expression(
+                    collection_relationships,
+                    variables,
+                    state,
+                    expr,
+                    scopes,
+                    item,
+                )? {
                     return Ok(false);
                 }
             }
@@ -1802,7 +1809,14 @@ fn eval_expression(
         }
         models::Expression::Or { expressions } => {
             for expr in expressions {
-                if eval_expression(collection_relationships, variables, state, expr, root, item)? {
+                if eval_expression(
+                    collection_relationships,
+                    variables,
+                    state,
+                    expr,
+                    scopes,
+                    item,
+                )? {
                     return Ok(true);
                 }
             }
@@ -1814,7 +1828,7 @@ fn eval_expression(
                 variables,
                 state,
                 expression,
-                root,
+                scopes,
                 item,
             )?;
             Ok(!b)
@@ -1823,7 +1837,7 @@ fn eval_expression(
         // ANCHOR: eval_expression_unary_operators
         models::Expression::UnaryComparisonOperator { column, operator } => match operator {
             models::UnaryComparisonOperator::IsNull => {
-                let vals = eval_comparison_target(column, root, item)?;
+                let vals = eval_comparison_target(column, item)?;
                 Ok(vals.is_null())
             }
         },
@@ -1834,13 +1848,13 @@ fn eval_expression(
             operator,
             value,
         } => {
-            let left_val = eval_comparison_target(column, root, item)?;
+            let left_val = eval_comparison_target(column, item)?;
             let right_vals = eval_comparison_value(
                 collection_relationships,
                 variables,
                 value,
                 state,
-                root,
+                scopes,
                 item,
             )?;
             eval_comparison_operator(operator, &left_val, right_vals)
@@ -1872,7 +1886,7 @@ fn eval_expression(
                 variables,
                 state,
                 &query,
-                Root::ExplicitRow(root),
+                Root::PushCurrentRow(scopes),
                 collection,
             )?;
             let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
@@ -2015,7 +2029,6 @@ fn eval_in_collection(
 // ANCHOR: eval_comparison_target
 fn eval_comparison_target(
     target: &models::ComparisonTarget,
-    _root: &Row,
     item: &Row,
 ) -> Result<serde_json::Value> {
     match target {
@@ -2074,7 +2087,7 @@ fn eval_comparison_value(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     comparison_value: &models::ComparisonValue,
     state: &AppState,
-    _root: &Row,
+    scopes: &[&Row],
     item: &Row,
 ) -> Result<Vec<serde_json::Value>> {
     match comparison_value {
@@ -2082,13 +2095,28 @@ fn eval_comparison_value(
             name,
             field_path,
             path,
+            scope,
         } => {
+            let scope = scope.map_or(Ok(item), |scope| {
+                if scope == 0 {
+                    Ok(item)
+                } else {
+                    Ok(*scopes.get(scopes.len() - 1 - scope).ok_or((
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "named scope is invalid".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    ))?)
+                }
+            })?;
+
             let items = eval_path(
                 collection_relationships,
                 variables,
                 state,
                 path,
-                &[item.clone()],
+                &[scope.clone()],
             )?;
 
             items
@@ -2242,7 +2270,7 @@ fn eval_field(
                 variables,
                 state,
                 query,
-                Root::CurrentRow,
+                Root::Reset,
                 collection,
             )?;
             let rows_json = serde_json::to_value(rows).map_err(|_| {
@@ -2481,7 +2509,7 @@ fn execute_delete_articles(
             &BTreeMap::new(),
             &state_snapshot,
             &predicate,
-            article,
+            &[],
             article,
         )? {
             removed.push(article.clone());
