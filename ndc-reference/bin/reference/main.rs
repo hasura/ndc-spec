@@ -1002,7 +1002,16 @@ fn eval_groups(
 ) -> Result<Vec<ndc_models::Group>> {
     let chunks = paginated
         .iter()
-        .chunk_by(|row| eval_dimensions(row, &grouping.dimensions).expect("cannot eval dimensions"))
+        .chunk_by(|row| {
+            eval_dimensions(
+                collection_relationships,
+                variables,
+                state,
+                row,
+                &grouping.dimensions,
+            )
+            .expect("cannot eval dimensions")
+        })
         .into_iter()
         .map(|(dimensions, rows)| (dimensions, rows.cloned().collect()))
         .collect();
@@ -1200,24 +1209,42 @@ fn eval_group_order_by_element(
 // ANCHOR_END: eval_group_order_by_element
 // ANCHOR: eval_dimensions
 fn eval_dimensions(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
     row: &Row,
     dimensions: &Vec<ndc_models::Dimension>,
 ) -> Result<Vec<serde_json::Value>> {
     let mut values = vec![];
     for dimension in dimensions {
-        let value = eval_dimension(row, dimension)?;
+        let value = eval_dimension(collection_relationships, variables, state, row, dimension)?;
         values.push(value);
     }
     Ok(values)
 }
 // ANCHOR_END: eval_dimensions
 // ANCHOR: eval_dimension
-fn eval_dimension(row: &Row, dimension: &models::Dimension) -> Result<serde_json::Value> {
+fn eval_dimension(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    row: &Row,
+    dimension: &models::Dimension,
+) -> Result<serde_json::Value> {
     match dimension {
         models::Dimension::Column {
             column_name,
             field_path,
-        } => eval_column_field_path(row, column_name, field_path),
+            path,
+        } => eval_column_at_path(
+            collection_relationships,
+            variables,
+            state,
+            row,
+            path.clone(),
+            column_name.clone(),
+            field_path.clone(),
+        ),
     }
 }
 // ANCHOR_END: eval_dimension
@@ -1464,7 +1491,7 @@ fn eval_order_by_element(
             name,
             field_path,
             path,
-        } => eval_order_by_column(
+        } => eval_column_at_path(
             collection_relationships,
             variables,
             state,
@@ -1569,8 +1596,8 @@ fn eval_column_field_path(
 }
 // ANCHOR_END: eval_column_field_path
 
-// ANCHOR: eval_order_by_column
-fn eval_order_by_column(
+// ANCHOR: eval_column_at_path
+fn eval_column_at_path(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
@@ -1590,7 +1617,8 @@ fn eval_order_by_column(
         return Err((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
-                message: " ".into(),
+                message: "path elements used in sorting and grouping cannot yield multiple rows"
+                    .into(),
                 details: serde_json::Value::Null,
             }),
         ));
@@ -1600,7 +1628,7 @@ fn eval_order_by_column(
         None => Ok(serde_json::Value::Null),
     }
 }
-// ANCHOR_END: eval_order_by_column
+// ANCHOR_END: eval_column_at_path
 // ANCHOR: eval_path
 fn eval_path(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,

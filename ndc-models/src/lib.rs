@@ -546,6 +546,8 @@ pub enum Dimension {
         column_name: FieldName,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
+        /// Any (object) relationships to traverse to reach this column
+        path: Vec<PathElement>,
     },
 }
 // ANCHOR_END: Dimension
@@ -691,7 +693,7 @@ pub enum OrderByTarget {
         name: FieldName,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
-        /// Any relationships to traverse to reach this column
+        /// Any (object) relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
     SingleColumnAggregate {

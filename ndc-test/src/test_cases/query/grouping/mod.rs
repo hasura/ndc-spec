@@ -49,6 +49,7 @@ pub async fn test_grouping<C: Connector, R: Reporter>(
                             dimensions: vec![models::Dimension::Column {
                                 column_name: dimension_column_name.clone(),
                                 field_path: None,
+                                path: vec![],
                             }],
                             predicate: None,
                             order_by: None,

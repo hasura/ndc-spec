@@ -19,7 +19,8 @@
             "dimensions": [
                 {
                     "type": "column",
-                    "column_name": "author_id"
+                    "column_name": "author_id",
+                    "path": []
                 }
             ]
         },

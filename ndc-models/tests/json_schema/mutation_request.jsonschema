@@ -458,7 +458,7 @@
               }
             },
             "path": {
-              "description": "Any relationships to traverse to reach this column",
+              "description": "Any (object) relationships to traverse to reach this column",
               "type": "array",
               "items": {
                 "$ref": "#/definitions/PathElement"
@@ -1019,6 +1019,7 @@
           "type": "object",
           "required": [
             "column_name",
+            "path",
             "type"
           ],
           "properties": {
@@ -1040,6 +1041,13 @@
               ],
               "items": {
                 "type": "string"
+              }
+            },
+            "path": {
+              "description": "Any (object) relationships to traverse to reach this column",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
               }
             }
           }
