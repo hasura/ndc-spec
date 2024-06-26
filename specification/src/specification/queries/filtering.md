@@ -133,10 +133,14 @@ For example, this query fetches authors who have written articles whose titles c
 
 If the `query.exists.unrelated` capability is enabled, then exists expressions can reference unrelated collections.
 
+Unrelated exists expressions can be useful when using collections with [arguments](./arguments.md). For example, this query uses the unrelated `author_articles` collection, providing its arguments via the source row's columns:
+
 ```json
-{{#include ../../../../ndc-reference/tests/query/predicate_with_unrelated_exists/request.json:1 }}
-{{#include ../../../../ndc-reference/tests/query/predicate_with_unrelated_exists/request.json:3: }}
+{{#include ../../../../ndc-reference/tests/query/table_argument_unrelated_exists/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/table_argument_unrelated_exists/request.json:3: }}
 ```
+
+It can also be useful to [reference a column in another scope](#referencing-a-column-from-a-collection-in-scope) when using unrelated exists expressions.
 
 ## Conjunction of expressions
 
