@@ -35,7 +35,7 @@ Pagination can also be applied both before and after grouping:
 
 ## Examples
 
-This example paritions the `articles` collection by `author_id`, and then returns the row count for each group. That is, it computes the number of articles written by each author:
+This example partitions the `articles` collection by `author_id`, and then returns the row count for each group. That is, it computes the number of articles written by each author:
 
 ```json
 {{#include ../../../../ndc-reference/tests/query/group_by_with_star_count/request.json:1 }}

@@ -481,7 +481,7 @@ pub struct Grouping {
     pub aggregates: IndexMap<String, Aggregate>,
     /// Optionally specify a predicate to apply after grouping rows
     pub predicate: Option<GroupExpression>,
-    /// Optionally specify how rows should be ordered
+    /// Optionally specify how groups should be ordered
     pub order_by: Option<GroupOrderBy>,
     /// Optionally limit to N groups
     pub limit: Option<u32>,
