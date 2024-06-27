@@ -967,7 +967,7 @@
           ]
         },
         "order_by": {
-          "description": "Optionally specify how rows should be ordered",
+          "description": "Optionally specify how groups should be ordered",
           "anyOf": [
             {
               "$ref": "#/definitions/GroupOrderBy"
@@ -1249,6 +1249,27 @@
     "GroupOrderByTarget": {
       "title": "Group Order By Target",
       "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "index",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "dimension"
+              ]
+            },
+            "index": {
+              "description": "The index of the dimension to order by, selected from the dimensions provided in the `Grouping` request.",
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          }
+        },
         {
           "type": "object",
           "required": [

@@ -1000,7 +1000,7 @@ fn eval_groups(
     grouping: &ndc_models::Grouping,
     paginated: &[Row],
 ) -> Result<Vec<ndc_models::Group>> {
-    let chunks = paginated
+    let chunks: Vec<Chunk> = paginated
         .iter()
         .chunk_by(|row| {
             eval_dimensions(
@@ -1013,7 +1013,10 @@ fn eval_groups(
             .expect("cannot eval dimensions")
         })
         .into_iter()
-        .map(|(dimensions, rows)| (dimensions, rows.cloned().collect()))
+        .map(|(dimensions, rows)| Chunk {
+            dimensions,
+            rows: rows.cloned().collect(),
+        })
         .collect();
     // ANCHOR_END: eval_groups_partition
     // ANCHOR: eval_groups_sort
@@ -1028,26 +1031,26 @@ fn eval_groups(
     // ANCHOR: eval_groups_filter
     let mut groups: Vec<models::Group> = vec![];
 
-    for (dimensions, chunk) in &sorted {
-        let dimensions = dimensions.clone();
+    for chunk in &sorted {
+        let dimensions = chunk.dimensions.clone();
 
         let mut aggregates: IndexMap<String, serde_json::Value> = IndexMap::new();
         for (aggregate_name, aggregate) in &grouping.aggregates {
             aggregates.insert(
                 aggregate_name.clone(),
-                eval_aggregate(aggregate, chunk.as_slice())?,
+                eval_aggregate(aggregate, &chunk.rows)?,
             );
         }
         if let Some(predicate) = &grouping.predicate {
-            if eval_group_expression(variables, predicate, chunk.as_slice())? {
+            if eval_group_expression(variables, predicate, &chunk.rows)? {
                 groups.push(models::Group {
-                    dimensions,
+                    dimensions: dimensions.clone(),
                     aggregates,
                 });
             }
         } else {
             groups.push(models::Group {
-                dimensions,
+                dimensions: dimensions.clone(),
                 aggregates,
             });
         }
@@ -1130,18 +1133,24 @@ fn eval_aggregate_comparison_value(
     }
 }
 // ANCHOR_END: eval_aggregate_comparison_value
+// ANCHOR: Chunk
+struct Chunk {
+    pub dimensions: Vec<serde_json::Value>,
+    pub rows: Vec<Row>,
+}
+// ANCHOR_END: Chunk
 // ANCHOR: group_sort
 fn group_sort(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
-    groups: Vec<(Vec<serde_json::Value>, Vec<Row>)>,
+    groups: Vec<Chunk>,
     order_by: &Option<models::GroupOrderBy>,
-) -> Result<Vec<(Vec<serde_json::Value>, Vec<Row>)>> {
+) -> Result<Vec<Chunk>> {
     match order_by {
         None => Ok(groups),
         Some(order_by) => {
-            let mut copy: Vec<(Vec<serde_json::Value>, Vec<Row>)> = vec![];
+            let mut copy: Vec<Chunk> = vec![];
             for item_to_insert in groups {
                 let mut index = 0;
                 for other in &copy {
@@ -1150,8 +1159,8 @@ fn group_sort(
                         variables,
                         state,
                         order_by,
-                        &other.1,
-                        &item_to_insert.1,
+                        other,
+                        &item_to_insert,
                     )? {
                         break;
                     }
@@ -1171,8 +1180,8 @@ fn eval_group_order_by(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     order_by: &models::GroupOrderBy,
-    t1: &[Row],
-    t2: &[Row],
+    t1: &Chunk,
+    t2: &Chunk,
 ) -> Result<Ordering> {
     let mut result = Ordering::Equal;
 
@@ -1197,11 +1206,26 @@ fn eval_group_order_by_element(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     element: &models::GroupOrderByElement,
-    item: &[Row],
+    group: &Chunk,
 ) -> Result<serde_json::Value> {
     match element.target.clone() {
+        models::GroupOrderByTarget::Dimension { index } => {
+            group.dimensions.get(index).cloned().ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "dimension index out of range".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))
+        }
         models::GroupOrderByTarget::Aggregate { aggregate, path } => {
-            let rows = eval_path(collection_relationships, variables, state, &path, item)?;
+            let rows = eval_path(
+                collection_relationships,
+                variables,
+                state,
+                &path,
+                &group.rows,
+            )?;
             eval_aggregate(&aggregate, &rows)
         }
     }

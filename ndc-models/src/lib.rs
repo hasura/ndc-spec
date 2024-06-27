@@ -576,6 +576,11 @@ pub struct GroupOrderByElement {
 #[schemars(title = "Group Order By Target")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum GroupOrderByTarget {
+    Dimension {
+        /// The index of the dimension to order by, selected from the
+        /// dimensions provided in the `Grouping` request.
+        index: usize,
+    },
     Aggregate {
         /// Aggregation method to apply
         aggregate: Aggregate,
