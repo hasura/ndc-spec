@@ -102,6 +102,29 @@ Binary (including array-valued) operators compare columns to _values_, but there
 - Variable values compare the column to the current value of a [variable](./variables.md),
 - Column values compare the column to _another_ column.
 
+#### Referencing a column from a collection in scope
+
+When an expression appears inside one or more [exists expressions](#exists-expressions), there are multiple collections in scope.
+
+If the `query.exists.named_scopes` capability is enabled then these scopes can be named explicitly when referencing a column in an outer scope. The `scope` field of the `ComparisonValue` type can be used to specify the scope of a column reference.
+
+Scopes are named by integers in the following manner: 
+
+- The scope named `0` refers to the current collection,
+- The scope named `1` refers to the collection under consideration outside the immediately-enclosing exists expression.
+- Scopes `2`, `3`, and so on, refer to the collections considered during the evaluation of expressions outside subsequently enclosing exists expressions.
+
+Therefore, the largest valid scope is the maximum nesting depth of exists expressions, up to the nearest enclosing `Query` object.
+
+Put another way, we can consider a stack of scopes which grows as we descend into each nested exists expression. Each stack frame contains the collection currently under consideration. The named scopes are then the top-down indices of elements of this stack.
+
+For example, we can express an equality between an `author_id` column and the `id` column of the enclosing `author` object (in scope `1`):
+
+```json
+{{#include ../../../../ndc-reference/tests/query/named_scopes/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/named_scopes/request.json:3: }}
+```
+
 ## `EXISTS` expressions
 
 An `EXISTS` expression tests whether a row exists in some possibly-related collection, and is denoted by an expression with a `type` field of `exists`.
@@ -121,10 +144,16 @@ For example, this query fetches authors who have written articles whose titles c
 
 ### Unrelated Collections
 
+If the `query.exists.unrelated` capability is enabled, then exists expressions can reference unrelated collections.
+
+Unrelated exists expressions can be useful when using collections with [arguments](./arguments.md). For example, this query uses the unrelated `author_articles` collection, providing its arguments via the source row's columns:
+
 ```json
 {{#include ../../../../ndc-reference/tests/query/table_argument_unrelated_exists/request.json:1 }}
 {{#include ../../../../ndc-reference/tests/query/table_argument_unrelated_exists/request.json:3: }}
 ```
+
+It can also be useful to [reference a column in another scope](#referencing-a-column-from-a-collection-in-scope) when using unrelated exists expressions.
 
 ## Conjunction of expressions
 

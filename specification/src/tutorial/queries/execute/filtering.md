@@ -70,8 +70,10 @@ The reference implementation provides a single custom binary operator as an exam
 
 ### `EXISTS` expressions
 
-An `EXISTS` expression is evaluated by recursively evaluating a `Query` on a related collection, and testing to see whether the resulting `RowSet` contains any rows:
+An `EXISTS` expression is evaluated by recursively evaluating a `Query` on a related collection, and testing to see whether the resulting `RowSet` contains any rows.
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_exists}}
 ```
+
+Note in particular, we push the current row onto the stack of `scopes` before executing the inner query, so that [references to columns in those scopes](../../../specification/queries/filtering.md#referencing-a-column-from-a-collection-in-scope) can be resolved correctly.

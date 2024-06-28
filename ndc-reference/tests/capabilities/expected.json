@@ -3,13 +3,22 @@
   "capabilities": {
     "query": {
       "aggregates": {
-        "filter_by": {}
+        "filter_by": {},
+        "group_by": {
+          "filter": {},
+          "order": {},
+          "paginate": {}
+        }
       },
       "variables": {},
       "nested_fields": {
         "filter_by": {},
         "order_by": {},
         "aggregates": {}
+      },
+      "exists": {
+        "named_scopes": {},
+        "unrelated": {}
       }
     },
     "mutation": {},

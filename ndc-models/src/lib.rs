@@ -66,8 +66,24 @@ pub struct QueryCapabilities {
     /// Does the connector support nested fields
     #[serde(default)]
     pub nested_fields: NestedFieldCapabilities,
+    /// Does the connector support EXISTS predicates
+    #[serde(default)]
+    pub exists: ExistsCapabilities,
 }
 // ANCHOR_END: QueryCapabilities
+
+// ANCHOR: ExistsCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Exists Capabilities")]
+pub struct ExistsCapabilities {
+    /// Does the connector support named scopes in column references inside
+    /// EXISTS predicates
+    pub named_scopes: Option<LeafCapability>,
+    /// Does the connector support ExistsInCollection::Unrelated
+    pub unrelated: Option<LeafCapability>,
+}
+// ANCHOR_END: ExistsCapabilities
 
 // ANCHOR: NestedFieldCapabilities
 #[skip_serializing_none]
@@ -90,8 +106,24 @@ pub struct NestedFieldCapabilities {
 pub struct AggregateCapabilities {
     /// Does the connector support filtering based on aggregated values
     pub filter_by: Option<LeafCapability>,
+    /// Does the connector support aggregations over groups
+    pub group_by: Option<GroupByCapabilities>,
 }
 // ANCHOR_END: AggregateCapabilities
+
+// ANCHOR: GroupByCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Group By Capabilities")]
+pub struct GroupByCapabilities {
+    /// Does the connector support post-grouping predicates
+    pub filter: Option<LeafCapability>,
+    /// Does the connector support post-grouping ordering
+    pub order: Option<LeafCapability>,
+    /// Does the connector support post-grouping pagination
+    pub paginate: Option<LeafCapability>,
+}
+// ANCHOR_END: GroupByCapabilities
 
 // ANCHOR: MutationCapabilities
 #[skip_serializing_none]
@@ -431,10 +463,134 @@ pub struct Query {
     pub limit: Option<u32>,
     /// Optionally offset from the Nth result
     pub offset: Option<u32>,
+    /// Optionally specify how rows should be ordered
     pub order_by: Option<OrderBy>,
+    /// Optionally specify a predicate to apply to the rows
     pub predicate: Option<Expression>,
+    /// Optionally group and aggregate the selected rows
+    pub groups: Option<Grouping>,
 }
 // ANCHOR_END: Query
+
+// ANCHOR: Grouping
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Grouping")]
+pub struct Grouping {
+    /// Dimensions along which to partition the data
+    pub dimensions: Vec<Dimension>,
+    /// Aggregates to compute in each group
+    pub aggregates: IndexMap<String, Aggregate>,
+    /// Optionally specify a predicate to apply after grouping rows
+    pub predicate: Option<GroupExpression>,
+    /// Optionally specify how groups should be ordered
+    pub order_by: Option<GroupOrderBy>,
+    /// Optionally limit to N groups
+    pub limit: Option<u32>,
+    /// Optionally offset from the Nth group
+    pub offset: Option<u32>,
+}
+// ANCHOR_END: Grouping
+
+// ANCHOR: GroupExpression
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Group Expression")]
+pub enum GroupExpression {
+    And {
+        expressions: Vec<GroupExpression>,
+    },
+    Or {
+        expressions: Vec<GroupExpression>,
+    },
+    Not {
+        expression: Box<GroupExpression>,
+    },
+    UnaryComparisonOperator {
+        target: GroupComparisonTarget,
+        operator: UnaryComparisonOperator,
+    },
+    BinaryComparisonOperator {
+        target: GroupComparisonTarget,
+        operator: ComparisonOperatorName,
+        value: GroupComparisonValue,
+    },
+}
+// ANCHOR_END: GroupExpression
+
+// ANCHOR: GroupComparisonTarget
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Aggregate Comparison Target")]
+pub enum GroupComparisonTarget {
+    Aggregate { aggregate: Aggregate },
+}
+// ANCHOR_END: GroupComparisonTarget
+
+// ANCHOR: GroupComparisonValue
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Aggregate Comparison Value")]
+pub enum GroupComparisonValue {
+    Scalar { value: serde_json::Value },
+    Variable { name: VariableName },
+}
+// ANCHOR_END: GroupComparisonValue
+
+// ANCHOR: Dimension
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[skip_serializing_none]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Dimension")]
+pub enum Dimension {
+    Column {
+        /// The name of the column
+        column_name: FieldName,
+        /// Path to a nested field within an object column
+        field_path: Option<Vec<FieldName>>,
+        /// Any (object) relationships to traverse to reach this column
+        path: Vec<PathElement>,
+    },
+}
+// ANCHOR_END: Dimension
+
+// ANCHOR: GroupOrderBy
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Group Order By")]
+pub struct GroupOrderBy {
+    /// The elements to order by, in priority order
+    pub elements: Vec<GroupOrderByElement>,
+}
+// ANCHOR_END: GroupOrderBy
+
+// ANCHOR: GroupOrderByElement
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Group Order By Element")]
+pub struct GroupOrderByElement {
+    pub order_direction: OrderDirection,
+    pub target: GroupOrderByTarget,
+}
+// ANCHOR_END: GroupOrderByElement
+
+// ANCHOR: GroupOrderByTarget
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Group Order By Target")]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum GroupOrderByTarget {
+    Dimension {
+        /// The index of the dimension to order by, selected from the
+        /// dimensions provided in the `Grouping` request.
+        index: usize,
+    },
+    Aggregate {
+        /// Aggregation method to apply
+        aggregate: Aggregate,
+        /// Non-empty collection of relationships to traverse
+        path: Vec<PathElement>,
+    },
+}
+// ANCHOR_END: GroupOrderByTarget
 
 // ANCHOR: Aggregate
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -544,7 +700,7 @@ pub enum OrderByTarget {
         name: FieldName,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
-        /// Any relationships to traverse to reach this column
+        /// Any (object) relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
     Aggregate {
@@ -657,6 +813,14 @@ pub enum ComparisonValue {
         /// Any relationships to traverse to reach this column
         #[serde(default)]
         path: Vec<PathElement>,
+        /// The scope in which this column exists, identified
+        /// by an top-down index into the stack of scopes.
+        /// The stack grows inside each `Expression::Exists`,
+        /// so scope 0 (the default) refers to the current collection,
+        /// and each subsequent index refers to the collection outside
+        /// its predecessor's immediately enclosing `Expression::Exists`
+        /// expression.
+        scope: Option<usize>,
     },
     Scalar {
         value: serde_json::Value,
@@ -704,8 +868,22 @@ pub struct RowSet {
     pub aggregates: Option<IndexMap<FieldName, serde_json::Value>>,
     /// The rows returned by the query, corresponding to the query's fields
     pub rows: Option<Vec<IndexMap<FieldName, RowFieldValue>>>,
+    /// The results of any grouping operation
+    pub groups: Option<Vec<Group>>,
 }
 // ANCHOR_END: RowSet
+
+// ANCHOR: Group
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Group")]
+pub struct Group {
+    /// Values of dimensions which identify this group
+    pub dimensions: Vec<serde_json::Value>,
+    /// Aggregates computed within this group
+    pub aggregates: IndexMap<String, serde_json::Value>,
+}
+// ANCHOR_END: Group
 
 // ANCHOR: RowFieldValue
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]

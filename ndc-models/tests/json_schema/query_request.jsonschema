@@ -92,6 +92,7 @@
           "minimum": 0.0
         },
         "order_by": {
+          "description": "Optionally specify how rows should be ordered",
           "anyOf": [
             {
               "$ref": "#/definitions/OrderBy"
@@ -102,9 +103,21 @@
           ]
         },
         "predicate": {
+          "description": "Optionally specify a predicate to apply to the rows",
           "anyOf": [
             {
               "$ref": "#/definitions/Expression"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "groups": {
+          "description": "Optionally group and aggregate the selected rows",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Grouping"
             },
             {
               "type": "null"
@@ -489,7 +502,7 @@
               }
             },
             "path": {
-              "description": "Any relationships to traverse to reach this column",
+              "description": "Any (object) relationships to traverse to reach this column",
               "type": "array",
               "items": {
                 "$ref": "#/definitions/PathElement"
@@ -812,6 +825,15 @@
               "items": {
                 "$ref": "#/definitions/PathElement"
               }
+            },
+            "scope": {
+              "description": "The scope in which this column exists, identified by an top-down index into the stack of scopes. The stack grows inside each `Expression::Exists`, so scope 0 (the default) refers to the current collection, and each subsequent index refers to the collection outside its predecessor's immediately enclosing `Expression::Exists` expression.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint",
+              "minimum": 0.0
             }
           }
         },
@@ -903,6 +925,376 @@
               "type": "object",
               "additionalProperties": {
                 "$ref": "#/definitions/RelationshipArgument"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Grouping": {
+      "title": "Grouping",
+      "type": "object",
+      "required": [
+        "aggregates",
+        "dimensions"
+      ],
+      "properties": {
+        "dimensions": {
+          "description": "Dimensions along which to partition the data",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Dimension"
+          }
+        },
+        "aggregates": {
+          "description": "Aggregates to compute in each group",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Aggregate"
+          }
+        },
+        "predicate": {
+          "description": "Optionally specify a predicate to apply after grouping rows",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/GroupExpression"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order_by": {
+          "description": "Optionally specify how groups should be ordered",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/GroupOrderBy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limit": {
+          "description": "Optionally limit to N groups",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "offset": {
+          "description": "Optionally offset from the Nth group",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      }
+    },
+    "Dimension": {
+      "title": "Dimension",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "column_name",
+            "path",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "column"
+              ]
+            },
+            "column_name": {
+              "description": "The name of the column",
+              "type": "string"
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "path": {
+              "description": "Any (object) relationships to traverse to reach this column",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GroupExpression": {
+      "title": "Group Expression",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "expressions",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "and"
+              ]
+            },
+            "expressions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GroupExpression"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expressions",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "or"
+              ]
+            },
+            "expressions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GroupExpression"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expression",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "not"
+              ]
+            },
+            "expression": {
+              "$ref": "#/definitions/GroupExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "operator",
+            "target",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "unary_comparison_operator"
+              ]
+            },
+            "target": {
+              "$ref": "#/definitions/GroupComparisonTarget"
+            },
+            "operator": {
+              "$ref": "#/definitions/UnaryComparisonOperator"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "operator",
+            "target",
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "binary_comparison_operator"
+              ]
+            },
+            "target": {
+              "$ref": "#/definitions/GroupComparisonTarget"
+            },
+            "operator": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/definitions/GroupComparisonValue"
+            }
+          }
+        }
+      ]
+    },
+    "GroupComparisonTarget": {
+      "title": "Aggregate Comparison Target",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "aggregate",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "aggregate"
+              ]
+            },
+            "aggregate": {
+              "$ref": "#/definitions/Aggregate"
+            }
+          }
+        }
+      ]
+    },
+    "GroupComparisonValue": {
+      "title": "Aggregate Comparison Value",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "scalar"
+              ]
+            },
+            "value": true
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variable"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "GroupOrderBy": {
+      "title": "Group Order By",
+      "type": "object",
+      "required": [
+        "elements"
+      ],
+      "properties": {
+        "elements": {
+          "description": "The elements to order by, in priority order",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GroupOrderByElement"
+          }
+        }
+      }
+    },
+    "GroupOrderByElement": {
+      "title": "Group Order By Element",
+      "type": "object",
+      "required": [
+        "order_direction",
+        "target"
+      ],
+      "properties": {
+        "order_direction": {
+          "$ref": "#/definitions/OrderDirection"
+        },
+        "target": {
+          "$ref": "#/definitions/GroupOrderByTarget"
+        }
+      }
+    },
+    "GroupOrderByTarget": {
+      "title": "Group Order By Target",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "index",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "dimension"
+              ]
+            },
+            "index": {
+              "description": "The index of the dimension to order by, selected from the dimensions provided in the `Grouping` request.",
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "aggregate",
+            "path",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "aggregate"
+              ]
+            },
+            "aggregate": {
+              "description": "Aggregation method to apply",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Aggregate"
+                }
+              ]
+            },
+            "path": {
+              "description": "Non-empty collection of relationships to traverse",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
               }
             }
           }
