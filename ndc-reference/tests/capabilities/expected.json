@@ -2,7 +2,13 @@
   "version": "0.1.4",
   "capabilities": {
     "query": {
-      "aggregates": {},
+      "aggregates": {
+        "group_by": {
+          "filter": {},
+          "order": {},
+          "paginate": {}
+        }
+      },
       "variables": {},
       "nested_fields": {
         "filter_by": {},

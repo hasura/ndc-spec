@@ -6,6 +6,18 @@
 {{#include ../../../ndc-models/src/lib.rs:Aggregate}}
 ```
 
+## `AggregateCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:AggregateCapabilities}}
+```
+
+## `AggregateComparisonValue`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:AggregateComparisonValue}}
+```
+
 ## `AggregateFunctionDefinition`
 
 ```rust,no_run,noplayground
@@ -54,6 +66,12 @@
 {{#include ../../../ndc-models/src/lib.rs:ComparisonValue}}
 ```
 
+## `Dimension`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:Dimension}}
+```
+
 ## `ErrorResponse`
 
 ```rust,no_run,noplayground
@@ -100,6 +118,48 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-models/src/lib.rs:FunctionInfo}}
+```
+
+## `Group`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:Group}}
+```
+
+## `GroupExpression`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupExpression}}
+```
+
+## `Grouping`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:Grouping}}
+```
+
+## `GroupByCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupByCapabilities}}
+```
+
+## `GroupOrderBy`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupOrderBy}}
+```
+
+## `GroupOrderByElement`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupOrderByElement}}
+```
+
+## `GroupOrderByTarget`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupOrderByTarget}}
 ```
 
 ## `LeafCapability`
