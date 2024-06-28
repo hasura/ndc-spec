@@ -92,7 +92,7 @@ For example, this query finds authors who have written exactly 2 articles:
 {{#include ../../../../ndc-reference/tests/query/predicate_with_star_count/request.json:3: }}
 ```
 
-_Note_: type `aggregate` will only be sent if the `query.aggregates.filter_by` capability is turned on.
+_Note_: type `aggregate` will only be sent if the `query.aggregates.filter_by` capability is turned on. If that capability is turned on, then the schema response should also contain the `capabilities.query.aggregates.filter_by` object. That object should indicate the scalar type used for the result type of count aggregates (`star_count` and `column_count`), so that clients can know what comparison operators are valid.
 
 ### Values in Binary Operators
 

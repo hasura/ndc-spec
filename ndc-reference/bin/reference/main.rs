@@ -674,6 +674,17 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     let functions: Vec<models::FunctionInfo> =
         vec![latest_article_id_function, latest_article_function];
     // ANCHOR_END: schema_functions
+    // ANCHOR: schema_capabilities
+    let capabilities = Some(models::CapabilitySchemaInfo {
+        query: Some(models::QueryCapabilitiesSchemaInfo {
+            aggregates: Some(ndc_models::AggregateCapabilitiesSchemaInfo {
+                filter_by: Some(ndc_models::AggregateFilterByCapabilitiesSchemaInfo {
+                    count_scalar_type: "Int".into(),
+                }),
+            }),
+        }),
+    });
+    // ANCHOR_END: schema_capabilities
     // ANCHOR: schema2
     Json(models::SchemaResponse {
         scalar_types,
@@ -681,6 +692,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         collections,
         functions,
         procedures,
+        capabilities,
     })
 }
 // ANCHOR_END: schema2
