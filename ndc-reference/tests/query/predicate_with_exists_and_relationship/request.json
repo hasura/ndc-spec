@@ -84,8 +84,6 @@
             "column_mapping": {
                 "id": "author_id"
             },
-            "relationship_type": "array",
-            "source_collection_or_type": "author",
             "target_collection": "articles"
         },
         "article_author": {
@@ -93,8 +91,6 @@
             "column_mapping": {
                 "author_id": "id"
             },
-            "relationship_type": "object",
-            "source_collection_or_type": "articles",
             "target_collection": "authors"
         }
     }

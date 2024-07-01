@@ -57,8 +57,6 @@
             "column_mapping": {
                 "id": "author_id"
             },
-            "relationship_type": "array",
-            "source_collection_or_type": "author",
             "target_collection": "articles"
         }
     }

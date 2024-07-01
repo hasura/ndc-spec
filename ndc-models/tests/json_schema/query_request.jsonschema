@@ -1307,7 +1307,6 @@
       "required": [
         "arguments",
         "column_mapping",
-        "relationship_type",
         "target_collection"
       ],
       "properties": {
@@ -1317,9 +1316,6 @@
           "additionalProperties": {
             "type": "string"
           }
-        },
-        "relationship_type": {
-          "$ref": "#/definitions/RelationshipType"
         },
         "target_collection": {
           "description": "The name of a collection",
@@ -1333,14 +1329,6 @@
           }
         }
       }
-    },
-    "RelationshipType": {
-      "title": "Relationship Type",
-      "type": "string",
-      "enum": [
-        "object",
-        "array"
-      ]
     }
   }
 }
