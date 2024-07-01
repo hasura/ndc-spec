@@ -110,8 +110,14 @@ The main disadvantage is that we can only express join conditions which make sen
 1. Extend column mappings to allow references to nested object fields.
 1. Extend column mappings to allow references to [named scopes](./0015-named-scopes.md).
 
-## Open Questions
+## Notes
 
-- Should we replace the top of the scope stack, or push each nested object in turn?
-  - Pushing means we now have two types of "stack frame" on the scope stack. It might get confusing.
-  - On the other hand, it captures the traversal-so-far in full.
+Everywhere this change is relevant, the scope stack should consist of a single entry, because the stack only grows inside an `Expression::Exists`, and we never specify field selections inside expressions. It's hard to imagine a future feature which would require this. 
+
+Therefore, mentioning the scope stack at all is possibly confusing, and we could perhaps simplify this proposal by introducing a second notion of "current row", and talking in terms of fields on the current row in various places.
+
+However, the current row is always the head of the scope stack (scope number zero is the current row), so the two are related. We would need a note to make sure the two are the same, which might be just as confusing.
+
+Therefore, the proposal is to define the "current row" in terms of the more complicated stack concept, and to continue to allow indexing into the stack only when named scopes are enabled.
+
+Also, nested fields may end up becoming more like relationships, with `Query` structures of their own, so the idea that the scope stack ends at the nearest enclosing `Query` would translate over to nested fields. At that point, each nested field would begin its own scope stack, and it would make sense then to have framed things in terms of stacks.
