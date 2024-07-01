@@ -1,0 +1,15 @@
+[
+  {
+    "groups": [
+      {
+        "dimensions": [
+          1
+        ],
+        "aggregates": {
+          "min_id": 1,
+          "max_id": 1
+        }
+      }
+    ]
+  }
+]

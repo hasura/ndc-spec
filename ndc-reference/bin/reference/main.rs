@@ -15,6 +15,7 @@ use axum::{
 };
 
 use indexmap::IndexMap;
+use itertools::Itertools;
 use ndc_models::{self as models};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
@@ -214,7 +215,14 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
         version: "0.1.4".into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
-                aggregates: Some(models::LeafCapability {}),
+                aggregates: Some(models::AggregateCapabilities {
+                    filter_by: Some(models::LeafCapability {}),
+                    group_by: Some(models::GroupByCapabilities {
+                        filter: Some(models::LeafCapability {}),
+                        order: Some(models::LeafCapability {}),
+                        paginate: Some(models::LeafCapability {}),
+                    }),
+                }),
                 variables: Some(models::LeafCapability {}),
                 exists: models::ExistsCapabilities {
                     named_scopes: Some(models::LeafCapability {}),
@@ -666,6 +674,17 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     let functions: Vec<models::FunctionInfo> =
         vec![latest_article_id_function, latest_article_function];
     // ANCHOR_END: schema_functions
+    // ANCHOR: schema_capabilities
+    let capabilities = Some(models::CapabilitySchemaInfo {
+        query: Some(models::QueryCapabilitiesSchemaInfo {
+            aggregates: Some(ndc_models::AggregateCapabilitiesSchemaInfo {
+                filter_by: Some(ndc_models::AggregateFilterByCapabilitiesSchemaInfo {
+                    count_scalar_type: "Int".into(),
+                }),
+            }),
+        }),
+    });
+    // ANCHOR_END: schema_capabilities
     // ANCHOR: schema2
     Json(models::SchemaResponse {
         scalar_types,
@@ -673,6 +692,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         collections,
         functions,
         procedures,
+        capabilities,
     })
 }
 // ANCHOR_END: schema2
@@ -831,7 +851,7 @@ fn get_collection_by_name(
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
-                        message: " ".into(),
+                        message: "unable to encode value".into(),
                         details: serde_json::Value::Null,
                     }),
                 )
@@ -851,7 +871,7 @@ fn get_collection_by_name(
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
-                        message: " ".into(),
+                        message: "unable to encode value".into(),
                         details: serde_json::Value::Null,
                     }),
                 )
@@ -946,6 +966,21 @@ fn execute_query(
         })
         .transpose()?;
     // ANCHOR_END: execute_query_aggregates
+    // ANCHOR: execute_query_groups
+    let groups = query
+        .groups
+        .as_ref()
+        .map(|grouping| {
+            eval_groups(
+                collection_relationships,
+                variables,
+                state,
+                grouping,
+                &paginated,
+            )
+        })
+        .transpose()?;
+    // ANCHOR_END: execute_query_groups
     // ANCHOR: execute_query_fields
     let rows = query
         .fields
@@ -961,10 +996,295 @@ fn execute_query(
         .transpose()?;
     // ANCHOR_END: execute_query_fields
     // ANCHOR: execute_query_rowset
-    Ok(models::RowSet { aggregates, rows })
+    Ok(models::RowSet {
+        aggregates,
+        rows,
+        groups,
+    })
     // ANCHOR_END: execute_query_rowset
 }
 // ANCHOR_END: execute_query
+// ANCHOR: eval_groups
+// ANCHOR: eval_groups_partition
+fn eval_groups(
+    collection_relationships: &BTreeMap<models::RelationshipName, ndc_models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    grouping: &ndc_models::Grouping,
+    paginated: &[Row],
+) -> Result<Vec<ndc_models::Group>> {
+    let chunks: Vec<Chunk> = paginated
+        .iter()
+        .chunk_by(|row| {
+            eval_dimensions(
+                collection_relationships,
+                variables,
+                state,
+                row,
+                &grouping.dimensions,
+            )
+            .expect("cannot eval dimensions")
+        })
+        .into_iter()
+        .map(|(dimensions, rows)| Chunk {
+            dimensions,
+            rows: rows.cloned().collect(),
+        })
+        .collect();
+    // ANCHOR_END: eval_groups_partition
+    // ANCHOR: eval_groups_sort
+    let sorted = group_sort(
+        collection_relationships,
+        variables,
+        state,
+        chunks,
+        &grouping.order_by,
+    )?;
+    // ANCHOR_END: eval_groups_sort
+    // ANCHOR: eval_groups_filter
+    let mut groups: Vec<models::Group> = vec![];
+
+    for chunk in &sorted {
+        let dimensions = chunk.dimensions.clone();
+
+        let mut aggregates: IndexMap<String, serde_json::Value> = IndexMap::new();
+        for (aggregate_name, aggregate) in &grouping.aggregates {
+            aggregates.insert(
+                aggregate_name.clone(),
+                eval_aggregate(aggregate, &chunk.rows)?,
+            );
+        }
+        if let Some(predicate) = &grouping.predicate {
+            if eval_group_expression(variables, predicate, &chunk.rows)? {
+                groups.push(models::Group {
+                    dimensions: dimensions.clone(),
+                    aggregates,
+                });
+            }
+        } else {
+            groups.push(models::Group {
+                dimensions: dimensions.clone(),
+                aggregates,
+            });
+        }
+    }
+    // ANCHOR_END: eval_groups_filter
+    // ANCHOR: eval_groups_paginate
+    let paginated: Vec<models::Group> =
+        paginate(groups.into_iter(), grouping.limit, grouping.offset);
+
+    Ok(paginated)
+}
+// ANCHOR_END: eval_groups_paginate
+// ANCHOR_END: eval_groups
+// ANCHOR: eval_group_expression
+fn eval_group_expression(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    expr: &models::GroupExpression,
+    rows: &[Row],
+) -> Result<bool> {
+    match expr {
+        models::GroupExpression::And { expressions } => {
+            for expr in expressions {
+                if !eval_group_expression(variables, expr, rows)? {
+                    return Ok(false);
+                }
+            }
+            Ok(true)
+        }
+        models::GroupExpression::Or { expressions } => {
+            for expr in expressions {
+                if eval_group_expression(variables, expr, rows)? {
+                    return Ok(true);
+                }
+            }
+            Ok(false)
+        }
+        models::GroupExpression::Not { expression } => {
+            let b = eval_group_expression(variables, expression, rows)?;
+            Ok(!b)
+        }
+        models::GroupExpression::BinaryComparisonOperator {
+            target,
+            operator,
+            value,
+        } => {
+            let left_val = eval_group_comparison_target(target, rows)?;
+            let right_vals = eval_aggregate_comparison_value(variables, value)?;
+            eval_comparison_operator(operator, &left_val, right_vals)
+        }
+        ndc_models::GroupExpression::UnaryComparisonOperator { target, operator } => match operator
+        {
+            models::UnaryComparisonOperator::IsNull => {
+                let val = eval_group_comparison_target(target, rows)?;
+                Ok(val.is_null())
+            }
+        },
+    }
+}
+// ANCHOR_END: eval_group_expression
+// ANCHOR: eval_aggregate_comparison_value
+fn eval_aggregate_comparison_value(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    comparison_value: &models::GroupComparisonValue,
+) -> Result<Vec<serde_json::Value>> {
+    match comparison_value {
+        models::GroupComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
+        models::GroupComparisonValue::Variable { name } => {
+            let value = variables
+                .get(name)
+                .ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "invalid variable name".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))
+                .cloned()?;
+            Ok(vec![value])
+        }
+    }
+}
+// ANCHOR_END: eval_aggregate_comparison_value
+// ANCHOR: Chunk
+struct Chunk {
+    pub dimensions: Vec<serde_json::Value>,
+    pub rows: Vec<Row>,
+}
+// ANCHOR_END: Chunk
+// ANCHOR: group_sort
+fn group_sort(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    groups: Vec<Chunk>,
+    order_by: &Option<models::GroupOrderBy>,
+) -> Result<Vec<Chunk>> {
+    match order_by {
+        None => Ok(groups),
+        Some(order_by) => {
+            let mut copy: Vec<Chunk> = vec![];
+            for item_to_insert in groups {
+                let mut index = 0;
+                for other in &copy {
+                    if let Ordering::Greater = eval_group_order_by(
+                        collection_relationships,
+                        variables,
+                        state,
+                        order_by,
+                        other,
+                        &item_to_insert,
+                    )? {
+                        break;
+                    }
+                    index += 1;
+                }
+                copy.insert(index, item_to_insert);
+            }
+            Ok(copy)
+        }
+    }
+}
+// ANCHOR_END: group_sort
+
+// ANCHOR: eval_group_order_by
+fn eval_group_order_by(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    order_by: &models::GroupOrderBy,
+    t1: &Chunk,
+    t2: &Chunk,
+) -> Result<Ordering> {
+    let mut result = Ordering::Equal;
+
+    for element in &order_by.elements {
+        let v1 =
+            eval_group_order_by_element(collection_relationships, variables, state, element, t1)?;
+        let v2 =
+            eval_group_order_by_element(collection_relationships, variables, state, element, t2)?;
+        let x = match element.order_direction {
+            models::OrderDirection::Asc => compare(v1, v2)?,
+            models::OrderDirection::Desc => compare(v2, v1)?,
+        };
+        result = result.then(x);
+    }
+
+    Ok(result)
+}
+// ANCHOR_END: eval_group_order_by
+// ANCHOR: eval_group_order_by_element
+fn eval_group_order_by_element(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    element: &models::GroupOrderByElement,
+    group: &Chunk,
+) -> Result<serde_json::Value> {
+    match element.target.clone() {
+        models::GroupOrderByTarget::Dimension { index } => {
+            group.dimensions.get(index).cloned().ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "dimension index out of range".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))
+        }
+        models::GroupOrderByTarget::Aggregate { aggregate, path } => {
+            let rows = eval_path(
+                collection_relationships,
+                variables,
+                state,
+                &path,
+                &group.rows,
+            )?;
+            eval_aggregate(&aggregate, &rows)
+        }
+    }
+}
+// ANCHOR_END: eval_group_order_by_element
+// ANCHOR: eval_dimensions
+fn eval_dimensions(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    row: &Row,
+    dimensions: &Vec<ndc_models::Dimension>,
+) -> Result<Vec<serde_json::Value>> {
+    let mut values = vec![];
+    for dimension in dimensions {
+        let value = eval_dimension(collection_relationships, variables, state, row, dimension)?;
+        values.push(value);
+    }
+    Ok(values)
+}
+// ANCHOR_END: eval_dimensions
+// ANCHOR: eval_dimension
+fn eval_dimension(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    row: &Row,
+    dimension: &models::Dimension,
+) -> Result<serde_json::Value> {
+    match dimension {
+        models::Dimension::Column {
+            column_name,
+            field_path,
+            path,
+        } => eval_column_at_path(
+            collection_relationships,
+            variables,
+            state,
+            row,
+            path.clone(),
+            column_name.clone(),
+            field_path.clone(),
+        ),
+    }
+}
+// ANCHOR_END: eval_dimension
 // ANCHOR: eval_row
 fn eval_row(
     fields: &IndexMap<models::FieldName, models::Field>,
@@ -983,16 +1303,26 @@ fn eval_row(
     Ok(row)
 }
 // ANCHOR_END: eval_row
+// ANCHOR: eval_group_comparison_target
+fn eval_group_comparison_target(
+    target: &models::GroupComparisonTarget,
+    rows: &[Row],
+) -> Result<serde_json::Value> {
+    match target {
+        models::GroupComparisonTarget::Aggregate { aggregate } => eval_aggregate(aggregate, rows),
+    }
+}
+// ANCHOR_END: eval_group_comparison_target
 // ANCHOR: eval_aggregate
-fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<serde_json::Value> {
+fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_json::Value> {
     match aggregate {
-        models::Aggregate::StarCount {} => Ok(serde_json::Value::from(paginated.len())),
+        models::Aggregate::StarCount {} => Ok(serde_json::Value::from(rows.len())),
         models::Aggregate::ColumnCount {
             column,
             field_path,
             distinct,
         } => {
-            let values = paginated
+            let values = rows
                 .iter()
                 .map(|row| eval_column_field_path(row, column, field_path))
                 .collect::<Result<Vec<_>>>()?;
@@ -1021,7 +1351,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<se
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
-                        message: " ".into(),
+                        message: "unable to encode value".into(),
                         details: serde_json::Value::Null,
                     }),
                 )
@@ -1032,7 +1362,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<se
             field_path,
             function,
         } => {
-            let values = paginated
+            let values = rows
                 .iter()
                 .map(|row| eval_column_field_path(row, column, field_path))
                 .collect::<Result<Vec<_>>>()?;
@@ -1085,7 +1415,7 @@ fn eval_aggregate_function(
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(models::ErrorResponse {
-                message: " ".into(),
+                message: "unable to encode value".into(),
                 details: serde_json::Value::Null,
             }),
         )
@@ -1127,11 +1457,7 @@ fn sort(
 }
 // ANCHOR_END: sort
 // ANCHOR: paginate
-fn paginate<I: Iterator<Item = Row>>(
-    collection: I,
-    limit: Option<u32>,
-    offset: Option<u32>,
-) -> Vec<Row> {
+fn paginate<I: Iterator>(collection: I, limit: Option<u32>, offset: Option<u32>) -> Vec<I::Item> {
     let start = offset.unwrap_or(0).try_into().unwrap();
     match limit {
         Some(n) => collection.skip(start).take(n.try_into().unwrap()).collect(),
@@ -1202,7 +1528,7 @@ fn eval_order_by_element(
             name,
             field_path,
             path,
-        } => eval_order_by_column(
+        } => eval_column_at_path(
             collection_relationships,
             variables,
             state,
@@ -1211,64 +1537,19 @@ fn eval_order_by_element(
             name,
             field_path,
         ),
-        models::OrderByTarget::SingleColumnAggregate {
-            column,
-            field_path,
-            function,
-            path,
-        } => eval_order_by_single_column_aggregate(
-            collection_relationships,
-            variables,
-            state,
-            item,
-            path,
-            column,
-            field_path,
-            function,
-        ),
-        models::OrderByTarget::StarCountAggregate { path } => eval_order_by_star_count_aggregate(
-            collection_relationships,
-            variables,
-            state,
-            item,
-            path,
-        ),
+        models::OrderByTarget::Aggregate { aggregate, path } => {
+            let rows = eval_path(
+                collection_relationships,
+                variables,
+                state,
+                &path,
+                &[item.clone()],
+            )?;
+            eval_aggregate(&aggregate, &rows)
+        }
     }
 }
 // ANCHOR_END: eval_order_by_element
-// ANCHOR: eval_order_by_star_count_aggregate
-fn eval_order_by_star_count_aggregate(
-    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
-    variables: &BTreeMap<models::VariableName, serde_json::Value>,
-    state: &AppState,
-    item: &Row,
-    path: Vec<models::PathElement>,
-) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
-    Ok(rows.len().into())
-}
-// ANCHOR_END: eval_order_by_star_count_aggregate
-// ANCHOR: eval_order_by_single_column_aggregate
-#[allow(clippy::too_many_arguments)]
-fn eval_order_by_single_column_aggregate(
-    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
-    variables: &BTreeMap<models::VariableName, serde_json::Value>,
-    state: &AppState,
-    item: &Row,
-    path: Vec<models::PathElement>,
-    column_name: models::FieldName,
-    field_path: Option<Vec<models::FieldName>>,
-    function: models::AggregateFunctionName,
-) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
-    let values = rows
-        .iter()
-        .map(|row| eval_column_field_path(row, &column_name, &field_path))
-        .collect::<Result<Vec<_>>>()?;
-    eval_aggregate_function(&function, values)
-}
-// ANCHOR_END: eval_order_by_single_column_aggregate
-
 // ANCHOR: eval_column_field_path
 fn eval_column_field_path(
     row: &Row,
@@ -1295,8 +1576,8 @@ fn eval_column_field_path(
 }
 // ANCHOR_END: eval_column_field_path
 
-// ANCHOR: eval_order_by_column
-fn eval_order_by_column(
+// ANCHOR: eval_column_at_path
+fn eval_column_at_path(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
@@ -1305,12 +1586,19 @@ fn eval_order_by_column(
     name: models::FieldName,
     field_path: Option<Vec<models::FieldName>>,
 ) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
+    let rows: Vec<Row> = eval_path(
+        collection_relationships,
+        variables,
+        state,
+        &path,
+        &[item.clone()],
+    )?;
     if rows.len() > 1 {
         return Err((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
-                message: " ".into(),
+                message: "path elements used in sorting and grouping cannot yield multiple rows"
+                    .into(),
                 details: serde_json::Value::Null,
             }),
         ));
@@ -1320,16 +1608,16 @@ fn eval_order_by_column(
         None => Ok(serde_json::Value::Null),
     }
 }
-// ANCHOR_END: eval_order_by_column
+// ANCHOR_END: eval_column_at_path
 // ANCHOR: eval_path
 fn eval_path(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     path: &[models::PathElement],
-    item: &Row,
+    items: &[Row],
 ) -> Result<Vec<Row>> {
-    let mut result: Vec<Row> = vec![item.clone()];
+    let mut result: Vec<Row> = items.to_vec();
 
     for path_element in path {
         let relationship = collection_relationships
@@ -1557,7 +1845,13 @@ fn eval_expression(
         // ANCHOR: eval_expression_unary_operators
         models::Expression::UnaryComparisonOperator { column, operator } => match operator {
             models::UnaryComparisonOperator::IsNull => {
-                let vals = eval_comparison_target(column, item)?;
+                let vals = eval_comparison_target(
+                    collection_relationships,
+                    variables,
+                    state,
+                    column,
+                    item,
+                )?;
                 Ok(vals.is_null())
             }
         },
@@ -1567,107 +1861,20 @@ fn eval_expression(
             column,
             operator,
             value,
-        } => match operator.as_str() {
-            "eq" => {
-                let left_val = eval_comparison_target(column, item)?;
-                let right_vals = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    value,
-                    state,
-                    scopes,
-                    item,
-                )?;
-
-                Ok(right_vals
-                    .into_iter()
-                    .any(|right_val| left_val == right_val))
-            }
-            // ANCHOR_END: eval_expression_binary_operators
-            // ANCHOR: eval_expression_custom_binary_operators
-            "like" => {
-                let column_val = eval_comparison_target(column, item)?;
-                let regex_vals = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    value,
-                    state,
-                    scopes,
-                    item,
-                )?;
-
-                let column_str = column_val.as_str().ok_or((
-                    StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: "column is not a string".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
-
-                for regex_val in regex_vals {
-                    let regex_str = regex_val.as_str().ok_or((
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: " ".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))?;
-                    let regex = Regex::new(regex_str).map_err(|_| {
-                        (
-                            StatusCode::BAD_REQUEST,
-                            Json(models::ErrorResponse {
-                                message: "invalid regular expression".into(),
-                                details: serde_json::Value::Null,
-                            }),
-                        )
-                    })?;
-
-                    if regex.is_match(column_str) {
-                        return Ok(true);
-                    }
-                }
-
-                Ok(false)
-            }
-
-            // ANCHOR: eval_expression_binary_array_operators
-            "in" => {
-                let left_val = eval_comparison_target(column, item)?;
-
-                let comparison_values = eval_comparison_value(
-                    collection_relationships,
-                    variables,
-                    value,
-                    state,
-                    scopes,
-                    item,
-                )?;
-
-                for comparison_value in comparison_values {
-                    let right_vals = comparison_value.as_array().ok_or((
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "expected array".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))?;
-
-                    if right_vals.contains(&left_val) {
-                        return Ok(true);
-                    }
-                }
-                Ok(false)
-            }
-            // ANCHOR_END: eval_expression_binary_array_operators
-            _ => Err((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: " ".into(),
-                    details: serde_json::Value::Null,
-                }),
-            )),
-            // ANCHOR_END: eval_expression_custom_binary_operators
-        },
+        } => {
+            let left_val =
+                eval_comparison_target(collection_relationships, variables, state, column, item)?;
+            let right_vals = eval_comparison_value(
+                collection_relationships,
+                variables,
+                value,
+                state,
+                scopes,
+                item,
+            )?;
+            eval_comparison_operator(operator, &left_val, right_vals)
+        }
+        // ANCHOR_END: eval_expression_binary_operators
         // ANCHOR: eval_expression_exists
         models::Expression::Exists {
             in_collection,
@@ -1680,6 +1887,7 @@ fn eval_expression(
                 offset: None,
                 order_by: None,
                 predicate: predicate.clone().map(|e| *e),
+                groups: None,
             };
             let collection = eval_in_collection(
                 collection_relationships,
@@ -1699,7 +1907,7 @@ fn eval_expression(
             let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(models::ErrorResponse {
-                    message: " ".into(),
+                    message: "expected 'rows'".into(),
                     details: serde_json::Value::Null,
                 }),
             ))?;
@@ -1708,6 +1916,86 @@ fn eval_expression(
     }
 }
 // ANCHOR_END: eval_expression
+// ANCHOR: eval_comparison_operator
+fn eval_comparison_operator(
+    operator: &models::ComparisonOperatorName,
+    left_val: &serde_json::Value,
+    right_vals: Vec<serde_json::Value>,
+) -> std::prelude::v1::Result<bool, (StatusCode, Json<models::ErrorResponse>)> {
+    match operator.as_str() {
+        "eq" => {
+            for right_val in &right_vals {
+                if left_val == right_val {
+                    return Ok(true);
+                }
+            }
+
+            Ok(false)
+        }
+        // ANCHOR: eval_expression_custom_binary_operators
+        "like" => {
+            for regex_val in &right_vals {
+                let column_str = left_val.as_str().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "regex is not a string".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
+                let regex_str = regex_val.as_str().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "regex is invalid".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
+                let regex = Regex::new(regex_str).map_err(|_| {
+                    (
+                        StatusCode::BAD_REQUEST,
+                        Json(models::ErrorResponse {
+                            message: "invalid regular expression".into(),
+                            details: serde_json::Value::Null,
+                        }),
+                    )
+                })?;
+                if regex.is_match(column_str) {
+                    return Ok(true);
+                }
+            }
+
+            Ok(false)
+        }
+        // ANCHOR_END: eval_expression_custom_binary_operators
+        // ANCHOR: eval_expression_binary_array_operators
+        "in" => {
+            for comparison_value in &right_vals {
+                let right_vals = comparison_value.as_array().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "expected array".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
+
+                for right_val in right_vals {
+                    if left_val == right_val {
+                        return Ok(true);
+                    }
+                }
+            }
+            Ok(false)
+        }
+        // ANCHOR_END: eval_expression_binary_array_operators
+        _ => Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "unknown binary comparison operator".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
+    }
+}
+// ANCHOR_END: eval_comparison_operator
 // ANCHOR: eval_in_collection
 fn eval_in_collection(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
@@ -1724,7 +2012,7 @@ fn eval_in_collection(
             let relationship = collection_relationships.get(relationship).ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
-                    message: " ".into(),
+                    message: "relationship is undefined".into(),
                     details: serde_json::Value::Null,
                 }),
             ))?;
@@ -1755,12 +2043,25 @@ fn eval_in_collection(
 // ANCHOR_END: eval_in_collection
 // ANCHOR: eval_comparison_target
 fn eval_comparison_target(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
     target: &models::ComparisonTarget,
     item: &Row,
 ) -> Result<serde_json::Value> {
     match target {
         models::ComparisonTarget::Column { name, field_path } => {
             eval_column_field_path(item, name, field_path)
+        }
+        models::ComparisonTarget::Aggregate { aggregate, path } => {
+            let rows: Vec<Row> = eval_path(
+                collection_relationships,
+                variables,
+                state,
+                path,
+                &[item.clone()],
+            )?;
+            eval_aggregate(aggregate, &rows)
         }
     }
 }
@@ -1824,21 +2125,27 @@ fn eval_comparison_value(
             path,
             scope,
         } => {
-            let scope = scope.map_or(Ok(&item), |scope| {
+            let scope = scope.map_or(Ok(item), |scope| {
                 if scope == 0 {
-                    Ok(&item)
+                    Ok(item)
                 } else {
-                    scopes.get(scopes.len() - 1 - scope).ok_or((
+                    Ok(*scopes.get(scopes.len() - 1 - scope).ok_or((
                         StatusCode::BAD_REQUEST,
                         Json(models::ErrorResponse {
                             message: "named scope is invalid".into(),
                             details: serde_json::Value::Null,
                         }),
-                    ))
+                    ))?)
                 }
             })?;
 
-            let items = eval_path(collection_relationships, variables, state, path, scope)?;
+            let items = eval_path(
+                collection_relationships,
+                variables,
+                state,
+                path,
+                &[scope.clone()],
+            )?;
 
             items
                 .iter()
@@ -1972,7 +2279,7 @@ fn eval_field(
             let relationship = collection_relationships.get(relationship).ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
-                    message: " ".into(),
+                    message: "relationship is undefined".into(),
                     details: serde_json::Value::Null,
                 }),
             ))?;
