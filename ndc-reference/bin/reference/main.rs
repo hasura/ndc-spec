@@ -216,6 +216,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
                 aggregates: Some(models::AggregateCapabilities {
+                    filter_by: Some(models::LeafCapability {}),
                     group_by: Some(models::GroupByCapabilities {
                         filter: Some(models::LeafCapability {}),
                         order: Some(models::LeafCapability {}),
@@ -673,6 +674,17 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     let functions: Vec<models::FunctionInfo> =
         vec![latest_article_id_function, latest_article_function];
     // ANCHOR_END: schema_functions
+    // ANCHOR: schema_capabilities
+    let capabilities = Some(models::CapabilitySchemaInfo {
+        query: Some(models::QueryCapabilitiesSchemaInfo {
+            aggregates: Some(ndc_models::AggregateCapabilitiesSchemaInfo {
+                filter_by: Some(ndc_models::AggregateFilterByCapabilitiesSchemaInfo {
+                    count_scalar_type: "Int".into(),
+                }),
+            }),
+        }),
+    });
+    // ANCHOR_END: schema_capabilities
     // ANCHOR: schema2
     Json(models::SchemaResponse {
         scalar_types,
@@ -680,6 +692,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         collections,
         functions,
         procedures,
+        capabilities,
     })
 }
 // ANCHOR_END: schema2
@@ -838,7 +851,7 @@ fn get_collection_by_name(
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
-                        message: " ".into(),
+                        message: "unable to encode value".into(),
                         details: serde_json::Value::Null,
                     }),
                 )
@@ -858,7 +871,7 @@ fn get_collection_by_name(
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
-                        message: " ".into(),
+                        message: "unable to encode value".into(),
                         details: serde_json::Value::Null,
                     }),
                 )
@@ -1338,7 +1351,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_j
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
-                        message: " ".into(),
+                        message: "unable to encode value".into(),
                         details: serde_json::Value::Null,
                     }),
                 )
@@ -1402,7 +1415,7 @@ fn eval_aggregate_function(
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(models::ErrorResponse {
-                message: " ".into(),
+                message: "unable to encode value".into(),
                 details: serde_json::Value::Null,
             }),
         )
@@ -1524,76 +1537,19 @@ fn eval_order_by_element(
             name,
             field_path,
         ),
-        models::OrderByTarget::SingleColumnAggregate {
-            column,
-            field_path,
-            function,
-            path,
-        } => eval_order_by_single_column_aggregate(
-            collection_relationships,
-            variables,
-            state,
-            item,
-            path,
-            column,
-            field_path,
-            function,
-        ),
-        models::OrderByTarget::StarCountAggregate { path } => eval_order_by_star_count_aggregate(
-            collection_relationships,
-            variables,
-            state,
-            item,
-            path,
-        ),
+        models::OrderByTarget::Aggregate { aggregate, path } => {
+            let rows = eval_path(
+                collection_relationships,
+                variables,
+                state,
+                &path,
+                &[item.clone()],
+            )?;
+            eval_aggregate(&aggregate, &rows)
+        }
     }
 }
 // ANCHOR_END: eval_order_by_element
-// ANCHOR: eval_order_by_star_count_aggregate
-fn eval_order_by_star_count_aggregate(
-    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
-    variables: &BTreeMap<models::VariableName, serde_json::Value>,
-    state: &AppState,
-    item: &Row,
-    path: Vec<models::PathElement>,
-) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(
-        collection_relationships,
-        variables,
-        state,
-        &path,
-        &[item.clone()],
-    )?;
-    Ok(rows.len().into())
-}
-// ANCHOR_END: eval_order_by_star_count_aggregate
-// ANCHOR: eval_order_by_single_column_aggregate
-#[allow(clippy::too_many_arguments)]
-fn eval_order_by_single_column_aggregate(
-    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
-    variables: &BTreeMap<models::VariableName, serde_json::Value>,
-    state: &AppState,
-    item: &Row,
-    path: Vec<models::PathElement>,
-    column_name: models::FieldName,
-    field_path: Option<Vec<models::FieldName>>,
-    function: models::AggregateFunctionName,
-) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(
-        collection_relationships,
-        variables,
-        state,
-        &path,
-        &[item.clone()],
-    )?;
-    let values = rows
-        .iter()
-        .map(|row| eval_column_field_path(row, &column_name, &field_path))
-        .collect::<Result<Vec<_>>>()?;
-    eval_aggregate_function(&function, values)
-}
-// ANCHOR_END: eval_order_by_single_column_aggregate
-
 // ANCHOR: eval_column_field_path
 fn eval_column_field_path(
     row: &Row,
@@ -1889,7 +1845,13 @@ fn eval_expression(
         // ANCHOR: eval_expression_unary_operators
         models::Expression::UnaryComparisonOperator { column, operator } => match operator {
             models::UnaryComparisonOperator::IsNull => {
-                let vals = eval_comparison_target(column, item)?;
+                let vals = eval_comparison_target(
+                    collection_relationships,
+                    variables,
+                    state,
+                    column,
+                    item,
+                )?;
                 Ok(vals.is_null())
             }
         },
@@ -1900,7 +1862,8 @@ fn eval_expression(
             operator,
             value,
         } => {
-            let left_val = eval_comparison_target(column, item)?;
+            let left_val =
+                eval_comparison_target(collection_relationships, variables, state, column, item)?;
             let right_vals = eval_comparison_value(
                 collection_relationships,
                 variables,
@@ -1944,7 +1907,7 @@ fn eval_expression(
             let rows: Vec<IndexMap<_, _>> = row_set.rows.ok_or((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(models::ErrorResponse {
-                    message: " ".into(),
+                    message: "expected 'rows'".into(),
                     details: serde_json::Value::Null,
                 }),
             ))?;
@@ -1975,14 +1938,14 @@ fn eval_comparison_operator(
                 let column_str = left_val.as_str().ok_or((
                     StatusCode::BAD_REQUEST,
                     Json(models::ErrorResponse {
-                        message: "column is not a string".into(),
+                        message: "regex is not a string".into(),
                         details: serde_json::Value::Null,
                     }),
                 ))?;
                 let regex_str = regex_val.as_str().ok_or((
                     StatusCode::BAD_REQUEST,
                     Json(models::ErrorResponse {
-                        message: " ".into(),
+                        message: "regex is invalid".into(),
                         details: serde_json::Value::Null,
                     }),
                 ))?;
@@ -2026,7 +1989,7 @@ fn eval_comparison_operator(
         _ => Err((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
-                message: " ".into(),
+                message: "unknown binary comparison operator".into(),
                 details: serde_json::Value::Null,
             }),
         )),
@@ -2049,7 +2012,7 @@ fn eval_in_collection(
             let relationship = collection_relationships.get(relationship).ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
-                    message: " ".into(),
+                    message: "relationship is undefined".into(),
                     details: serde_json::Value::Null,
                 }),
             ))?;
@@ -2080,12 +2043,25 @@ fn eval_in_collection(
 // ANCHOR_END: eval_in_collection
 // ANCHOR: eval_comparison_target
 fn eval_comparison_target(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
     target: &models::ComparisonTarget,
     item: &Row,
 ) -> Result<serde_json::Value> {
     match target {
         models::ComparisonTarget::Column { name, field_path } => {
             eval_column_field_path(item, name, field_path)
+        }
+        models::ComparisonTarget::Aggregate { aggregate, path } => {
+            let rows: Vec<Row> = eval_path(
+                collection_relationships,
+                variables,
+                state,
+                path,
+                &[item.clone()],
+            )?;
+            eval_aggregate(aggregate, &rows)
         }
     }
 }
@@ -2303,7 +2279,7 @@ fn eval_field(
             let relationship = collection_relationships.get(relationship).ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
-                    message: " ".into(),
+                    message: "relationship is undefined".into(),
                     details: serde_json::Value::Null,
                 }),
             ))?;

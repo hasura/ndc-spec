@@ -104,6 +104,8 @@ pub struct NestedFieldCapabilities {
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Aggregate Capabilities")]
 pub struct AggregateCapabilities {
+    /// Does the connector support filtering based on aggregated values
+    pub filter_by: Option<LeafCapability>,
     /// Does the connector support aggregations over groups
     pub group_by: Option<GroupByCapabilities>,
 }
@@ -162,6 +164,8 @@ pub struct SchemaResponse {
     pub functions: Vec<FunctionInfo>,
     /// Procedures which are available for execution as part of mutations
     pub procedures: Vec<ProcedureInfo>,
+    /// Schema data which is relevant to features enabled by capabilities
+    pub capabilities: Option<CapabilitySchemaInfo>,
 }
 // ANCHOR_END: SchemaResponse
 
@@ -415,6 +419,47 @@ pub struct ProcedureInfo {
     pub result_type: Type,
 }
 // ANCHOR_END: ProcedureInfo
+
+// ANCHOR: CapabilitySchemaInfo
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Capability Schema Info")]
+pub struct CapabilitySchemaInfo {
+    /// Schema information relevant to query capabilities
+    pub query: Option<QueryCapabilitiesSchemaInfo>,
+}
+// ANCHOR_END: CapabilitySchemaInfo
+
+// ANCHOR: QueryCapabilitiesSchemaInfo
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Query Capabilities Schema Info")]
+pub struct QueryCapabilitiesSchemaInfo {
+    /// Schema information relevant to aggregate query capabilities
+    pub aggregates: Option<AggregateCapabilitiesSchemaInfo>,
+}
+// ANCHOR_END: QueryCapabilitiesSchemaInfo
+
+// ANCHOR: AggregateCapabilitiesSchemaInfo
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Aggregate Capabilities Schema Info")]
+pub struct AggregateCapabilitiesSchemaInfo {
+    /// Schema information relevant to the aggregates.filter_by capability
+    pub filter_by: Option<AggregateFilterByCapabilitiesSchemaInfo>,
+}
+// ANCHOR_END: AggregateCapabilitiesSchemaInfo
+
+// ANCHOR: AggregateFilterByCapabilitiesSchemaInfo
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Aggregate Filter By Capabilities Schema Info")]
+pub struct AggregateFilterByCapabilitiesSchemaInfo {
+    /// The scalar type which should be used for the return type of count
+    /// (star_count and column_count) operations.
+    pub count_scalar_type: String,
+}
+// ANCHOR_END: AggregateFilterByCapabilitiesSchemaInfo
 
 // ANCHOR: QueryRequest
 /// This is the request body of the query POST endpoint
@@ -701,17 +746,9 @@ pub enum OrderByTarget {
         /// Any (object) relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
-    SingleColumnAggregate {
-        /// The column to apply the aggregation function to
-        column: FieldName,
-        /// Path to a nested field within an object column
-        field_path: Option<Vec<FieldName>>,
-        /// Single column aggregate function name.
-        function: AggregateFunctionName,
-        /// Non-empty collection of relationships to traverse
-        path: Vec<PathElement>,
-    },
-    StarCountAggregate {
+    Aggregate {
+        /// The aggregation method to use
+        aggregate: Aggregate,
         /// Non-empty collection of relationships to traverse
         path: Vec<PathElement>,
     },
@@ -782,6 +819,12 @@ pub enum ComparisonTarget {
         name: FieldName,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
+    },
+    Aggregate {
+        /// The aggregation method to use
+        aggregate: Aggregate,
+        /// Non-empty collection of relationships to traverse
+        path: Vec<PathElement>,
     },
 }
 // ANCHOR_END: ComparisonTarget

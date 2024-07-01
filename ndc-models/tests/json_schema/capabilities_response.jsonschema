@@ -103,6 +103,17 @@
       "title": "Aggregate Capabilities",
       "type": "object",
       "properties": {
+        "filter_by": {
+          "description": "Does the connector support filtering based on aggregated values",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "group_by": {
           "description": "Does the connector support aggregations over groups",
           "anyOf": [
@@ -115,6 +126,10 @@
           ]
         }
       }
+    },
+    "LeafCapability": {
+      "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
+      "type": "object"
     },
     "GroupByCapabilities": {
       "title": "Group By Capabilities",
@@ -154,10 +169,6 @@
           ]
         }
       }
-    },
-    "LeafCapability": {
-      "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
-      "type": "object"
     },
     "NestedFieldCapabilities": {
       "title": "Nested Field Capabilities",

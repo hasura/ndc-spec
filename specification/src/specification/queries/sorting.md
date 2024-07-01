@@ -11,8 +11,7 @@ To compute the ordering from the `order_by` field, data connectors should implem
 - Consider each element of the `order_by.elements` array in turn.
 - For each [`OrderByElement`](../../reference/types.md#orderbyelement):
   - If `element.target.type` is `column`, then to compare two rows, compare the value in the selected column. See type `column` below.
-  - If `element.target.type` is `star_count_aggregate`, compare two rows by comparing the row count of a related collection. See type `star_count_aggregate` below.
-  - If `element.target.type` is `single_column_aggregate`, compare two rows by comparing a single column aggregate. See type `single_column_aggregate` below.
+  - If `element.target.type` is `aggregate`, compare two rows by comparing aggregates over a related collection. See type `aggregate` below.
 
 ### Type `column`
 
@@ -45,9 +44,13 @@ For example, this query sorts articles by their author's last names, and then by
 {{#include ../../../../ndc-reference/tests/query/order_by_relationship/request.json:3: }}
 ```
 
-### Type `star_count_aggregate`
+### Type `aggregate`
 
-An ordering of type `star_count_aggregate` orders rows by a count of rows in some [related collection](./relationships.md). If the respective counts are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
+An ordering of type `aggregate` orders rows by aggregating rows in some [related collection](./relationships.md), and comparing aggregations for each of the teo two rows. 
+
+If the respective aggregates are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
+
+#### Examples
 
 For example, this query sorts article authors by their total article count:
 
@@ -56,11 +59,7 @@ For example, this query sorts article authors by their total article count:
 {{#include ../../../../ndc-reference/tests/query/order_by_aggregate/request.json:3: }}
 ```
 
-### Type `single_column_aggregate`
-
-An ordering of type `single_column_aggregate` orders rows by an aggregate computed over rows in some [related collection](./relationships.md). If the respective aggregates are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
-
-For example, this query sorts article authors by their maximum article ID:
+This query sorts article authors by their maximum article ID:
 
 ```json
 {{#include ../../../../ndc-reference/tests/query/order_by_aggregate_function/request.json:1 }}

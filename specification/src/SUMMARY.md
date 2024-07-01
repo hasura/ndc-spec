@@ -20,6 +20,7 @@
   - [Collections](specification/schema/collections.md)
   - [Functions](specification/schema/functions.md)
   - [Procedures](specification/schema/procedures.md)
+  - [Capabilities](specification/schema/capabilities.md)
 - [Queries](specification/queries/README.md)
   - [Field Selection](specification/queries/field-selection.md)
   - [Filtering](specification/queries/filtering.md)

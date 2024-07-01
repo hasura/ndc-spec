@@ -25,6 +25,7 @@ See [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 | `capabilities.mutation.explain` | Whether the data connector is capable of describing mutation plans |
 | `capabilities.mutation.transactional` | Whether the data connector is capable of executing multiple mutations in a transaction |
 | `capabilities.query.aggregates` | Whether the data connector supports [aggregate queries](queries/aggregates.md) |
+| `capabilities.query.aggregates.filter_by` | Whether the data connector supports filtering by aggregated values |
 | `capabilities.query.aggregates.group_by` | Whether the data connector supports [grouping operations](queries/grouping.md) |
 | `capabilities.query.aggregates.group_by.filter` | Whether the data connector supports [filtering on groups](queries/grouping.md#filtering) |
 | `capabilities.query.aggregates.group_by.order` | Whether the data connector supports [ordering on groups](queries/grouping.md#ordering) |

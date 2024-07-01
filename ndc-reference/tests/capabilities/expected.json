@@ -3,6 +3,7 @@
   "capabilities": {
     "query": {
       "aggregates": {
+        "filter_by": {},
         "group_by": {
           "filter": {},
           "order": {},

@@ -44,6 +44,17 @@
       "items": {
         "$ref": "#/definitions/ProcedureInfo"
       }
+    },
+    "capabilities": {
+      "description": "Schema data which is relevant to features enabled by capabilities",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/CapabilitySchemaInfo"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "definitions": {
@@ -819,6 +830,70 @@
               "$ref": "#/definitions/Type"
             }
           ]
+        }
+      }
+    },
+    "CapabilitySchemaInfo": {
+      "title": "Capability Schema Info",
+      "type": "object",
+      "properties": {
+        "query": {
+          "description": "Schema information relevant to query capabilities",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/QueryCapabilitiesSchemaInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "QueryCapabilitiesSchemaInfo": {
+      "title": "Query Capabilities Schema Info",
+      "type": "object",
+      "properties": {
+        "aggregates": {
+          "description": "Schema information relevant to aggregate query capabilities",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AggregateCapabilitiesSchemaInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "AggregateCapabilitiesSchemaInfo": {
+      "title": "Aggregate Capabilities Schema Info",
+      "type": "object",
+      "properties": {
+        "filter_by": {
+          "description": "Schema information relevant to the aggregates.filter_by capability",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AggregateFilterByCapabilitiesSchemaInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "AggregateFilterByCapabilitiesSchemaInfo": {
+      "title": "Aggregate Filter By Capabilities Schema Info",
+      "type": "object",
+      "required": [
+        "count_scalar_type"
+      ],
+      "properties": {
+        "count_scalar_type": {
+          "description": "The scalar type which should be used for the return type of count (star_count and column_count) operations.",
+          "type": "string"
         }
       }
     }

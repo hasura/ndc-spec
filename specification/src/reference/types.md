@@ -12,10 +12,16 @@
 {{#include ../../../ndc-models/src/lib.rs:AggregateCapabilities}}
 ```
 
-## `AggregateComparisonValue`
+## `AggregateCapabilitiesSchemaInfo`
 
-```rust,no_run,noplayground
-{{#include ../../../ndc-models/src/lib.rs:AggregateComparisonValue}}
+```rust,norun,noplayground
+{{#include ../../../ndc-models/src/lib.rs:AggregateCapabilitiesSchemaInfo}}
+```
+
+## `AggregateFilterByCapabilitiesSchemaInfo`
+
+```rust,norun,noplayground
+{{#include ../../../ndc-models/src/lib.rs:AggregateFilterByCapabilitiesSchemaInfo}}
 ```
 
 ## `AggregateFunctionDefinition`
@@ -46,6 +52,12 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-models/src/lib.rs:CapabilitiesResponse}}
+```
+
+## `CapabilitySchemaInfo`
+
+```rust,norun,noplayground
+{{#include ../../../ndc-models/src/lib.rs:CapabilitySchemaInfo}}
 ```
 
 ## `ComparisonOperatorDefinition`
@@ -124,6 +136,12 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-models/src/lib.rs:Group}}
+```
+
+## `GroupComparisonValue`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupComparisonValue}}
 ```
 
 ## `GroupExpression`
@@ -274,6 +292,12 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-models/src/lib.rs:QueryCapabilities}}
+```
+
+## `QueryCapabilitiesSchemaInfo`
+
+```rust,norun,noplayground
+{{#include ../../../ndc-models/src/lib.rs:QueryCapabilitiesSchemaInfo}}
 ```
 
 ## `QueryRequest`
