@@ -28,6 +28,15 @@ If `fields` is provided, its value should be compatible with the type of the col
 - For an object-typed column (whether nullable or not), the `fields` property should contain a `NestedField` with type `object`. The `fields` property of the `NestedField` specifies a [`Field`](../../reference/types.md#field) structure for each requested nested field from the objects.
 - For an array-typed column  (whether nullable or not), the `fields` property should contain a `NestedField` with type `array`. The `fields` property of the `NestedField` should contain _another_ `NestedField` structure, compatible with the type of the elements of the array. The selection function denoted by this nested `NestedField` structure should be applied to each element of each array.
 
+### Nested fields and relationships
+
+Within the scope of a nested object, that object should be used as the "current row" wherever that concept is appropriate:
+
+- In a `Field::Column` field, the column name points to a field of the nested object,
+- In a `Field::Relationship` field:
+  - A [column mapping](./relationships.md#column-mappings) refers to fields from the nested object,
+  - A [relationship argument](./arguments.md#relationships) which selects a column refers to fields of the nested object.
+  
 ## Examples
 
 ### Simple column selection
@@ -60,12 +69,25 @@ Here is an example of a query which selects some columns from a nested array ins
 
 Notice that the `staff` column is fetched using a `fields` property of type `array`. For each staff member in each institution row, we apply the selection function denoted by its `fields` property (of type `object`). Specifically, the `last_name` and `specialities` properties are selected for each staff member.
 
+### Example with Nested Types and Relationships
+
+This query selects `institution` data, and fetches `author` data if the first and last name fields match for any nested `staff` objects:
+
+
+```json
+{{#include ../../../../ndc-reference/tests/query/nested_object_select_with_relationship/request.json:1}}
+{{#include ../../../../ndc-reference/tests/query/nested_object_select_with_relationship/request.json:3:}}
+```
+
+Note that the `first_name` and `last_name` properties in the column mapping are evaluated in the context of the nested `staff` object, and _not_ in the context of the original `institution` row.
+
 ### Example with Field Arguments
 
 Here is an example of a query which selects some columns from a nested array inside the rows of the `institutions` collection of the reference data connector and uses the `limit` field argument to limit the number of items returned:
 
 ```json
-{{#include ../../../../ndc-reference/tests/query/nested_array_select_with_limit/request.json}}
+{{#include ../../../../ndc-reference/tests/query/nested_array_select_with_limit/request.json:1}}
+{{#include ../../../../ndc-reference/tests/query/nested_array_select_with_limit/request.json:3:}}
 ```
 
 ## Requirements
