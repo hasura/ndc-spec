@@ -992,7 +992,6 @@ pub enum MutationOperation {
 pub struct Relationship {
     /// A mapping between columns on the source collection to columns on the target collection
     pub column_mapping: BTreeMap<FieldName, FieldName>,
-    pub relationship_type: RelationshipType,
     /// The name of a collection
     pub target_collection: CollectionName,
     /// Values to be provided to any collection arguments

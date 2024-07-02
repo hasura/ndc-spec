@@ -39,7 +39,6 @@
                 }
             },
             "column_mapping": {},
-            "relationship_type": "array",
             "target_collection": "articles_by_author"
         }
     }

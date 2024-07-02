@@ -149,7 +149,6 @@ async fn select_top_n_using_foreign_key<C: Connector>(
                 "__relationship".into(),
                 models::Relationship {
                     column_mapping: foreign_key.column_mapping.clone(),
-                    relationship_type: models::RelationshipType::Object,
                     target_collection: foreign_key.foreign_collection.clone(),
                     arguments: BTreeMap::new(),
                 },
@@ -228,7 +227,6 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
                     "__array_relationship".into(),
                     models::Relationship {
                         column_mapping: column_mapping.clone(),
-                        relationship_type: models::RelationshipType::Array,
                         target_collection: collection_info.name.clone(),
                         arguments: BTreeMap::new(),
                     },
@@ -315,7 +313,6 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
                 "__array_relationship".into(),
                 models::Relationship {
                     column_mapping,
-                    relationship_type: models::RelationshipType::Array,
                     target_collection: collection_info.name.clone(),
                     arguments: BTreeMap::new(),
                 },
