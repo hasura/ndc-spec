@@ -1,0 +1,22 @@
+[
+  {
+    "groups": [
+      {
+        "dimensions": [
+          1
+        ],
+        "aggregates": {
+          "article_count": 1
+        }
+      },
+      {
+        "dimensions": [
+          2
+        ],
+        "aggregates": {
+          "article_count": 2
+        }
+      }
+    ]
+  }
+]

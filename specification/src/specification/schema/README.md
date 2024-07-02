@@ -24,8 +24,9 @@ See [`SchemaResponse`](../../reference/types.md#schemaresponse)
 
 | Name | Description |
 |------|-------------|
-| `scalar_types` | [Scalar Types](scalar-types.md) |
-| `object_types` | [Object Types](object-types.md) |
+| `scalar_types` | [Scalar types](scalar-types.md) |
+| `object_types` | [Object types](object-types.md) |
 | `collections` | [Collection](collections.md) |
 | `functions` | [Functions](functions.md) |
 | `procedures` | [Procedures](procedures.md) |
+| `capabilities` | [Capability-specific information](capabilities.md) |

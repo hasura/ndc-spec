@@ -109,3 +109,11 @@ As an example, we define an _upsert_ procedure for the article collection define
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_procedure_upsert_article}}
 ```
+
+## Capability-specific information
+
+The schema response includes required [capability-specific information](../specification/schema/capabilities.md):
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-reference/bin/reference/main.rs:schema_capabilities}}
+```

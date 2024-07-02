@@ -1,0 +1,24 @@
+[
+  {
+    "groups": [
+      {
+        "dimensions": [
+          "Landin",
+          "Peter"
+        ],
+        "aggregates": {
+          "article_count": 1
+        }
+      },
+      {
+        "dimensions": [
+          "Hughes",
+          "John"
+        ],
+        "aggregates": {
+          "article_count": 2
+        }
+      }
+    ]
+  }
+]

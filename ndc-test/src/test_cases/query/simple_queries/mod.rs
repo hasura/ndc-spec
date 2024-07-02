@@ -84,6 +84,7 @@ async fn test_select_top_n_rows<C: Connector>(
             offset: None,
             order_by: None,
             predicate: None,
+            groups: None,
         },
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),

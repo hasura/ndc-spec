@@ -1,5 +1,32 @@
 # Changelog
 
+## `0.2.0`
+
+### Breaking Changes
+
+- `ComparisonTarget::RootCollectionColumn` was removed and replaced by _named scopes_ ([RFC](https://github.com/hasura/ndc-spec/blob/36855ff20dcbd7d129427794aee9746b895390af/rfcs/0015-named-scopes.md))
+- `path` was removed from `ComparisonTarget::Column` ([RFC](https://github.com/hasura/ndc-spec/blob/36855ff20dcbd7d129427794aee9746b895390af/rfcs/0011-no-paths-in-comparison-target.md))
+
+### Specification
+
+### Grouping
+
+A [new section was added to the specification](../specification/queries/grouping.md) which allows callers to group rows and aggregate within groups, generalizing SQL's `GROUP BY` functionality.
+
+### Named scopes
+
+Root column references were generalized to _named scopes_. Scopes are introduced by `EXISTS` expressions, and named scopes allow [references to columns outside of the current scope](../specification/queries/filtering.md#referencing-a-column-from-a-collection-in-scope); that is, outside the `EXISTS` expression. Unlike root column references, named scopes allow the caller to refer to columns in any collection in scope, and not just the root collection.
+
+### Filter by aggregates
+
+`ComparisonTarget` was extended to allow [filtering by aggregates](../specification/queries/filtering.md#computing-an-aggregate).
+
+### Rust Libraries
+
+- Add newtypes for string types
+- Remove duplication by setting values in the workspace file
+- Export the specification version from `ndc-models`
+
 ## `0.1.4`
 
 ### Specification

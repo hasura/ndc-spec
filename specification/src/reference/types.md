@@ -6,6 +6,24 @@
 {{#include ../../../ndc-models/src/lib.rs:Aggregate}}
 ```
 
+## `AggregateCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:AggregateCapabilities}}
+```
+
+## `AggregateCapabilitiesSchemaInfo`
+
+```rust,norun,noplayground
+{{#include ../../../ndc-models/src/lib.rs:AggregateCapabilitiesSchemaInfo}}
+```
+
+## `AggregateFilterByCapabilitiesSchemaInfo`
+
+```rust,norun,noplayground
+{{#include ../../../ndc-models/src/lib.rs:AggregateFilterByCapabilitiesSchemaInfo}}
+```
+
 ## `AggregateFunctionDefinition`
 
 ```rust,no_run,noplayground
@@ -36,6 +54,12 @@
 {{#include ../../../ndc-models/src/lib.rs:CapabilitiesResponse}}
 ```
 
+## `CapabilitySchemaInfo`
+
+```rust,norun,noplayground
+{{#include ../../../ndc-models/src/lib.rs:CapabilitySchemaInfo}}
+```
+
 ## `ComparisonOperatorDefinition`
 
 ```rust,no_run,noplayground
@@ -54,10 +78,22 @@
 {{#include ../../../ndc-models/src/lib.rs:ComparisonValue}}
 ```
 
+## `Dimension`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:Dimension}}
+```
+
 ## `ErrorResponse`
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-models/src/lib.rs:ErrorResponse}}
+```
+
+## `ExistsCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:ExistsCapabilities}}
 ```
 
 ## `ExistsInCollection`
@@ -94,6 +130,54 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-models/src/lib.rs:FunctionInfo}}
+```
+
+## `Group`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:Group}}
+```
+
+## `GroupComparisonValue`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupComparisonValue}}
+```
+
+## `GroupExpression`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupExpression}}
+```
+
+## `Grouping`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:Grouping}}
+```
+
+## `GroupByCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupByCapabilities}}
+```
+
+## `GroupOrderBy`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupOrderBy}}
+```
+
+## `GroupOrderByElement`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupOrderByElement}}
+```
+
+## `GroupOrderByTarget`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:GroupOrderByTarget}}
 ```
 
 ## `LeafCapability`
@@ -208,6 +292,12 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-models/src/lib.rs:QueryCapabilities}}
+```
+
+## `QueryCapabilitiesSchemaInfo`
+
+```rust,norun,noplayground
+{{#include ../../../ndc-models/src/lib.rs:QueryCapabilitiesSchemaInfo}}
 ```
 
 ## `QueryRequest`

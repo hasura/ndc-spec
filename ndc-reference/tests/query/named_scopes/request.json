@@ -11,23 +11,6 @@
             "last_name": {
                 "type": "column",
                 "column": "last_name"
-            },
-            "articles": {
-                "type": "relationship",
-                "arguments": {},
-                "relationship": "author_articles",
-                "query": {
-                    "fields": {
-                        "id": {
-                            "type": "column",
-                            "column": "id"
-                        },
-                        "title": {
-                            "type": "column",
-                            "column": "title"
-                        }
-                    }
-                }
             }
         },
         "predicate": {
@@ -44,24 +27,20 @@
                         "type": "binary_comparison_operator",
                         "column": {
                             "type": "column",
-                            "name": "author_id",
-                            "path": []
+                            "name": "author_id"
                         },
                         "operator": "eq",
                         "value": {
                             "type": "column",
-                            "column": {
-                                "type": "root_collection_column",
-                                "name": "id"
-                            }
+                            "name": "id",
+                            "scope": 1
                         }
                     },
                     {
                         "type": "binary_comparison_operator",
                         "column": {
                             "type": "column",
-                            "name": "title",
-                            "path": []
+                            "name": "title"
                         },
                         "operator": "like",
                         "value": {
@@ -73,15 +52,5 @@
             }
         }
     },
-    "collection_relationships": {
-        "author_articles": {
-            "arguments": {},
-            "column_mapping": {
-                "id": "author_id"
-            },
-            "relationship_type": "array",
-            "source_collection_or_type": "author",
-            "target_collection": "articles"
-        }
-    }
+    "collection_relationships": {}
 }
