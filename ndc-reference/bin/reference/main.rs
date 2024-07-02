@@ -212,7 +212,7 @@ async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String
 // ANCHOR: capabilities
 async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
     Json(models::CapabilitiesResponse {
-        version: "0.1.4".into(),
+        version: ndc_models::VERSION.into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
                 aggregates: Some(models::AggregateCapabilities {
