@@ -84,10 +84,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
     let row_set = expect_single_rowset(response)?;
 
     if let Some(aggregates) = &row_set.aggregates {
-        match aggregates
-            .get(&models::FieldName::from("count"))
-            .and_then(serde_json::Value::as_u64)
-        {
+        match aggregates.get("count").and_then(serde_json::Value::as_u64) {
             None => Err(Error::MissingField("count".into())),
             Some(count) => Ok(count),
         }
@@ -196,10 +193,7 @@ pub async fn test_single_column_aggregates<C: Connector>(
 
     for (field_name, field) in &collection_type.fields {
         if let Some(name) = super::common::as_named_type(&field.r#type) {
-            if let Some(scalar_type) = schema
-                .scalar_types
-                .get(&models::ScalarTypeName::new(name.clone()))
-            {
+            if let Some(scalar_type) = schema.scalar_types.get(name) {
                 for function_name in scalar_type.aggregate_functions.keys() {
                     let aggregate = models::Aggregate::SingleColumn {
                         column: field_name.clone(),

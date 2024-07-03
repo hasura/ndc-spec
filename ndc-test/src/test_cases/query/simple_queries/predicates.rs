@@ -122,10 +122,7 @@ fn make_single_expressions(
     }
 
     if let Some(field_type_name) = super::super::common::get_named_type(field_type) {
-        if let Some(field_scalar_type) = schema
-            .scalar_types
-            .get(&models::ScalarTypeName::new(field_type_name.clone()))
-        {
+        if let Some(field_scalar_type) = schema.scalar_types.get(field_type_name) {
             for (operator_name, operator) in &field_scalar_type.comparison_operators {
                 match operator {
                     models::ComparisonOperatorDefinition::Equal => {
