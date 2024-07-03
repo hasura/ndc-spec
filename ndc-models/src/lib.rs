@@ -933,6 +933,42 @@ newtype! {ScalarTypeName over TypeName}
 newtype! {TypeName}
 newtype! {VariableName}
 
+impl From<String> for FunctionName {
+    fn from(value: String) -> Self {
+        FunctionName(value.into())
+    }
+}
+
+impl From<FunctionName> for String {
+    fn from(value: FunctionName) -> Self {
+        value.0.into()
+    }
+}
+
+impl From<String> for ObjectTypeName {
+    fn from(value: String) -> Self {
+        ObjectTypeName(value.into())
+    }
+}
+
+impl From<ObjectTypeName> for String {
+    fn from(value: ObjectTypeName) -> Self {
+        value.0.into()
+    }
+}
+
+impl From<String> for ScalarTypeName {
+    fn from(value: String) -> Self {
+        ScalarTypeName(value.into())
+    }
+}
+
+impl From<ScalarTypeName> for String {
+    fn from(value: ScalarTypeName) -> Self {
+        value.0.into()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::io::Write;
