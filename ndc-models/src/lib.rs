@@ -1,6 +1,6 @@
 #![allow(deprecated)]
 
-use std::collections::BTreeMap;
+use std::{borrow::Borrow, collections::BTreeMap};
 
 use indexmap::IndexMap;
 use schemars::JsonSchema;
@@ -870,6 +870,18 @@ macro_rules! newtype {
         impl std::fmt::Display for $name {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 self.0.fmt(f)
+            }
+        }
+
+        impl Borrow<str> for $name {
+            fn borrow(&self) -> &str {
+                self.0.as_str()
+            }
+        }
+
+        impl Borrow<$oldtype> for $name {
+            fn borrow(&self) -> &$oldtype {
+                &self.0
             }
         }
 
