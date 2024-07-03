@@ -46,7 +46,7 @@ fn read_json_lines(contents: &str) -> core::result::Result<BTreeMap<i32, Row>, B
     for line in contents.lines() {
         let row: BTreeMap<models::FieldName, serde_json::Value> = serde_json::from_str(line)?;
         let id: i32 = row
-            .get(&models::FieldName::new("id".into()))
+            .get("id")
             .ok_or("'id' field not found in json file")?
             .as_i64()
             .ok_or("'id' field was not an integer in json file")?
@@ -778,15 +778,13 @@ fn get_collection_by_name(
         "authors" => Ok(state.authors.values().cloned().collect()),
         "institutions" => Ok(state.institutions.values().cloned().collect()),
         "articles_by_author" => {
-            let author_id = arguments
-                .get(&models::ArgumentName::from("author_id"))
-                .ok_or((
-                    StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: "missing argument author_id".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?;
+            let author_id = arguments.get("author_id").ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "missing argument author_id".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
             let author_id_int: i32 = author_id
                 .as_i64()
                 .ok_or((
@@ -810,15 +808,13 @@ fn get_collection_by_name(
             let mut articles_by_author = vec![];
 
             for article in state.articles.values() {
-                let article_author_id = article
-                    .get(&models::FieldName::new("author_id".into()))
-                    .ok_or((
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        Json(models::ErrorResponse {
-                            message: "author_id not found".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    ))?;
+                let article_author_id = article.get("author_id").ok_or((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: "author_id not found".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
                 let article_author_id_int: i32 = article_author_id
                     .as_i64()
                     .ok_or((
@@ -2082,7 +2078,7 @@ fn eval_column(
     ))?;
 
     if let Some(array) = column.as_array() {
-        let limit_argument = arguments.get(&models::ArgumentName::from("limit")).ok_or((
+        let limit_argument = arguments.get("limit").ok_or((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
                 message: format!("Expected argument 'limit' in column {column_name}"),
@@ -2425,15 +2421,13 @@ fn execute_upsert_article(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 {
-    let article = arguments
-        .get(&models::ArgumentName::from("article"))
-        .ok_or((
-            StatusCode::BAD_REQUEST,
-            Json(models::ErrorResponse {
-                message: "Expected argument 'article'".into(),
-                details: serde_json::Value::Null,
-            }),
-        ))?;
+    let article = arguments.get("article").ok_or((
+        StatusCode::BAD_REQUEST,
+        Json(models::ErrorResponse {
+            message: "Expected argument 'article'".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))?;
     let article_obj: Row = serde_json::from_value(article.clone()).map_err(|_| {
         (
             StatusCode::BAD_REQUEST,
@@ -2443,15 +2437,13 @@ fn execute_upsert_article(
             }),
         )
     })?;
-    let id = article_obj
-        .get(&models::FieldName::new("id".into()))
-        .ok_or((
-            StatusCode::BAD_REQUEST,
-            Json(models::ErrorResponse {
-                message: "article missing field 'id'".into(),
-                details: serde_json::Value::Null,
-            }),
-        ))?;
+    let id = article_obj.get("id").ok_or((
+        StatusCode::BAD_REQUEST,
+        Json(models::ErrorResponse {
+            message: "article missing field 'id'".into(),
+            details: serde_json::Value::Null,
+        }),
+    ))?;
     let id_int = id
         .as_i64()
         .ok_or((
@@ -2509,7 +2501,7 @@ fn execute_delete_articles(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 {
-    let predicate_value = arguments.get(&models::ArgumentName::from("where")).ok_or((
+    let predicate_value = arguments.get("where").ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
             message: "Expected argument 'where'".into(),

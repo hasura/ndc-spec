@@ -1,6 +1,6 @@
 #![allow(deprecated)]
 
-use std::collections::BTreeMap;
+use std::{borrow::Borrow, collections::BTreeMap};
 
 use indexmap::IndexMap;
 use schemars::JsonSchema;
@@ -1106,6 +1106,18 @@ macro_rules! newtype {
             }
         }
 
+        impl Borrow<str> for $name {
+            fn borrow(&self) -> &str {
+                self.0.as_str()
+            }
+        }
+
+        impl Borrow<$oldtype> for $name {
+            fn borrow(&self) -> &$oldtype {
+                &self.0
+            }
+        }
+
         impl $name {
             pub fn new(value: $oldtype) -> Self {
                 $name(value)
@@ -1153,6 +1165,42 @@ newtype! {RelationshipName}
 newtype! {ScalarTypeName over TypeName}
 newtype! {TypeName}
 newtype! {VariableName}
+
+impl From<String> for FunctionName {
+    fn from(value: String) -> Self {
+        FunctionName(value.into())
+    }
+}
+
+impl From<FunctionName> for String {
+    fn from(value: FunctionName) -> Self {
+        value.0.into()
+    }
+}
+
+impl From<String> for ObjectTypeName {
+    fn from(value: String) -> Self {
+        ObjectTypeName(value.into())
+    }
+}
+
+impl From<ObjectTypeName> for String {
+    fn from(value: ObjectTypeName) -> Self {
+        value.0.into()
+    }
+}
+
+impl From<String> for ScalarTypeName {
+    fn from(value: String) -> Self {
+        ScalarTypeName(value.into())
+    }
+}
+
+impl From<ScalarTypeName> for String {
+    fn from(value: ScalarTypeName) -> Self {
+        value.0.into()
+    }
+}
 
 #[cfg(test)]
 mod tests {
