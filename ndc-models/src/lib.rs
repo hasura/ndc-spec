@@ -704,6 +704,16 @@ pub enum Field {
         #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
         arguments: BTreeMap<ArgumentName, Argument>,
     },
+    NestedCollection {
+        /// The name of the column which contains the nested data
+        column: FieldName,
+        /// Column arguments
+        arguments: BTreeMap<ArgumentName, Argument>,
+        /// Path to a nested array of objects contained within the selected column
+        field_path: Option<Vec<FieldName>>,
+        /// The query to execute over the chosen array of objects
+        query: Query,
+    },
     Relationship {
         query: Box<Query>,
         /// The name of the relationship to follow for the subquery

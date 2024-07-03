@@ -76,16 +76,34 @@ pub fn validate_rowset(
     rowset: &models::RowSet,
     json_path: Vec<String>,
 ) -> Result<()> {
+    let object_type = find_collection_type_by_name(schema, collection_name)?;
+
+    validate_rowset_vs_object_type(
+        schema,
+        collection_relationships,
+        &object_type,
+        query,
+        rowset,
+        json_path,
+    )
+}
+
+pub fn validate_rowset_vs_object_type(
+    schema: &models::SchemaResponse,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    object_type: &models::ObjectType,
+    query: &models::Query,
+    rowset: &models::RowSet,
+    json_path: Vec<String>,
+) -> std::result::Result<(), Error> {
     match (&query.fields, &rowset.rows) {
         (Some(fields), Some(rows)) => {
-            let object_type = find_collection_type_by_name(schema, collection_name)?;
-
             let new_json_path = [json_path.as_slice(), &["rows".to_string()]].concat();
 
             validate_rows(
                 schema,
                 collection_relationships,
-                &object_type,
+                object_type,
                 query,
                 fields,
                 rows,
@@ -224,6 +242,41 @@ pub fn validate_field(
                 fields.as_ref(),
                 json_path,
             )
+        }
+        models::Field::NestedCollection {
+            query,
+            column,
+            field_path,
+            arguments: _,
+        } => {
+            if let Some(row_set) = row_field_value.as_rowset() {
+                let object_field = object_type
+                    .fields
+                    .get(column)
+                    .ok_or(Error::FieldIsNotDefined(column.clone()))?;
+
+                let field_type = &object_field.r#type;
+                let nested_field_type = super::common::get_type_of_nested_field(
+                    schema,
+                    field_type,
+                    field_path.as_ref().unwrap_or(&vec![]),
+                )?;
+                let array_type = super::common::as_array_type(&nested_field_type)
+                    .ok_or(Error::ExpectedArrayType)?;
+                let object_type = super::common::get_object_type(schema, array_type)
+                    .ok_or(Error::ExpectedObjectType)?;
+
+                validate_rowset_vs_object_type(
+                    schema,
+                    collection_relationships,
+                    object_type,
+                    query,
+                    &row_set,
+                    json_path,
+                )
+            } else {
+                Err(Error::ExpectedRowSet(field_name.clone()))
+            }
         }
         models::Field::Relationship {
             query,

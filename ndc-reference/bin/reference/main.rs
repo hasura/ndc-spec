@@ -950,16 +950,7 @@ fn execute_query(
     let aggregates = query
         .aggregates
         .as_ref()
-        .map(|aggregates| {
-            let mut row: IndexMap<models::FieldName, serde_json::Value> = IndexMap::new();
-            for (aggregate_name, aggregate) in aggregates {
-                row.insert(
-                    aggregate_name.clone(),
-                    eval_aggregate(aggregate, &paginated)?,
-                );
-            }
-            Ok(row)
-        })
+        .map(|aggregates| eval_aggregates(aggregates, &paginated))
         .transpose()?;
     // ANCHOR_END: execute_query_aggregates
     // ANCHOR: execute_query_groups
@@ -1309,6 +1300,21 @@ fn eval_group_comparison_target(
     }
 }
 // ANCHOR_END: eval_group_comparison_target
+// ANCHOR: eval_aggregates
+fn eval_aggregates(
+    aggregates: &IndexMap<ndc_models::FieldName, ndc_models::Aggregate>,
+    rows: &[Row],
+) -> std::result::Result<
+    IndexMap<ndc_models::FieldName, serde_json::Value>,
+    (StatusCode, Json<ndc_models::ErrorResponse>),
+> {
+    let mut row: IndexMap<models::FieldName, serde_json::Value> = IndexMap::new();
+    for (aggregate_name, aggregate) in aggregates {
+        row.insert(aggregate_name.clone(), eval_aggregate(aggregate, rows)?);
+    }
+    Ok(row)
+}
+// ANCHOR_END: eval_aggregates
 // ANCHOR: eval_aggregate
 fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_json::Value> {
     match aggregate {
@@ -1320,7 +1326,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_j
         } => {
             let values = rows
                 .iter()
-                .map(|row| eval_column_field_path(row, column, field_path))
+                .map(|row| eval_column_field_path(row, column, field_path, &BTreeMap::new()))
                 .collect::<Result<Vec<_>>>()?;
 
             let non_null_values = values.iter().filter(|value| !value.is_null());
@@ -1360,7 +1366,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_j
         } => {
             let values = rows
                 .iter()
-                .map(|row| eval_column_field_path(row, column, field_path))
+                .map(|row| eval_column_field_path(row, column, field_path, &BTreeMap::new()))
                 .collect::<Result<Vec<_>>>()?;
             eval_aggregate_function(function, values)
         }
@@ -1551,8 +1557,9 @@ fn eval_column_field_path(
     row: &Row,
     column_name: &models::FieldName,
     field_path: &Option<Vec<models::FieldName>>,
+    arguments: &BTreeMap<models::ArgumentName, models::Argument>,
 ) -> Result<serde_json::Value> {
-    let column_value = eval_column(&BTreeMap::default(), row, column_name, &BTreeMap::default())?;
+    let column_value = eval_column(&BTreeMap::default(), row, column_name, arguments)?;
     match field_path {
         None => Ok(column_value),
         Some(path) => path
@@ -1600,7 +1607,7 @@ fn eval_column_at_path(
         ));
     }
     match rows.first() {
-        Some(row) => eval_column_field_path(row, &name, &field_path),
+        Some(row) => eval_column_field_path(row, &name, &field_path, &BTreeMap::new()),
         None => Ok(serde_json::Value::Null),
     }
 }
@@ -2047,7 +2054,7 @@ fn eval_comparison_target(
 ) -> Result<serde_json::Value> {
     match target {
         models::ComparisonTarget::Column { name, field_path } => {
-            eval_column_field_path(item, name, field_path)
+            eval_column_field_path(item, name, field_path, &BTreeMap::new())
         }
         models::ComparisonTarget::Aggregate { aggregate, path } => {
             let rows: Vec<Row> = eval_path(
@@ -2145,7 +2152,7 @@ fn eval_comparison_value(
 
             items
                 .iter()
-                .map(|item| eval_column_field_path(item, name, field_path))
+                .map(|item| eval_column_field_path(item, name, field_path, &BTreeMap::new()))
                 .collect()
         }
         models::ComparisonValue::Scalar { value } => Ok(vec![value.clone()]),
@@ -2267,6 +2274,44 @@ fn eval_field(
                 ),
             }
         }
+        models::Field::NestedCollection {
+            column,
+            field_path,
+            arguments,
+            query,
+        } => {
+            let value = eval_column_field_path(item, column, field_path, arguments)?;
+            let collection = serde_json::from_value::<Vec<Row>>(value).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: "cannot decode rows".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
+
+            let row_set = execute_query(
+                collection_relationships,
+                variables,
+                state,
+                query,
+                Root::Reset,
+                collection,
+            )?;
+
+            let row_set_json = serde_json::to_value(row_set).map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(models::ErrorResponse {
+                        message: "cannot encode rowset".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
+
+            Ok(models::RowFieldValue(row_set_json))
+        }
         models::Field::Relationship {
             relationship,
             arguments,
@@ -2289,7 +2334,7 @@ fn eval_field(
                 &source,
                 &None,
             )?;
-            let rows = execute_query(
+            let row_set = execute_query(
                 collection_relationships,
                 variables,
                 state,
@@ -2297,7 +2342,7 @@ fn eval_field(
                 Root::Reset,
                 collection,
             )?;
-            let rows_json = serde_json::to_value(rows).map_err(|_| {
+            let row_set_json = serde_json::to_value(row_set).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(models::ErrorResponse {
@@ -2306,7 +2351,7 @@ fn eval_field(
                     }),
                 )
             })?;
-            Ok(models::RowFieldValue(rows_json))
+            Ok(models::RowFieldValue(row_set_json))
         }
     }
 }

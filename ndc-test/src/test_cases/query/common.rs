@@ -1,7 +1,9 @@
 use indexmap::IndexMap;
 use models::Type;
-use ndc_models as models;
+use ndc_models::{self as models};
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
+
+use crate::error::Error;
 
 pub fn select_all_columns_without_arguments(
     collection_type: &models::ObjectType,
@@ -95,4 +97,41 @@ pub fn get_named_type(ty: &models::Type) -> Option<&models::TypeName> {
             object_type_name: _,
         } => None,
     }
+}
+pub fn as_array_type(ty: &models::Type) -> Option<&models::Type> {
+    match ty {
+        models::Type::Nullable { underlying_type } => as_array_type(underlying_type),
+        models::Type::Array { element_type } => Some(element_type),
+        models::Type::Named { name: _ }
+        | models::Type::Predicate {
+            object_type_name: _,
+        } => None,
+    }
+}
+
+pub fn get_object_type<'a>(
+    schema: &'a models::SchemaResponse,
+    ty: &models::Type,
+) -> Option<&'a models::ObjectType> {
+    let type_name = get_named_type(ty)?;
+    schema.object_types.get(type_name)
+}
+
+pub fn get_type_of_nested_field(
+    schema: &models::SchemaResponse,
+    ty: &models::Type,
+    field_path: &[models::FieldName],
+) -> Result<models::Type, Error> {
+    let mut ty = ty.clone();
+
+    for field in field_path {
+        let object_type = get_object_type(schema, &ty).ok_or(Error::ExpectedObjectType)?;
+        let object_field = object_type
+            .fields
+            .get(field)
+            .ok_or(Error::FieldIsNotDefined(field.clone()))?;
+        ty = object_field.r#type.clone();
+    }
+
+    Ok(ty.clone())
 }

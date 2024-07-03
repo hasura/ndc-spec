@@ -40,6 +40,10 @@ pub enum Error {
     UnexpectedRowsets(usize, usize),
     #[error("expected RowSet in response for field {0}")]
     ExpectedRowSet(models::FieldName),
+    #[error("expected object type")]
+    ExpectedObjectType,
+    #[error("expected array type")]
+    ExpectedArrayType,
     #[error("expected <= {0} rows in RowSet, got {1}")]
     TooManyRowsInResponse(u32, u32),
     #[error("expected non-empty rows in RowSet")]
