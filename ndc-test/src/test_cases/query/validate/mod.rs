@@ -304,10 +304,7 @@ pub fn check_value_has_type(
             }
         }
         models::Type::Named { name } => {
-            if let Some(object_type) = schema
-                .object_types
-                .get(&ndc_models::ObjectTypeName::new(name.clone()))
-            {
+            if let Some(object_type) = schema.object_types.get(name) {
                 if let Some(object_fields) = value.as_object() {
                     let object = object_fields
                         .iter()
@@ -329,10 +326,7 @@ pub fn check_value_has_type(
                 } else {
                     Err(Error::InvalidValueInResponse(json_path, "object".into()))
                 }
-            } else if let Some(scalar_type) = schema
-                .scalar_types
-                .get(&ndc_models::ScalarTypeName::new(name.clone()))
-            {
+            } else if let Some(scalar_type) = schema.scalar_types.get(name) {
                 if let Some(representation) = &scalar_type.representation {
                     representations::check_value_has_representation(
                         representation,
