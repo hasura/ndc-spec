@@ -246,7 +246,6 @@ pub fn validate_field(
         models::Field::NestedCollection {
             query,
             column,
-            field_path,
             arguments: _,
         } => {
             if let Some(row_set) = row_field_value.as_rowset() {
@@ -256,13 +255,9 @@ pub fn validate_field(
                     .ok_or(Error::FieldIsNotDefined(column.clone()))?;
 
                 let field_type = &object_field.r#type;
-                let nested_field_type = super::common::get_type_of_nested_field(
-                    schema,
-                    field_type,
-                    field_path.as_ref().unwrap_or(&vec![]),
-                )?;
-                let array_type = super::common::as_array_type(&nested_field_type)
-                    .ok_or(Error::ExpectedArrayType)?;
+
+                let array_type =
+                    super::common::as_array_type(field_type).ok_or(Error::ExpectedArrayType)?;
                 let object_type = super::common::get_object_type(schema, array_type)
                     .ok_or(Error::ExpectedObjectType)?;
 

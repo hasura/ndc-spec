@@ -2276,11 +2276,10 @@ fn eval_field(
         }
         models::Field::NestedCollection {
             column,
-            field_path,
             arguments,
             query,
         } => {
-            let value = eval_column_field_path(item, column, field_path, arguments)?;
+            let value = eval_column(variables, item, column, arguments)?;
             let collection = serde_json::from_value::<Vec<Row>>(value).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,

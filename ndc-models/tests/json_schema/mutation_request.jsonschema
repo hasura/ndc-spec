@@ -174,16 +174,6 @@
                 "$ref": "#/definitions/Argument"
               }
             },
-            "field_path": {
-              "description": "Path to a nested array of objects contained within the selected column",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "string"
-              }
-            },
             "query": {
               "description": "The query to execute over the chosen array of objects",
               "allOf": [

@@ -3,8 +3,6 @@ use models::Type;
 use ndc_models::{self as models};
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
-use crate::error::Error;
-
 pub fn select_all_columns_without_arguments(
     collection_type: &models::ObjectType,
 ) -> impl Iterator<Item = (&models::FieldName, &models::ObjectField)> {
@@ -115,23 +113,4 @@ pub fn get_object_type<'a>(
 ) -> Option<&'a models::ObjectType> {
     let type_name = get_named_type(ty)?;
     schema.object_types.get(type_name)
-}
-
-pub fn get_type_of_nested_field(
-    schema: &models::SchemaResponse,
-    ty: &models::Type,
-    field_path: &[models::FieldName],
-) -> Result<models::Type, Error> {
-    let mut ty = ty.clone();
-
-    for field in field_path {
-        let object_type = get_object_type(schema, &ty).ok_or(Error::ExpectedObjectType)?;
-        let object_field = object_type
-            .fields
-            .get(field)
-            .ok_or(Error::FieldIsNotDefined(field.clone()))?;
-        ty = object_field.r#type.clone();
-    }
-
-    Ok(ty.clone())
 }

@@ -709,8 +709,6 @@ pub enum Field {
         column: FieldName,
         /// Column arguments
         arguments: BTreeMap<ArgumentName, Argument>,
-        /// Path to a nested array of objects contained within the selected column
-        field_path: Option<Vec<FieldName>>,
         /// The query to execute over the chosen array of objects
         query: Query,
     },
