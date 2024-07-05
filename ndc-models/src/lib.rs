@@ -3,6 +3,7 @@
 use std::{borrow::Borrow, collections::BTreeMap};
 
 use indexmap::IndexMap;
+use ref_cast::RefCast;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -821,8 +822,19 @@ pub enum MutationOperationResults {
 macro_rules! newtype {
     ($name: ident over $oldtype: ident) => {
         #[derive(
-            Clone, Debug, Default, Hash, Eq, Ord, PartialEq, PartialOrd, Serialize, Deserialize,
+            Clone,
+            Debug,
+            Default,
+            Hash,
+            Eq,
+            Ord,
+            PartialEq,
+            PartialOrd,
+            Serialize,
+            Deserialize,
+            RefCast,
         )]
+        #[repr(transparent)]
         pub struct $name($oldtype);
 
         impl JsonSchema for $name {
