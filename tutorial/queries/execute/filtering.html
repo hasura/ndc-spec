@@ -202,8 +202,8 @@
 <h2 id="evaluating-expressions"><a class="header" href="#evaluating-expressions">Evaluating expressions</a></h2>
 <p>The <code>eval_expression</code> function evaluates a predicate by pattern matching on the type of the expression <code>expr</code>, and returns a boolean value indicating whether the current row matches the predicate:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_expression(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     expr: &amp;models::Expression,
     root: &amp;Row,
@@ -264,8 +264,8 @@
 <li>A <em>root collection</em> column (that is, a column from the <em>root collection</em>, or collection used by the nearest enclosing <a href="../../../reference/types.html#query"><code>Query</code></a>) is evaluated using <code>eval_column</code>. You may have noticed the additional argument, <code>root</code>, which has been passed down through every function call so far - this is to track the root collection for exactly this case.</li>
 </ul>
 <pre><code class="language-rust no_run noplayground">fn eval_comparison_target(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     target: &amp;models::ComparisonTarget,
     root: &amp;Row,

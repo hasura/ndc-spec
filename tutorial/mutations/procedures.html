@@ -177,15 +177,15 @@
 <p>The <code>execute_procedure</code> function is responsible for executing a single procedure:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_procedure(
     state: &amp;mut AppState,
-    name: &amp;str,
-    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    name: &amp;models::ProcedureName,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, serde_json::Value&gt;,
     fields: &amp;Option&lt;models::NestedField&gt;,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
 ) -&gt; std::result::Result&lt;models::MutationOperationResults, (StatusCode, Json&lt;models::ErrorResponse&gt;)&gt;</code></pre>
 <p>The function receives the application <code>state</code>, along with the <code>name</code> of the procedure to invoke, a list of <code>arguments</code>, a list of <code>fields</code> to return, and a list of <code>collection_relationships</code>.</p>
 <p>The function matches on the name of the procedure, and fails if the name is not recognized. We will walk through each procedure in turn.</p>
 <pre><code class="language-rust no_run noplayground">{
-    match name {
+    match name.as_str() {
         "upsert_article" =&gt; {
             execute_upsert_article(state, arguments, fields, collection_relationships)
         }
@@ -208,9 +208,9 @@
 <p>Finally, it delegates to the <code>eval_nested_field</code> function to evaluate any nested fields, and returns the selected fields in the result:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_upsert_article(
     state: &amp;mut AppState,
-    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, serde_json::Value&gt;,
     fields: &amp;Option&lt;models::NestedField&gt;,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
 ) -&gt; std::result::Result&lt;models::MutationOperationResults, (StatusCode, Json&lt;models::ErrorResponse&gt;)&gt;
 {
     let article = arguments.get("article").ok_or((
@@ -220,13 +220,15 @@
             details: serde_json::Value::Null,
         }),
     ))?;
-    let article_obj = article.as_object().ok_or((
-        StatusCode::BAD_REQUEST,
-        Json(models::ErrorResponse {
-            message: "article must be an object".into(),
-            details: serde_json::Value::Null,
-        }),
-    ))?;
+    let article_obj: Row = serde_json::from_value(article.clone()).map_err(|_| {
+        (
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "article must be an object".into(),
+                details: serde_json::Value::Null,
+            }),
+        )
+    })?;
     let id = article_obj.get("id").ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
@@ -253,11 +255,7 @@
                 }),
             )
         })?;
-    let new_row = article_obj
-        .iter()
-        .map(|(k, v)| (k.clone(), v.clone()))
-        .collect::&lt;BTreeMap&lt;_, _&gt;&gt;();
-    let old_row = state.articles.insert(id_int, new_row);
+    let old_row = state.articles.insert(id_int, article_obj);
 
     Ok(models::MutationOperationResults::Procedure {
         result: old_row.map_or(Ok(serde_json::Value::Null), |old_row| {
@@ -294,9 +292,9 @@
 <p>This function delegates to the <code>eval_nested_field</code> function to evaluate any nested fields, and returns the selected fields in the result:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_delete_articles(
     state: &amp;mut AppState,
-    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, serde_json::Value&gt;,
     fields: &amp;Option&lt;models::NestedField&gt;,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
 ) -&gt; std::result::Result&lt;models::MutationOperationResults, (StatusCode, Json&lt;models::ErrorResponse&gt;)&gt;
 {
     let predicate_value = arguments.get("where").ok_or((

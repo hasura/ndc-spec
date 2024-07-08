@@ -182,19 +182,19 @@
 pub enum Aggregate {
     ColumnCount {
         /// The column to apply the count aggregate function to
-        column: String,
+        column: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
         /// Whether or not only distinct items should be counted
         distinct: bool,
     },
     SingleColumn {
         /// The column to apply the aggregation function to
-        column: String,
+        column: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
         /// Single column aggregate function name.
-        function: String,
+        function: AggregateFunctionName,
     },
     StarCount {},
 }</code></pre>
@@ -212,7 +212,7 @@ pub struct AggregateFunctionDefinition {
 #[schemars(title = "Argument")]
 pub enum Argument {
     /// The argument is provided by reference to a variable
-    Variable { name: String },
+    Variable { name: VariableName },
     /// The argument is provided as a literal value
     Literal { value: serde_json::Value },
 }</code></pre>
@@ -266,17 +266,17 @@ pub enum ComparisonOperatorDefinition {
 pub enum ComparisonTarget {
     Column {
         /// The name of the column
-        name: String,
+        name: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
         /// Any relationships to traverse to reach this column
         path: Vec&lt;PathElement&gt;,
     },
     RootCollectionColumn {
         /// The name of the column
-        name: String,
+        name: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
     },
 }</code></pre>
 <h2 id="comparisonvalue"><a class="header" href="#comparisonvalue"><code>ComparisonValue</code></a></h2>
@@ -286,7 +286,7 @@ pub enum ComparisonTarget {
 pub enum ComparisonValue {
     Column { column: ComparisonTarget },
     Scalar { value: serde_json::Value },
-    Variable { name: String },
+    Variable { name: VariableName },
 }</code></pre>
 <h2 id="errorresponse"><a class="header" href="#errorresponse"><code>ErrorResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -304,15 +304,15 @@ pub struct ErrorResponse {
 #[schemars(title = "Exists In Collection")]
 pub enum ExistsInCollection {
     Related {
-        relationship: String,
+        relationship: RelationshipName,
         /// Values to be provided to any collection arguments
-        arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
+        arguments: BTreeMap&lt;ArgumentName, RelationshipArgument&gt;,
     },
     Unrelated {
         /// The name of a collection
-        collection: String,
+        collection: CollectionName,
         /// Values to be provided to any collection arguments
-        arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
+        arguments: BTreeMap&lt;ArgumentName, RelationshipArgument&gt;,
     },
 }</code></pre>
 <h2 id="explainresponse"><a class="header" href="#explainresponse"><code>ExplainResponse</code></a></h2>
@@ -347,7 +347,7 @@ pub enum Expression {
     },
     BinaryComparisonOperator {
         column: ComparisonTarget,
-        operator: String,
+        operator: ComparisonOperatorName,
         value: ComparisonValue,
     },
     Exists {
@@ -361,21 +361,21 @@ pub enum Expression {
 #[schemars(title = "Field")]
 pub enum Field {
     Column {
-        column: String,
+        column: FieldName,
         /// When the type of the column is a (possibly-nullable) array or object,
         /// the caller can request a subset of the complete column data,
         /// by specifying fields to fetch here.
         /// If omitted, the column data will be fetched in full.
         fields: Option&lt;NestedField&gt;,
         #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
-        arguments: BTreeMap&lt;String, Argument&gt;,
+        arguments: BTreeMap&lt;ArgumentName, Argument&gt;,
     },
     Relationship {
         query: Box&lt;Query&gt;,
         /// The name of the relationship to follow for the subquery
-        relationship: String,
+        relationship: RelationshipName,
         /// Values to be provided to any collection arguments
-        arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
+        arguments: BTreeMap&lt;ArgumentName, RelationshipArgument&gt;,
     },
 }</code></pre>
 <h2 id="foreignkeyconstraint"><a class="header" href="#foreignkeyconstraint"><code>ForeignKeyConstraint</code></a></h2>
@@ -383,9 +383,9 @@ pub enum Field {
 #[schemars(title = "Foreign Key Constraint")]
 pub struct ForeignKeyConstraint {
     /// The columns on which you want want to define the foreign key.
-    pub column_mapping: BTreeMap&lt;String, String&gt;,
+    pub column_mapping: BTreeMap&lt;FieldName, FieldName&gt;,
     /// The name of a collection
-    pub foreign_collection: String,
+    pub foreign_collection: CollectionName,
 }</code></pre>
 <h2 id="functioninfo"><a class="header" href="#functioninfo"><code>FunctionInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -393,11 +393,11 @@ pub struct ForeignKeyConstraint {
 #[schemars(title = "Function Info")]
 pub struct FunctionInfo {
     /// The name of the function
-    pub name: String,
+    pub name: FunctionName,
     /// Description of the function
     pub description: Option&lt;String&gt;,
     /// Any arguments that this collection requires
-    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, ArgumentInfo&gt;,
     /// The name of the function's result type
     pub result_type: Type,
 }</code></pre>
@@ -414,9 +414,9 @@ pub struct LeafCapability {}</code></pre>
 pub enum MutationOperation {
     Procedure {
         /// The name of a procedure
-        name: String,
+        name: ProcedureName,
         /// Any named procedure arguments
-        arguments: BTreeMap&lt;String, serde_json::Value&gt;,
+        arguments: BTreeMap&lt;ArgumentName, serde_json::Value&gt;,
         /// The fields to return from the result, or null to return everything
         fields: Option&lt;NestedField&gt;,
     },
@@ -435,7 +435,7 @@ pub struct MutationRequest {
     /// The mutation operations to perform
     pub operations: Vec&lt;MutationOperation&gt;,
     /// The relationships between collections involved in the entire mutation request
-    pub collection_relationships: BTreeMap&lt;String, Relationship&gt;,
+    pub collection_relationships: BTreeMap&lt;RelationshipName, Relationship&gt;,
 }</code></pre>
 <h2 id="mutationresponse"><a class="header" href="#mutationresponse"><code>MutationResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -476,7 +476,7 @@ pub struct NestedFieldCapabilities {
 #[serde(rename_all = "snake_case")]
 #[schemars(title = "NestedObject")]
 pub struct NestedObject {
-    pub fields: IndexMap&lt;String, Field&gt;,
+    pub fields: IndexMap&lt;FieldName, Field&gt;,
 }</code></pre>
 <h2 id="objectfield"><a class="header" href="#objectfield"><code>ObjectField</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an object field
@@ -491,7 +491,7 @@ pub struct ObjectField {
     pub r#type: Type,
     /// The arguments available to the field - Matches implementation from CollectionInfo
     #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
-    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, ArgumentInfo&gt;,
 }</code></pre>
 <h2 id="objecttype"><a class="header" href="#objecttype"><code>ObjectType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an object type
@@ -502,7 +502,7 @@ pub struct ObjectType {
     /// Description of this type
     pub description: Option&lt;String&gt;,
     /// Fields defined on this object type
-    pub fields: BTreeMap&lt;String, ObjectField&gt;,
+    pub fields: BTreeMap&lt;FieldName, ObjectField&gt;,
 }</code></pre>
 <h2 id="orderby"><a class="header" href="#orderby"><code>OrderBy</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -526,19 +526,19 @@ pub struct OrderByElement {
 pub enum OrderByTarget {
     Column {
         /// The name of the column
-        name: String,
+        name: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
         /// Any relationships to traverse to reach this column
         path: Vec&lt;PathElement&gt;,
     },
     SingleColumnAggregate {
         /// The column to apply the aggregation function to
-        column: String,
+        column: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
         /// Single column aggregate function name.
-        function: String,
+        function: AggregateFunctionName,
         /// Non-empty collection of relationships to traverse
         path: Vec&lt;PathElement&gt;,
     },
@@ -563,9 +563,9 @@ pub enum OrderDirection {
 #[schemars(title = "Path Element")]
 pub struct PathElement {
     /// The name of the relationship to follow
-    pub relationship: String,
+    pub relationship: RelationshipName,
     /// Values to be provided to any collection arguments
-    pub arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, RelationshipArgument&gt;,
     /// A predicate expression to apply to the target collection
     pub predicate: Option&lt;Box&lt;Expression&gt;&gt;,
 }</code></pre>
@@ -575,11 +575,11 @@ pub struct PathElement {
 #[schemars(title = "Procedure Info")]
 pub struct ProcedureInfo {
     /// The name of the procedure
-    pub name: String,
+    pub name: ProcedureName,
     /// Column description
     pub description: Option&lt;String&gt;,
     /// Any arguments that this collection requires
-    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, ArgumentInfo&gt;,
     /// The name of the result type
     pub result_type: Type,
 }</code></pre>
@@ -589,9 +589,9 @@ pub struct ProcedureInfo {
 #[schemars(title = "Query")]
 pub struct Query {
     /// Aggregate fields of the query
-    pub aggregates: Option&lt;IndexMap&lt;String, Aggregate&gt;&gt;,
+    pub aggregates: Option&lt;IndexMap&lt;FieldName, Aggregate&gt;&gt;,
     /// Fields of the query
-    pub fields: Option&lt;IndexMap&lt;String, Field&gt;&gt;,
+    pub fields: Option&lt;IndexMap&lt;FieldName, Field&gt;&gt;,
     /// Optionally limit to N results
     pub limit: Option&lt;u32&gt;,
     /// Optionally offset from the Nth result
@@ -621,16 +621,16 @@ pub struct QueryCapabilities {
 #[schemars(title = "Query Request")]
 pub struct QueryRequest {
     /// The name of a collection
-    pub collection: String,
+    pub collection: CollectionName,
     /// The query syntax tree
     pub query: Query,
     /// Values to be provided to any collection arguments
-    pub arguments: BTreeMap&lt;String, Argument&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, Argument&gt;,
     /// Any relationships between collections involved in the query request
-    pub collection_relationships: BTreeMap&lt;String, Relationship&gt;,
+    pub collection_relationships: BTreeMap&lt;RelationshipName, Relationship&gt;,
     /// One set of named variables for each rowset to fetch. Each variable set
     /// should be subtituted in turn, and a fresh set of rows returned.
-    pub variables: Option&lt;Vec&lt;BTreeMap&lt;String, serde_json::Value&gt;&gt;&gt;,
+    pub variables: Option&lt;Vec&lt;BTreeMap&lt;VariableName, serde_json::Value&gt;&gt;&gt;,
 }</code></pre>
 <h2 id="queryresponse"><a class="header" href="#queryresponse"><code>QueryResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -644,12 +644,12 @@ pub struct QueryResponse(pub Vec&lt;RowSet&gt;);</code></pre>
 #[schemars(title = "Relationship")]
 pub struct Relationship {
     /// A mapping between columns on the source collection to columns on the target collection
-    pub column_mapping: BTreeMap&lt;String, String&gt;,
+    pub column_mapping: BTreeMap&lt;FieldName, FieldName&gt;,
     pub relationship_type: RelationshipType,
     /// The name of a collection
-    pub target_collection: String,
+    pub target_collection: CollectionName,
     /// Values to be provided to any collection arguments
-    pub arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, RelationshipArgument&gt;,
 }</code></pre>
 <h2 id="relationshipargument"><a class="header" href="#relationshipargument"><code>RelationshipArgument</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -659,7 +659,7 @@ pub struct Relationship {
 pub enum RelationshipArgument {
     /// The argument is provided by reference to a variable
     Variable {
-        name: String,
+        name: VariableName,
     },
     /// The argument is provided as a literal value
     Literal {
@@ -667,7 +667,7 @@ pub enum RelationshipArgument {
     },
     // The argument is provided based on a column of the source collection
     Column {
-        name: String,
+        name: FieldName,
     },
 }</code></pre>
 <h2 id="relationshipcapabilities"><a class="header" href="#relationshipcapabilities"><code>RelationshipCapabilities</code></a></h2>
@@ -710,9 +710,9 @@ impl RowFieldValue {
 #[schemars(title = "Row Set")]
 pub struct RowSet {
     /// The results of the aggregates returned by the query
-    pub aggregates: Option&lt;IndexMap&lt;String, serde_json::Value&gt;&gt;,
+    pub aggregates: Option&lt;IndexMap&lt;FieldName, serde_json::Value&gt;&gt;,
     /// The rows returned by the query, corresponding to the query's fields
-    pub rows: Option&lt;Vec&lt;IndexMap&lt;String, RowFieldValue&gt;&gt;&gt;,
+    pub rows: Option&lt;Vec&lt;IndexMap&lt;FieldName, RowFieldValue&gt;&gt;&gt;,
 }</code></pre>
 <h2 id="scalartype"><a class="header" href="#scalartype"><code>ScalarType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of a scalar type, i.e. types that can be used as the types of columns.
@@ -724,19 +724,19 @@ pub struct ScalarType {
     /// Defaults to `TypeRepresentation::JSON` if omitted
     pub representation: Option&lt;TypeRepresentation&gt;,
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
-    pub aggregate_functions: BTreeMap&lt;String, AggregateFunctionDefinition&gt;,
+    pub aggregate_functions: BTreeMap&lt;AggregateFunctionName, AggregateFunctionDefinition&gt;,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
-    pub comparison_operators: BTreeMap&lt;String, ComparisonOperatorDefinition&gt;,
+    pub comparison_operators: BTreeMap&lt;ComparisonOperatorName, ComparisonOperatorDefinition&gt;,
 }</code></pre>
 <h2 id="schemaresponse"><a class="header" href="#schemaresponse"><code>SchemaResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Schema Response")]
 pub struct SchemaResponse {
     /// A list of scalar types which will be used as the types of collection columns
-    pub scalar_types: BTreeMap&lt;String, ScalarType&gt;,
+    pub scalar_types: BTreeMap&lt;ScalarTypeName, ScalarType&gt;,
     /// A list of object types which can be used as the types of arguments, or return types of procedures.
     /// Names should not overlap with scalar type names.
-    pub object_types: BTreeMap&lt;String, ObjectType&gt;,
+    pub object_types: BTreeMap&lt;ObjectTypeName, ObjectType&gt;,
     /// Collections which are available for queries
     pub collections: Vec&lt;CollectionInfo&gt;,
     /// Functions (i.e. collections which return a single column and row)
@@ -753,14 +753,14 @@ pub struct CollectionInfo {
     ///
     /// Note: these names are abstract - there is no requirement that this name correspond to
     /// the name of an actual collection in the database.
-    pub name: String,
+    pub name: CollectionName,
     /// Description of the collection
     pub description: Option&lt;String&gt;,
     /// Any arguments that this collection requires
-    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, ArgumentInfo&gt;,
     /// The name of the collection's object type
     #[serde(rename = "type")]
-    pub collection_type: String,
+    pub collection_type: ObjectTypeName,
     /// Any uniqueness constraints enforced on this collection
     pub uniqueness_constraints: BTreeMap&lt;String, UniquenessConstraint&gt;,
     /// Any foreign key constraints enforced on this collection
@@ -777,7 +777,7 @@ pub enum Type {
     /// A named type
     Named {
         /// The name can refer to a primitive type or a scalar type
-        name: String,
+        name: TypeName,
     },
     /// A nullable type
     Nullable {
@@ -792,7 +792,7 @@ pub enum Type {
     /// A predicate type for a given object type
     Predicate {
         /// The object type name
-        object_type_name: String,
+        object_type_name: ObjectTypeName,
     },
 }</code></pre>
 <h2 id="typerepresentation"><a class="header" href="#typerepresentation"><code>TypeRepresentation</code></a></h2>
@@ -867,7 +867,7 @@ pub enum UnaryComparisonOperator {
 #[schemars(title = "Uniqueness Constraint")]
 pub struct UniquenessConstraint {
     /// A list of columns which this constraint requires to be unique
-    pub unique_columns: Vec&lt;String&gt;,
+    pub unique_columns: Vec&lt;FieldName&gt;,
 }</code></pre>
 
                     </main>

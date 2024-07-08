@@ -202,11 +202,11 @@
 }</code></pre>
 <p>In order to compute the <code>RowSet</code> for a given set of variables, the function delegates to a function named <code>execute_query_with_variables</code>:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query_with_variables(
-    collection: &amp;str,
-    arguments: &amp;BTreeMap&lt;String, models::Argument&gt;,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection: &amp;models::CollectionName,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, models::Argument&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
     query: &amp;models::Query,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
 ) -&gt; Result&lt;models::RowSet&gt; {</code></pre>
 <p>In the next section, we will break down the implementation of this function.</p>

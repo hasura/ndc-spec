@@ -204,6 +204,12 @@
 <li>A <strong>metrics</strong> endpoint, which exposes runtime metrics about the data connector.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
+<h2 id="015"><a class="header" href="#015"><code>0.1.5</code></a></h2>
+<h3 id="rust-libraries"><a class="header" href="#rust-libraries">Rust Libraries</a></h3>
+<ul>
+<li>Add newtypes for string types</li>
+<li>Expose the specification version in <code>ndc-models</code></li>
+</ul>
 <h2 id="014"><a class="header" href="#014"><code>0.1.4</code></a></h2>
 <h3 id="specification"><a class="header" href="#specification">Specification</a></h3>
 <ul>
@@ -229,7 +235,7 @@
 <li>Validate all response types</li>
 <li>Release pipeline for ndc-test CLI</li>
 </ul>
-<h3 id="rust-libraries"><a class="header" href="#rust-libraries">Rust Libraries</a></h3>
+<h3 id="rust-libraries-1"><a class="header" href="#rust-libraries-1">Rust Libraries</a></h3>
 <ul>
 <li>Upgrade Rust to v1.78.0, and the Rust dependencies to their latest versions</li>
 <li>Add back features for native-tls vs rustls</li>
@@ -239,7 +245,7 @@
 <ul>
 <li>More <a href="specification/./schema/scalar-types.html#type-representations">type representations</a> were added, and some were deprecated.</li>
 </ul>
-<h3 id="rust-libraries-1"><a class="header" href="#rust-libraries-1">Rust Libraries</a></h3>
+<h3 id="rust-libraries-2"><a class="header" href="#rust-libraries-2">Rust Libraries</a></h3>
 <ul>
 <li>Upgrade to Rust v1.77</li>
 <li>The <code>ndc-client</code> library was removed. Clients are advised to use the new <code>ndc-models</code> library for type definitions, and to use a HTTP client library of their choice directly.</li>
@@ -256,7 +262,7 @@
 <li>Automatic tests are now generated for exists predicates</li>
 <li>Automatic tests are now generated for <code>single_column</code> aggregates</li>
 </ul>
-<h3 id="rust-libraries-2"><a class="header" href="#rust-libraries-2">Rust Libraries</a></h3>
+<h3 id="rust-libraries-3"><a class="header" href="#rust-libraries-3">Rust Libraries</a></h3>
 <ul>
 <li><code>rustls</code> is supported instead of <code>native-tls</code> using a Cargo feature.</li>
 <li>Upgrade <code>opentelemetry</code> to v0.22.0</li>
@@ -357,7 +363,7 @@ mutation_total 5000 1685405427000
 <p>See <a href="specification/../reference/types.html#capabilitiesresponse"><code>CapabilitiesResponse</code></a></p>
 <h3 id="example-1"><a class="header" href="#example-1">Example</a></h3>
 <pre><code class="language-json">{
-  "version": "0.1.4",
+  "version": "0.1.5",
   "capabilities": {
     "query": {
       "aggregates": {},
@@ -3008,7 +3014,7 @@ Query
 <div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
 <p>The reference implementation will serve queries and mutations based on in-memory data read from newline-delimited JSON files.</p>
 <p>First, we will define some types to represent the data in the newline-delimited JSON files. Rows of JSON data will be stored in memory as ordered maps:</p>
-<pre><code class="language-rust no_run noplayground">type Row = BTreeMap&lt;String, serde_json::Value&gt;;</code></pre>
+<pre><code class="language-rust no_run noplayground">type Row = BTreeMap&lt;models::FieldName, serde_json::Value&gt;;</code></pre>
 <p>Our application state will consist of collections of various types of rows:</p>
 <pre><code class="language-rust no_run noplayground">#[derive(Debug, Clone)]
 pub struct AppState {
@@ -3075,25 +3081,25 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 <p>The reference implementation returns a static <code>CapabilitiesResponse</code>:</p>
 <pre><code class="language-rust no_run noplayground">async fn get_capabilities() -&gt; Json&lt;models::CapabilitiesResponse&gt; {
     Json(models::CapabilitiesResponse {
-        version: "0.1.4".into(),
+        version: models::VERSION.into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
-                aggregates: Some(LeafCapability {}),
-                variables: Some(LeafCapability {}),
+                aggregates: Some(models::LeafCapability {}),
+                variables: Some(models::LeafCapability {}),
                 explain: None,
-                nested_fields: NestedFieldCapabilities {
-                    filter_by: Some(LeafCapability {}),
-                    order_by: Some(LeafCapability {}),
-                    aggregates: Some(LeafCapability {}),
+                nested_fields: models::NestedFieldCapabilities {
+                    filter_by: Some(models::LeafCapability {}),
+                    order_by: Some(models::LeafCapability {}),
+                    aggregates: Some(models::LeafCapability {}),
                 },
             },
             mutation: models::MutationCapabilities {
                 transactional: None,
                 explain: None,
             },
-            relationships: Some(RelationshipCapabilities {
-                order_by_aggregate: Some(LeafCapability {}),
-                relation_comparisons: Some(LeafCapability {}),
+            relationships: Some(models::RelationshipCapabilities {
+                order_by_aggregate: Some(models::LeafCapability {}),
+                relation_comparisons: Some(models::LeafCapability {}),
             }),
         },
     })
@@ -3456,11 +3462,11 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 }</code></pre>
 <p>In order to compute the <code>RowSet</code> for a given set of variables, the function delegates to a function named <code>execute_query_with_variables</code>:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query_with_variables(
-    collection: &amp;str,
-    arguments: &amp;BTreeMap&lt;String, models::Argument&gt;,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection: &amp;models::CollectionName,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, models::Argument&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
     query: &amp;models::Query,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
 ) -&gt; Result&lt;models::RowSet&gt; {</code></pre>
 <p>In the next section, we will break down the implementation of this function.</p>
@@ -3469,11 +3475,11 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 <p>From there, we will be able to apply predicates, sort and paginate rows. But one step at a time!</p>
 <p>The first step is to evaluate each argument, which the <code>execute_query_with_variables</code> function does by delegating to the <code>eval_argument</code> function:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query_with_variables(
-    collection: &amp;str,
-    arguments: &amp;BTreeMap&lt;String, models::Argument&gt;,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection: &amp;models::CollectionName,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, models::Argument&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
     query: &amp;models::Query,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
 ) -&gt; Result&lt;models::RowSet&gt; {
     let mut argument_values = BTreeMap::new();
@@ -3509,11 +3515,11 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 }</code></pre>
 <p>Once this is complete, and we have a collection of evaluated <code>argument_values</code>, we can delegate to the <code>get_collection_by_name</code> function. This function peforms the work of computing the full collection, by pattern matching on the name of the collection:</p>
 <pre><code class="language-rust no_run noplayground">fn get_collection_by_name(
-    collection_name: &amp;str,
-    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_name: &amp;models::CollectionName,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, serde_json::Value&gt;,
     state: &amp;AppState,
 ) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
-    match collection_name {
+    match collection_name.as_str() {
         "articles" =&gt; Ok(state.articles.values().cloned().collect()),
         "authors" =&gt; Ok(state.authors.values().cloned().collect()),
         "institutions" =&gt; Ok(state.institutions.values().cloned().collect()),
@@ -3631,8 +3637,8 @@ async fn main() -&gt; std::result::Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 <p>In the next section, we will break down the implementation of <code>execute_query</code>.
 Once we have computed the full collection, we can move onto evaluating the query in the context of that collection, using the <code>execute_query</code> function:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     query: &amp;models::Query,
     root: Root,
@@ -3642,8 +3648,8 @@ Once we have computed the full collection, we can move onto evaluating the query
 <div style="break-before: page; page-break-before: always;"></div><h1 id="executing-queries"><a class="header" href="#executing-queries">Executing Queries</a></h1>
 <p>In this section, we will break down the implementation of the <code>execute_query</code> function:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     query: &amp;models::Query,
     root: Root,
@@ -3666,8 +3672,8 @@ Once we have computed the full collection, we can move onto evaluating the query
 <h2 id="the-sort-function"><a class="header" href="#the-sort-function">The <code>sort</code> function</a></h2>
 <p>The <code>sort</code> function implements a simple insertion sort, computing the ordering for each pair of rows, and inserting each row at the correct place:</p>
 <pre><code class="language-rust no_run noplayground">fn sort(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     collection: Vec&lt;Row&gt;,
     order_by: &amp;Option&lt;models::OrderBy&gt;,
@@ -3702,8 +3708,8 @@ Once we have computed the full collection, we can move onto evaluating the query
 <p>To compare two rows, the <code>eval_order_by</code> computes each <code>OrderByElement</code> in turn, and compares the rows in order, or in reverse order, depending on whether the ordering is <em>ascending</em> or <em>descending</em>.</p>
 <p>The function returns the first <code>Ordering</code> which makes the two rows distinct (if any):</p>
 <pre><code class="language-rust no_run noplayground">fn eval_order_by(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     order_by: &amp;models::OrderBy,
     t1: &amp;Row,
@@ -3728,13 +3734,13 @@ Once we have computed the full collection, we can move onto evaluating the query
 <h3 id="ordering-by-a-column"><a class="header" href="#ordering-by-a-column">Ordering by a column</a></h3>
 <p>As an example, here is the function <code>eval_order_by_column</code> which evaluates <em>ordering by a column</em>:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_order_by_column(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
-    item: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    item: &amp;Row,
     path: Vec&lt;models::PathElement&gt;,
-    name: String,
-    field_path: Option&lt;Vec&lt;String&gt;&gt;,
+    name: models::FieldName,
+    field_path: Option&lt;Vec&lt;models::FieldName&gt;&gt;,
 ) -&gt; Result&lt;serde_json::Value&gt; {
     let rows: Vec&lt;Row&gt; = eval_path(collection_relationships, variables, state, &amp;path, item)?;
     if rows.len() &gt; 1 {
@@ -3782,8 +3788,8 @@ Once we have computed the full collection, we can move onto evaluating the query
 <h2 id="evaluating-expressions"><a class="header" href="#evaluating-expressions">Evaluating expressions</a></h2>
 <p>The <code>eval_expression</code> function evaluates a predicate by pattern matching on the type of the expression <code>expr</code>, and returns a boolean value indicating whether the current row matches the predicate:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_expression(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     expr: &amp;models::Expression,
     root: &amp;Row,
@@ -3844,8 +3850,8 @@ Once we have computed the full collection, we can move onto evaluating the query
 <li>A <em>root collection</em> column (that is, a column from the <em>root collection</em>, or collection used by the nearest enclosing <a href="tutorial/queries/execute/../../../reference/types.html#query"><code>Query</code></a>) is evaluated using <code>eval_column</code>. You may have noticed the additional argument, <code>root</code>, which has been passed down through every function call so far - this is to track the root collection for exactly this case.</li>
 </ul>
 <pre><code class="language-rust no_run noplayground">fn eval_comparison_target(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     target: &amp;models::ComparisonTarget,
     root: &amp;Row,
@@ -4100,7 +4106,7 @@ Once we have computed the full collection, we can move onto evaluating the query
         .aggregates
         .as_ref()
         .map(|aggregates| {
-            let mut row: IndexMap&lt;String, serde_json::Value&gt; = IndexMap::new();
+            let mut row: IndexMap&lt;models::FieldName, serde_json::Value&gt; = IndexMap::new();
             for (aggregate_name, aggregate) in aggregates {
                 row.insert(
                     aggregate_name.clone(),
@@ -4116,10 +4122,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 <li>A <code>column_count</code> aggregate computes the subset of rows where the named column is non-null, and returns the count of only those rows,</li>
 <li>A <code>single_column</code> aggregate is computed by delegating to the <code>eval_aggregate_function</code> function, which computes a custom aggregate operator over the values of the selected column taken from all rows.</li>
 </ul>
-<pre><code class="language-rust no_run noplayground">fn eval_aggregate(
-    aggregate: &amp;models::Aggregate,
-    paginated: &amp;[BTreeMap&lt;String, serde_json::Value&gt;],
-) -&gt; Result&lt;serde_json::Value&gt; {
+<pre><code class="language-rust no_run noplayground">fn eval_aggregate(aggregate: &amp;models::Aggregate, paginated: &amp;[Row]) -&gt; Result&lt;serde_json::Value&gt; {
     match aggregate {
         models::Aggregate::StarCount {} =&gt; Ok(serde_json::Value::from(paginated.len())),
         models::Aggregate::ColumnCount {
@@ -4177,7 +4180,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 }</code></pre>
 <p>The <code>eval_aggregate_function</code> function implements the custom aggregate operators <code>min</code> and <code>max</code>, which are provided for integer-valued columns:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_aggregate_function(
-    function: &amp;str,
+    function: &amp;models::AggregateFunctionName,
     values: Vec&lt;serde_json::Value&gt;,
 ) -&gt; Result&lt;serde_json::Value&gt; {
     let int_values = values
@@ -4204,7 +4207,7 @@ Once we have computed the full collection, we can move onto evaluating the query
                 })
         })
         .collect::&lt;Result&lt;Vec&lt;i32&gt;&gt;&gt;()?;
-    let agg_value = match function {
+    let agg_value = match function.as_str() {
         "min" =&gt; Ok(int_values.iter().min()),
         "max" =&gt; Ok(int_values.iter().max()),
         _ =&gt; Err((
@@ -4232,7 +4235,7 @@ Once we have computed the full collection, we can move onto evaluating the query
         .fields
         .as_ref()
         .map(|fields| {
-            let mut rows: Vec&lt;IndexMap&lt;String, models::RowFieldValue&gt;&gt; = vec![];
+            let mut rows: Vec&lt;IndexMap&lt;models::FieldName, models::RowFieldValue&gt;&gt; = vec![];
             for item in &amp;paginated {
                 let row = eval_row(fields, collection_relationships, variables, state, item)?;
                 rows.push(row);
@@ -4246,8 +4249,8 @@ Once we have computed the full collection, we can move onto evaluating the query
 <li>A <code>relationship</code> field is selected by evaluating the related collection using <code>eval_path_element</code> (we will cover this in the next section), and then recursively executing a query using <code>execute_query</code>:</li>
 </ul>
 <pre><code class="language-rust no_run noplayground">fn eval_field(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     field: &amp;models::Field,
     item: &amp;Row,
@@ -4258,7 +4261,7 @@ Once we have computed the full collection, we can move onto evaluating the query
             fields,
             arguments,
         } =&gt; {
-            let col_val = eval_column(variables, item, column.as_str(), arguments)?;
+            let col_val = eval_column(variables, item, column, arguments)?;
             match fields {
                 None =&gt; Ok(models::RowFieldValue(col_val)),
                 Some(nested_field) =&gt; eval_nested_field(
@@ -4275,7 +4278,7 @@ Once we have computed the full collection, we can move onto evaluating the query
             arguments,
             query,
         } =&gt; {
-            let relationship = collection_relationships.get(relationship.as_str()).ok_or((
+            let relationship = collection_relationships.get(relationship).ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
                     message: " ".into(),
@@ -4318,8 +4321,8 @@ Once we have computed the full collection, we can move onto evaluating the query
 <p><code>eval_path</code> accepts a list of <a href="tutorial/queries/execute/../../../reference/types.html#pathelement"><code>PathElement</code></a>s, each of which describes the traversal of a single edge of the collection-relationship graph. <code>eval_path</code> computes the collection at the final node of this path through the graph.</p>
 <p>It does this by successively evaluating each edge in turn using the <code>eval_path_element</code> function:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_path(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     path: &amp;[models::PathElement],
     item: &amp;Row,
@@ -4327,14 +4330,15 @@ Once we have computed the full collection, we can move onto evaluating the query
     let mut result: Vec&lt;Row&gt; = vec![item.clone()];
 
     for path_element in path {
-        let relationship_name = path_element.relationship.as_str();
-        let relationship = collection_relationships.get(relationship_name).ok_or((
-            StatusCode::BAD_REQUEST,
-            Json(models::ErrorResponse {
-                message: "invalid relationship name in path".into(),
-                details: serde_json::Value::Null,
-            }),
-        ))?;
+        let relationship = collection_relationships
+            .get(&amp;path_element.relationship)
+            .ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "invalid relationship name in path".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
         result = eval_path_element(
             collection_relationships,
             variables,
@@ -4350,11 +4354,11 @@ Once we have computed the full collection, we can move onto evaluating the query
 }</code></pre>
 <p>The <code>eval_path_element</code> function computes a collection from a single relationship, one source row at a time, by evaluating all relationship arguments, computing the target collection using <code>get_collection_by_name</code>, and evaluating any column mapping on any resulting rows:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_path_element(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     relationship: &amp;models::Relationship,
-    arguments: &amp;BTreeMap&lt;String, models::RelationshipArgument&gt;,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, models::RelationshipArgument&gt;,
     source: &amp;[Row],
     predicate: &amp;Option&lt;Box&lt;models::Expression&gt;&gt;,
 ) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
@@ -4416,11 +4420,8 @@ Once we have computed the full collection, we can move onto evaluating the query
             }
         }
 
-        let target = get_collection_by_name(
-            relationship.target_collection.as_str(),
-            &amp;all_arguments,
-            state,
-        )?;
+        let target =
+            get_collection_by_name(&amp;relationship.target_collection, &amp;all_arguments, state)?;
 
         for tgt_row in &amp;target {
             if eval_column_mapping(relationship, src_row, tgt_row)?
@@ -4483,7 +4484,7 @@ Once we have computed the full collection, we can move onto evaluating the query
 <p>The <code>execute_mutation_operation</code> function is responsible for handling a single <a href="tutorial/mutations/../../reference/types.html#mutationoperation"><code>MutationOperation</code></a>, and returning the corresponding <a href="tutorial/mutations/../../reference/types.html#mutationoperationresults"><code>MutationOperationResults</code></a>:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_mutation_operation(
     state: &amp;mut AppState,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
     operation: &amp;models::MutationOperation,
 ) -&gt; Result&lt;models::MutationOperationResults&gt; {
     match operation {
@@ -4499,15 +4500,15 @@ Once we have computed the full collection, we can move onto evaluating the query
 <p>The <code>execute_procedure</code> function is responsible for executing a single procedure:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_procedure(
     state: &amp;mut AppState,
-    name: &amp;str,
-    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    name: &amp;models::ProcedureName,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, serde_json::Value&gt;,
     fields: &amp;Option&lt;models::NestedField&gt;,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
 ) -&gt; std::result::Result&lt;models::MutationOperationResults, (StatusCode, Json&lt;models::ErrorResponse&gt;)&gt;</code></pre>
 <p>The function receives the application <code>state</code>, along with the <code>name</code> of the procedure to invoke, a list of <code>arguments</code>, a list of <code>fields</code> to return, and a list of <code>collection_relationships</code>.</p>
 <p>The function matches on the name of the procedure, and fails if the name is not recognized. We will walk through each procedure in turn.</p>
 <pre><code class="language-rust no_run noplayground">{
-    match name {
+    match name.as_str() {
         "upsert_article" =&gt; {
             execute_upsert_article(state, arguments, fields, collection_relationships)
         }
@@ -4530,9 +4531,9 @@ Once we have computed the full collection, we can move onto evaluating the query
 <p>Finally, it delegates to the <code>eval_nested_field</code> function to evaluate any nested fields, and returns the selected fields in the result:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_upsert_article(
     state: &amp;mut AppState,
-    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, serde_json::Value&gt;,
     fields: &amp;Option&lt;models::NestedField&gt;,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
 ) -&gt; std::result::Result&lt;models::MutationOperationResults, (StatusCode, Json&lt;models::ErrorResponse&gt;)&gt;
 {
     let article = arguments.get("article").ok_or((
@@ -4542,13 +4543,15 @@ Once we have computed the full collection, we can move onto evaluating the query
             details: serde_json::Value::Null,
         }),
     ))?;
-    let article_obj = article.as_object().ok_or((
-        StatusCode::BAD_REQUEST,
-        Json(models::ErrorResponse {
-            message: "article must be an object".into(),
-            details: serde_json::Value::Null,
-        }),
-    ))?;
+    let article_obj: Row = serde_json::from_value(article.clone()).map_err(|_| {
+        (
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "article must be an object".into(),
+                details: serde_json::Value::Null,
+            }),
+        )
+    })?;
     let id = article_obj.get("id").ok_or((
         StatusCode::BAD_REQUEST,
         Json(models::ErrorResponse {
@@ -4575,11 +4578,7 @@ Once we have computed the full collection, we can move onto evaluating the query
                 }),
             )
         })?;
-    let new_row = article_obj
-        .iter()
-        .map(|(k, v)| (k.clone(), v.clone()))
-        .collect::&lt;BTreeMap&lt;_, _&gt;&gt;();
-    let old_row = state.articles.insert(id_int, new_row);
+    let old_row = state.articles.insert(id_int, article_obj);
 
     Ok(models::MutationOperationResults::Procedure {
         result: old_row.map_or(Ok(serde_json::Value::Null), |old_row| {
@@ -4616,9 +4615,9 @@ Once we have computed the full collection, we can move onto evaluating the query
 <p>This function delegates to the <code>eval_nested_field</code> function to evaluate any nested fields, and returns the selected fields in the result:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_delete_articles(
     state: &amp;mut AppState,
-    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, serde_json::Value&gt;,
     fields: &amp;Option&lt;models::NestedField&gt;,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
 ) -&gt; std::result::Result&lt;models::MutationOperationResults, (StatusCode, Json&lt;models::ErrorResponse&gt;)&gt;
 {
     let predicate_value = arguments.get("where").ok_or((
@@ -4749,19 +4748,19 @@ and the <code>/query/explain</code> and <code>/mutation/explain</code> endpoints
 pub enum Aggregate {
     ColumnCount {
         /// The column to apply the count aggregate function to
-        column: String,
+        column: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
         /// Whether or not only distinct items should be counted
         distinct: bool,
     },
     SingleColumn {
         /// The column to apply the aggregation function to
-        column: String,
+        column: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
         /// Single column aggregate function name.
-        function: String,
+        function: AggregateFunctionName,
     },
     StarCount {},
 }</code></pre>
@@ -4779,7 +4778,7 @@ pub struct AggregateFunctionDefinition {
 #[schemars(title = "Argument")]
 pub enum Argument {
     /// The argument is provided by reference to a variable
-    Variable { name: String },
+    Variable { name: VariableName },
     /// The argument is provided as a literal value
     Literal { value: serde_json::Value },
 }</code></pre>
@@ -4833,17 +4832,17 @@ pub enum ComparisonOperatorDefinition {
 pub enum ComparisonTarget {
     Column {
         /// The name of the column
-        name: String,
+        name: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
         /// Any relationships to traverse to reach this column
         path: Vec&lt;PathElement&gt;,
     },
     RootCollectionColumn {
         /// The name of the column
-        name: String,
+        name: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
     },
 }</code></pre>
 <h2 id="comparisonvalue"><a class="header" href="#comparisonvalue"><code>ComparisonValue</code></a></h2>
@@ -4853,7 +4852,7 @@ pub enum ComparisonTarget {
 pub enum ComparisonValue {
     Column { column: ComparisonTarget },
     Scalar { value: serde_json::Value },
-    Variable { name: String },
+    Variable { name: VariableName },
 }</code></pre>
 <h2 id="errorresponse"><a class="header" href="#errorresponse"><code>ErrorResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -4871,15 +4870,15 @@ pub struct ErrorResponse {
 #[schemars(title = "Exists In Collection")]
 pub enum ExistsInCollection {
     Related {
-        relationship: String,
+        relationship: RelationshipName,
         /// Values to be provided to any collection arguments
-        arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
+        arguments: BTreeMap&lt;ArgumentName, RelationshipArgument&gt;,
     },
     Unrelated {
         /// The name of a collection
-        collection: String,
+        collection: CollectionName,
         /// Values to be provided to any collection arguments
-        arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
+        arguments: BTreeMap&lt;ArgumentName, RelationshipArgument&gt;,
     },
 }</code></pre>
 <h2 id="explainresponse"><a class="header" href="#explainresponse"><code>ExplainResponse</code></a></h2>
@@ -4914,7 +4913,7 @@ pub enum Expression {
     },
     BinaryComparisonOperator {
         column: ComparisonTarget,
-        operator: String,
+        operator: ComparisonOperatorName,
         value: ComparisonValue,
     },
     Exists {
@@ -4928,21 +4927,21 @@ pub enum Expression {
 #[schemars(title = "Field")]
 pub enum Field {
     Column {
-        column: String,
+        column: FieldName,
         /// When the type of the column is a (possibly-nullable) array or object,
         /// the caller can request a subset of the complete column data,
         /// by specifying fields to fetch here.
         /// If omitted, the column data will be fetched in full.
         fields: Option&lt;NestedField&gt;,
         #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
-        arguments: BTreeMap&lt;String, Argument&gt;,
+        arguments: BTreeMap&lt;ArgumentName, Argument&gt;,
     },
     Relationship {
         query: Box&lt;Query&gt;,
         /// The name of the relationship to follow for the subquery
-        relationship: String,
+        relationship: RelationshipName,
         /// Values to be provided to any collection arguments
-        arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
+        arguments: BTreeMap&lt;ArgumentName, RelationshipArgument&gt;,
     },
 }</code></pre>
 <h2 id="foreignkeyconstraint"><a class="header" href="#foreignkeyconstraint"><code>ForeignKeyConstraint</code></a></h2>
@@ -4950,9 +4949,9 @@ pub enum Field {
 #[schemars(title = "Foreign Key Constraint")]
 pub struct ForeignKeyConstraint {
     /// The columns on which you want want to define the foreign key.
-    pub column_mapping: BTreeMap&lt;String, String&gt;,
+    pub column_mapping: BTreeMap&lt;FieldName, FieldName&gt;,
     /// The name of a collection
-    pub foreign_collection: String,
+    pub foreign_collection: CollectionName,
 }</code></pre>
 <h2 id="functioninfo"><a class="header" href="#functioninfo"><code>FunctionInfo</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -4960,11 +4959,11 @@ pub struct ForeignKeyConstraint {
 #[schemars(title = "Function Info")]
 pub struct FunctionInfo {
     /// The name of the function
-    pub name: String,
+    pub name: FunctionName,
     /// Description of the function
     pub description: Option&lt;String&gt;,
     /// Any arguments that this collection requires
-    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, ArgumentInfo&gt;,
     /// The name of the function's result type
     pub result_type: Type,
 }</code></pre>
@@ -4981,9 +4980,9 @@ pub struct LeafCapability {}</code></pre>
 pub enum MutationOperation {
     Procedure {
         /// The name of a procedure
-        name: String,
+        name: ProcedureName,
         /// Any named procedure arguments
-        arguments: BTreeMap&lt;String, serde_json::Value&gt;,
+        arguments: BTreeMap&lt;ArgumentName, serde_json::Value&gt;,
         /// The fields to return from the result, or null to return everything
         fields: Option&lt;NestedField&gt;,
     },
@@ -5002,7 +5001,7 @@ pub struct MutationRequest {
     /// The mutation operations to perform
     pub operations: Vec&lt;MutationOperation&gt;,
     /// The relationships between collections involved in the entire mutation request
-    pub collection_relationships: BTreeMap&lt;String, Relationship&gt;,
+    pub collection_relationships: BTreeMap&lt;RelationshipName, Relationship&gt;,
 }</code></pre>
 <h2 id="mutationresponse"><a class="header" href="#mutationresponse"><code>MutationResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -5043,7 +5042,7 @@ pub struct NestedFieldCapabilities {
 #[serde(rename_all = "snake_case")]
 #[schemars(title = "NestedObject")]
 pub struct NestedObject {
-    pub fields: IndexMap&lt;String, Field&gt;,
+    pub fields: IndexMap&lt;FieldName, Field&gt;,
 }</code></pre>
 <h2 id="objectfield"><a class="header" href="#objectfield"><code>ObjectField</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an object field
@@ -5058,7 +5057,7 @@ pub struct ObjectField {
     pub r#type: Type,
     /// The arguments available to the field - Matches implementation from CollectionInfo
     #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
-    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, ArgumentInfo&gt;,
 }</code></pre>
 <h2 id="objecttype"><a class="header" href="#objecttype"><code>ObjectType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of an object type
@@ -5069,7 +5068,7 @@ pub struct ObjectType {
     /// Description of this type
     pub description: Option&lt;String&gt;,
     /// Fields defined on this object type
-    pub fields: BTreeMap&lt;String, ObjectField&gt;,
+    pub fields: BTreeMap&lt;FieldName, ObjectField&gt;,
 }</code></pre>
 <h2 id="orderby"><a class="header" href="#orderby"><code>OrderBy</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -5093,19 +5092,19 @@ pub struct OrderByElement {
 pub enum OrderByTarget {
     Column {
         /// The name of the column
-        name: String,
+        name: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
         /// Any relationships to traverse to reach this column
         path: Vec&lt;PathElement&gt;,
     },
     SingleColumnAggregate {
         /// The column to apply the aggregation function to
-        column: String,
+        column: FieldName,
         /// Path to a nested field within an object column
-        field_path: Option&lt;Vec&lt;String&gt;&gt;,
+        field_path: Option&lt;Vec&lt;FieldName&gt;&gt;,
         /// Single column aggregate function name.
-        function: String,
+        function: AggregateFunctionName,
         /// Non-empty collection of relationships to traverse
         path: Vec&lt;PathElement&gt;,
     },
@@ -5130,9 +5129,9 @@ pub enum OrderDirection {
 #[schemars(title = "Path Element")]
 pub struct PathElement {
     /// The name of the relationship to follow
-    pub relationship: String,
+    pub relationship: RelationshipName,
     /// Values to be provided to any collection arguments
-    pub arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, RelationshipArgument&gt;,
     /// A predicate expression to apply to the target collection
     pub predicate: Option&lt;Box&lt;Expression&gt;&gt;,
 }</code></pre>
@@ -5142,11 +5141,11 @@ pub struct PathElement {
 #[schemars(title = "Procedure Info")]
 pub struct ProcedureInfo {
     /// The name of the procedure
-    pub name: String,
+    pub name: ProcedureName,
     /// Column description
     pub description: Option&lt;String&gt;,
     /// Any arguments that this collection requires
-    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, ArgumentInfo&gt;,
     /// The name of the result type
     pub result_type: Type,
 }</code></pre>
@@ -5156,9 +5155,9 @@ pub struct ProcedureInfo {
 #[schemars(title = "Query")]
 pub struct Query {
     /// Aggregate fields of the query
-    pub aggregates: Option&lt;IndexMap&lt;String, Aggregate&gt;&gt;,
+    pub aggregates: Option&lt;IndexMap&lt;FieldName, Aggregate&gt;&gt;,
     /// Fields of the query
-    pub fields: Option&lt;IndexMap&lt;String, Field&gt;&gt;,
+    pub fields: Option&lt;IndexMap&lt;FieldName, Field&gt;&gt;,
     /// Optionally limit to N results
     pub limit: Option&lt;u32&gt;,
     /// Optionally offset from the Nth result
@@ -5188,16 +5187,16 @@ pub struct QueryCapabilities {
 #[schemars(title = "Query Request")]
 pub struct QueryRequest {
     /// The name of a collection
-    pub collection: String,
+    pub collection: CollectionName,
     /// The query syntax tree
     pub query: Query,
     /// Values to be provided to any collection arguments
-    pub arguments: BTreeMap&lt;String, Argument&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, Argument&gt;,
     /// Any relationships between collections involved in the query request
-    pub collection_relationships: BTreeMap&lt;String, Relationship&gt;,
+    pub collection_relationships: BTreeMap&lt;RelationshipName, Relationship&gt;,
     /// One set of named variables for each rowset to fetch. Each variable set
     /// should be subtituted in turn, and a fresh set of rows returned.
-    pub variables: Option&lt;Vec&lt;BTreeMap&lt;String, serde_json::Value&gt;&gt;&gt;,
+    pub variables: Option&lt;Vec&lt;BTreeMap&lt;VariableName, serde_json::Value&gt;&gt;&gt;,
 }</code></pre>
 <h2 id="queryresponse"><a class="header" href="#queryresponse"><code>QueryResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -5211,12 +5210,12 @@ pub struct QueryResponse(pub Vec&lt;RowSet&gt;);</code></pre>
 #[schemars(title = "Relationship")]
 pub struct Relationship {
     /// A mapping between columns on the source collection to columns on the target collection
-    pub column_mapping: BTreeMap&lt;String, String&gt;,
+    pub column_mapping: BTreeMap&lt;FieldName, FieldName&gt;,
     pub relationship_type: RelationshipType,
     /// The name of a collection
-    pub target_collection: String,
+    pub target_collection: CollectionName,
     /// Values to be provided to any collection arguments
-    pub arguments: BTreeMap&lt;String, RelationshipArgument&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, RelationshipArgument&gt;,
 }</code></pre>
 <h2 id="relationshipargument"><a class="header" href="#relationshipargument"><code>RelationshipArgument</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[skip_serializing_none]
@@ -5226,7 +5225,7 @@ pub struct Relationship {
 pub enum RelationshipArgument {
     /// The argument is provided by reference to a variable
     Variable {
-        name: String,
+        name: VariableName,
     },
     /// The argument is provided as a literal value
     Literal {
@@ -5234,7 +5233,7 @@ pub enum RelationshipArgument {
     },
     // The argument is provided based on a column of the source collection
     Column {
-        name: String,
+        name: FieldName,
     },
 }</code></pre>
 <h2 id="relationshipcapabilities"><a class="header" href="#relationshipcapabilities"><code>RelationshipCapabilities</code></a></h2>
@@ -5277,9 +5276,9 @@ impl RowFieldValue {
 #[schemars(title = "Row Set")]
 pub struct RowSet {
     /// The results of the aggregates returned by the query
-    pub aggregates: Option&lt;IndexMap&lt;String, serde_json::Value&gt;&gt;,
+    pub aggregates: Option&lt;IndexMap&lt;FieldName, serde_json::Value&gt;&gt;,
     /// The rows returned by the query, corresponding to the query's fields
-    pub rows: Option&lt;Vec&lt;IndexMap&lt;String, RowFieldValue&gt;&gt;&gt;,
+    pub rows: Option&lt;Vec&lt;IndexMap&lt;FieldName, RowFieldValue&gt;&gt;&gt;,
 }</code></pre>
 <h2 id="scalartype"><a class="header" href="#scalartype"><code>ScalarType</code></a></h2>
 <pre><code class="language-rust no_run noplayground">/// The definition of a scalar type, i.e. types that can be used as the types of columns.
@@ -5291,19 +5290,19 @@ pub struct ScalarType {
     /// Defaults to `TypeRepresentation::JSON` if omitted
     pub representation: Option&lt;TypeRepresentation&gt;,
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
-    pub aggregate_functions: BTreeMap&lt;String, AggregateFunctionDefinition&gt;,
+    pub aggregate_functions: BTreeMap&lt;AggregateFunctionName, AggregateFunctionDefinition&gt;,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
-    pub comparison_operators: BTreeMap&lt;String, ComparisonOperatorDefinition&gt;,
+    pub comparison_operators: BTreeMap&lt;ComparisonOperatorName, ComparisonOperatorDefinition&gt;,
 }</code></pre>
 <h2 id="schemaresponse"><a class="header" href="#schemaresponse"><code>SchemaResponse</code></a></h2>
 <pre><code class="language-rust no_run noplayground">#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Schema Response")]
 pub struct SchemaResponse {
     /// A list of scalar types which will be used as the types of collection columns
-    pub scalar_types: BTreeMap&lt;String, ScalarType&gt;,
+    pub scalar_types: BTreeMap&lt;ScalarTypeName, ScalarType&gt;,
     /// A list of object types which can be used as the types of arguments, or return types of procedures.
     /// Names should not overlap with scalar type names.
-    pub object_types: BTreeMap&lt;String, ObjectType&gt;,
+    pub object_types: BTreeMap&lt;ObjectTypeName, ObjectType&gt;,
     /// Collections which are available for queries
     pub collections: Vec&lt;CollectionInfo&gt;,
     /// Functions (i.e. collections which return a single column and row)
@@ -5320,14 +5319,14 @@ pub struct CollectionInfo {
     ///
     /// Note: these names are abstract - there is no requirement that this name correspond to
     /// the name of an actual collection in the database.
-    pub name: String,
+    pub name: CollectionName,
     /// Description of the collection
     pub description: Option&lt;String&gt;,
     /// Any arguments that this collection requires
-    pub arguments: BTreeMap&lt;String, ArgumentInfo&gt;,
+    pub arguments: BTreeMap&lt;ArgumentName, ArgumentInfo&gt;,
     /// The name of the collection's object type
     #[serde(rename = "type")]
-    pub collection_type: String,
+    pub collection_type: ObjectTypeName,
     /// Any uniqueness constraints enforced on this collection
     pub uniqueness_constraints: BTreeMap&lt;String, UniquenessConstraint&gt;,
     /// Any foreign key constraints enforced on this collection
@@ -5344,7 +5343,7 @@ pub enum Type {
     /// A named type
     Named {
         /// The name can refer to a primitive type or a scalar type
-        name: String,
+        name: TypeName,
     },
     /// A nullable type
     Nullable {
@@ -5359,7 +5358,7 @@ pub enum Type {
     /// A predicate type for a given object type
     Predicate {
         /// The object type name
-        object_type_name: String,
+        object_type_name: ObjectTypeName,
     },
 }</code></pre>
 <h2 id="typerepresentation"><a class="header" href="#typerepresentation"><code>TypeRepresentation</code></a></h2>
@@ -5434,7 +5433,7 @@ pub enum UnaryComparisonOperator {
 #[schemars(title = "Uniqueness Constraint")]
 pub struct UniquenessConstraint {
     /// A list of columns which this constraint requires to be unique
-    pub unique_columns: Vec&lt;String&gt;,
+    pub unique_columns: Vec&lt;FieldName&gt;,
 }</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="json-schema"><a class="header" href="#json-schema">JSON Schema</a></h1>
 <h2 id="capabilitiesresponse-1"><a class="header" href="#capabilitiesresponse-1"><code>CapabilitiesResponse</code></a></h2>

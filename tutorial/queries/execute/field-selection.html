@@ -180,7 +180,7 @@
         .fields
         .as_ref()
         .map(|fields| {
-            let mut rows: Vec&lt;IndexMap&lt;String, models::RowFieldValue&gt;&gt; = vec![];
+            let mut rows: Vec&lt;IndexMap&lt;models::FieldName, models::RowFieldValue&gt;&gt; = vec![];
             for item in &amp;paginated {
                 let row = eval_row(fields, collection_relationships, variables, state, item)?;
                 rows.push(row);
@@ -194,8 +194,8 @@
 <li>A <code>relationship</code> field is selected by evaluating the related collection using <code>eval_path_element</code> (we will cover this in the next section), and then recursively executing a query using <code>execute_query</code>:</li>
 </ul>
 <pre><code class="language-rust no_run noplayground">fn eval_field(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     field: &amp;models::Field,
     item: &amp;Row,
@@ -206,7 +206,7 @@
             fields,
             arguments,
         } =&gt; {
-            let col_val = eval_column(variables, item, column.as_str(), arguments)?;
+            let col_val = eval_column(variables, item, column, arguments)?;
             match fields {
                 None =&gt; Ok(models::RowFieldValue(col_val)),
                 Some(nested_field) =&gt; eval_nested_field(
@@ -223,7 +223,7 @@
             arguments,
             query,
         } =&gt; {
-            let relationship = collection_relationships.get(relationship.as_str()).ok_or((
+            let relationship = collection_relationships.get(relationship).ok_or((
                 StatusCode::BAD_REQUEST,
                 Json(models::ErrorResponse {
                     message: " ".into(),

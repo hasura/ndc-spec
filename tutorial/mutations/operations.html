@@ -177,7 +177,7 @@
 <p>The <code>execute_mutation_operation</code> function is responsible for handling a single <a href="../../reference/types.html#mutationoperation"><code>MutationOperation</code></a>, and returning the corresponding <a href="../../reference/types.html#mutationoperationresults"><code>MutationOperationResults</code></a>:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_mutation_operation(
     state: &amp;mut AppState,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
     operation: &amp;models::MutationOperation,
 ) -&gt; Result&lt;models::MutationOperationResults&gt; {
     match operation {

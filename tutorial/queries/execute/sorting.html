@@ -186,8 +186,8 @@
 <h2 id="the-sort-function"><a class="header" href="#the-sort-function">The <code>sort</code> function</a></h2>
 <p>The <code>sort</code> function implements a simple insertion sort, computing the ordering for each pair of rows, and inserting each row at the correct place:</p>
 <pre><code class="language-rust no_run noplayground">fn sort(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     collection: Vec&lt;Row&gt;,
     order_by: &amp;Option&lt;models::OrderBy&gt;,
@@ -222,8 +222,8 @@
 <p>To compare two rows, the <code>eval_order_by</code> computes each <code>OrderByElement</code> in turn, and compares the rows in order, or in reverse order, depending on whether the ordering is <em>ascending</em> or <em>descending</em>.</p>
 <p>The function returns the first <code>Ordering</code> which makes the two rows distinct (if any):</p>
 <pre><code class="language-rust no_run noplayground">fn eval_order_by(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     order_by: &amp;models::OrderBy,
     t1: &amp;Row,
@@ -248,13 +248,13 @@
 <h3 id="ordering-by-a-column"><a class="header" href="#ordering-by-a-column">Ordering by a column</a></h3>
 <p>As an example, here is the function <code>eval_order_by_column</code> which evaluates <em>ordering by a column</em>:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_order_by_column(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
-    item: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    item: &amp;Row,
     path: Vec&lt;models::PathElement&gt;,
-    name: String,
-    field_path: Option&lt;Vec&lt;String&gt;&gt;,
+    name: models::FieldName,
+    field_path: Option&lt;Vec&lt;models::FieldName&gt;&gt;,
 ) -&gt; Result&lt;serde_json::Value&gt; {
     let rows: Vec&lt;Row&gt; = eval_path(collection_relationships, variables, state, &amp;path, item)?;
     if rows.len() &gt; 1 {

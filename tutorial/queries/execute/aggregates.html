@@ -180,7 +180,7 @@
         .aggregates
         .as_ref()
         .map(|aggregates| {
-            let mut row: IndexMap&lt;String, serde_json::Value&gt; = IndexMap::new();
+            let mut row: IndexMap&lt;models::FieldName, serde_json::Value&gt; = IndexMap::new();
             for (aggregate_name, aggregate) in aggregates {
                 row.insert(
                     aggregate_name.clone(),
@@ -196,10 +196,7 @@
 <li>A <code>column_count</code> aggregate computes the subset of rows where the named column is non-null, and returns the count of only those rows,</li>
 <li>A <code>single_column</code> aggregate is computed by delegating to the <code>eval_aggregate_function</code> function, which computes a custom aggregate operator over the values of the selected column taken from all rows.</li>
 </ul>
-<pre><code class="language-rust no_run noplayground">fn eval_aggregate(
-    aggregate: &amp;models::Aggregate,
-    paginated: &amp;[BTreeMap&lt;String, serde_json::Value&gt;],
-) -&gt; Result&lt;serde_json::Value&gt; {
+<pre><code class="language-rust no_run noplayground">fn eval_aggregate(aggregate: &amp;models::Aggregate, paginated: &amp;[Row]) -&gt; Result&lt;serde_json::Value&gt; {
     match aggregate {
         models::Aggregate::StarCount {} =&gt; Ok(serde_json::Value::from(paginated.len())),
         models::Aggregate::ColumnCount {
@@ -257,7 +254,7 @@
 }</code></pre>
 <p>The <code>eval_aggregate_function</code> function implements the custom aggregate operators <code>min</code> and <code>max</code>, which are provided for integer-valued columns:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_aggregate_function(
-    function: &amp;str,
+    function: &amp;models::AggregateFunctionName,
     values: Vec&lt;serde_json::Value&gt;,
 ) -&gt; Result&lt;serde_json::Value&gt; {
     let int_values = values
@@ -284,7 +281,7 @@
                 })
         })
         .collect::&lt;Result&lt;Vec&lt;i32&gt;&gt;&gt;()?;
-    let agg_value = match function {
+    let agg_value = match function.as_str() {
         "min" =&gt; Ok(int_values.iter().min()),
         "max" =&gt; Ok(int_values.iter().max()),
         _ =&gt; Err((

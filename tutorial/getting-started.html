@@ -176,7 +176,7 @@
                         <h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
 <p>The reference implementation will serve queries and mutations based on in-memory data read from newline-delimited JSON files.</p>
 <p>First, we will define some types to represent the data in the newline-delimited JSON files. Rows of JSON data will be stored in memory as ordered maps:</p>
-<pre><code class="language-rust no_run noplayground">type Row = BTreeMap&lt;String, serde_json::Value&gt;;</code></pre>
+<pre><code class="language-rust no_run noplayground">type Row = BTreeMap&lt;models::FieldName, serde_json::Value&gt;;</code></pre>
 <p>Our application state will consist of collections of various types of rows:</p>
 <pre><code class="language-rust no_run noplayground">#[derive(Debug, Clone)]
 pub struct AppState {

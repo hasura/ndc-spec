@@ -178,11 +178,11 @@
 <p>From there, we will be able to apply predicates, sort and paginate rows. But one step at a time!</p>
 <p>The first step is to evaluate each argument, which the <code>execute_query_with_variables</code> function does by delegating to the <code>eval_argument</code> function:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query_with_variables(
-    collection: &amp;str,
-    arguments: &amp;BTreeMap&lt;String, models::Argument&gt;,
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
+    collection: &amp;models::CollectionName,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, models::Argument&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
     query: &amp;models::Query,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
 ) -&gt; Result&lt;models::RowSet&gt; {
     let mut argument_values = BTreeMap::new();
@@ -218,11 +218,11 @@
 }</code></pre>
 <p>Once this is complete, and we have a collection of evaluated <code>argument_values</code>, we can delegate to the <code>get_collection_by_name</code> function. This function peforms the work of computing the full collection, by pattern matching on the name of the collection:</p>
 <pre><code class="language-rust no_run noplayground">fn get_collection_by_name(
-    collection_name: &amp;str,
-    arguments: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_name: &amp;models::CollectionName,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, serde_json::Value&gt;,
     state: &amp;AppState,
 ) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
-    match collection_name {
+    match collection_name.as_str() {
         "articles" =&gt; Ok(state.articles.values().cloned().collect()),
         "authors" =&gt; Ok(state.authors.values().cloned().collect()),
         "institutions" =&gt; Ok(state.institutions.values().cloned().collect()),
@@ -340,8 +340,8 @@
 <p>In the next section, we will break down the implementation of <code>execute_query</code>.
 Once we have computed the full collection, we can move onto evaluating the query in the context of that collection, using the <code>execute_query</code> function:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     query: &amp;models::Query,
     root: Root,

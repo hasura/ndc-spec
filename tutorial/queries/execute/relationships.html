@@ -178,8 +178,8 @@
 <p><code>eval_path</code> accepts a list of <a href="../../../reference/types.html#pathelement"><code>PathElement</code></a>s, each of which describes the traversal of a single edge of the collection-relationship graph. <code>eval_path</code> computes the collection at the final node of this path through the graph.</p>
 <p>It does this by successively evaluating each edge in turn using the <code>eval_path_element</code> function:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_path(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     path: &amp;[models::PathElement],
     item: &amp;Row,
@@ -187,14 +187,15 @@
     let mut result: Vec&lt;Row&gt; = vec![item.clone()];
 
     for path_element in path {
-        let relationship_name = path_element.relationship.as_str();
-        let relationship = collection_relationships.get(relationship_name).ok_or((
-            StatusCode::BAD_REQUEST,
-            Json(models::ErrorResponse {
-                message: "invalid relationship name in path".into(),
-                details: serde_json::Value::Null,
-            }),
-        ))?;
+        let relationship = collection_relationships
+            .get(&amp;path_element.relationship)
+            .ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "invalid relationship name in path".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
         result = eval_path_element(
             collection_relationships,
             variables,
@@ -210,11 +211,11 @@
 }</code></pre>
 <p>The <code>eval_path_element</code> function computes a collection from a single relationship, one source row at a time, by evaluating all relationship arguments, computing the target collection using <code>get_collection_by_name</code>, and evaluating any column mapping on any resulting rows:</p>
 <pre><code class="language-rust no_run noplayground">fn eval_path_element(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     relationship: &amp;models::Relationship,
-    arguments: &amp;BTreeMap&lt;String, models::RelationshipArgument&gt;,
+    arguments: &amp;BTreeMap&lt;models::ArgumentName, models::RelationshipArgument&gt;,
     source: &amp;[Row],
     predicate: &amp;Option&lt;Box&lt;models::Expression&gt;&gt;,
 ) -&gt; Result&lt;Vec&lt;Row&gt;&gt; {
@@ -276,11 +277,8 @@
             }
         }
 
-        let target = get_collection_by_name(
-            relationship.target_collection.as_str(),
-            &amp;all_arguments,
-            state,
-        )?;
+        let target =
+            get_collection_by_name(&amp;relationship.target_collection, &amp;all_arguments, state)?;
 
         for tgt_row in &amp;target {
             if eval_column_mapping(relationship, src_row, tgt_row)?

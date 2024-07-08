@@ -178,25 +178,25 @@
 <p>The reference implementation returns a static <code>CapabilitiesResponse</code>:</p>
 <pre><code class="language-rust no_run noplayground">async fn get_capabilities() -&gt; Json&lt;models::CapabilitiesResponse&gt; {
     Json(models::CapabilitiesResponse {
-        version: "0.1.4".into(),
+        version: models::VERSION.into(),
         capabilities: models::Capabilities {
             query: models::QueryCapabilities {
-                aggregates: Some(LeafCapability {}),
-                variables: Some(LeafCapability {}),
+                aggregates: Some(models::LeafCapability {}),
+                variables: Some(models::LeafCapability {}),
                 explain: None,
-                nested_fields: NestedFieldCapabilities {
-                    filter_by: Some(LeafCapability {}),
-                    order_by: Some(LeafCapability {}),
-                    aggregates: Some(LeafCapability {}),
+                nested_fields: models::NestedFieldCapabilities {
+                    filter_by: Some(models::LeafCapability {}),
+                    order_by: Some(models::LeafCapability {}),
+                    aggregates: Some(models::LeafCapability {}),
                 },
             },
             mutation: models::MutationCapabilities {
                 transactional: None,
                 explain: None,
             },
-            relationships: Some(RelationshipCapabilities {
-                order_by_aggregate: Some(LeafCapability {}),
-                relation_comparisons: Some(LeafCapability {}),
+            relationships: Some(models::RelationshipCapabilities {
+                order_by_aggregate: Some(models::LeafCapability {}),
+                relation_comparisons: Some(models::LeafCapability {}),
             }),
         },
     })

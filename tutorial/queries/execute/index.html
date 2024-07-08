@@ -176,8 +176,8 @@
                         <h1 id="executing-queries"><a class="header" href="#executing-queries">Executing Queries</a></h1>
 <p>In this section, we will break down the implementation of the <code>execute_query</code> function:</p>
 <pre><code class="language-rust no_run noplayground">fn execute_query(
-    collection_relationships: &amp;BTreeMap&lt;String, models::Relationship&gt;,
-    variables: &amp;BTreeMap&lt;String, serde_json::Value&gt;,
+    collection_relationships: &amp;BTreeMap&lt;models::RelationshipName, models::Relationship&gt;,
+    variables: &amp;BTreeMap&lt;models::VariableName, serde_json::Value&gt;,
     state: &amp;AppState,
     query: &amp;models::Query,
     root: Root,
