@@ -1,5 +1,12 @@
 # Changelog
 
+## `0.1.5`
+
+### Rust Libraries
+
+- Add newtypes for string types
+- Expose the specification version in `ndc-models`
+
 ## `0.1.4`
 
 ### Specification
