@@ -43,6 +43,8 @@ For a column whose type is an array of objects (whether nullable or not), the `f
 
 A connector should handle such fields by treating the nested array of objects as a collection. Such a field will include a nested `Query`, and the connector should execute that query in the context of this nested collection.
 
+_Note_: support for nested collection queries is indicated by the `query.nested_fields.nested_collections` capability.
+
 ### Nested fields and relationships
 
 Within the scope of a nested object, that object should be used as the "current row" wherever that concept is appropriate:

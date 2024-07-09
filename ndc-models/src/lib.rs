@@ -96,6 +96,9 @@ pub struct NestedFieldCapabilities {
     pub order_by: Option<LeafCapability>,
     /// Does the connector support aggregating values within nested fields
     pub aggregates: Option<LeafCapability>,
+    /// Does the connector support nested collection queries using
+    /// `NestedField::ArrayOfObjects`
+    pub nested_collections: Option<LeafCapability>,
 }
 // ANCHOR_END: NestedFieldCapabilities
 

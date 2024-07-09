@@ -233,6 +233,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                     filter_by: Some(models::LeafCapability {}),
                     order_by: Some(models::LeafCapability {}),
                     aggregates: Some(models::LeafCapability {}),
+                    nested_collections: Some(models::LeafCapability {}),
                 },
             },
             mutation: models::MutationCapabilities {
