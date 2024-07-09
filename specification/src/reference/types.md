@@ -42,6 +42,12 @@
 {{#include ../../../ndc-models/src/lib.rs:ArgumentInfo}}
 ```
 
+## `ArrayOfObjects`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:ArrayOfObjects}}
+```
+
 ## `Capabilities`
 
 ```rust,no_run,noplayground
