@@ -17,6 +17,10 @@ A [new section was added to the specification](../specification/queries/grouping
 
 Root column references were generalized to _named scopes_. Scopes are introduced by `EXISTS` expressions, and named scopes allow [references to columns outside of the current scope](../specification/queries/filtering.md#referencing-a-column-from-a-collection-in-scope); that is, outside the `EXISTS` expression. Unlike root column references, named scopes allow the caller to refer to columns in any collection in scope, and not just the root collection.
 
+### Nested collections
+
+`NestedField::ArrayOfObjects` was added to support [querying nested collections](../specification/queries/field-selection.md#nested-collections).
+
 ### Filter by aggregates
 
 `ComparisonTarget` was extended to allow [filtering by aggregates](../specification/queries/filtering.md#computing-an-aggregate).
