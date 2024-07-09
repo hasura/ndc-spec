@@ -9,7 +9,7 @@
                 "column": "id"
             },
             "staff_groups": {
-                "type": "nested_collection",
+                "type": "column",
                 "column": "staff",
                 "arguments": {
                     "limit": {
@@ -18,18 +18,21 @@
                     }
                 },
                 "field_path": [],
-                "query": {
-                    "groups": {
-                        "dimensions": [
-                            {
-                                "type": "column",
-                                "column_name": "last_name",
-                                "path": []
-                            }
-                        ],
-                        "aggregates": {
-                            "count": {
-                                "type": "star_count"
+                "fields": {
+                    "type": "array_of_objects",
+                    "query": {
+                        "groups": {
+                            "dimensions": [
+                                {
+                                    "type": "column",
+                                    "column_name": "last_name",
+                                    "path": []
+                                }
+                            ],
+                            "aggregates": {
+                                "count": {
+                                    "type": "star_count"
+                                }
                             }
                         }
                     }

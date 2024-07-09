@@ -234,7 +234,7 @@ pub fn validate_field(
 
             let field_type = &object_field.r#type;
 
-            check_value_has_type(
+            check_value_matches_request(
                 schema,
                 collection_relationships,
                 row_field_value.0,
@@ -242,36 +242,6 @@ pub fn validate_field(
                 fields.as_ref(),
                 json_path,
             )
-        }
-        models::Field::NestedCollection {
-            query,
-            column,
-            arguments: _,
-        } => {
-            if let Some(row_set) = row_field_value.as_rowset() {
-                let object_field = object_type
-                    .fields
-                    .get(column)
-                    .ok_or(Error::FieldIsNotDefined(column.clone()))?;
-
-                let field_type = &object_field.r#type;
-
-                let array_type =
-                    super::common::as_array_type(field_type).ok_or(Error::ExpectedArrayType)?;
-                let object_type = super::common::get_object_type(schema, array_type)
-                    .ok_or(Error::ExpectedObjectType)?;
-
-                validate_rowset_vs_object_type(
-                    schema,
-                    collection_relationships,
-                    object_type,
-                    query,
-                    &row_set,
-                    json_path,
-                )
-            } else {
-                Err(Error::ExpectedRowSet(field_name.clone()))
-            }
         }
         models::Field::Relationship {
             query,
@@ -328,12 +298,175 @@ pub fn validate_aggregates(
     Ok(())
 }
 
+pub fn check_value_matches_request(
+    schema: &models::SchemaResponse,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    value: serde_json::Value,
+    input_type: &models::Type,
+    fields: Option<&models::NestedField>,
+    json_path: Vec<String>,
+) -> Result<()> {
+    match fields {
+        Some(models::NestedField::Object(models::NestedObject { fields })) => check_nested_object(
+            schema,
+            collection_relationships,
+            value,
+            input_type,
+            fields,
+            json_path,
+        ),
+        Some(models::NestedField::Array(models::NestedArray { fields })) => check_nested_array(
+            schema,
+            collection_relationships,
+            value,
+            input_type,
+            fields,
+            json_path,
+        ),
+        Some(models::NestedField::ArrayOfObjects(models::ArrayOfObjects { query })) => {
+            check_nested_array_of_objects(
+                schema,
+                collection_relationships,
+                value,
+                input_type,
+                query,
+                json_path,
+            )
+        }
+        None => check_value_has_type(
+            schema,
+            collection_relationships,
+            value,
+            input_type,
+            json_path,
+        ),
+    }
+}
+
+fn check_nested_array(
+    schema: &models::SchemaResponse,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    value: serde_json::Value,
+    input_type: &models::Type,
+    fields: &models::NestedField,
+    json_path: Vec<String>,
+) -> std::result::Result<(), Error> {
+    match value {
+        serde_json::Value::Null => {
+            if super::common::is_nullable_type(input_type) {
+                Ok(())
+            } else {
+                Err(Error::InvalidValueInResponse(json_path, "array".into()))
+            }
+        }
+        serde_json::Value::Array(elements) => {
+            for (index, element) in elements.iter().enumerate() {
+                let new_json_path = [json_path.as_slice(), &[index.to_string()]].concat();
+                let element_type = super::common::as_array_type(input_type)
+                    .ok_or(Error::ExpectedArrayType(json_path.clone()))?;
+
+                check_value_matches_request(
+                    schema,
+                    collection_relationships,
+                    element.clone(),
+                    element_type,
+                    Some(fields),
+                    new_json_path,
+                )?;
+            }
+
+            Ok(())
+        }
+        _ => Err(Error::InvalidValueInResponse(json_path, "array".into())),
+    }
+}
+
+fn check_nested_array_of_objects(
+    schema: &models::SchemaResponse,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    value: serde_json::Value,
+    input_type: &models::Type,
+    query: &models::Query,
+    json_path: Vec<String>,
+) -> std::result::Result<(), Error> {
+    let rowset = serde_json::from_value::<Option<models::RowSet>>(value)
+        .map_err(|_| Error::InvalidValueInResponse(json_path.clone(), "rowset".into()))?;
+
+    match rowset {
+        None => {
+            if super::common::is_nullable_type(input_type) {
+                Ok(())
+            } else {
+                Err(Error::InvalidValueInResponse(json_path, "rowset".into()))
+            }
+        }
+        Some(rowset) => {
+            let array_type = super::common::as_array_type(input_type)
+                .ok_or(Error::ExpectedArrayType(json_path.clone()))?;
+            let object_type = super::common::get_object_type(schema, array_type)
+                .ok_or(Error::ExpectedObjectType(json_path.clone()))?;
+            validate_rowset_vs_object_type(
+                schema,
+                collection_relationships,
+                object_type,
+                query,
+                &rowset,
+                json_path,
+            )
+        }
+    }
+}
+
+fn check_nested_object(
+    schema: &models::SchemaResponse,
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    value: serde_json::Value,
+    input_type: &models::Type,
+    fields: &IndexMap<models::FieldName, models::Field>,
+    json_path: Vec<String>,
+) -> std::result::Result<(), Error> {
+    match value {
+        serde_json::Value::Null => {
+            if super::common::is_nullable_type(input_type) {
+                Ok(())
+            } else {
+                Err(Error::InvalidValueInResponse(json_path, "object".into()))
+            }
+        }
+        serde_json::Value::Object(object) => {
+            let object_type = super::common::get_object_type(schema, input_type)
+                .ok_or(Error::ExpectedObjectType(json_path.clone()))?;
+
+            let mut row_copy = object.clone();
+
+            for (field_name, field) in fields {
+                if let Some(row_field_value) = row_copy.swap_remove(field_name.as_str()) {
+                    let new_json_path =
+                        [json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
+
+                    validate_field(
+                        schema,
+                        collection_relationships,
+                        object_type,
+                        field_name,
+                        field,
+                        models::RowFieldValue(row_field_value),
+                        new_json_path,
+                    )?;
+                }
+            }
+
+            Ok(())
+        }
+        _ => Err(Error::InvalidValueInResponse(json_path, "object".into())),
+    }
+}
+
 pub fn check_value_has_type(
     schema: &models::SchemaResponse,
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     value: serde_json::Value,
     r#type: &models::Type,
-    fields: Option<&models::NestedField>,
     json_path: Vec<String>,
 ) -> Result<()> {
     match r#type {
@@ -346,7 +479,6 @@ pub fn check_value_has_type(
                     collection_relationships,
                     value,
                     underlying_type,
-                    fields,
                     json_path,
                 )
             }
@@ -368,7 +500,6 @@ pub fn check_value_has_type(
                         collection_relationships,
                         &object,
                         object_type,
-                        fields,
                         json_path,
                     )
                 } else {
@@ -392,22 +523,12 @@ pub fn check_value_has_type(
             if let Some(elements) = value.as_array() {
                 for (index, element) in elements.iter().enumerate() {
                     let new_json_path = [json_path.as_slice(), &[index.to_string()]].concat();
-                    let new_fields = fields
-                        .map(|fields| match fields {
-                            models::NestedField::Array(new_fields) => {
-                                Ok(new_fields.fields.as_ref())
-                            }
-                            models::NestedField::Object(_) => Err(Error::InvalidRequest(
-                                "invalid field selection: expected NestedField::Array".into(),
-                            )),
-                        })
-                        .transpose()?;
+
                     check_value_has_type(
                         schema,
                         collection_relationships,
                         element.clone(),
                         element_type,
-                        new_fields,
                         new_json_path,
                     )?;
                 }
@@ -488,56 +609,27 @@ pub(crate) fn check_value_has_object_type(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     object: &IndexMap<models::FieldName, models::RowFieldValue>,
     object_type: &models::ObjectType,
-    fields: Option<&models::NestedField>,
     json_path: Vec<String>,
 ) -> Result<()> {
     let mut row_copy = object.clone();
-    match fields {
-        Some(models::NestedField::Object(nested_object)) => {
-            for (field_name, field) in &nested_object.fields {
-                if let Some(row_field_value) = row_copy.swap_remove(field_name) {
-                    let new_json_path =
-                        [json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
 
-                    validate_field(
-                        schema,
-                        collection_relationships,
-                        object_type,
-                        field_name,
-                        field,
-                        row_field_value,
-                        new_json_path,
-                    )?;
-                }
-            }
+    for (field_name, field) in &object_type.fields {
+        if let Some(row_field_value) = row_copy.swap_remove(field_name) {
+            let new_json_path = [json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
 
-            Ok(())
-        }
-        Some(_) => Err(Error::InvalidRequest(
-            "invalid field selection: expected NestedField::Object".into(),
-        )),
-        None => {
-            for (field_name, field) in &object_type.fields {
-                if let Some(row_field_value) = row_copy.swap_remove(field_name) {
-                    let new_json_path =
-                        [json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
-
-                    check_value_has_type(
-                        schema,
-                        collection_relationships,
-                        row_field_value.0,
-                        &field.r#type,
-                        None,
-                        new_json_path,
-                    )?;
-                } else {
-                    return Err(Error::MissingField(field_name.clone()));
-                }
-            }
-
-            Ok(())
+            check_value_has_type(
+                schema,
+                collection_relationships,
+                row_field_value.0,
+                &field.r#type,
+                new_json_path,
+            )?;
+        } else {
+            return Err(Error::MissingField(field_name.clone()));
         }
     }
+
+    Ok(())
 }
 
 pub struct ValidatingConnector<'a, C: Connector> {

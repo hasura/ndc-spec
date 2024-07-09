@@ -255,42 +255,6 @@
           "type": "object",
           "required": [
             "arguments",
-            "column",
-            "query",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "nested_collection"
-              ]
-            },
-            "column": {
-              "description": "The name of the column which contains the nested data",
-              "type": "string"
-            },
-            "arguments": {
-              "description": "Column arguments",
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/Argument"
-              }
-            },
-            "query": {
-              "description": "The query to execute over the chosen array of objects",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Query"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "arguments",
             "query",
             "relationship",
             "type"
@@ -361,6 +325,25 @@
             },
             "fields": {
               "$ref": "#/definitions/NestedField"
+            }
+          }
+        },
+        {
+          "title": "ArrayOfObjects",
+          "type": "object",
+          "required": [
+            "query",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "array_of_objects"
+              ]
+            },
+            "query": {
+              "$ref": "#/definitions/Query"
             }
           }
         }

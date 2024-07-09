@@ -679,6 +679,15 @@ pub struct NestedArray {
 }
 // ANCHOR_END: NestedArray
 
+// ANCHOR: ArrayOfObjects
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+#[schemars(title = "ArrayOfObjects")]
+pub struct ArrayOfObjects {
+    pub query: Query,
+}
+// ANCHOR_END: ArrayOfObjects
+
 // ANCHOR: NestedField
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -686,6 +695,7 @@ pub struct NestedArray {
 pub enum NestedField {
     Object(NestedObject),
     Array(NestedArray),
+    ArrayOfObjects(ArrayOfObjects),
 }
 // ANCHOR_END: NestedField
 
@@ -703,14 +713,6 @@ pub enum Field {
         fields: Option<NestedField>,
         #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
         arguments: BTreeMap<ArgumentName, Argument>,
-    },
-    NestedCollection {
-        /// The name of the column which contains the nested data
-        column: FieldName,
-        /// Column arguments
-        arguments: BTreeMap<ArgumentName, Argument>,
-        /// The query to execute over the chosen array of objects
-        query: Query,
     },
     Relationship {
         query: Box<Query>,

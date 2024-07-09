@@ -9,7 +9,7 @@
                 "column": "id"
             },
             "staff_aggregates": {
-                "type": "nested_collection",
+                "type": "column",
                 "column": "staff",
                 "arguments": {
                     "limit": {
@@ -18,10 +18,13 @@
                     }
                 },
                 "field_path": [],
-                "query": {
-                    "aggregates": {
-                        "count": {
-                            "type": "star_count"
+                "fields": {
+                    "type": "array_of_objects",
+                    "query": {
+                        "aggregates": {
+                            "count": {
+                                "type": "star_count"
+                            }
                         }
                     }
                 }

@@ -2245,41 +2245,7 @@ fn eval_nested_field(
                 })?,
             ))
         }
-    }
-}
-// ANCHOR_END: eval_nested_field
-// ANCHOR: eval_field
-fn eval_field(
-    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
-    variables: &BTreeMap<models::VariableName, serde_json::Value>,
-    state: &AppState,
-    field: &models::Field,
-    item: &Row,
-) -> Result<models::RowFieldValue> {
-    match field {
-        models::Field::Column {
-            column,
-            fields,
-            arguments,
-        } => {
-            let col_val = eval_column(variables, item, column, arguments)?;
-            match fields {
-                None => Ok(models::RowFieldValue(col_val)),
-                Some(nested_field) => eval_nested_field(
-                    collection_relationships,
-                    variables,
-                    state,
-                    col_val,
-                    nested_field,
-                ),
-            }
-        }
-        models::Field::NestedCollection {
-            column,
-            arguments,
-            query,
-        } => {
-            let value = eval_column(variables, item, column, arguments)?;
+        ndc_models::NestedField::ArrayOfObjects(models::ArrayOfObjects { query }) => {
             let collection = serde_json::from_value::<Vec<Row>>(value).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
@@ -2310,6 +2276,35 @@ fn eval_field(
             })?;
 
             Ok(models::RowFieldValue(row_set_json))
+        }
+    }
+}
+// ANCHOR_END: eval_nested_field
+// ANCHOR: eval_field
+fn eval_field(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    state: &AppState,
+    field: &models::Field,
+    item: &Row,
+) -> Result<models::RowFieldValue> {
+    match field {
+        models::Field::Column {
+            column,
+            fields,
+            arguments,
+        } => {
+            let col_val = eval_column(variables, item, column, arguments)?;
+            match fields {
+                None => Ok(models::RowFieldValue(col_val)),
+                Some(nested_field) => eval_nested_field(
+                    collection_relationships,
+                    variables,
+                    state,
+                    col_val,
+                    nested_field,
+                ),
+            }
         }
         models::Field::Relationship {
             relationship,
@@ -2643,6 +2638,7 @@ mod tests {
         connector::Connector,
         error::Error,
         reporter::TestResults,
+        test_cases::query::validate::validate_response,
         test_connector,
     };
     use std::{
@@ -2705,6 +2701,8 @@ mod tests {
     #[test]
     fn test_query() {
         tokio_test::block_on(async {
+            let schema = crate::get_schema().await;
+
             let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
 
             let mut mint = Mint::new(&test_dir);
@@ -2719,16 +2717,18 @@ mod tests {
                     serde_json::from_reader::<_, models::QueryRequest>(req_file).unwrap()
                 };
 
-                let expected_path = {
-                    let path = entry.path();
-                    let test_name = path.file_name().unwrap().to_str().unwrap();
-                    PathBuf::from_iter(["query", test_name, "expected.json"])
-                };
+                let path = entry.path();
+                let test_name = path.file_name().unwrap().to_str().unwrap();
+
+                let expected_path = { PathBuf::from_iter(["query", test_name, "expected.json"]) };
 
                 let state = Arc::new(Mutex::new(crate::init_app_state()));
-                let response = crate::post_query(State(state), Json(request))
+                let response = crate::post_query(State(state), Json(request.clone()))
                     .await
                     .unwrap();
+
+                validate_response(&schema, &request, &response)
+                    .expect(format!("unable to validate response in test {test_name}").as_str());
 
                 let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
