@@ -50,15 +50,16 @@ The proposal is to add a new variant to `NestedField` which allows us to execute
 ```rust
 pub enum NestedField {
     ...
-    ArrayOfObjects {
-        /// The query to execute over the chosen array of objects
-        query: Query,
-    },
-    ...
+    Collection(NestedCollection),
+}
+
+pub enum NestedCollection {
+    /// The query to execute over the chosen array of objects
+    query: Query,
 }
 ```
 
-An `ArrayOfObjects` picks out a nested array of objects as a substructure of a column.
+A `NestedCollection` picks out a nested array of objects as a substructure of a column.
 
 Just like for `Field::Relationship`, the corresponding field in the result would contain a `RowSet`. The `Query` can specify fields, aggregates and grouping.
 
@@ -66,8 +67,8 @@ The scope stack (in the sense of named scopes) should be reset on each nested ro
 
 ## Notes
 
-There is some overlap in functionality between `NestedField::Array` and `NestedField::ArrayOfObjects`: if we just want to select some `fields` from a nested array of objects, then we can use either.
+There is some overlap in functionality between `NestedField::Array` and `NestedField::Collection`: if we just want to select some `fields` from a nested array of objects, then we can use either.
 
-But neither is strictly more general than the other: `NestedField::ArrayOfObjects` only works for arrays of objects, whereas `NestedField::Array` works for all nested types, and `NestedField::ArrayOfObjects` uses the full `Query` API where `NestedField::Array` only supports selection. 
+But neither is strictly more general than the other: `NestedField::Collection` only works for arrays of objects, whereas `NestedField::Array` works for all nested types, and `NestedField::Collection` uses the full `Query` API where `NestedField::Array` only supports selection. 
 
 It probably makes most sense to keep both, provided by different capabilities, because some connectors might only be able to support one but not the other, and we will need `NestedField::Array` to deal with e.g. arrays of arrays.

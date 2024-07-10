@@ -39,9 +39,11 @@ The `fields` property of the `NestedField` should contain _another_ `NestedField
 
 ### Nested collections
 
-For a column whose type is an array of objects (whether nullable or not), the `fields` property may contain a `NestedField` with type `array_of_objects`.
+For a column whose type is an array of objects (whether nullable or not), the `fields` property may contain a `NestedField` with type `collection`.
 
 A connector should handle such fields by treating the nested array of objects as a collection. Such a field will include a nested `Query`, and the connector should execute that query in the context of this nested collection.
+
+A response for a field with a `fields` property of type `collection` should be a `RowSet` which is computed from the nested collection by executing the specified query.
 
 _Note_: support for nested collection queries is indicated by the `query.nested_fields.nested_collections` capability.
 
@@ -95,7 +97,7 @@ Here is an example of a query which computes aggregates over a nested collection
 {{#include ../../../../ndc-reference/tests/query/nested_collection_with_aggregates/request.json:3:}}
 ```
 
-Note the `staff_aggregates` field in particular, which has `fields` with type `array_of_objects`.
+Note the `staff_aggregates` field in particular, which has `fields` with type `collection`.
 
 ### Example with Nested Types and Relationships
 

@@ -97,7 +97,7 @@ pub struct NestedFieldCapabilities {
     /// Does the connector support aggregating values within nested fields
     pub aggregates: Option<LeafCapability>,
     /// Does the connector support nested collection queries using
-    /// `NestedField::ArrayOfObjects`
+    /// `NestedField::NestedCollection`
     pub nested_collections: Option<LeafCapability>,
 }
 // ANCHOR_END: NestedFieldCapabilities
@@ -682,14 +682,14 @@ pub struct NestedArray {
 }
 // ANCHOR_END: NestedArray
 
-// ANCHOR: ArrayOfObjects
+// ANCHOR: NestedCollection
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
-#[schemars(title = "ArrayOfObjects")]
-pub struct ArrayOfObjects {
+#[schemars(title = "NestedCollection")]
+pub struct NestedCollection {
     pub query: Query,
 }
-// ANCHOR_END: ArrayOfObjects
+// ANCHOR_END: NestedCollection
 
 // ANCHOR: NestedField
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -698,7 +698,7 @@ pub struct ArrayOfObjects {
 pub enum NestedField {
     Object(NestedObject),
     Array(NestedArray),
-    ArrayOfObjects(ArrayOfObjects),
+    Collection(NestedCollection),
 }
 // ANCHOR_END: NestedField
 

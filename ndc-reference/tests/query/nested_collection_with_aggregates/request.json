@@ -19,7 +19,7 @@
                 },
                 "field_path": [],
                 "fields": {
-                    "type": "array_of_objects",
+                    "type": "collection",
                     "query": {
                         "aggregates": {
                             "count": {

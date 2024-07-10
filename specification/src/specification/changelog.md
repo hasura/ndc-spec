@@ -19,7 +19,7 @@ Root column references were generalized to _named scopes_. Scopes are introduced
 
 ### Nested collections
 
-`NestedField::ArrayOfObjects` was added to support [querying nested collections](../specification/queries/field-selection.md#nested-collections).
+`NestedField::Collection` was added to support [querying nested collections](../specification/queries/field-selection.md#nested-collections).
 
 ### Filter by aggregates
 

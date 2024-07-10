@@ -2246,7 +2246,7 @@ fn eval_nested_field(
                 })?,
             ))
         }
-        ndc_models::NestedField::ArrayOfObjects(models::ArrayOfObjects { query }) => {
+        ndc_models::NestedField::Collection(models::NestedCollection { query }) => {
             let collection = serde_json::from_value::<Vec<Row>>(value).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,

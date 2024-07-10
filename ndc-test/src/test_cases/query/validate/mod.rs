@@ -323,8 +323,8 @@ pub fn check_value_matches_request(
             fields,
             json_path,
         ),
-        Some(models::NestedField::ArrayOfObjects(models::ArrayOfObjects { query })) => {
-            check_nested_array_of_objects(
+        Some(models::NestedField::Collection(models::NestedCollection { query })) => {
+            check_nested_collection(
                 schema,
                 collection_relationships,
                 value,
@@ -381,7 +381,7 @@ fn check_nested_array(
     }
 }
 
-fn check_nested_array_of_objects(
+fn check_nested_collection(
     schema: &models::SchemaResponse,
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     value: serde_json::Value,

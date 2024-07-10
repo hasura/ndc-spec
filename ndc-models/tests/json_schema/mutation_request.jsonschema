@@ -109,7 +109,7 @@
           }
         },
         {
-          "title": "ArrayOfObjects",
+          "title": "NestedCollection",
           "type": "object",
           "required": [
             "query",
@@ -119,7 +119,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "array_of_objects"
+                "collection"
               ]
             },
             "query": {

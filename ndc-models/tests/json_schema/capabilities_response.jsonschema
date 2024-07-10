@@ -208,7 +208,7 @@
           ]
         },
         "nested_collections": {
-          "description": "Does the connector support nested collection queries using `NestedField::ArrayOfObjects`",
+          "description": "Does the connector support nested collection queries using `NestedField::NestedCollection`",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
