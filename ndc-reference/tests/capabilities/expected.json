@@ -14,7 +14,8 @@
       "nested_fields": {
         "filter_by": {},
         "order_by": {},
-        "aggregates": {}
+        "aggregates": {},
+        "nested_collections": {}
       },
       "exists": {
         "named_scopes": {},

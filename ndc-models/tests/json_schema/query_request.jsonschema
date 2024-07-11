@@ -327,6 +327,25 @@
               "$ref": "#/definitions/NestedField"
             }
           }
+        },
+        {
+          "title": "NestedCollection",
+          "type": "object",
+          "required": [
+            "query",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "collection"
+              ]
+            },
+            "query": {
+              "$ref": "#/definitions/Query"
+            }
+          }
         }
       ]
     },

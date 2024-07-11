@@ -206,6 +206,17 @@
               "type": "null"
             }
           ]
+        },
+        "nested_collections": {
+          "description": "Does the connector support nested collection queries using `NestedField::NestedCollection`",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },

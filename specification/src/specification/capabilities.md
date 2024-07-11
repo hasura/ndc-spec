@@ -34,6 +34,7 @@ See [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 | `capabilities.query.exists.unrelated` | Whether the data connector supports [exists expressions](queries/filtering.md#exists-expressions) against unrelated collections |
 | `capabilities.query.explain` | Whether the data connector is capable of describing query plans |
 | `capabilities.query.nested_fields.filter_by` | Whether the data connector is capable of filtering by nested fields |
+| `capabilities.query.nested_fields.nested_collections` | Whether the data connector is supports [nested collection queries](./queries/field-selection.md#nested-collections) |
 | `capabilities.query.nested_fields.order_by` | Whether the data connector is capable of ordering by nested fields |
 | `capabilities.query.variables` | Whether the data connector supports [queries with variables](queries/variables.md) |
 | `capabilities.relationships` | Whether the data connector supports [relationships](queries/relationships.md) |

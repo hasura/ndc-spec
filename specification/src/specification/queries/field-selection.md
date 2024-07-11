@@ -25,8 +25,27 @@ If `fields` is omitted, the entire structure of the column's data should be retu
 
 If `fields` is provided, its value should be compatible with the type of the column:
 
-- For an object-typed column (whether nullable or not), the `fields` property should contain a `NestedField` with type `object`. The `fields` property of the `NestedField` specifies a [`Field`](../../reference/types.md#field) structure for each requested nested field from the objects.
-- For an array-typed column  (whether nullable or not), the `fields` property should contain a `NestedField` with type `array`. The `fields` property of the `NestedField` should contain _another_ `NestedField` structure, compatible with the type of the elements of the array. The selection function denoted by this nested `NestedField` structure should be applied to each element of each array.
+### Nested objects
+
+For an object-typed column (whether nullable or not), the `fields` property should contain a `NestedField` with type `object`. 
+
+The `fields` property of the `NestedField` specifies a [`Field`](../../reference/types.md#field) structure for each requested nested field from the objects.
+
+### Nested arrays
+
+For an array-typed column (whether nullable or not), the `fields` property may contain a `NestedField` with type `array`. 
+
+The `fields` property of the `NestedField` should contain _another_ `NestedField` structure, compatible with the type of the elements of the array. The selection function denoted by this nested `NestedField` structure should be applied to each element of each array.
+
+### Nested collections
+
+For a column whose type is an array of objects (whether nullable or not), the `fields` property may contain a `NestedField` with type `collection`.
+
+A connector should handle such fields by treating the nested array of objects as a collection. Such a field will include a nested `Query`, and the connector should execute that query in the context of this nested collection.
+
+A response for a field with a `fields` property of type `collection` should be a `RowSet` which is computed from the nested collection by executing the specified query.
+
+_Note_: support for nested collection queries is indicated by the `query.nested_fields.nested_collections` capability.
 
 ### Nested fields and relationships
 
@@ -68,6 +87,17 @@ Here is an example of a query which selects some columns from a nested array ins
 ```
 
 Notice that the `staff` column is fetched using a `fields` property of type `array`. For each staff member in each institution row, we apply the selection function denoted by its `fields` property (of type `object`). Specifically, the `last_name` and `specialities` properties are selected for each staff member.
+
+### Example with a Nested Collection
+
+Here is an example of a query which computes aggregates over a nested collection inside the `staff` field of each row of the `institutions` collection:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/nested_collection_with_aggregates/request.json:1}}
+{{#include ../../../../ndc-reference/tests/query/nested_collection_with_aggregates/request.json:3:}}
+```
+
+Note the `staff_aggregates` field in particular, which has `fields` with type `collection`.
 
 ### Example with Nested Types and Relationships
 

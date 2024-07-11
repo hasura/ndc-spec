@@ -216,6 +216,12 @@
 {{#include ../../../ndc-models/src/lib.rs:NestedArray}}
 ```
 
+## `NestedCollection`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:NestedCollection}}
+```
+
 ## `NestedField`
 
 ```rust,no_run,noplayground
