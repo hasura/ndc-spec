@@ -241,21 +241,25 @@ pub struct ObjectField {
 #[schemars(title = "Type")]
 pub enum Type {
     /// A named type
+    #[schemars(title = "Named")]
     Named {
         /// The name can refer to a primitive type or a scalar type
         name: TypeName,
     },
     /// A nullable type
+    #[schemars(title = "Nullable")]
     Nullable {
         /// The type of the non-null inhabitants of this type
         underlying_type: Box<Type>,
     },
     /// An array type
+    #[schemars(title = "Array")]
     Array {
         /// The type of the elements of the array
         element_type: Box<Type>,
     },
     /// A predicate type for a given object type
+    #[schemars(title = "Predicate")]
     Predicate {
         /// The object type name
         object_type_name: ObjectTypeName,
@@ -269,8 +273,11 @@ pub enum Type {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Comparison Operator Definition")]
 pub enum ComparisonOperatorDefinition {
+    #[schemars(title = "Equal")]
     Equal,
+    #[schemars(title = "In")]
     In,
+    #[schemars(title = "Custom")]
     Custom {
         /// The type of the argument to this operator
         argument_type: Type,
@@ -403,8 +410,10 @@ pub struct QueryRequest {
 #[schemars(title = "Argument")]
 pub enum Argument {
     /// The argument is provided by reference to a variable
+    #[schemars(title = "Variable")]
     Variable { name: VariableName },
     /// The argument is provided as a literal value
+    #[schemars(title = "Literal")]
     Literal { value: serde_json::Value },
 }
 // ANCHOR_END: Argument
@@ -433,6 +442,7 @@ pub struct Query {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate")]
 pub enum Aggregate {
+    #[schemars(title = "ColumnCount")]
     ColumnCount {
         /// The column to apply the count aggregate function to
         column: FieldName,
@@ -441,6 +451,7 @@ pub enum Aggregate {
         /// Whether or not only distinct items should be counted
         distinct: bool,
     },
+    #[schemars(title = "SingleColumn")]
     SingleColumn {
         /// The column to apply the aggregation function to
         column: FieldName,
@@ -449,6 +460,7 @@ pub enum Aggregate {
         /// Single column aggregate function name.
         function: AggregateFunctionName,
     },
+    #[schemars(title = "StarCount")]
     StarCount {},
 }
 // ANCHOR_END: Aggregate
@@ -486,6 +498,7 @@ pub enum NestedField {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Field")]
 pub enum Field {
+    #[schemars(title = "Column")]
     Column {
         column: FieldName,
         /// When the type of the column is a (possibly-nullable) array or object,
@@ -496,6 +509,7 @@ pub enum Field {
         #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
         arguments: BTreeMap<ArgumentName, Argument>,
     },
+    #[schemars(title = "Relationship")]
     Relationship {
         query: Box<Query>,
         /// The name of the relationship to follow for the subquery
@@ -530,6 +544,7 @@ pub struct OrderByElement {
 #[schemars(title = "Order By Target")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum OrderByTarget {
+    #[schemars(title = "Column")]
     Column {
         /// The name of the column
         name: FieldName,
@@ -538,6 +553,7 @@ pub enum OrderByTarget {
         /// Any relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
+    #[schemars(title = "SingleColumnAggregate")]
     SingleColumnAggregate {
         /// The column to apply the aggregation function to
         column: FieldName,
@@ -548,6 +564,7 @@ pub enum OrderByTarget {
         /// Non-empty collection of relationships to traverse
         path: Vec<PathElement>,
     },
+    #[schemars(title = "StarCountAggregate")]
     StarCountAggregate {
         /// Non-empty collection of relationships to traverse
         path: Vec<PathElement>,
@@ -572,24 +589,30 @@ pub enum OrderDirection {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Expression")]
 pub enum Expression {
+    #[schemars(title = "And")]
     And {
         expressions: Vec<Expression>,
     },
+    #[schemars(title = "Or")]
     Or {
         expressions: Vec<Expression>,
     },
+    #[schemars(title = "Not")]
     Not {
         expression: Box<Expression>,
     },
+    #[schemars(title = "UnaryComparisonOperator")]
     UnaryComparisonOperator {
         column: ComparisonTarget,
         operator: UnaryComparisonOperator,
     },
+    #[schemars(title = "BinaryComparisonOperator")]
     BinaryComparisonOperator {
         column: ComparisonTarget,
         operator: ComparisonOperatorName,
         value: ComparisonValue,
     },
+    #[schemars(title = "Exists")]
     Exists {
         in_collection: ExistsInCollection,
         predicate: Option<Box<Expression>>,
@@ -614,6 +637,7 @@ pub enum UnaryComparisonOperator {
 #[schemars(title = "Comparison Target")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ComparisonTarget {
+    #[schemars(title = "Column")]
     Column {
         /// The name of the column
         name: FieldName,
@@ -622,6 +646,7 @@ pub enum ComparisonTarget {
         /// Any relationships to traverse to reach this column
         path: Vec<PathElement>,
     },
+    #[schemars(title = "RootCollectionColumn")]
     RootCollectionColumn {
         /// The name of the column
         name: FieldName,
@@ -650,8 +675,11 @@ pub struct PathElement {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Comparison Value")]
 pub enum ComparisonValue {
+    #[schemars(title = "Column")]
     Column { column: ComparisonTarget },
+    #[schemars(title = "Scalar")]
     Scalar { value: serde_json::Value },
+    #[schemars(title = "Variable")]
     Variable { name: VariableName },
 }
 // ANCHOR_END: ComparisonValue
@@ -661,11 +689,13 @@ pub enum ComparisonValue {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Exists In Collection")]
 pub enum ExistsInCollection {
+    #[schemars(title = "Related")]
     Related {
         relationship: RelationshipName,
         /// Values to be provided to any collection arguments
         arguments: BTreeMap<ArgumentName, RelationshipArgument>,
     },
+    #[schemars(title = "Unrelated")]
     Unrelated {
         /// The name of a collection
         collection: CollectionName,
@@ -743,6 +773,7 @@ pub struct MutationRequest {
 #[schemars(title = "Mutation Operation")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MutationOperation {
+    #[schemars(title = "Procedure")]
     Procedure {
         /// The name of a procedure
         name: ProcedureName,
@@ -774,14 +805,17 @@ pub struct Relationship {
 #[schemars(title = "Relationship Argument")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum RelationshipArgument {
+    #[schemars(title = "Variable")]
     /// The argument is provided by reference to a variable
     Variable {
         name: VariableName,
     },
+    #[schemars(title = "Literal")]
     /// The argument is provided as a literal value
     Literal {
         value: serde_json::Value,
     },
+    #[schemars(title = "Column")]
     // The argument is provided based on a column of the source collection
     Column {
         name: FieldName,
@@ -815,6 +849,7 @@ pub struct MutationResponse {
 #[schemars(title = "Mutation Operation Results")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MutationOperationResults {
+    #[schemars(title = "Procedure")]
     Procedure { result: serde_json::Value },
 }
 // ANCHOR_END: MutationOperationResults
