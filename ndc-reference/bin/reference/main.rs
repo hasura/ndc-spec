@@ -227,6 +227,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 exists: models::ExistsCapabilities {
                     named_scopes: Some(models::LeafCapability {}),
                     unrelated: Some(models::LeafCapability {}),
+                    nested_collections: Some(models::LeafCapability {}),
                 },
                 explain: None,
                 nested_fields: models::NestedFieldCapabilities {

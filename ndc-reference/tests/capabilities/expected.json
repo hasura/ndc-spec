@@ -19,7 +19,8 @@
       },
       "exists": {
         "named_scopes": {},
-        "unrelated": {}
+        "unrelated": {},
+        "nested_collections": {}
       }
     },
     "mutation": {},

@@ -913,7 +913,7 @@ pub enum ExistsInCollection {
         /// Path to a nested collection via object columns
         #[serde(skip_serializing_if = "Vec::is_empty", default)]
         field_path: Vec<FieldName>,
-    }
+    },
 }
 // ANCHOR_END: ExistsInCollection
 
