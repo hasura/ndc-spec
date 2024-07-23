@@ -222,6 +222,9 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                     order_by: Some(models::LeafCapability {}),
                     aggregates: Some(models::LeafCapability {}),
                 },
+                exists: models::ExistsCapabilities {
+                    nested_collections: Some(models::LeafCapability {}),
+                },
             },
             mutation: models::MutationCapabilities {
                 transactional: None,

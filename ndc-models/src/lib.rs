@@ -67,6 +67,9 @@ pub struct QueryCapabilities {
     /// Does the connector support nested fields
     #[serde(default)]
     pub nested_fields: NestedFieldCapabilities,
+    /// Does the connector support EXISTS predicates
+    #[serde(default)]
+    pub exists: ExistsCapabilities,
 }
 // ANCHOR_END: QueryCapabilities
 
