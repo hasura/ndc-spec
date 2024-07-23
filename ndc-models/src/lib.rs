@@ -83,6 +83,8 @@ pub struct ExistsCapabilities {
     pub named_scopes: Option<LeafCapability>,
     /// Does the connector support ExistsInCollection::Unrelated
     pub unrelated: Option<LeafCapability>,
+    /// Does the connector support ExistsInCollection::NestedCollection
+    pub nested_collections: Option<LeafCapability>,
 }
 // ANCHOR_END: ExistsCapabilities
 
@@ -101,7 +103,7 @@ pub struct NestedFieldCapabilities {
     /// `NestedField::NestedCollection`
     pub nested_collections: Option<LeafCapability>,
 }
-// ANCHOR_END: NestedFieldCapabilities
+// ANCHOR_END: NestedCollectionCapabilities
 
 // ANCHOR: AggregateCapabilities
 #[skip_serializing_none]

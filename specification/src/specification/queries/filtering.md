@@ -155,6 +155,19 @@ Unrelated exists expressions can be useful when using collections with [argument
 
 It can also be useful to [reference a column in another scope](#referencing-a-column-from-a-collection-in-scope) when using unrelated exists expressions.
 
+### Nested Collections
+
+If the `query.exists.nested_collections` capability is enabled, then exists expressions can reference [nested collections](./field-selection.md#nested-collections).
+
+For example, this query finds `institutions` which employ at least one staff member whose last name contains the letter `s`:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/predicate_with_exists_in_nested_collection/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_exists_in_nested_collection/request.json:3: }}
+```
+
+[References to columns in another scope](#referencing-a-column-from-a-collection-in-scope) may be useful when using these sorts of expressions, in order to refer to columns from the outer (unnested) row.
+
 ## Conjunction of expressions
 
 To express the conjunction of multiple expressions, specify a `type` field of `and`, and provide the expressions in the `expressions` field.
