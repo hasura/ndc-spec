@@ -245,6 +245,17 @@
               "type": "null"
             }
           ]
+        },
+        "nested_collections": {
+          "description": "Does the connector support ExistsInCollection::NestedCollection",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },

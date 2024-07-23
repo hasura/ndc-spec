@@ -31,6 +31,7 @@ See [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 | `capabilities.query.aggregates.group_by.order` | Whether the data connector supports [ordering on groups](queries/grouping.md#ordering) |
 | `capabilities.query.aggregates.group_by.paginate` | Whether the data connector supports [pagination on groups](queries/grouping.md#pagination) |
 | `capabilities.query.exists.named_scoped` | Whether the data connector supports [named scopes](queries/filtering.md#referencing-a-column-from-a-collection-in-scope) in exists expressions |
+| `capabilities.query.exists.nested_collections` | Whether the data connector supports [exists expressions](queries/filtering.md#exists-expressions) against [nested collections](queries/field-selection.md#nested-collections) |
 | `capabilities.query.exists.unrelated` | Whether the data connector supports [exists expressions](queries/filtering.md#exists-expressions) against unrelated collections |
 | `capabilities.query.explain` | Whether the data connector is capable of describing query plans |
 | `capabilities.query.nested_fields.filter_by` | Whether the data connector is capable of filtering by nested fields |

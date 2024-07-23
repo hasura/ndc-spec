@@ -227,6 +227,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 exists: models::ExistsCapabilities {
                     named_scopes: Some(models::LeafCapability {}),
                     unrelated: Some(models::LeafCapability {}),
+                    nested_collections: Some(models::LeafCapability {}),
                 },
                 explain: None,
                 nested_fields: models::NestedFieldCapabilities {
@@ -1238,7 +1239,7 @@ fn eval_dimensions(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     row: &Row,
-    dimensions: &Vec<ndc_models::Dimension>,
+    dimensions: &[ndc_models::Dimension],
 ) -> Result<Vec<serde_json::Value>> {
     let mut values = vec![];
     for dimension in dimensions {
@@ -1563,23 +1564,27 @@ fn eval_column_field_path(
     let column_value = eval_column(&BTreeMap::default(), row, column_name, arguments)?;
     match field_path {
         None => Ok(column_value),
-        Some(path) => path
-            .iter()
-            .try_fold(&column_value, |value, field_name| {
-                value.get(field_name.as_str())
-            })
-            .cloned()
-            .ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "invalid field path".into(),
-                    details: serde_json::Value::Null,
-                }),
-            )),
+        Some(path) => eval_field_path(path, column_value),
     }
 }
 // ANCHOR_END: eval_column_field_path
-
+// ANCHOR: eval_field_path
+fn eval_field_path(
+    path: &[ndc_models::FieldName],
+    value: serde_json::Value,
+) -> Result<serde_json::Value> {
+    path.iter()
+        .try_fold(&value, |value, field_name| value.get(field_name.as_str()))
+        .cloned()
+        .ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "invalid field path".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))
+}
+// ANCHOR_END: eval_field_path
 // ANCHOR: eval_column_at_path
 fn eval_column_at_path(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
@@ -2041,6 +2046,23 @@ fn eval_in_collection(
                 .collect::<Result<BTreeMap<_, _>>>()?;
 
             get_collection_by_name(collection, &arguments, state)
+        }
+        ndc_models::ExistsInCollection::NestedCollection {
+            column_name,
+            field_path,
+            arguments,
+        } => {
+            let value =
+                eval_column_field_path(item, column_name, &Some(field_path.clone()), arguments)?;
+            serde_json::from_value(value).map_err(|_| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "nested collection must be an array of objects".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })
         }
     }
 }
@@ -2729,7 +2751,7 @@ mod tests {
                     .unwrap();
 
                 validate_response(&schema, &request, &response)
-                    .expect(format!("unable to validate response in test {test_name}").as_str());
+                    .unwrap_or_else(|_| panic!("unable to validate response in test {test_name}"));
 
                 let mut expected = mint.new_goldenfile(expected_path).unwrap();
 

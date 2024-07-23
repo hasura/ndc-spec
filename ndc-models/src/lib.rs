@@ -83,6 +83,8 @@ pub struct ExistsCapabilities {
     pub named_scopes: Option<LeafCapability>,
     /// Does the connector support ExistsInCollection::Unrelated
     pub unrelated: Option<LeafCapability>,
+    /// Does the connector support ExistsInCollection::NestedCollection
+    pub nested_collections: Option<LeafCapability>,
 }
 // ANCHOR_END: ExistsCapabilities
 
@@ -101,7 +103,7 @@ pub struct NestedFieldCapabilities {
     /// `NestedField::NestedCollection`
     pub nested_collections: Option<LeafCapability>,
 }
-// ANCHOR_END: NestedFieldCapabilities
+// ANCHOR_END: NestedCollectionCapabilities
 
 // ANCHOR: AggregateCapabilities
 #[skip_serializing_none]
@@ -903,6 +905,14 @@ pub enum ExistsInCollection {
         collection: CollectionName,
         /// Values to be provided to any collection arguments
         arguments: BTreeMap<ArgumentName, RelationshipArgument>,
+    },
+    NestedCollection {
+        column_name: FieldName,
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap<ArgumentName, Argument>,
+        /// Path to a nested collection via object columns
+        #[serde(skip_serializing_if = "Vec::is_empty", default)]
+        field_path: Vec<FieldName>,
     },
 }
 // ANCHOR_END: ExistsInCollection
