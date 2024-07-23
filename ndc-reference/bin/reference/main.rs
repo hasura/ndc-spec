@@ -1239,7 +1239,7 @@ fn eval_dimensions(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     row: &Row,
-    dimensions: &Vec<ndc_models::Dimension>,
+    dimensions: &[ndc_models::Dimension],
 ) -> Result<Vec<serde_json::Value>> {
     let mut values = vec![];
     for dimension in dimensions {
@@ -1570,7 +1570,7 @@ fn eval_column_field_path(
 // ANCHOR_END: eval_column_field_path
 // ANCHOR: eval_field_path
 fn eval_field_path(
-    path: &Vec<ndc_models::FieldName>,
+    path: &[ndc_models::FieldName],
     value: serde_json::Value,
 ) -> Result<serde_json::Value> {
     path.iter()
@@ -2751,7 +2751,7 @@ mod tests {
                     .unwrap();
 
                 validate_response(&schema, &request, &response)
-                    .expect(format!("unable to validate response in test {test_name}").as_str());
+                    .unwrap_or_else(|_| panic!("unable to validate response in test {test_name}"));
 
                 let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
