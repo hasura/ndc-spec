@@ -60,6 +60,12 @@
 {{#include ../../../ndc-models/src/lib.rs:ErrorResponse}}
 ```
 
+## `ExistsCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:ExistsCapabilities}}
+```
+
 ## `ExistsInCollection`
 
 ```rust,no_run,noplayground

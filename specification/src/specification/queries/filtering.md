@@ -123,6 +123,17 @@ For example, this query fetches authors who have written articles whose titles c
 {{#include ../../../../ndc-reference/tests/query/predicate_with_unrelated_exists/request.json:3: }}
 ```
 
+### Nested Collections
+
+If the `query.exists.nested_collections` capability is enabled, then exists expressions can reference nested collections.
+
+For example, this query finds `institutions` which employ at least one staff member whose last name contains the letter `s`:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/predicate_with_exists_in_nested_collection/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_exists_in_nested_collection/request.json:3: }}
+```
+
 ## Conjunction of expressions
 
 To express the conjunction of multiple expressions, specify a `type` field of `and`, and provide the expressions in the `expressions` field.

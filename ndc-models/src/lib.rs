@@ -70,6 +70,16 @@ pub struct QueryCapabilities {
 }
 // ANCHOR_END: QueryCapabilities
 
+// ANCHOR: ExistsCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Exists Capabilities")]
+pub struct ExistsCapabilities {
+    /// Does the connector support ExistsInCollection::NestedCollection
+    pub nested_collections: Option<LeafCapability>,
+}
+// ANCHOR_END: ExistsCapabilities
+
 // ANCHOR: NestedFieldCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -82,7 +92,7 @@ pub struct NestedFieldCapabilities {
     /// Does the connector support aggregating values within nested fields
     pub aggregates: Option<LeafCapability>,
 }
-// ANCHOR_END: NestedFieldCapabilities
+// ANCHOR_END: NestedCollectionCapabilities
 
 // ANCHOR: MutationCapabilities
 #[skip_serializing_none]
