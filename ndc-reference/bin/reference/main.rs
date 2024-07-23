@@ -990,7 +990,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<se
         } => {
             let values = paginated
                 .iter()
-                .map(|row| eval_column_field_path(row, column, field_path))
+                .map(|row| eval_column_field_path(row, column, field_path, &BTreeMap::new()))
                 .collect::<Result<Vec<_>>>()?;
 
             let non_null_values = values.iter().filter(|value| !value.is_null());
@@ -1030,7 +1030,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<se
         } => {
             let values = paginated
                 .iter()
-                .map(|row| eval_column_field_path(row, column, field_path))
+                .map(|row| eval_column_field_path(row, column, field_path, &BTreeMap::new()))
                 .collect::<Result<Vec<_>>>()?;
             eval_aggregate_function(function, values)
         }
@@ -1259,7 +1259,7 @@ fn eval_order_by_single_column_aggregate(
     let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
     let values = rows
         .iter()
-        .map(|row| eval_column_field_path(row, &column_name, &field_path))
+        .map(|row| eval_column_field_path(row, &column_name, &field_path, &BTreeMap::new()))
         .collect::<Result<Vec<_>>>()?;
     eval_aggregate_function(&function, values)
 }
@@ -1270,26 +1270,33 @@ fn eval_column_field_path(
     row: &Row,
     column_name: &models::FieldName,
     field_path: &Option<Vec<models::FieldName>>,
+    arguments: &BTreeMap<models::ArgumentName, models::Argument>,
 ) -> Result<serde_json::Value> {
-    let column_value = eval_column(&BTreeMap::default(), row, column_name, &BTreeMap::default())?;
+    let column_value = eval_column(&BTreeMap::default(), row, column_name, arguments)?;
     match field_path {
         None => Ok(column_value),
-        Some(path) => path
-            .iter()
-            .try_fold(&column_value, |value, field_name| {
-                value.get(field_name.as_str())
-            })
-            .cloned()
-            .ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "invalid field path".into(),
-                    details: serde_json::Value::Null,
-                }),
-            )),
+        Some(path) => eval_field_path(path, column_value),
     }
 }
 // ANCHOR_END: eval_column_field_path
+
+// ANCHOR: eval_field_path
+fn eval_field_path(
+    path: &[ndc_models::FieldName],
+    value: serde_json::Value,
+) -> Result<serde_json::Value> {
+    path.iter()
+        .try_fold(&value, |value, field_name| value.get(field_name.as_str()))
+        .cloned()
+        .ok_or((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "invalid field path".into(),
+                details: serde_json::Value::Null,
+            }),
+        ))
+}
+// ANCHOR_END: eval_field_path
 
 // ANCHOR: eval_order_by_column
 fn eval_order_by_column(
@@ -1312,7 +1319,7 @@ fn eval_order_by_column(
         ));
     }
     match rows.first() {
-        Some(row) => eval_column_field_path(row, &name, &field_path),
+        Some(row) => eval_column_field_path(row, &name, &field_path, &BTreeMap::new()),
         None => Ok(serde_json::Value::Null),
     }
 }
@@ -1766,6 +1773,23 @@ fn eval_in_collection(
 
             get_collection_by_name(collection, &arguments, state)
         }
+        ndc_models::ExistsInCollection::NestedCollection {
+            column_name,
+            field_path,
+            arguments,
+        } => {
+            let value =
+                eval_column_field_path(item, column_name, &Some(field_path.clone()), arguments)?;
+            serde_json::from_value(value).map_err(|_| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "nested collection must be an array of objects".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })
+        }
     }
 }
 // ANCHOR_END: eval_in_collection
@@ -1787,13 +1811,13 @@ fn eval_comparison_target(
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in &rows {
-                let value = eval_column_field_path(row, name, field_path)?;
+                let value = eval_column_field_path(row, name, field_path, &BTreeMap::new())?;
                 values.push(value);
             }
             Ok(values)
         }
         models::ComparisonTarget::RootCollectionColumn { name, field_path } => {
-            let value = eval_column_field_path(root, name, field_path)?;
+            let value = eval_column_field_path(root, name, field_path, &BTreeMap::new())?;
             Ok(vec![value])
         }
     }
