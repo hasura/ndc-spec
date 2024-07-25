@@ -242,7 +242,7 @@ pub struct ObjectField {
 pub enum Type {
     /// A named type
     Named {
-        /// The name can refer to a primitive type or a scalar type
+        /// The name can refer to a scalar or object type
         name: TypeName,
     },
     /// A nullable type
