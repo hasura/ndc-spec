@@ -450,7 +450,7 @@
               ]
             },
             "name": {
-              "description": "The name can refer to a primitive type or a scalar type",
+              "description": "The name can refer to a scalar or object type",
               "type": "string"
             }
           }
