@@ -126,6 +126,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
                     offset: None,
                     order_by: None,
                     predicate: None,
+                    groups: None,
                 }),
                 relationship: "__relationship".into(),
                 arguments: BTreeMap::new(),
@@ -141,6 +142,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
                 offset: None,
                 order_by: None,
                 predicate: None,
+                groups: None,
             },
             arguments: BTreeMap::new(),
             collection_relationships: BTreeMap::from_iter([(
@@ -219,6 +221,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
                         },
                         predicate: predicate.map(Box::new),
                     }),
+                    groups: None,
                 },
                 arguments: BTreeMap::new(),
                 collection_relationships: BTreeMap::from_iter([(
@@ -283,6 +286,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
                     offset: None,
                     order_by: None,
                     predicate: None,
+                    groups: None,
                 }),
                 relationship: "__array_relationship".into(),
                 arguments: BTreeMap::new(),
@@ -304,6 +308,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
                 offset: None,
                 order_by: None,
                 predicate: None,
+                groups: None,
             },
             arguments: BTreeMap::new(),
             collection_relationships: BTreeMap::from_iter([(

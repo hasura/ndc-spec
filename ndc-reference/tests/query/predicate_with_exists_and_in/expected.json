@@ -2,6 +2,18 @@
   {
     "rows": [
       {
+        "first_name": "Peter",
+        "last_name": "Landin",
+        "articles": {
+          "rows": [
+            {
+              "id": 1,
+              "title": "The Next 700 Programming Languages"
+            }
+          ]
+        }
+      },
+      {
         "first_name": "John",
         "last_name": "Hughes",
         "articles": {

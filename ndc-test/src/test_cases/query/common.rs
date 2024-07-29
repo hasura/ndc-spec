@@ -1,6 +1,6 @@
 use indexmap::IndexMap;
 use models::Type;
-use ndc_models as models;
+use ndc_models::{self as models};
 use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
 
 pub fn select_all_columns_without_arguments(
@@ -95,4 +95,22 @@ pub fn get_named_type(ty: &models::Type) -> Option<&models::TypeName> {
             object_type_name: _,
         } => None,
     }
+}
+pub fn as_array_type(ty: &models::Type) -> Option<&models::Type> {
+    match ty {
+        models::Type::Nullable { underlying_type } => as_array_type(underlying_type),
+        models::Type::Array { element_type } => Some(element_type),
+        models::Type::Named { name: _ }
+        | models::Type::Predicate {
+            object_type_name: _,
+        } => None,
+    }
+}
+
+pub fn get_object_type<'a>(
+    schema: &'a models::SchemaResponse,
+    ty: &models::Type,
+) -> Option<&'a models::ObjectType> {
+    let type_name = get_named_type(ty)?;
+    schema.object_types.get(type_name)
 }

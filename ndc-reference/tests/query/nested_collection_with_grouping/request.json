@@ -1,0 +1,70 @@
+{
+    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+    "collection": "institutions",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id"
+            },
+            "staff_groups": {
+                "type": "column",
+                "column": "staff",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                },
+                "field_path": [],
+                "fields": {
+                    "type": "collection",
+                    "query": {
+                        "groups": {
+                            "dimensions": [
+                                {
+                                    "type": "column",
+                                    "column_name": "last_name",
+                                    "path": []
+                                }
+                            ],
+                            "aggregates": {
+                                "count": {
+                                    "type": "star_count"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "staff": {
+                "type": "column",
+                "column": "staff",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                },
+                "fields": {
+                    "type": "array",
+                    "fields": {
+                        "type": "object",
+                        "fields": {
+                            "last_name": {
+                                "type": "column",
+                                "column": "last_name"
+                            },
+                            "first_name": {
+                                "type": "column",
+                                "column": "first_name"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "collection_relationships": {}
+}

@@ -37,8 +37,7 @@
             "column": {
                 "type": "column",
                 "name": "location",
-                "field_path": ["city"],
-                "path": []
+                "field_path": ["city"]
             },
             "operator": "eq",
             "value": {

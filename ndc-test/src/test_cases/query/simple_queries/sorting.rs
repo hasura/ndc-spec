@@ -101,6 +101,7 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
             offset: None,
             order_by: Some(models::OrderBy { elements }),
             predicate: None,
+            groups: None,
         },
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),

@@ -32,9 +32,12 @@
                 {
                     "order_direction": "asc",
                     "target": {
-                        "type": "single_column_aggregate",
-                        "column": "id",
-                        "function": "max",
+                        "type": "aggregate",
+                        "aggregate": {
+                            "type": "single_column",
+                            "column": "id",
+                            "function": "max"
+                        },
                         "path": [
                             {
                                 "arguments": {},

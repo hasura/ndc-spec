@@ -44,13 +44,6 @@ For example, in an `EXISTS` expression, if the target collection has arguments:
 {{#include ../../../../ndc-reference/tests/query/table_argument_exists/request.json:3: }}
 ```
 
-Or when a predicate expression matches a column from a related collection:
-
-```json
-{{#include ../../../../ndc-reference/tests/query/table_argument_predicate/request.json:1 }}
-{{#include ../../../../ndc-reference/tests/query/table_argument_predicate/request.json:3: }}
-```
-
 ### Collection arguments in `order_by`
 
 Arguments must be specified when an `OrderByElement` references a related collection.
