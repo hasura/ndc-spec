@@ -1,5 +1,11 @@
 # Changelog
 
+## `0.1.6`
+
+### Specification
+
+- `EXISTS` expressions can now query nested collections
+
 ## `0.1.5`
 
 ### Rust Libraries

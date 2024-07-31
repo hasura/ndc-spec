@@ -941,6 +941,37 @@
               }
             }
           }
+        },
+        {
+          "type": "object",
+          "required": [
+            "column_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nested_collection"
+              ]
+            },
+            "column_name": {
+              "type": "string"
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested collection via object columns",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
