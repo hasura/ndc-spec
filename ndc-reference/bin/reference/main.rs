@@ -135,7 +135,11 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
     let app_state = Arc::new(Mutex::new(init_app_state()));
 
     let app = Router::new()
-        .route("/health", get(get_health))
+        .route("/", get(get_health_readiness))
+        .route("/health", get(get_health_readiness))
+        .route("/health/ready", get(get_health_readiness))
+        .route("/health/live", get(get_health_liveness))
+        .route("/health/connected", get(get_health_connectedness))
         .route("/metrics", get(get_metrics))
         .route("/capabilities", get(get_capabilities))
         .route("/schema", get(get_schema))
@@ -191,11 +195,21 @@ async fn shutdown_handler() {
         _ = sigint => (),
     }
 }
+
 // ANCHOR: health
-async fn get_health() -> StatusCode {
-    StatusCode::OK
+async fn get_health_readiness() -> Result<()> {
+    Ok(())
+}
+
+async fn get_health_liveness() -> Result<()> {
+    Ok(())
+}
+
+async fn get_health_connectedness() -> Result<()> {
+    Ok(())
 }
 // ANCHOR_END: health
+
 // ANCHOR: metrics
 async fn get_metrics(State(state): State<Arc<Mutex<AppState>>>) -> Result<String> {
     let state = state.lock().await;
