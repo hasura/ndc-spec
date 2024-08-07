@@ -1,15 +1,13 @@
-use super::client;
+pub type Result<A> = std::result::Result<A, Error>;
 
-use ndc_models::{self as models};
-use std::path::PathBuf;
-use thiserror::Error;
+pub type OtherError = Box<dyn std::error::Error + Send + Sync>;
 
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("error communicating with the connector: {0}")]
-    CommunicationError(#[from] client::Error),
+    CommunicationError(#[from] super::client::Error),
     #[error("error generating test data: {0}")]
-    StrategyError(rand::Error),
+    StrategyError(#[from] rand::Error),
     #[error("error parsing semver range: {0}")]
     SemverError(#[from] semver::Error),
     #[error(
@@ -17,17 +15,17 @@ pub enum Error {
     )]
     IncompatibleSpecification(semver::Version, semver::VersionReq),
     #[error("collection {0} is not a defined collection")]
-    CollectionIsNotDefined(models::CollectionName),
+    CollectionIsNotDefined(ndc_models::CollectionName),
     #[error("collection type {0} is not a defined object type")]
-    CollectionTypeIsNotDefined(models::ObjectTypeName),
+    CollectionTypeIsNotDefined(ndc_models::ObjectTypeName),
     #[error("named type {0} is not a defined object or scalar type")]
-    NamedTypeIsNotDefined(models::TypeName),
+    NamedTypeIsNotDefined(ndc_models::TypeName),
     #[error("object type {0} is not a defined object or scalar type")]
-    ObjectTypeIsNotDefined(models::ObjectTypeName),
+    ObjectTypeIsNotDefined(ndc_models::ObjectTypeName),
     #[error("field {0} is not defined on object type")]
-    FieldIsNotDefined(models::FieldName),
+    FieldIsNotDefined(ndc_models::FieldName),
     #[error("relationship {0} is not defined in request")]
-    RelationshipIsNotDefined(models::RelationshipName),
+    RelationshipIsNotDefined(ndc_models::RelationshipName),
     #[error("expected null rows in RowSet")]
     RowsShouldBeNullInRowSet,
     #[error("expected non-null rows in RowSet")]
@@ -39,25 +37,25 @@ pub enum Error {
     #[error("expected {0} RowSet(s) in the QueryResponse, got {1}")]
     UnexpectedRowsets(usize, usize),
     #[error("expected RowSet in response for field {0}")]
-    ExpectedRowSet(models::FieldName),
+    ExpectedRowSet(ndc_models::FieldName),
     #[error("expected <= {0} rows in RowSet, got {1}")]
     TooManyRowsInResponse(u32, u32),
     #[error("expected non-empty rows in RowSet")]
     ExpectedNonEmptyRows,
     #[error("requested field {0} was missing in response")]
-    MissingField(models::FieldName),
+    MissingField(ndc_models::FieldName),
     #[error("field {0} was not expected in response")]
-    UnexpectedField(models::FieldName),
+    UnexpectedField(ndc_models::FieldName),
     #[error("scalar type {0} has multiple equality operators")]
-    MultipleEqualityOperators(models::ScalarTypeName),
+    MultipleEqualityOperators(ndc_models::ScalarTypeName),
     #[error("error response from connector: {0:?}")]
     ConnectorError(ndc_models::ErrorResponse),
     #[error("cannot open snapshot file: {0:?}")]
     CannotOpenSnapshotFile(std::io::Error),
     #[error("error (de)serializing data structure: {0:?}")]
-    SerdeError(serde_json::Error),
+    SerdeError(#[from] serde_json::Error),
     #[error("snapshot did not match file {0}: {1}")]
-    ResponseDidNotMatchSnapshot(PathBuf, String),
+    ResponseDidNotMatchSnapshot(std::path::PathBuf, String),
     #[error("cannot open benchmark directory: {0:?}")]
     CannotOpenBenchmarkDirectory(std::io::Error),
     #[error("cannot open benchmark report: {0:?}")]
@@ -71,37 +69,5 @@ pub enum Error {
     #[error("invalid request: {0}")]
     InvalidRequest(String),
     #[error("other error: {0}")]
-    OtherError(#[from] Box<dyn std::error::Error>),
+    OtherError(#[from] OtherError),
 }
-
-impl From<rand::Error> for Error {
-    fn from(value: rand::Error) -> Self {
-        Error::StrategyError(value)
-    }
-}
-
-impl From<serde_json::Error> for Error {
-    fn from(value: serde_json::Error) -> Self {
-        Error::SerdeError(value)
-    }
-}
-
-impl From<client::Error> for Box<Error> {
-    fn from(value: client::Error) -> Self {
-        Box::new(Error::CommunicationError(value))
-    }
-}
-
-impl From<semver::Error> for Box<Error> {
-    fn from(value: semver::Error) -> Self {
-        Box::new(Error::SemverError(value))
-    }
-}
-
-impl From<Box<dyn std::error::Error>> for Box<Error> {
-    fn from(value: Box<dyn std::error::Error>) -> Self {
-        Box::new(Error::OtherError(value))
-    }
-}
-
-pub type Result<A> = core::result::Result<A, Error>;

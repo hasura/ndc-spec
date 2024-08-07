@@ -40,7 +40,7 @@ pub struct AppState {
 // ANCHOR_END: app-state
 
 // ANCHOR: read_json_lines
-fn read_json_lines(contents: &str) -> core::result::Result<BTreeMap<i32, Row>, Box<dyn Error>> {
+fn read_json_lines(contents: &str) -> std::result::Result<BTreeMap<i32, Row>, Box<dyn Error>> {
     let mut records: BTreeMap<i32, Row> = BTreeMap::new();
     for line in contents.lines() {
         let row: BTreeMap<models::FieldName, serde_json::Value> = serde_json::from_str(line)?;
@@ -127,7 +127,7 @@ fn init_app_state() -> AppState {
 }
 // ANCHOR_END: init_app_state
 
-type Result<A> = core::result::Result<A, (StatusCode, Json<models::ErrorResponse>)>;
+type Result<A> = std::result::Result<A, (StatusCode, Json<models::ErrorResponse>)>;
 
 // ANCHOR: main
 #[tokio::main]
@@ -2309,7 +2309,7 @@ mod tests {
     use ndc_test::{
         configuration::{TestConfiguration, TestGenerationConfiguration, TestOptions},
         connector::Connector,
-        error::Error,
+        error::{Error, Result},
         reporter::TestResults,
         test_connector,
     };
@@ -2456,18 +2456,15 @@ mod tests {
 
     #[async_trait(?Send)]
     impl Connector for Reference {
-        async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse, Error> {
+        async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
             Ok(get_capabilities().await.0)
         }
 
-        async fn get_schema(&self) -> Result<models::SchemaResponse, Error> {
+        async fn get_schema(&self) -> Result<models::SchemaResponse> {
             Ok(get_schema().await.0)
         }
 
-        async fn query(
-            &self,
-            request: models::QueryRequest,
-        ) -> Result<models::QueryResponse, Error> {
+        async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse> {
             Ok(post_query(
                 State(Arc::new(Mutex::new(self.state.clone()))),
                 Json(request),
@@ -2480,7 +2477,7 @@ mod tests {
         async fn mutation(
             &self,
             request: models::MutationRequest,
-        ) -> Result<models::MutationResponse, Error> {
+        ) -> Result<models::MutationResponse> {
             Ok(post_mutation(
                 State(Arc::new(Mutex::new(self.state.clone()))),
                 Json(request),
