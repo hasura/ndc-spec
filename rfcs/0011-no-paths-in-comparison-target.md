@@ -21,7 +21,7 @@ An array relationship is implicitly existentially quantified. So for example, we
 
 On the right hand side, the same rule applies, so we could also say something like `name = albums.title` (using a column comparison), meaning _there exists_ a related album row whose title is the same as the artist's name.
 
-The first of these cases overlaps partially with the functionality provided by `Expression::Exists` (called "`EXISTS` predicates" in the spec), because we can use `Exists` to  change context to the related table, and evaluate the comparison there. Our `albums.title = "foo"` example becomes `∃ album ∈ albums. album.title = "foo"`.
+The first of these cases overlaps partially with the functionality provided by `Expression::Exists` (called "`EXISTS` predicates" in the spec), because we can use `Exists` to change context to the related table, and evaluate the comparison there. Our `albums.title = "foo"` example becomes `∃ album ∈ albums. album.title = "foo"`.
 
 However, it's not exactly duplicated functionality, because `EXISTS` changes the context in which a `ComparisonValue` is evaluated, from the original table to the related table. Therefore, if the right-hand side is a `ComparisonValue::Column`, then there may be no way to express this using `EXISTS`. For example, the predicate `foo.bar.baz.{column} = quux.{column}` cannot be expressed using only `EXISTS` when `foo` and `baz` are array relationships and `bar` is an object relationship, because `quux` is not in scope in the new context (`bar`) (and the objct relationship `bar` cannot be "inverted" in order to bring `foo` back into scope like we might be able to do in some simpler cases).
 
@@ -46,10 +46,10 @@ If a connector supports "named scopes" then we can send IR which refers to colum
 
 For example `tracks.title = artist.name` becomes `∃ track ∈ tracks. track.title = {1}.artist.name` where `{1}` refers to the immediately enclosing `albums` scope.
 
-The earlier `foo.bar.baz.{column} = quux.{column}` example becomes 
+The earlier `foo.bar.baz.{column} = quux.{column}` example becomes
 
 ```
-∃ foo ∈ foo. 
+∃ foo ∈ foo.
   ∃ bar ∈ bar.
     ∃ baz ∈ baz.
       baz.{column} = {3}.quux.{column}

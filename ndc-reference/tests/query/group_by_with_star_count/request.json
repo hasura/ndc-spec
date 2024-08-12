@@ -1,22 +1,22 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "articles",
-    "arguments": {},
-    "query": {
-        "groups": {
-            "aggregates": {
-                "article_count": {
-                    "type": "star_count"
-                }
-            },
-            "dimensions": [
-                {
-                    "type": "column",
-                    "column_name": "author_id",
-                    "path": []
-                }
-            ]
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "groups": {
+      "aggregates": {
+        "article_count": {
+          "type": "star_count"
         }
-    },
-    "collection_relationships": {}
+      },
+      "dimensions": [
+        {
+          "type": "column",
+          "column_name": "author_id",
+          "path": []
+        }
+      ]
+    }
+  },
+  "collection_relationships": {}
 }

@@ -18,9 +18,9 @@ To compute the ordering from the `order_by` field, data connectors should implem
 The property `element.target.name` refers to a column name.
 If the connector supports capability `query.nested_fields.order_by` then the target may also [reference nested fields within a column](./filtering.md#referencing-nested-fields-within-columns) using the `field_path` property.
 
-If `element.order_direction` is `asc`, then the row with the smaller column comes first. 
+If `element.order_direction` is `asc`, then the row with the smaller column comes first.
 
-If `element.order_direction` is `asc`, then the row with the smaller column comes second. 
+If `element.order_direction` is `asc`, then the row with the smaller column comes second.
 
 If the column values are incomparable, continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
 
@@ -46,7 +46,7 @@ For example, this query sorts articles by their author's last names, and then by
 
 ### Type `aggregate`
 
-An ordering of type `aggregate` orders rows by aggregating rows in some [related collection](./relationships.md), and comparing aggregations for each of the teo two rows. 
+An ordering of type `aggregate` orders rows by aggregating rows in some [related collection](./relationships.md), and comparing aggregations for each of the teo two rows.
 
 If the respective aggregates are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
 

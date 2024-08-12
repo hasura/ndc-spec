@@ -1,63 +1,63 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "authors",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "first_name": {
-                "type": "column",
-                "column": "first_name"
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "authors",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "first_name": {
+        "type": "column",
+        "column": "first_name"
+      },
+      "last_name": {
+        "type": "column",
+        "column": "last_name"
+      },
+      "articles_aggregate": {
+        "type": "relationship",
+        "arguments": {},
+        "relationship": "author_articles",
+        "query": {
+          "aggregates": {
+            "count": {
+              "type": "star_count"
+            }
+          }
+        }
+      }
+    },
+    "order_by": {
+      "elements": [
+        {
+          "order_direction": "desc",
+          "target": {
+            "type": "aggregate",
+            "aggregate": {
+              "type": "star_count"
             },
-            "last_name": {
-                "type": "column",
-                "column": "last_name"
-            },
-            "articles_aggregate": {
-                "type": "relationship",
+            "path": [
+              {
                 "arguments": {},
                 "relationship": "author_articles",
-                "query": {
-                    "aggregates": {
-                        "count": {
-                            "type": "star_count"
-                        }
-                    }
+                "predicate": {
+                  "type": "and",
+                  "expressions": []
                 }
-            }
-        },
-        "order_by": {
-            "elements": [
-                {
-                    "order_direction": "desc",
-                    "target": {
-                        "type": "aggregate",
-                        "aggregate": {
-                            "type": "star_count"
-                        },
-                        "path": [
-                            {
-                                "arguments": {},
-                                "relationship": "author_articles",
-                                "predicate": {
-                                    "type": "and",
-                                    "expressions": []
-                                }
-                            }
-                        ]
-                    }
-                }
+              }
             ]
+          }
         }
-    },
-    "collection_relationships": {
-        "author_articles": {
-            "arguments": {},
-            "column_mapping": {
-                "id": "author_id"
-            },
-            "relationship_type": "array",
-            "source_collection_or_type": "author",
-            "target_collection": "articles"
-        }
+      ]
     }
+  },
+  "collection_relationships": {
+    "author_articles": {
+      "arguments": {},
+      "column_mapping": {
+        "id": "author_id"
+      },
+      "relationship_type": "array",
+      "source_collection_or_type": "author",
+      "target_collection": "articles"
+    }
+  }
 }

@@ -21,19 +21,19 @@ Queries can specify nested field selections for columns which have structured ty
 
 In order to specify nested field selections, the `fields` property of the `Field` structure, which is a [`NestedField`](../../reference/types.md#nestedfield) structure.
 
-If `fields` is omitted, the entire structure of the column's data should be returned.  
+If `fields` is omitted, the entire structure of the column's data should be returned.
 
 If `fields` is provided, its value should be compatible with the type of the column:
 
 ### Nested objects
 
-For an object-typed column (whether nullable or not), the `fields` property should contain a `NestedField` with type `object`. 
+For an object-typed column (whether nullable or not), the `fields` property should contain a `NestedField` with type `object`.
 
 The `fields` property of the `NestedField` specifies a [`Field`](../../reference/types.md#field) structure for each requested nested field from the objects.
 
 ### Nested arrays
 
-For an array-typed column (whether nullable or not), the `fields` property may contain a `NestedField` with type `array`. 
+For an array-typed column (whether nullable or not), the `fields` property may contain a `NestedField` with type `array`.
 
 The `fields` property of the `NestedField` should contain _another_ `NestedField` structure, compatible with the type of the elements of the array. The selection function denoted by this nested `NestedField` structure should be applied to each element of each array.
 
@@ -55,7 +55,7 @@ Within the scope of a nested object, that object should be used as the "current 
 - In a `Field::Relationship` field:
   - A [column mapping](./relationships.md#column-mappings) refers to fields from the nested object,
   - A [relationship argument](./arguments.md#relationships) which selects a column refers to fields of the nested object.
-  
+
 ## Examples
 
 ### Simple column selection
@@ -102,7 +102,6 @@ Note the `staff_aggregates` field in particular, which has `fields` with type `c
 ### Example with Nested Types and Relationships
 
 This query selects `institution` data, and fetches `author` data if the first and last name fields match for any nested `staff` objects:
-
 
 ```json
 {{#include ../../../../ndc-reference/tests/query/nested_object_select_with_relationship/request.json:1}}

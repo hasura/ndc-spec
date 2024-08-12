@@ -22,11 +22,11 @@ See [`SchemaResponse`](../../reference/types.md#schemaresponse)
 
 ## Response Fields
 
-| Name | Description |
-|------|-------------|
-| `scalar_types` | [Scalar types](scalar-types.md) |
-| `object_types` | [Object types](object-types.md) |
-| `collections` | [Collection](collections.md) |
-| `functions` | [Functions](functions.md) |
-| `procedures` | [Procedures](procedures.md) |
+| Name           | Description                                        |
+| -------------- | -------------------------------------------------- |
+| `scalar_types` | [Scalar types](scalar-types.md)                    |
+| `object_types` | [Object types](object-types.md)                    |
+| `collections`  | [Collection](collections.md)                       |
+| `functions`    | [Functions](functions.md)                          |
+| `procedures`   | [Procedures](procedures.md)                        |
 | `capabilities` | [Capability-specific information](capabilities.md) |

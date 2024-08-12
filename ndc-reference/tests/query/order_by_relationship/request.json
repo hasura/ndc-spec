@@ -1,83 +1,83 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "articles",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "id": {
-                "type": "column",
-                "column": "id"
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "title": {
+        "type": "column",
+        "column": "title"
+      },
+      "author": {
+        "type": "relationship",
+        "arguments": {},
+        "relationship": "article_author",
+        "query": {
+          "fields": {
+            "first_name": {
+              "type": "column",
+              "column": "first_name"
             },
-            "title": {
-                "type": "column",
-                "column": "title"
-            },
-            "author": {
-                "type": "relationship",
+            "last_name": {
+              "type": "column",
+              "column": "last_name"
+            }
+          }
+        }
+      }
+    },
+    "order_by": {
+      "elements": [
+        {
+          "target": {
+            "type": "column",
+            "name": "last_name",
+            "path": [
+              {
                 "arguments": {},
                 "relationship": "article_author",
-                "query": {
-                    "fields": {
-                        "first_name": {
-                            "type": "column",
-                            "column": "first_name"
-                        },
-                        "last_name": {
-                            "type": "column",
-                            "column": "last_name"
-                        }
-                    }
+                "predicate": {
+                  "type": "and",
+                  "expressions": []
                 }
-            }
-        },
-        "order_by": {
-            "elements": [
-                {
-                    "target": {
-                        "type": "column",
-                        "name": "last_name",
-                        "path": [
-                            {
-                                "arguments": {},
-                                "relationship": "article_author",
-                                "predicate": {
-                                    "type": "and",
-                                    "expressions": []
-                                }
-                            }
-                        ]
-                    },
-                    "order_direction": "asc"
-                },
-                {
-                    "target": {
-                        "type": "column",
-                        "name": "first_name",
-                        "path": [
-                            {
-                                "arguments": {},
-                                "relationship": "article_author",
-                                "predicate": {
-                                    "type": "and",
-                                    "expressions": []
-                                }
-                            }
-                        ]
-                    },
-                    "order_direction": "asc"
-                }
+              }
             ]
+          },
+          "order_direction": "asc"
+        },
+        {
+          "target": {
+            "type": "column",
+            "name": "first_name",
+            "path": [
+              {
+                "arguments": {},
+                "relationship": "article_author",
+                "predicate": {
+                  "type": "and",
+                  "expressions": []
+                }
+              }
+            ]
+          },
+          "order_direction": "asc"
         }
-    },
-    "collection_relationships": {
-        "article_author": {
-            "arguments": {},
-            "column_mapping": {
-                "author_id": "id"
-            },
-            "relationship_type": "object",
-            "source_collection_or_type": "article",
-            "target_collection": "authors"
-        }
+      ]
     }
+  },
+  "collection_relationships": {
+    "article_author": {
+      "arguments": {},
+      "column_mapping": {
+        "author_id": "id"
+      },
+      "relationship_type": "object",
+      "source_collection_or_type": "article",
+      "target_collection": "authors"
+    }
+  }
 }

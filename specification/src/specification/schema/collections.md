@@ -50,7 +50,6 @@ To describe a collection, add a [`CollectionInfo`](../../reference/types.md#coll
 }
 ```
 
-
 ## See also
 
 - Type [`CollectionInfo`](../../reference/types.md#collectioninfo)

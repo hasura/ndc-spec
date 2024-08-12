@@ -38,7 +38,7 @@ The next category of expressions are the _unary operators_. The only unary opera
 To evaluate the comparison target, we delegate to the `eval_comparison_target` function, which pattern matches:
 
 - A column is evaluated using the `eval_column_field_path` function.
-- An aggregate is evaluated using `eval_path` (which we will talk more about when we get to [relationships](./relationships.md)) and `eval_aggregate` (which we will talk about when we get to [aggregates](./aggregates.md)). 
+- An aggregate is evaluated using `eval_path` (which we will talk more about when we get to [relationships](./relationships.md)) and `eval_aggregate` (which we will talk about when we get to [aggregates](./aggregates.md)).
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_comparison_target}}
@@ -48,7 +48,7 @@ To evaluate the comparison target, we delegate to the `eval_comparison_target` f
 
 The next category of expressions are the _binary operators_. Binary operators can be _standard_ or _custom_.
 
-The only standard binary operators are the `equal` and `in` operators. 
+The only standard binary operators are the `equal` and `in` operators.
 
 `equal` evaluated by evaluating its _comparison target_ and _comparison value_, and comparing them for equality:
 

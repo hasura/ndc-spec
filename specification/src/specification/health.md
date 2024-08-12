@@ -1,6 +1,6 @@
 # Service Health
 
-Data connectors should provide a __health endpoint__ which can be used to indicate service health and readiness to any client applications.
+Data connectors should provide a **health endpoint** which can be used to indicate service health and readiness to any client applications.
 
 ## Request
 

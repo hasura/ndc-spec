@@ -20,7 +20,7 @@ The `sort` function implements a simple insertion sort, computing the ordering f
 
 ## Evaluating the Ordering
 
-To compare two rows, the `eval_order_by` computes each `OrderByElement` in turn, and compares the rows in order, or in reverse order, depending on whether the ordering is _ascending_ or _descending_. 
+To compare two rows, the `eval_order_by` computes each `OrderByElement` in turn, and compares the rows in order, or in reverse order, depending on whether the ordering is _ascending_ or _descending_.
 
 The function returns the first `Ordering` which makes the two rows distinct (if any):
 
@@ -28,9 +28,9 @@ The function returns the first `Ordering` which makes the two rows distinct (if 
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_order_by}}
 ```
 
-The ordering for a single `OrderByElement` is computed by the `eval_order_by_element` function. 
+The ordering for a single `OrderByElement` is computed by the `eval_order_by_element` function.
 
-We won't cover every branch of this function in detail here, but it works by pattern matching on the type of ordering being used. 
+We won't cover every branch of this function in detail here, but it works by pattern matching on the type of ordering being used.
 
 ### Ordering by a column
 

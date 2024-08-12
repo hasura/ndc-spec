@@ -2,7 +2,7 @@
 
 ## Purpose
 
-There are currently two scopes that a `ComparisonTarget` can refer to: the current collection, and the "root" collection. 
+There are currently two scopes that a `ComparisonTarget` can refer to: the current collection, and the "root" collection.
 
 The root collection is the collection in scope at the nearest enclosing `Query`. That is, it changes at a `Field::Relationship` boundary. Root collection references are useful inside `Expression::Exists`, where the "current row" differs from the root collection row.
 
@@ -17,7 +17,7 @@ However, when we have nested `EXISTS` expressions, there are more than two scope
 The recent [`ComparisonTarget` RFC](./0011-no-paths-in-comparison-target.md) gives an example. A predicate like `foo.bar.baz.{column} = quux.{column}` should be translated to a nested `EXISTS` expression:
 
 ```
-∃ foo ∈ foo. 
+∃ foo ∈ foo.
   ∃ bar ∈ bar.
     ∃ baz ∈ baz.
       baz.{column} = {3}.quux.{column}
@@ -49,4 +49,3 @@ So scope number zero refers to the current row in the current collection; scope 
 
 - Why does the scopes stack get reset at relationship boundaries?
   - Because a `Query` should have the same meaning regardless of where it appears in a `QueryRequest`.
-
