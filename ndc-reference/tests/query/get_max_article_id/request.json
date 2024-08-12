@@ -1,13 +1,13 @@
 {
-    "collection": "latest_article_id",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "__value": {
-                "type": "column",
-                "column": "__value"
-            }
-        }
-    },
-    "collection_relationships": {}
+  "collection": "latest_article_id",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "__value": {
+        "type": "column",
+        "column": "__value"
+      }
+    }
+  },
+  "collection_relationships": {}
 }

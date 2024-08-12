@@ -6,10 +6,7 @@
         "staff": [
           {
             "last_name": "Landin",
-            "fields_of_study": [
-              "Computer Science",
-              "Education"
-            ]
+            "fields_of_study": ["Computer Science", "Education"]
           }
         ],
         "departments": [
@@ -23,10 +20,7 @@
         "staff": [
           {
             "last_name": "Hughes",
-            "fields_of_study": [
-              "Computer Science",
-              "Functional Programming"
-            ]
+            "fields_of_study": ["Computer Science", "Functional Programming"]
           }
         ],
         "departments": [

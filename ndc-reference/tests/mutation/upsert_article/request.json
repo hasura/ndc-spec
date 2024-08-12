@@ -1,27 +1,27 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/mutation_request.jsonschema",
-    "insert_schema": [],
-    "operations": [
-        {
-            "type": "procedure",
-            "name": "upsert_article",
-            "arguments": {
-                "article": {
-                    "id": 4,
-                    "title": "A Novel Representation of Lists and its Application to the Function \"Reverse\"",
-                    "author_id": 2
-                }
-            },
-            "fields": {
-                "type": "object",
-                "fields": {
-                    "id": {
-                        "type": "column",
-                        "column": "id"
-                    }
-                }
-            }
+  "$schema": "../../../../ndc-models/tests/json_schema/mutation_request.jsonschema",
+  "insert_schema": [],
+  "operations": [
+    {
+      "type": "procedure",
+      "name": "upsert_article",
+      "arguments": {
+        "article": {
+          "id": 4,
+          "title": "A Novel Representation of Lists and its Application to the Function \"Reverse\"",
+          "author_id": 2
         }
-    ],
-    "collection_relationships": {}
+      },
+      "fields": {
+        "type": "object",
+        "fields": {
+          "id": {
+            "type": "column",
+            "column": "id"
+          }
+        }
+      }
+    }
+  ],
+  "collection_relationships": {}
 }

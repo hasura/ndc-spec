@@ -1,39 +1,39 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "articles",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "id": {
-                "type": "column",
-                "column": "id"
-            },
-            "title": {
-                "type": "column",
-                "column": "title"
-            }
-        },
-        "predicate": {
-            "type": "binary_comparison_operator",
-            "column": {
-                "type": "column",
-                "name": "id",
-                "path": []
-            },
-            "operator": "eq",
-            "value": {
-                "type": "variable",
-                "name": "$article_id"
-            }
-        }
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "title": {
+        "type": "column",
+        "column": "title"
+      }
     },
-    "collection_relationships": {},
-    "variables": [
-        {
-            "$article_id": 1
-        },
-        {
-            "$article_id": 2
-        }
-    ]
+    "predicate": {
+      "type": "binary_comparison_operator",
+      "column": {
+        "type": "column",
+        "name": "id",
+        "path": []
+      },
+      "operator": "eq",
+      "value": {
+        "type": "variable",
+        "name": "$article_id"
+      }
+    }
+  },
+  "collection_relationships": {},
+  "variables": [
+    {
+      "$article_id": 1
+    },
+    {
+      "$article_id": 2
+    }
+  ]
 }

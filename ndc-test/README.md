@@ -45,12 +45,12 @@ cargo run --bin ndc-test -- replay --endpoint http://localhost:8100 --snapshots-
 
 Several options are available to customize the test generation:
 
-| Option | Description | Default |
-|-|-|-|
-| `-x`, `-xx`, ... | Increases the complexity level of generated queris in general, e.g. generates more deeply-nested boolean expressions | None |
-| `--test-cases` | The number of test cases to generate per scenario | 10 |
-| `--sample-size` | The number of example rows to fetch from each collection | 10 |
-| `--max-limit` | The maximum number of rows to fetch per test query | 10 |
+| Option           | Description                                                                                                          | Default |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------- | ------- |
+| `-x`, `-xx`, ... | Increases the complexity level of generated queris in general, e.g. generates more deeply-nested boolean expressions | None    |
+| `--test-cases`   | The number of test cases to generate per scenario                                                                    | 10      |
+| `--sample-size`  | The number of example rows to fetch from each collection                                                             | 10      |
+| `--max-limit`    | The maximum number of rows to fetch per test query                                                                   | 10      |
 
 ### Custom tests
 
@@ -72,6 +72,6 @@ To benchmark the reference connector:
 cargo run --bin ndc-test -- bench --endpoint http://localhost:8100 --snapshots-dir ndc-reference/tests
 ```
 
-Benchmark reports will be stored alongside the query request JSON files, as `report.json`. 
+Benchmark reports will be stored alongside the query request JSON files, as `report.json`.
 
 To test for performance regressions, use the `--tolerance` argument. For example, to fail if any test averages 10% longer than the previous recorded mean time, use `--tolerance 0.1`.

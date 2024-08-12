@@ -265,9 +265,7 @@
       "type": "article",
       "uniqueness_constraints": {
         "ArticleByID": {
-          "unique_columns": [
-            "id"
-          ]
+          "unique_columns": ["id"]
         }
       },
       "foreign_keys": {
@@ -286,9 +284,7 @@
       "type": "author",
       "uniqueness_constraints": {
         "AuthorByID": {
-          "unique_columns": [
-            "id"
-          ]
+          "unique_columns": ["id"]
         }
       },
       "foreign_keys": {}
@@ -300,9 +296,7 @@
       "type": "institution",
       "uniqueness_constraints": {
         "InstitutionByID": {
-          "unique_columns": [
-            "id"
-          ]
+          "unique_columns": ["id"]
         }
       },
       "foreign_keys": {}

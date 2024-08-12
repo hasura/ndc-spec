@@ -6,10 +6,7 @@
         "staff": [
           {
             "last_name": "Landin",
-            "fields_of_study": [
-              "Computer Science",
-              "Education"
-            ]
+            "fields_of_study": ["Computer Science", "Education"]
           }
         ],
         "departments": [

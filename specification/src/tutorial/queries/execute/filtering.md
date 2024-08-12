@@ -48,7 +48,7 @@ To evaluate the comparison target, we delegate to the `eval_comparison_target` f
 
 The next category of expressions are the _binary operators_. Binary operators can be _standard_ or _custom_.
 
-The only standard binary operators are the `equal` and `in` operators. 
+The only standard binary operators are the `equal` and `in` operators.
 
 `equal` evaluated by evaluating its _comparison target_ and _comparison value_, and comparing them for equality:
 

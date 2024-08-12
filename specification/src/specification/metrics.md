@@ -1,6 +1,6 @@
 # Metrics
 
-Data connectors should provide a __metrics endpoint__ which reports relevant metrics in a textual format. Data connectors can report any metrics which are deemed relevant, or none at all, with the exception of any reserved keys.
+Data connectors should provide a **metrics endpoint** which reports relevant metrics in a textual format. Data connectors can report any metrics which are deemed relevant, or none at all, with the exception of any reserved keys.
 
 ## Request
 
