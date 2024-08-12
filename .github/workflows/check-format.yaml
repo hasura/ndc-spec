@@ -1,0 +1,52 @@
+name: check formatting
+
+on:
+  push:
+
+jobs:
+  cargo-fmt:
+    name: cargo fmt
+    runs-on: ubuntu-latest
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      RUSTFLAGS: "-D warnings" # fail on warnings
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install tools
+        run: |
+          rustup show
+
+      - name: check formatting
+        run: |
+          cargo fmt --all --check
+
+  nixpkgs-fmt:
+    name: nixpkgs-fmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@V27
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: check formatting
+        run: |
+          nix run nixpkgs#nixpkgs-fmt -- --check .
+
+  prettier:
+    name: prettier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@V27
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: check formatting
+        run: |
+          npx prettier --check .
