@@ -27,12 +27,18 @@
         "id": 2,
         "location": {
           "city": "Gothenburg",
-          "campuses": ["Johanneberg", "Lindholmen"]
+          "campuses": [
+            "Johanneberg",
+            "Lindholmen"
+          ]
         },
         "location_all": {
           "city": "Gothenburg",
           "country": "Sweden",
-          "campuses": ["Johanneberg", "Lindholmen"]
+          "campuses": [
+            "Johanneberg",
+            "Lindholmen"
+          ]
         }
       }
     ]

@@ -1,2 +1,3 @@
 /flake.lock
 /ndc-reference/*.json
+**/expected.json
