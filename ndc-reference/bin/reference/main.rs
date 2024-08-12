@@ -2689,7 +2689,7 @@ mod tests {
 
             let response_json = serde_json::to_string_pretty(&response.0).unwrap();
 
-            write!(expected, "{response_json}").unwrap();
+            writeln!(expected, "{response_json}").unwrap();
 
             // Test roundtrip
             assert_eq!(
@@ -2712,7 +2712,7 @@ mod tests {
 
             let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
-            write!(
+            writeln!(
                 expected,
                 "{}",
                 serde_json::to_string_pretty(&response.0).unwrap()
@@ -2755,7 +2755,7 @@ mod tests {
 
                 let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
-                write!(
+                writeln!(
                     expected,
                     "{}",
                     serde_json::to_string_pretty(&response.0).unwrap()
@@ -2795,7 +2795,7 @@ mod tests {
 
                 let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
-                write!(
+                writeln!(
                     expected,
                     "{}",
                     serde_json::to_string_pretty(&response.0).unwrap()
