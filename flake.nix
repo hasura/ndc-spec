@@ -95,6 +95,7 @@
 
           pkgs.just
           pkgs.mdbook
+          pkgs.nodePackages.prettier
         ] ++ buildDependencies;
 
         buildInputs = runtimeDependencies;
