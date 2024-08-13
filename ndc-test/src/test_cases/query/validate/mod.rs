@@ -8,7 +8,7 @@ use crate::connector::Connector;
 use crate::error::{Error, OtherError, Result};
 
 pub fn expect_single_non_empty_rows(
-    response: &models::QueryResponse,
+    response: models::QueryResponse,
 ) -> Result<Vec<IndexMap<models::FieldName, models::RowFieldValue>>> {
     let rows = expect_single_rows(response)?;
 
@@ -20,7 +20,7 @@ pub fn expect_single_non_empty_rows(
 }
 
 pub fn expect_single_rows(
-    response: &models::QueryResponse,
+    response: models::QueryResponse,
 ) -> Result<Vec<IndexMap<models::FieldName, models::RowFieldValue>>> {
     let row_set = expect_single_rowset(response)?;
     let rows = row_set.rows.ok_or(Error::RowsShouldBeNonNullInRowSet)?;
@@ -28,7 +28,7 @@ pub fn expect_single_rows(
     Ok(rows)
 }
 
-pub fn expect_single_rowset(response: &models::QueryResponse) -> Result<models::RowSet> {
+pub fn expect_single_rowset(response: models::QueryResponse) -> Result<models::RowSet> {
     if let [rowset] = &response.0[..] {
         Ok(rowset.clone())
     } else {
@@ -57,10 +57,10 @@ pub fn validate_response(
         validate_rowset(
             schema,
             &request.collection_relationships,
-            &request.collection,
+            request.collection.clone(),
             &request.query,
             rowset,
-            &["$".into(), row_index.to_string()],
+            vec!["$".into(), row_index.to_string()],
         )?;
     }
 
@@ -70,16 +70,16 @@ pub fn validate_response(
 pub fn validate_rowset(
     schema: &models::SchemaResponse,
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
-    collection_name: &models::CollectionName,
+    collection_name: models::CollectionName,
     query: &models::Query,
     rowset: &models::RowSet,
-    json_path: &[String],
+    json_path: Vec<String>,
 ) -> Result<()> {
     match (&query.fields, &rowset.rows) {
         (Some(fields), Some(rows)) => {
             let object_type = find_collection_type_by_name(schema, collection_name)?;
 
-            let new_json_path = [json_path, &["rows".to_string()]].concat();
+            let new_json_path = [json_path.as_slice(), &["rows".to_string()]].concat();
 
             validate_rows(
                 schema,
@@ -88,7 +88,7 @@ pub fn validate_rowset(
                 query,
                 fields,
                 rows,
-                &new_json_path,
+                new_json_path,
             )
         }
         (None, None) => Ok(()),
@@ -110,12 +110,12 @@ pub fn validate_rowset(
 
 fn find_collection_type_by_name(
     schema: &models::SchemaResponse,
-    collection_name: &models::CollectionName,
+    collection_name: models::CollectionName,
 ) -> Result<models::ObjectType> {
     let collection = schema
         .collections
         .iter()
-        .find(|c| &c.name == collection_name);
+        .find(|c| c.name == collection_name);
 
     if let Some(collection) = collection {
         let object_type = schema.object_types.get(&collection.collection_type).ok_or(
@@ -126,7 +126,7 @@ fn find_collection_type_by_name(
         let function = schema
             .functions
             .iter()
-            .find(|f| f.name.inner() == collection_name);
+            .find(|f| f.name.inner() == &collection_name);
 
         if let Some(function) = function {
             Ok(models::ObjectType {
@@ -153,7 +153,7 @@ pub fn validate_rows(
     query: &models::Query,
     fields: &IndexMap<models::FieldName, models::Field>,
     rows: &[IndexMap<models::FieldName, models::RowFieldValue>],
-    json_path: &[String],
+    json_path: Vec<String>,
 ) -> Result<()> {
     if let Some(limit) = query.limit {
         let rows_returned: u32 = rows
@@ -168,7 +168,7 @@ pub fn validate_rows(
     for (row_index, row) in (0_i32..).zip(rows.iter()) {
         let mut row_copy = row.clone();
 
-        let new_json_path = [json_path, &[row_index.to_string()]].concat();
+        let new_json_path = [json_path.as_slice(), &[row_index.to_string()]].concat();
 
         for (field_name, field) in fields {
             if let Some(row_field_value) = row_copy.swap_remove(field_name) {
@@ -237,10 +237,10 @@ pub fn validate_field(
                 validate_rowset(
                     schema,
                     collection_relationships,
-                    &relationship.target_collection,
+                    relationship.target_collection.clone(),
                     query,
                     &row_set,
-                    &json_path,
+                    json_path,
                 )
             } else {
                 Err(Error::ExpectedRowSet(field_name.clone()))
@@ -320,7 +320,7 @@ pub fn check_value_has_type(
                         &object,
                         object_type,
                         fields,
-                        &json_path,
+                        json_path,
                     )
                 } else {
                     Err(Error::InvalidValueInResponse(json_path, "object".into()))
@@ -329,7 +329,7 @@ pub fn check_value_has_type(
                 if let Some(representation) = &scalar_type.representation {
                     representations::check_value_has_representation(
                         representation,
-                        &value,
+                        value,
                         json_path,
                     )
                 } else {
@@ -387,7 +387,7 @@ mod representations {
 
     pub fn check_value_has_representation(
         representation: &models::TypeRepresentation,
-        value: &serde_json::Value,
+        value: serde_json::Value,
         json_path: Vec<String>,
     ) -> Result<()> {
         macro_rules! check {
@@ -440,14 +440,15 @@ pub(crate) fn check_value_has_object_type(
     object: &IndexMap<models::FieldName, models::RowFieldValue>,
     object_type: &models::ObjectType,
     fields: Option<&models::NestedField>,
-    json_path: &[String],
+    json_path: Vec<String>,
 ) -> Result<()> {
     let mut row_copy = object.clone();
     match fields {
         Some(models::NestedField::Object(nested_object)) => {
             for (field_name, field) in &nested_object.fields {
                 if let Some(row_field_value) = row_copy.swap_remove(field_name) {
-                    let new_json_path = [json_path, &[field_name.as_str().to_owned()]].concat();
+                    let new_json_path =
+                        [json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
 
                     validate_field(
                         schema,
@@ -469,7 +470,8 @@ pub(crate) fn check_value_has_object_type(
         None => {
             for (field_name, field) in &object_type.fields {
                 if let Some(row_field_value) = row_copy.swap_remove(field_name) {
-                    let new_json_path = [json_path, &[field_name.as_str().to_owned()]].concat();
+                    let new_json_path =
+                        [json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
 
                     check_value_has_type(
                         schema,

@@ -81,7 +81,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
     };
     let response = connector.query(query_request.clone()).await?;
 
-    let row_set = expect_single_rowset(&response)?;
+    let row_set = expect_single_rowset(response)?;
 
     if let Some(aggregates) = &row_set.aggregates {
         match aggregates.get("count").and_then(serde_json::Value::as_u64) {
@@ -145,7 +145,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
     };
     let response = connector.query(query_request.clone()).await?;
 
-    let row_set = expect_single_rowset(&response)?;
+    let row_set = expect_single_rowset(response)?;
 
     if let Some(aggregates) = &row_set.aggregates {
         for field_name in &field_names {
