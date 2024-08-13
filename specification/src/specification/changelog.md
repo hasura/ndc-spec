@@ -11,19 +11,20 @@
 
 ### Grouping
 
-A [new section was added to the specification](../specification/queries/grouping.md) which allows callers to group rows and aggregate within groups, generalizing SQL's `GROUP BY` functionality.
+A [new section was added to the specification](./queries/grouping.md) which allows callers to group rows and aggregate within groups, generalizing SQL's `GROUP BY` functionality.
 
 ### Named scopes
 
-Root column references were generalized to _named scopes_. Scopes are introduced by `EXISTS` expressions, and named scopes allow [references to columns outside of the current scope](../specification/queries/filtering.md#referencing-a-column-from-a-collection-in-scope); that is, outside the `EXISTS` expression. Unlike root column references, named scopes allow the caller to refer to columns in any collection in scope, and not just the root collection.
+Root column references were generalized to _named scopes_. Scopes are introduced by `EXISTS` expressions, and named scopes allow [references to columns outside of the current scope](./queries/filtering.md#referencing-a-column-from-a-collection-in-scope); that is, outside the `EXISTS` expression. Unlike root column references, named scopes allow the caller to refer to columns in any collection in scope, and not just the root collection.
 
 ### Nested collections
 
-`NestedField::Collection` was added to support [querying nested collections](../specification/queries/field-selection.md#nested-collections).
+- `NestedField::Collection` was added to support [querying nested collections](./queries/field-selection.md#nested-collections).
+- Exists predicates can now [search nested collections](./queries/filtering.html#nested-collections).
 
 ### Filter by aggregates
 
-`ComparisonTarget` was extended to allow [filtering by aggregates](../specification/queries/filtering.md#computing-an-aggregate).
+`ComparisonTarget` was extended to allow [filtering by aggregates](./queries/filtering.md#computing-an-aggregate).
 ## `0.1.5`
 
 ### Rust Libraries
