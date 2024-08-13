@@ -1100,7 +1100,7 @@ fn eval_group_expression(
         } => {
             let left_val = eval_group_comparison_target(target, rows)?;
             let right_vals = eval_aggregate_comparison_value(variables, value)?;
-            eval_comparison_operator(operator, &left_val, right_vals)
+            eval_comparison_operator(operator, &left_val, &right_vals)
         }
         ndc_models::GroupExpression::UnaryComparisonOperator { target, operator } => match operator
         {
@@ -1267,9 +1267,9 @@ fn eval_dimension(
             variables,
             state,
             row,
-            path.clone(),
-            column_name.clone(),
-            field_path.clone(),
+            path,
+            column_name,
+            field_path.as_deref(),
         ),
     }
 }
@@ -1328,7 +1328,9 @@ fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_j
         } => {
             let values = rows
                 .iter()
-                .map(|row| eval_column_field_path(row, column, field_path, &BTreeMap::new()))
+                .map(|row| {
+                    eval_column_field_path(row, column, field_path.as_deref(), &BTreeMap::new())
+                })
                 .collect::<Result<Vec<_>>>()?;
 
             let non_null_values = values.iter().filter(|value| !value.is_null());
@@ -1368,9 +1370,11 @@ fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_j
         } => {
             let values = rows
                 .iter()
-                .map(|row| eval_column_field_path(row, column, field_path, &BTreeMap::new()))
+                .map(|row| {
+                    eval_column_field_path(row, column, field_path.as_deref(), &BTreeMap::new())
+                })
                 .collect::<Result<Vec<_>>>()?;
-            eval_aggregate_function(function, values)
+            eval_aggregate_function(function, &values)
         }
     }
 }
@@ -1378,7 +1382,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_j
 // ANCHOR: eval_aggregate_function
 fn eval_aggregate_function(
     function: &models::AggregateFunctionName,
-    values: Vec<serde_json::Value>,
+    values: &[serde_json::Value],
 ) -> Result<serde_json::Value> {
     let int_values = values
         .iter()
@@ -1537,9 +1541,9 @@ fn eval_order_by_element(
             variables,
             state,
             item,
-            path,
-            name,
-            field_path,
+            &path,
+            &name,
+            field_path.as_deref(),
         ),
         models::OrderByTarget::Aggregate { aggregate, path } => {
             let rows = eval_path(
@@ -1558,23 +1562,23 @@ fn eval_order_by_element(
 fn eval_column_field_path(
     row: &Row,
     column_name: &models::FieldName,
-    field_path: &Option<Vec<models::FieldName>>,
+    field_path: Option<&[models::FieldName]>,
     arguments: &BTreeMap<models::ArgumentName, models::Argument>,
 ) -> Result<serde_json::Value> {
     let column_value = eval_column(&BTreeMap::default(), row, column_name, arguments)?;
     match field_path {
         None => Ok(column_value),
-        Some(path) => eval_field_path(path, column_value),
+        Some(path) => eval_field_path(path, &column_value),
     }
 }
 // ANCHOR_END: eval_column_field_path
 // ANCHOR: eval_field_path
 fn eval_field_path(
     path: &[ndc_models::FieldName],
-    value: serde_json::Value,
+    value: &serde_json::Value,
 ) -> Result<serde_json::Value> {
     path.iter()
-        .try_fold(&value, |value, field_name| value.get(field_name.as_str()))
+        .try_fold(value, |value, field_name| value.get(field_name.as_str()))
         .cloned()
         .ok_or((
             StatusCode::BAD_REQUEST,
@@ -1591,15 +1595,15 @@ fn eval_column_at_path(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     item: &Row,
-    path: Vec<models::PathElement>,
-    name: models::FieldName,
-    field_path: Option<Vec<models::FieldName>>,
+    path: &[models::PathElement],
+    name: &models::FieldName,
+    field_path: Option<&[models::FieldName]>,
 ) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(
         collection_relationships,
         variables,
         state,
-        &path,
+        path,
         &[item.clone()],
     )?;
     if rows.len() > 1 {
@@ -1613,7 +1617,7 @@ fn eval_column_at_path(
         ));
     }
     match rows.first() {
-        Some(row) => eval_column_field_path(row, &name, &field_path, &BTreeMap::new()),
+        Some(row) => eval_column_field_path(row, name, field_path, &BTreeMap::new()),
         None => Ok(serde_json::Value::Null),
     }
 }
@@ -1881,7 +1885,7 @@ fn eval_expression(
                 scopes,
                 item,
             )?;
-            eval_comparison_operator(operator, &left_val, right_vals)
+            eval_comparison_operator(operator, &left_val, &right_vals)
         }
         // ANCHOR_END: eval_expression_binary_operators
         // ANCHOR: eval_expression_exists
@@ -1929,11 +1933,11 @@ fn eval_expression(
 fn eval_comparison_operator(
     operator: &models::ComparisonOperatorName,
     left_val: &serde_json::Value,
-    right_vals: Vec<serde_json::Value>,
+    right_vals: &[serde_json::Value],
 ) -> std::prelude::v1::Result<bool, (StatusCode, Json<models::ErrorResponse>)> {
     match operator.as_str() {
         "eq" => {
-            for right_val in &right_vals {
+            for right_val in right_vals {
                 if left_val == right_val {
                     return Ok(true);
                 }
@@ -1943,7 +1947,7 @@ fn eval_comparison_operator(
         }
         // ANCHOR: eval_expression_custom_binary_operators
         "like" => {
-            for regex_val in &right_vals {
+            for regex_val in right_vals {
                 let column_str = left_val.as_str().ok_or((
                     StatusCode::BAD_REQUEST,
                     Json(models::ErrorResponse {
@@ -1977,7 +1981,7 @@ fn eval_comparison_operator(
         // ANCHOR_END: eval_expression_custom_binary_operators
         // ANCHOR: eval_expression_binary_array_operators
         "in" => {
-            for comparison_value in &right_vals {
+            for comparison_value in right_vals {
                 let right_vals = comparison_value.as_array().ok_or((
                     StatusCode::BAD_REQUEST,
                     Json(models::ErrorResponse {
@@ -2052,8 +2056,7 @@ fn eval_in_collection(
             field_path,
             arguments,
         } => {
-            let value =
-                eval_column_field_path(item, column_name, &Some(field_path.clone()), arguments)?;
+            let value = eval_column_field_path(item, column_name, Some(field_path), arguments)?;
             serde_json::from_value(value).map_err(|_| {
                 (
                     StatusCode::BAD_REQUEST,
@@ -2077,7 +2080,7 @@ fn eval_comparison_target(
 ) -> Result<serde_json::Value> {
     match target {
         models::ComparisonTarget::Column { name, field_path } => {
-            eval_column_field_path(item, name, field_path, &BTreeMap::new())
+            eval_column_field_path(item, name, field_path.as_deref(), &BTreeMap::new())
         }
         models::ComparisonTarget::Aggregate { aggregate, path } => {
             let rows: Vec<Row> = eval_path(
@@ -2175,7 +2178,9 @@ fn eval_comparison_value(
 
             items
                 .iter()
-                .map(|item| eval_column_field_path(item, name, field_path, &BTreeMap::new()))
+                .map(|item| {
+                    eval_column_field_path(item, name, field_path.as_deref(), &BTreeMap::new())
+                })
                 .collect()
         }
         models::ComparisonValue::Scalar { value } => Ok(vec![value.clone()]),

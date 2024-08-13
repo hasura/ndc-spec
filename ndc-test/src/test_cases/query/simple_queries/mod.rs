@@ -93,5 +93,5 @@ async fn test_select_top_n_rows<C: Connector>(
 
     let response = connector.query(query_request.clone()).await?;
 
-    expect_single_rows(response)
+    expect_single_rows(&response)
 }
