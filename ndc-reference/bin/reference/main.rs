@@ -503,7 +503,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
-                    arguments: array_arguments.clone(),
+                    arguments: array_arguments,
                 },
             ),
         ]),
@@ -1929,13 +1929,7 @@ fn eval_nested_field(
             let result_array = array
                 .into_iter()
                 .map(|value| {
-                    eval_nested_field(
-                        collection_relationships,
-                        variables,
-                        state,
-                        value.clone(),
-                        fields,
-                    )
+                    eval_nested_field(collection_relationships, variables, state, value, fields)
                 })
                 .collect::<Result<Vec<_>>>()?;
             Ok(models::RowFieldValue(
