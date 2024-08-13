@@ -13,7 +13,6 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-
 use indexmap::IndexMap;
 use itertools::Itertools;
 use ndc_models::{self as models};
@@ -90,10 +89,10 @@ impl Metrics {
 }
 
 // ANCHOR: metrics_middleware
-async fn metrics_middleware<T>(
+async fn metrics_middleware(
     state: State<Arc<Mutex<AppState>>>,
-    request: axum::http::Request<T>,
-    next: axum::middleware::Next<T>,
+    request: axum::http::Request<axum::body::Body>,
+    next: axum::middleware::Next,
 ) -> axum::response::Response {
     // Don't hold the lock to update metrics, since the
     // lock doesn't protect the metrics anyway.
@@ -145,7 +144,7 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
         .route("/mutation", post(post_mutation))
         .route("/mutation/explain", post(post_mutation_explain))
         .layer(axum::middleware::from_fn_with_state(
-            app_state.clone(),
+            Arc::clone(&app_state),
             metrics_middleware,
         ))
         .with_state(app_state);
@@ -159,9 +158,11 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
         .unwrap_or(Ok(DEFAULT_PORT))?;
     let addr = net::SocketAddr::new(host, port);
 
-    let server = axum::Server::bind(&addr).serve(app.into_make_service());
-    println!("Serving on {}", server.local_addr());
-    server.with_graceful_shutdown(shutdown_handler()).await?;
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    println!("Serving on {}", listener.local_addr()?);
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_handler())
+        .await?;
 
     Ok(())
 }
