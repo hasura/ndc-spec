@@ -13,6 +13,8 @@ members = [
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
+# unstable warnings; we might need to suppress them
+redundant_clone = "warn"
 # disable certain pedantic warnings
 doc_markdown = { level = "allow" }
 missing_errors_doc = { level = "allow" }
@@ -22,8 +24,6 @@ must_use_candidate = { level = "allow" }
 return_self_not_must_use = { level = "allow" }
 too_many_lines = { level = "allow" }
 wildcard_imports = { level = "allow" }
-# disable these for now, but we should probably fix them
-needless_pass_by_value = { level = "allow" }
 
 [workspace.dependencies]
 async-trait = "0.1"

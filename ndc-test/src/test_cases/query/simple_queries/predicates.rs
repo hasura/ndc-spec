@@ -57,7 +57,7 @@ pub fn make_predicate(
 
     for (field_name, values) in fields {
         let available_expressions: Vec<GeneratedExpression> =
-            make_single_expressions(schema, context, &field_name, values, rng)?;
+            make_single_expressions(schema, context, &field_name, &values, rng)?;
 
         let amount = rng.gen_range(1..=gen_config.complexity.max(1)).into();
         let chosen = available_expressions
@@ -95,7 +95,7 @@ fn make_single_expressions(
     schema: &models::SchemaResponse,
     context: &super::super::context::Context,
     field_name: &models::FieldName,
-    values: Vec<serde_json::Value>,
+    values: &[serde_json::Value],
     rng: &mut SmallRng,
 ) -> Result<Vec<GeneratedExpression>> {
     let field_type = &context
@@ -202,7 +202,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
     let response = connector.query(query_request.clone()).await?;
 
     if predicate.expect_nonempty {
-        super::super::validate::expect_single_non_empty_rows(response)?;
+        super::super::validate::expect_single_non_empty_rows(&response)?;
     }
 
     Ok(())
