@@ -1,20 +1,20 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "articles",
-    "arguments": {},
-    "query": {
-        "aggregates": {
-            "min_id": {
-                "type": "single_column",
-                "column": "id",
-                "function": "min"
-            },
-            "max_id": {
-                "type": "single_column",
-                "column": "id",
-                "function": "max"
-            }
-        }
-    },
-    "collection_relationships": {}
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "aggregates": {
+      "min_id": {
+        "type": "single_column",
+        "column": "id",
+        "function": "min"
+      },
+      "max_id": {
+        "type": "single_column",
+        "column": "id",
+        "function": "max"
+      }
+    }
+  },
+  "collection_relationships": {}
 }

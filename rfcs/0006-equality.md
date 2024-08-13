@@ -9,11 +9,11 @@ However, equality predicates in NDC are too loosely-specified. We currently allo
 Consider something like
 
 ```graphql
-albums(where: { artist { name: “AC/DC” } }) { 
-  title 
-  artist { 
+albums(where: { artist { name: “AC/DC” } }) {
+  title
+  artist {
     name
-  } 
+  }
 }
 ```
 
@@ -65,7 +65,7 @@ mapping:
   - name: artist
   - source: albums
   - target:
-      model: 
+      model:
         name: artists
         relationshipType: Object
 ```
@@ -89,7 +89,7 @@ The NDC schema could contain multiple equality operators per scalar type, but id
 
 ```json
 {
- "scalar_types": {
+  "scalar_types": {
     "String": {
       "aggregate_functions": {},
       "syntactic_equality": "eq",

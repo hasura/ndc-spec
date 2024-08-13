@@ -10,14 +10,15 @@ Right now, we don't have any notion of type representation for scalar types, so 
 
 - Add a `representation` field to `ScalarType`, which is optional with type `TypeRepresentation`:
 
-    ```rust
-    pub enum TypeRepresentation {
-        String,
-        Float,
-        Boolean,
-        Enum { one_of: Vec<String> },
-    }
-    ```
+  ```rust
+  pub enum TypeRepresentation {
+      String,
+      Float,
+      Boolean,
+      Enum { one_of: Vec<String> },
+  }
+  ```
+
 - In `ndc-test`:
   - We don't need to perform any particular validation for these values, except to maybe make sure that `one_of` doesn't include duplicate values.
   - We can now synthesize values of some types (boolean, enum) without examples, including function arguments.

@@ -105,7 +105,7 @@ Field arguments were added to fields in order to support use cases like computed
 
 ### Operators
 
-The equality operator is now expected on every scalar type implicitly. 
+The equality operator is now expected on every scalar type implicitly.
 
 _Note_: it was already implicitly supported by any connector advertising the `variables` capability, which imposes column equality constraints in each row set fetched in a forall query.
 

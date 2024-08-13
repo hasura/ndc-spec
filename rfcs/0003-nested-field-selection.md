@@ -10,7 +10,7 @@ Field selection is useful in a variety of contexts:
 
 This proposal is a non-breaking, minimal addition to the specification, which adds _selection_ for nested structures. Additional operations on this sort of data (filtering, sorting, aggregation, etc.) will be covered in later proposals.
 
-## Proposal 
+## Proposal
 
 We extend `Field::Column` with an optional `NestedField` property which allows for selection within nested arrays and fields of nested objects:
 
@@ -49,13 +49,13 @@ pub struct NestedArray {
 }
 ```
 
-A `NestedField` contains the field selections for the currently focused substructure. 
+A `NestedField` contains the field selections for the currently focused substructure.
 
 A `NestedObject` contains a collection of `Field`s in the same sense as a top-level `Query`, but it should be evaluated in the context of the currently focused substructure, which ought to be a value with an object type.
 
 > [!NOTE]  
 > This means that a `NestedObject` can contain relationships.
-> 
+>
 > How does a relationship get evaluated in the context of a nested object? Are column mappings evaluated in the context of the focused object, or the current top-level row? What about relationship arguments?
 
 A `NestedArray` contains another `NestedField`, which indicates the field selections for each of an array of elements in turn. The intended semantics is to _map_ the selection function denoted by the contained `NestedField` over the focused substructure, which ought to be a value with an array type. In future we may want to provide other functions on nested arrays.

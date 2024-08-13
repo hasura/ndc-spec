@@ -21,12 +21,12 @@ Queries can specify nested field selections for columns which have structured ty
 
 In order to specify nested field selections, the `fields` property of the `Field` structure, which is a [`NestedField`](../../reference/types.md#nestedfield) structure.
 
-If `fields` is omitted, the entire structure of the column's data should be returned.  
+If `fields` is omitted, the entire structure of the column's data should be returned.
 
 If `fields` is provided, its value should be compatible with the type of the column:
 
 - For an object-typed column (whether nullable or not), the `fields` property should contain a `NestedField` with type `object`. The `fields` property of the `NestedField` specifies a [`Field`](../../reference/types.md#field) structure for each requested nested field from the objects.
-- For an array-typed column  (whether nullable or not), the `fields` property should contain a `NestedField` with type `array`. The `fields` property of the `NestedField` should contain _another_ `NestedField` structure, compatible with the type of the elements of the array. The selection function denoted by this nested `NestedField` structure should be applied to each element of each array.
+- For an array-typed column (whether nullable or not), the `fields` property should contain a `NestedField` with type `array`. The `fields` property of the `NestedField` should contain _another_ `NestedField` structure, compatible with the type of the elements of the array. The selection function denoted by this nested `NestedField` structure should be applied to each element of each array.
 
 ## Examples
 

@@ -16,13 +16,13 @@ See [`QueryRequest`](../../reference/types.md#queryrequest)
 
 ## Request Fields
 
-| Name | Description |
-|------|-------------|
-| `collection` | The name of a collection to query |
-| `query` | The query syntax tree |
-| `arguments` | Values to be provided to any top-level [collection arguments](./arguments.md) |
-| `collection_relationships` | Any [relationships](./relationships.md) between collections involved in the query request |
-| `variables` | One set of [named variables](./variables.md) for each rowset to fetch. Each variable set should be subtituted in turn, and a fresh set of rows returned. |
+| Name                       | Description                                                                                                                                              |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `collection`               | The name of a collection to query                                                                                                                        |
+| `query`                    | The query syntax tree                                                                                                                                    |
+| `arguments`                | Values to be provided to any top-level [collection arguments](./arguments.md)                                                                            |
+| `collection_relationships` | Any [relationships](./relationships.md) between collections involved in the query request                                                                |
+| `variables`                | One set of [named variables](./variables.md) for each rowset to fetch. Each variable set should be subtituted in turn, and a fresh set of rows returned. |
 
 ## Response
 

@@ -45,7 +45,6 @@ The value of the nested field will be used for comparison or ordering instead of
 A connector can declare that it supports filtering and/or ordering by nested fields via two new capabilities: `query.nested_fields.filter_by` and `query.nested_fields.order_by`.
 These capabilities declare whether the connector can handle non-empty `field_path`
 
-
 ## Future extensions
 
 Although out of scope for this RFC, in the future we probably want to extend aggregates to allow aggregating on values of nested fields.

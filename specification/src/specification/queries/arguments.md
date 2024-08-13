@@ -1,6 +1,6 @@
 # Arguments
 
-_Collection arguments_ parameterize an entire collection, and must be provided in queries wherever the collection is referenced, either directly, or via relationships. 
+_Collection arguments_ parameterize an entire collection, and must be provided in queries wherever the collection is referenced, either directly, or via relationships.
 
 _Field_ arguments parameterize a single field, and must be provided wherever that field is referenced.
 
