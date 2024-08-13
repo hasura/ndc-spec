@@ -449,7 +449,7 @@ fn check_nested_object(
             let object_type = super::common::get_object_type(schema, input_type)
                 .ok_or_else(|| Error::ExpectedObjectType(json_path.to_vec()))?;
 
-            let mut row_copy = object.clone();
+            let mut row_copy = object;
 
             for (field_name, field) in fields {
                 if let Some(row_field_value) = row_copy.swap_remove(field_name.as_str()) {
