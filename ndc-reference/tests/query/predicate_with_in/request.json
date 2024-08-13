@@ -1,31 +1,31 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "articles",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "id": {
-                "type": "column",
-                "column": "id"
-            },
-            "title": {
-                "type": "column",
-                "column": "title"
-            }
-        },
-        "predicate": {
-            "type": "binary_comparison_operator",
-            "column": {
-                "type": "column",
-                "name": "author_id",
-                "path": []
-            },
-            "operator": "in",
-            "value": {
-                "type": "scalar",
-                "value": [1, 2]
-            }
-        }
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "title": {
+        "type": "column",
+        "column": "title"
+      }
     },
-    "collection_relationships": {}
+    "predicate": {
+      "type": "binary_comparison_operator",
+      "column": {
+        "type": "column",
+        "name": "author_id",
+        "path": []
+      },
+      "operator": "in",
+      "value": {
+        "type": "scalar",
+        "value": [1, 2]
+      }
+    }
+  },
+  "collection_relationships": {}
 }

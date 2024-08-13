@@ -22,19 +22,19 @@ The only supported unary operator currently is `is_null`, which return `true` wh
 
 ```json
 {
-    "type": "unary_comparison_operator",
-    "operator": "is_null",
-    "column": {
-        "name": "title"
-    }
+  "type": "unary_comparison_operator",
+  "operator": "is_null",
+  "column": {
+    "name": "title"
+  }
 }
 ```
 
 ### Binary Operators
 
-Binary comparison operators are denoted by expressions with a `type` field of `binary_comparison_operator`. 
+Binary comparison operators are denoted by expressions with a `type` field of `binary_comparison_operator`.
 
-The set of available operators depends on the type of the column involved in the expression. The `operator` property should specify the name of one of the binary operators from the field's [scalar type](../schema/scalar-types.md) definition. 
+The set of available operators depends on the type of the column involved in the expression. The `operator` property should specify the name of one of the binary operators from the field's [scalar type](../schema/scalar-types.md) definition.
 
 The type [`ComparisonValue`](../../reference/types.md#comparisonvalue) describes the valid inhabitants of the `value` field. The `value` field should be an expression which evaluates to a value whose type is compatible with the definition of the comparison operator.
 
@@ -103,7 +103,7 @@ Binary (including array-valued) operators compare columns to _values_, but there
 
 An `EXISTS` expression tests whether a row exists in some possibly-related collection, and is denoted by an expression with a `type` field of `exists`.
 
-`EXISTS` expressions can query related or unrelated collections. 
+`EXISTS` expressions can query related or unrelated collections.
 
 ### Related Collections
 
@@ -131,23 +131,23 @@ For example, to test if the `first_name` column is null _and_ the `last_name` co
 
 ```json
 {
-    "type": "and",
-    "expressions": [
-        {
-            "type": "unary_comparison_operator",
-            "operator": "is_null",
-            "column": {
-                "name": "first_name"
-            }
-        },
-        {
-            "type": "unary_comparison_operator",
-            "operator": "is_null",
-            "column": {
-                "name": "last_name"
-            }
-        }
-    ]
+  "type": "and",
+  "expressions": [
+    {
+      "type": "unary_comparison_operator",
+      "operator": "is_null",
+      "column": {
+        "name": "first_name"
+      }
+    },
+    {
+      "type": "unary_comparison_operator",
+      "operator": "is_null",
+      "column": {
+        "name": "last_name"
+      }
+    }
+  ]
 }
 ```
 
@@ -159,23 +159,23 @@ For example, to test if the `first_name` column is null _or_ the `last_name` col
 
 ```json
 {
-    "type": "or",
-    "expressions": [
-        {
-            "type": "unary_comparison_operator",
-            "operator": "is_null",
-            "column": {
-                "name": "first_name"
-            }
-        },
-        {
-            "type": "unary_comparison_operator",
-            "operator": "is_null",
-            "column": {
-                "name": "last_name"
-            }
-        }
-    ]
+  "type": "or",
+  "expressions": [
+    {
+      "type": "unary_comparison_operator",
+      "operator": "is_null",
+      "column": {
+        "name": "first_name"
+      }
+    },
+    {
+      "type": "unary_comparison_operator",
+      "operator": "is_null",
+      "column": {
+        "name": "last_name"
+      }
+    }
+  ]
 }
 ```
 
@@ -187,14 +187,14 @@ For example, to test if the `first_name` column is _not_ null:
 
 ```json
 {
-    "type": "not",
-    "expression": {
-        "type": "unary_comparison_operator",
-        "operator": "is_null",
-        "column": {
-            "name": "first_name"
-        }
+  "type": "not",
+  "expression": {
+    "type": "unary_comparison_operator",
+    "operator": "is_null",
+    "column": {
+      "name": "first_name"
     }
+  }
 }
 ```
 

@@ -1,43 +1,43 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "authors",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "first_name": {
-                "type": "column",
-                "column": "first_name"
-            },
-            "last_name": {
-                "type": "column",
-                "column": "last_name"
-            },
-            "articles_aggregate": {
-                "type": "relationship",
-                "arguments": {
-                    "author_id": {
-                        "type": "column",
-                        "name": "id"
-                    }
-                },
-                "relationship": "author_articles",
-                "query": {
-                    "aggregates": {
-                        "count": {
-                            "type": "star_count"
-                        }
-                    }
-                }
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "authors",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "first_name": {
+        "type": "column",
+        "column": "first_name"
+      },
+      "last_name": {
+        "type": "column",
+        "column": "last_name"
+      },
+      "articles_aggregate": {
+        "type": "relationship",
+        "arguments": {
+          "author_id": {
+            "type": "column",
+            "name": "id"
+          }
+        },
+        "relationship": "author_articles",
+        "query": {
+          "aggregates": {
+            "count": {
+              "type": "star_count"
             }
+          }
         }
-    },
-    "collection_relationships": {
-        "author_articles": {
-            "arguments": {},
-            "column_mapping": {},
-            "relationship_type": "array",
-            "source_collection_or_type": "author",
-            "target_collection": "articles_by_author"
-        }
+      }
     }
+  },
+  "collection_relationships": {
+    "author_articles": {
+      "arguments": {},
+      "column_mapping": {},
+      "relationship_type": "array",
+      "source_collection_or_type": "author",
+      "target_collection": "articles_by_author"
+    }
+  }
 }

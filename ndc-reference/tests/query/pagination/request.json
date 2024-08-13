@@ -1,19 +1,19 @@
 {
-    "collection": "articles",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "id": {
-                "type": "column",
-                "column": "id"
-            },
-            "title": {
-                "type": "column",
-                "column": "title"
-            }
-        },
-        "limit": 2,
-        "offset": 1
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "title": {
+        "type": "column",
+        "column": "title"
+      }
     },
-    "collection_relationships": {}
+    "limit": 2,
+    "offset": 1
+  },
+  "collection_relationships": {}
 }

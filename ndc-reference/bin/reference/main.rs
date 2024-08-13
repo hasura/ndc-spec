@@ -503,7 +503,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
-                    arguments: array_arguments.clone(),
+                    arguments: array_arguments,
                 },
             ),
         ]),
@@ -990,7 +990,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<se
         } => {
             let values = paginated
                 .iter()
-                .map(|row| eval_column_field_path(row, column, field_path))
+                .map(|row| eval_column_field_path(row, column, field_path.as_deref()))
                 .collect::<Result<Vec<_>>>()?;
 
             let non_null_values = values.iter().filter(|value| !value.is_null());
@@ -1030,9 +1030,9 @@ fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<se
         } => {
             let values = paginated
                 .iter()
-                .map(|row| eval_column_field_path(row, column, field_path))
+                .map(|row| eval_column_field_path(row, column, field_path.as_deref()))
                 .collect::<Result<Vec<_>>>()?;
-            eval_aggregate_function(function, values)
+            eval_aggregate_function(function, &values)
         }
     }
 }
@@ -1040,7 +1040,7 @@ fn eval_aggregate(aggregate: &models::Aggregate, paginated: &[Row]) -> Result<se
 // ANCHOR: eval_aggregate_function
 fn eval_aggregate_function(
     function: &models::AggregateFunctionName,
-    values: Vec<serde_json::Value>,
+    values: &[serde_json::Value],
 ) -> Result<serde_json::Value> {
     let int_values = values
         .iter()
@@ -1203,9 +1203,9 @@ fn eval_order_by_element(
             variables,
             state,
             item,
-            path,
-            name,
-            field_path,
+            &path,
+            &name,
+            field_path.as_deref(),
         ),
         models::OrderByTarget::SingleColumnAggregate {
             column,
@@ -1217,17 +1217,17 @@ fn eval_order_by_element(
             variables,
             state,
             item,
-            path,
-            column,
-            field_path,
-            function,
+            &path,
+            &column,
+            field_path.as_deref(),
+            &function,
         ),
         models::OrderByTarget::StarCountAggregate { path } => eval_order_by_star_count_aggregate(
             collection_relationships,
             variables,
             state,
             item,
-            path,
+            &path,
         ),
     }
 }
@@ -1238,9 +1238,9 @@ fn eval_order_by_star_count_aggregate(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     item: &Row,
-    path: Vec<models::PathElement>,
+    path: &[models::PathElement],
 ) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
+    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, path, item)?;
     Ok(rows.len().into())
 }
 // ANCHOR_END: eval_order_by_star_count_aggregate
@@ -1251,17 +1251,17 @@ fn eval_order_by_single_column_aggregate(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     item: &Row,
-    path: Vec<models::PathElement>,
-    column_name: models::FieldName,
-    field_path: Option<Vec<models::FieldName>>,
-    function: AggregateFunctionName,
+    path: &[models::PathElement],
+    column_name: &models::FieldName,
+    field_path: Option<&[models::FieldName]>,
+    function: &AggregateFunctionName,
 ) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
+    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, path, item)?;
     let values = rows
         .iter()
-        .map(|row| eval_column_field_path(row, &column_name, &field_path))
+        .map(|row| eval_column_field_path(row, column_name, field_path))
         .collect::<Result<Vec<_>>>()?;
-    eval_aggregate_function(&function, values)
+    eval_aggregate_function(function, &values)
 }
 // ANCHOR_END: eval_order_by_single_column_aggregate
 
@@ -1269,7 +1269,7 @@ fn eval_order_by_single_column_aggregate(
 fn eval_column_field_path(
     row: &Row,
     column_name: &models::FieldName,
-    field_path: &Option<Vec<models::FieldName>>,
+    field_path: Option<&[models::FieldName]>,
 ) -> Result<serde_json::Value> {
     let column_value = eval_column(&BTreeMap::default(), row, column_name, &BTreeMap::default())?;
     match field_path {
@@ -1297,11 +1297,11 @@ fn eval_order_by_column(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     item: &Row,
-    path: Vec<models::PathElement>,
-    name: models::FieldName,
-    field_path: Option<Vec<models::FieldName>>,
+    path: &[models::PathElement],
+    name: &models::FieldName,
+    field_path: Option<&[models::FieldName]>,
 ) -> Result<serde_json::Value> {
-    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, &path, item)?;
+    let rows: Vec<Row> = eval_path(collection_relationships, variables, state, path, item)?;
     if rows.len() > 1 {
         return Err((
             StatusCode::BAD_REQUEST,
@@ -1312,7 +1312,7 @@ fn eval_order_by_column(
         ));
     }
     match rows.first() {
-        Some(row) => eval_column_field_path(row, &name, &field_path),
+        Some(row) => eval_column_field_path(row, name, field_path),
         None => Ok(serde_json::Value::Null),
     }
 }
@@ -1787,13 +1787,13 @@ fn eval_comparison_target(
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in &rows {
-                let value = eval_column_field_path(row, name, field_path)?;
+                let value = eval_column_field_path(row, name, field_path.as_deref())?;
                 values.push(value);
             }
             Ok(values)
         }
         models::ComparisonTarget::RootCollectionColumn { name, field_path } => {
-            let value = eval_column_field_path(root, name, field_path)?;
+            let value = eval_column_field_path(root, name, field_path.as_deref())?;
             Ok(vec![value])
         }
     }
@@ -1929,13 +1929,7 @@ fn eval_nested_field(
             let result_array = array
                 .into_iter()
                 .map(|value| {
-                    eval_nested_field(
-                        collection_relationships,
-                        variables,
-                        state,
-                        value.clone(),
-                        fields,
-                    )
+                    eval_nested_field(collection_relationships, variables, state, value, fields)
                 })
                 .collect::<Result<Vec<_>>>()?;
             Ok(models::RowFieldValue(
@@ -2338,7 +2332,7 @@ mod tests {
 
             let response_json = serde_json::to_string_pretty(&response.0).unwrap();
 
-            write!(expected, "{response_json}").unwrap();
+            writeln!(expected, "{response_json}").unwrap();
 
             // Test roundtrip
             assert_eq!(
@@ -2361,7 +2355,7 @@ mod tests {
 
             let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
-            write!(
+            writeln!(
                 expected,
                 "{}",
                 serde_json::to_string_pretty(&response.0).unwrap()
@@ -2400,7 +2394,7 @@ mod tests {
 
                 let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
-                write!(
+                writeln!(
                     expected,
                     "{}",
                     serde_json::to_string_pretty(&response.0).unwrap()
@@ -2440,7 +2434,7 @@ mod tests {
 
                 let mut expected = mint.new_goldenfile(expected_path).unwrap();
 
-                write!(
+                writeln!(
                     expected,
                     "{}",
                     serde_json::to_string_pretty(&response.0).unwrap()
