@@ -91,7 +91,7 @@ impl Metrics {
 // ANCHOR: metrics_middleware
 async fn metrics_middleware(
     state: State<Arc<Mutex<AppState>>>,
-    request: axum::http::Request<axum::body::Body>,
+    request: axum::extract::Request,
     next: axum::middleware::Next,
 ) -> axum::response::Response {
     // Don't hold the lock to update metrics, since the
