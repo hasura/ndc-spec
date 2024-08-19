@@ -267,7 +267,7 @@
         ));
     }
     match rows.first() {
-        Some(row) =&gt; eval_column_field_path(row, &amp;name, &amp;field_path),
+        Some(row) =&gt; eval_column_field_path(row, &amp;name, &amp;field_path, &amp;BTreeMap::new()),
         None =&gt; Ok(serde_json::Value::Null),
     }
 }</code></pre>

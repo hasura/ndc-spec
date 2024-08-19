@@ -206,7 +206,7 @@
         } =&gt; {
             let values = paginated
                 .iter()
-                .map(|row| eval_column_field_path(row, column, field_path))
+                .map(|row| eval_column_field_path(row, column, field_path, &amp;BTreeMap::new()))
                 .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
 
             let non_null_values = values.iter().filter(|value| !value.is_null());
@@ -246,7 +246,7 @@
         } =&gt; {
             let values = paginated
                 .iter()
-                .map(|row| eval_column_field_path(row, column, field_path))
+                .map(|row| eval_column_field_path(row, column, field_path, &amp;BTreeMap::new()))
                 .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
             eval_aggregate_function(function, values)
         }

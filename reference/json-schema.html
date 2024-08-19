@@ -264,6 +264,15 @@
               "$ref": "#/definitions/NestedFieldCapabilities"
             }
           ]
+        },
+        "exists": {
+          "description": "Does the connector support EXISTS predicates",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/ExistsCapabilities"
+            }
+          ]
         }
       }
     },
@@ -299,6 +308,23 @@
         },
         "aggregates": {
           "description": "Does the connector support aggregating values within nested fields",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ExistsCapabilities": {
+      "title": "Exists Capabilities",
+      "type": "object",
+      "properties": {
+        "nested_collections": {
+          "description": "Does the connector support ExistsInCollection::NestedCollection",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -1352,6 +1378,37 @@
               }
             }
           }
+        },
+        {
+          "type": "object",
+          "required": [
+            "column_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nested_collection"
+              ]
+            },
+            "column_name": {
+              "type": "string"
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested collection via object columns",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
@@ -2367,6 +2424,37 @@
               "type": "object",
               "additionalProperties": {
                 "$ref": "#/definitions/RelationshipArgument"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "column_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nested_collection"
+              ]
+            },
+            "column_name": {
+              "type": "string"
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested collection via object columns",
+              "type": "array",
+              "items": {
+                "type": "string"
               }
             }
           }
@@ -3389,6 +3477,37 @@
               }
             }
           }
+        },
+        {
+          "type": "object",
+          "required": [
+            "column_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nested_collection"
+              ]
+            },
+            "column_name": {
+              "type": "string"
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested collection via object columns",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
@@ -3889,7 +4008,7 @@
               ]
             },
             "name": {
-              "description": "The name can refer to a primitive type or a scalar type",
+              "description": "The name can refer to a scalar or object type",
               "type": "string"
             }
           }

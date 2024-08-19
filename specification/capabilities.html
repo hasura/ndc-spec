@@ -182,7 +182,7 @@
 <p>See <a href="../reference/types.html#capabilitiesresponse"><code>CapabilitiesResponse</code></a></p>
 <h3 id="example"><a class="header" href="#example">Example</a></h3>
 <pre><code class="language-json">{
-  "version": "0.1.5",
+  "version": "0.1.6",
   "capabilities": {
     "query": {
       "aggregates": {},
@@ -191,6 +191,9 @@
         "filter_by": {},
         "order_by": {},
         "aggregates": {}
+      },
+      "exists": {
+        "nested_collections": {}
       }
     },
     "mutation": {},
@@ -205,6 +208,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>version</code></td><td>A <a href="https://semver.org">semantic version number</a> of this specification which the data connector claims to implement</td></tr>
 <tr><td><code>capabilities.query.aggregates</code></td><td>Whether the data connector supports <a href="queries/aggregates.html">aggregate queries</a></td></tr>
+<tr><td><code>capabilities.query.exists.nested_collections</code></td><td>Whether the data connector supports <a href="queries/filtering.html#exists-expressions">exists expressions</a> against nested collections</td></tr>
 <tr><td><code>capabilities.query.variables</code></td><td>Whether the data connector supports <a href="queries/variables.html">queries with variables</a></td></tr>
 <tr><td><code>capabilities.query.explain</code></td><td>Whether the data connector is capable of describing query plans</td></tr>
 <tr><td><code>capabilities.query.nested_fields.filter_by</code></td><td>Whether the data connector is capable of filtering by nested fields</td></tr>

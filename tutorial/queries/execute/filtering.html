@@ -280,13 +280,13 @@
             let rows = eval_path(collection_relationships, variables, state, path, item)?;
             let mut values = vec![];
             for row in &amp;rows {
-                let value = eval_column_field_path(row, name, field_path)?;
+                let value = eval_column_field_path(row, name, field_path, &amp;BTreeMap::new())?;
                 values.push(value);
             }
             Ok(values)
         }
         models::ComparisonTarget::RootCollectionColumn { name, field_path } =&gt; {
-            let value = eval_column_field_path(root, name, field_path)?;
+            let value = eval_column_field_path(root, name, field_path, &amp;BTreeMap::new())?;
             Ok(vec![value])
         }
     }

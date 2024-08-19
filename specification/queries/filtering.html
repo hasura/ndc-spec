@@ -480,6 +480,64 @@ If <code>field_path</code> is non-empty then it refers to a path to a nested fie
     }
 }
 </code></pre>
+<h3 id="nested-collections"><a class="header" href="#nested-collections">Nested Collections</a></h3>
+<p>If the <code>query.exists.nested_collections</code> capability is enabled, then exists expressions can reference nested collections.</p>
+<p>For example, this query finds <code>institutions</code> which employ at least one staff member whose last name contains the letter <code>s</code>:</p>
+<pre><code class="language-json">{
+    "collection": "institutions",
+    "arguments": {},
+    "query": {
+        "fields": {
+            "id": {
+                "type": "column",
+                "column": "id"
+            },
+            "name": {
+                "type": "column",
+                "column": "name"
+            },
+            "staff": {
+                "type": "column",
+                "column": "staff",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                }
+            }
+        },
+        "predicate": {
+            "type": "exists",
+            "in_collection": {
+                "type": "nested_collection",
+                "arguments": {
+                    "limit": {
+                        "type": "literal",
+                        "value": null
+                    }
+                },
+                "column_name": "staff"
+            },
+            "predicate": {
+                "type": "binary_comparison_operator",
+                "column": {
+                    "type": "column",
+                    "name": "last_name",
+                    "path": []
+                },
+                "operator": "like",
+                "value": {
+                    "type": "scalar",
+                    "value": "s"
+                }
+            }
+        }
+    },
+    "collection_relationships": {
+    }
+}
+</code></pre>
 <h2 id="conjunction-of-expressions"><a class="header" href="#conjunction-of-expressions">Conjunction of expressions</a></h2>
 <p>To express the conjunction of multiple expressions, specify a <code>type</code> field of <code>and</code>, and provide the expressions in the <code>expressions</code> field.</p>
 <p>For example, to test if the <code>first_name</code> column is null <em>and</em> the <code>last_name</code> column is also null:</p>
