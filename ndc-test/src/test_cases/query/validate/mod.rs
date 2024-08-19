@@ -1,12 +1,11 @@
+use std::collections::BTreeMap;
+
 use async_trait::async_trait;
 use indexmap::IndexMap;
 use ndc_models as models;
-use std::collections::BTreeMap;
 
-use crate::{
-    connector::Connector,
-    error::{Error, Result},
-};
+use crate::connector::Connector;
+use crate::error::{Error, OtherError, Result};
 
 pub fn expect_single_non_empty_rows(
     response: models::QueryResponse,
@@ -178,7 +177,7 @@ pub fn validate_rows(
         let rows_returned: u32 = rows
             .len()
             .try_into()
-            .map_err(|e| Error::OtherError(Box::new(e)))?;
+            .map_err(|e| Error::OtherError(OtherError::from(e)))?;
         if rows_returned > limit {
             return Err(Error::TooManyRowsInResponse(limit, rows_returned));
         }
