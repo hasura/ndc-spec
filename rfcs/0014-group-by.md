@@ -41,7 +41,7 @@ pub struct Grouping {
 }
 ```
 
-A `Grouping` slices a row set along several (ordered) dimensions, and then performs some aggregations over each slice. 
+A `Grouping` slices a row set along several (ordered) dimensions, and then performs some aggregations over each slice.
 
 Groups can be filtered, ordered and paginated _after grouping_. The `GroupExpression` and `GroupOrderBy` types are slightly different from their row-based counterparts `Expression` and `OrderBy`, since the set of names in scope is different after grouping. See the updated specification for details.
 

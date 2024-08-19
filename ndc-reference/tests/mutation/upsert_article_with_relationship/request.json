@@ -1,54 +1,54 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/mutation_request.jsonschema",
-    "insert_schema": [],
-    "operations": [
-        {
-            "type": "procedure",
-            "name": "upsert_article",
-            "arguments": {
-                "article": {
-                    "id": 2,
-                    "title": "QuickCheck: a lightweight tool for random testing of Haskell programs",
-                    "author_id": 2
-                }
-            },
-            "fields": {
-                "type": "object",
-                "fields": {
-                    "id": {
-                        "type": "column",
-                        "column": "id"
-                    },
-                    "author": {
-                        "type": "relationship",
-                        "arguments": {},
-                        "relationship": "article_author",
-                        "query": {
-                            "fields": {
-                                "first_name": {
-                                    "type": "column",
-                                    "column": "first_name"
-                                },
-                                "last_name": {
-                                    "type": "column",
-                                    "column": "last_name"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+  "$schema": "../../../../ndc-models/tests/json_schema/mutation_request.jsonschema",
+  "insert_schema": [],
+  "operations": [
+    {
+      "type": "procedure",
+      "name": "upsert_article",
+      "arguments": {
+        "article": {
+          "id": 2,
+          "title": "QuickCheck: a lightweight tool for random testing of Haskell programs",
+          "author_id": 2
         }
-    ],
-    "collection_relationships": {
-        "article_author": {
+      },
+      "fields": {
+        "type": "object",
+        "fields": {
+          "id": {
+            "type": "column",
+            "column": "id"
+          },
+          "author": {
+            "type": "relationship",
             "arguments": {},
-            "column_mapping": {
-                "author_id": "id"
-            },
-            "relationship_type": "object",
-            "source_collection_or_type": "article",
-            "target_collection": "authors"
+            "relationship": "article_author",
+            "query": {
+              "fields": {
+                "first_name": {
+                  "type": "column",
+                  "column": "first_name"
+                },
+                "last_name": {
+                  "type": "column",
+                  "column": "last_name"
+                }
+              }
+            }
+          }
         }
+      }
     }
+  ],
+  "collection_relationships": {
+    "article_author": {
+      "arguments": {},
+      "column_mapping": {
+        "author_id": "id"
+      },
+      "relationship_type": "object",
+      "source_collection_or_type": "article",
+      "target_collection": "authors"
+    }
+  }
 }

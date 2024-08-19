@@ -16,9 +16,9 @@ See [`MutationRequest`](../../reference/types.md#mutationrequest)
 
 ## Request Fields
 
-| Name | Description |
-|------|-------------|
-| `operations` | A list of mutation operations to perform |
+| Name                       | Description                                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `operations`               | A list of mutation operations to perform                                                              |
 | `collection_relationships` | Any [relationships](../queries/relationships.md) between collections involved in the mutation request |
 
 ## Mutation Operations

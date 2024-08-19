@@ -1,20 +1,20 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "articles",
-    "arguments": {},
-    "query": {
-        "aggregates": {
-            "distinct_author_count": {
-                "type": "column_count",
-                "column": "author_id",
-                "distinct": true
-            },
-            "author_count": {
-                "type": "column_count",
-                "column": "author_id",
-                "distinct": false
-            }
-        }
-    },
-    "collection_relationships": {}
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "aggregates": {
+      "distinct_author_count": {
+        "type": "column_count",
+        "column": "author_id",
+        "distinct": true
+      },
+      "author_count": {
+        "type": "column_count",
+        "column": "author_id",
+        "distinct": false
+      }
+    }
+  },
+  "collection_relationships": {}
 }

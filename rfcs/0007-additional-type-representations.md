@@ -14,23 +14,23 @@ The current list of scalar type representations is inadequate:
 
 Add the following type representations to `ndc_models::TypeRepresentation`:
 
-|Name|Description|JSON representation|
-|-|-|-|
-| Int8 | A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1 | Number |
-| Int16 | A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1 | Number |
-| Int32 | A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1 | Number |
-| Int64 | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1 | String |
-| Float32 | An IEEE-754 single-precision floating-point number | Number |
-| Float64 | An IEEE-754 double-precision floating-point number | Number |
-| Decimal | Arbitrary-precision decimal string | String |
-| UUID | UUID string (8-4-4-4-12) | String |
-| Date | ISO 8601 date | String |
-| Timestamp | ISO 8601 timestamp | String |
-| TimestampTZ | ISO 8601 timestamp-with-timezone | String |
-| Geography | GeoJSON | JSON |
-| Geometry | GeoJSON geometry object | JSON |
-| Bytes | Base64-encoded bytes | String |
-| JSON | Arbitrary JSON | JSON |
+| Name        | Description                                                                           | JSON representation |
+| ----------- | ------------------------------------------------------------------------------------- | ------------------- |
+| Int8        | A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1    | Number              |
+| Int16       | A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1 | Number              |
+| Int32       | A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1 | Number              |
+| Int64       | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1 | String              |
+| Float32     | An IEEE-754 single-precision floating-point number                                    | Number              |
+| Float64     | An IEEE-754 double-precision floating-point number                                    | Number              |
+| Decimal     | Arbitrary-precision decimal string                                                    | String              |
+| UUID        | UUID string (8-4-4-4-12)                                                              | String              |
+| Date        | ISO 8601 date                                                                         | String              |
+| Timestamp   | ISO 8601 timestamp                                                                    | String              |
+| TimestampTZ | ISO 8601 timestamp-with-timezone                                                      | String              |
+| Geography   | GeoJSON                                                                               | JSON                |
+| Geometry    | GeoJSON geometry object                                                               | JSON                |
+| Bytes       | Base64-encoded bytes                                                                  | String              |
+| JSON        | Arbitrary JSON                                                                        | JSON                |
 
 ### Deprecate Int and Number representations
 

@@ -1,56 +1,56 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "institutions",
-    "arguments": {},
-    "query": {
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "institutions",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "staff": {
+        "type": "column",
+        "column": "staff",
+        "arguments": {
+          "limit": {
+            "type": "literal",
+            "value": null
+          }
+        },
         "fields": {
-            "id": {
+          "type": "array",
+          "fields": {
+            "type": "object",
+            "fields": {
+              "last_name": {
                 "type": "column",
-                "column": "id"
-            },
-            "staff": {
+                "column": "last_name"
+              },
+              "fields_of_study": {
                 "type": "column",
-                "column": "staff",
+                "column": "specialities",
                 "arguments": {
-                    "limit": {
-                        "type": "literal",
-                        "value": null
-                    }
-                },
-                "fields": {
-                    "type": "array",
-                    "fields": {
-                        "type": "object",
-                        "fields": {
-                            "last_name": {
-                                "type": "column",
-                                "column": "last_name"
-                            },
-                            "fields_of_study": {
-                                "type": "column",
-                                "column": "specialities",
-                                "arguments": {
-                                    "limit": {
-                                        "type": "literal",
-                                        "value": null
-                                    }
-                                }
-                            }
-                        }
-                    }
+                  "limit": {
+                    "type": "literal",
+                    "value": null
+                  }
                 }
-            },
-            "departments": {
-                "type": "column",
-                "column": "departments",
-                "arguments": {
-                    "limit": {
-                        "type": "literal",
-                        "value": null
-                    }
-                }
+              }
             }
+          }
         }
-    },
-    "collection_relationships": {}
+      },
+      "departments": {
+        "type": "column",
+        "column": "departments",
+        "arguments": {
+          "limit": {
+            "type": "literal",
+            "value": null
+          }
+        }
+      }
+    }
+  },
+  "collection_relationships": {}
 }

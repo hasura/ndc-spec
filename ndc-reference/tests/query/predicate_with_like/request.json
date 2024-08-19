@@ -1,30 +1,30 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "articles",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "id": {
-                "type": "column",
-                "column": "id"
-            },
-            "title": {
-                "type": "column",
-                "column": "title"
-            }
-        },
-        "predicate": {
-            "type": "binary_comparison_operator",
-            "column": {
-                "type": "column",
-                "name": "title"
-            },
-            "operator": "like",
-            "value": {
-                "type": "scalar",
-                "value": "Functional"
-            }
-        }
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "title": {
+        "type": "column",
+        "column": "title"
+      }
     },
-    "collection_relationships": {}
+    "predicate": {
+      "type": "binary_comparison_operator",
+      "column": {
+        "type": "column",
+        "name": "title"
+      },
+      "operator": "like",
+      "value": {
+        "type": "scalar",
+        "value": "Functional"
+      }
+    }
+  },
+  "collection_relationships": {}
 }

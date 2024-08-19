@@ -1,6 +1,6 @@
 # Variables
 
-A [`QueryRequest`](../../reference/types.md#queryrequest) can optionally specify one or more sets of variables which can be referenced throughout the [`Query`](../../reference/types.md#query) object. 
+A [`QueryRequest`](../../reference/types.md#queryrequest) can optionally specify one or more sets of variables which can be referenced throughout the [`Query`](../../reference/types.md#query) object.
 
 Query variables will only be provided if the `query.variables` [capability](../capabilities.md) is advertised in the capabilities response.
 

@@ -1,54 +1,53 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "institutions",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "id": {
-                "type": "column",
-                "column": "id"
-            },
-            "name": {
-                "type": "column",
-                "column": "name"
-            },
-            "staff": {
-                "type": "column",
-                "column": "staff",
-                "arguments": {
-                    "limit": {
-                        "type": "literal",
-                        "value": null
-                    }
-                }
-            }
-        },
-        "predicate": {
-            "type": "exists",
-            "in_collection": {
-                "type": "nested_collection",
-                "arguments": {
-                    "limit": {
-                        "type": "literal",
-                        "value": null
-                    }
-                },
-                "column_name": "staff"
-            },
-            "predicate": {
-                "type": "binary_comparison_operator",
-                "column": {
-                    "type": "column",
-                    "name": "last_name"
-                },
-                "operator": "like",
-                "value": {
-                    "type": "scalar",
-                    "value": "s"
-                }
-            }
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "institutions",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "name": {
+        "type": "column",
+        "column": "name"
+      },
+      "staff": {
+        "type": "column",
+        "column": "staff",
+        "arguments": {
+          "limit": {
+            "type": "literal",
+            "value": null
+          }
         }
+      }
     },
-    "collection_relationships": {
+    "predicate": {
+      "type": "exists",
+      "in_collection": {
+        "type": "nested_collection",
+        "arguments": {
+          "limit": {
+            "type": "literal",
+            "value": null
+          }
+        },
+        "column_name": "staff"
+      },
+      "predicate": {
+        "type": "binary_comparison_operator",
+        "column": {
+          "type": "column",
+          "name": "last_name"
+        },
+        "operator": "like",
+        "value": {
+          "type": "scalar",
+          "value": "s"
+        }
+      }
     }
+  },
+  "collection_relationships": {}
 }

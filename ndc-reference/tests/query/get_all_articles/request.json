@@ -1,17 +1,17 @@
 {
-    "collection": "articles",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "id": {
-                "type": "column",
-                "column": "id"
-            },
-            "title": {
-                "type": "column",
-                "column": "title"
-            }
-        }
-    },
-    "collection_relationships": {}
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "title": {
+        "type": "column",
+        "column": "title"
+      }
+    }
+  },
+  "collection_relationships": {}
 }

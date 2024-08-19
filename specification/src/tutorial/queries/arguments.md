@@ -1,6 +1,6 @@
 # Evaluating Arguments
 
-Now that we have reduced the problem to a single set of query variables, we must evaluate any [collection arguments](../../specification/queries/arguments.md), and in turn, evaluate the _collection_ of rows that we will be working with. 
+Now that we have reduced the problem to a single set of query variables, we must evaluate any [collection arguments](../../specification/queries/arguments.md), and in turn, evaluate the _collection_ of rows that we will be working with.
 
 From there, we will be able to apply predicates, sort and paginate rows. But one step at a time!
 
