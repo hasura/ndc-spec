@@ -1,15 +1,25 @@
 {
-  "version": "0.1.6",
+  "version": "0.2.0",
   "capabilities": {
     "query": {
-      "aggregates": {},
+      "aggregates": {
+        "filter_by": {},
+        "group_by": {
+          "filter": {},
+          "order": {},
+          "paginate": {}
+        }
+      },
       "variables": {},
       "nested_fields": {
         "filter_by": {},
         "order_by": {},
-        "aggregates": {}
+        "aggregates": {},
+        "nested_collections": {}
       },
       "exists": {
+        "named_scopes": {},
+        "unrelated": {},
         "nested_collections": {}
       }
     },

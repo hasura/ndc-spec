@@ -1,4 +1,5 @@
 mod aggregates;
+mod grouping;
 mod relationships;
 mod simple_queries;
 
@@ -51,7 +52,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                         });
                     }
 
-                    if capabilities.capabilities.query.aggregates.is_some() {
+                    if let Some(aggregates) = &capabilities.capabilities.query.aggregates {
                         nest!("Aggregate queries", reporter, {
                             aggregates::test_aggregate_queries(
                                 gen_config,
@@ -62,6 +63,19 @@ pub async fn test_query<C: Connector, R: Reporter>(
                                 rng,
                             )
                         });
+
+                        if aggregates.group_by.is_some() {
+                            nest!("Grouping queries", reporter, {
+                                grouping::test_grouping(
+                                    gen_config,
+                                    connector,
+                                    reporter,
+                                    schema,
+                                    collection_info,
+                                    rng,
+                                )
+                            });
+                        }
                     }
                 } else {
                     eprintln!("Skipping parameterized collection {}", collection_info.name);

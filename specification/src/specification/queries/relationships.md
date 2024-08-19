@@ -30,13 +30,6 @@ Relationships are not used only for fetching data - they are used in practically
 
 ### Relationships in predicates
 
-Filters can reference columns across relationships. For example, here we fetch all authors who have written articles with the word `"Functional"` in the title:
-
-```json
-{{#include ../../../../ndc-reference/tests/query/predicate_with_array_relationship/request.json:1 }}
-{{#include ../../../../ndc-reference/tests/query/predicate_with_array_relationship/request.json:3: }}
-```
-
 `EXISTS` expressions in predicates can query related collections. Here we find all authors who have written any article with `"Functional"` in the title:
 
 ```json

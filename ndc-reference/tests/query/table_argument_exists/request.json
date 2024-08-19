@@ -13,20 +13,14 @@
             "type": "exists",
             "in_collection": {
                 "type": "related",
-                "arguments": {
-                    "author_id": {
-                        "type": "column",
-                        "name": "id"
-                    }
-                },
-                "relationship": "author_articles"
+                "relationship": "author_articles",
+                "arguments": {}
             },
             "predicate": {
                 "type": "binary_comparison_operator",
                 "column": {
                     "type": "column",
-                    "name": "title",
-                    "path": []
+                    "name": "title"
                 },
                 "operator": "like",
                 "value": {
@@ -38,10 +32,14 @@
     },
     "collection_relationships": {
         "author_articles": {
-            "arguments": {},
+            "arguments": {
+                "author_id": {
+                    "type": "column",
+                    "name": "id"
+                }
+            },
             "column_mapping": {},
             "relationship_type": "array",
-            "source_collection_or_type": "author",
             "target_collection": "articles_by_author"
         }
     }

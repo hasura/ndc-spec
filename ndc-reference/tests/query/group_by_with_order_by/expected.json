@@ -1,0 +1,14 @@
+[
+  {
+    "groups": [
+      {
+        "dimensions": [
+          2
+        ],
+        "aggregates": {
+          "article_count": 2
+        }
+      }
+    ]
+  }
+]

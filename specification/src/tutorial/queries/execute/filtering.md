@@ -37,8 +37,8 @@ The next category of expressions are the _unary operators_. The only unary opera
 
 To evaluate the comparison target, we delegate to the `eval_comparison_target` function, which pattern matches:
 
-- A column is evaluated using the `eval_path` function, which we will cover when we talk about [relationships](./relationships.md).
-- A _root collection_ column (that is, a column from the _root collection_, or collection used by the nearest enclosing [`Query`](../../../reference/types.md#query)) is evaluated using `eval_column`. You may have noticed the additional argument, `root`, which has been passed down through every function call so far - this is to track the root collection for exactly this case.
+- A column is evaluated using the `eval_column_field_path` function.
+- An aggregate is evaluated using `eval_path` (which we will talk more about when we get to [relationships](./relationships.md)) and `eval_aggregate` (which we will talk about when we get to [aggregates](./aggregates.md)). 
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_comparison_target}}
@@ -70,8 +70,10 @@ The reference implementation provides a single custom binary operator as an exam
 
 ### `EXISTS` expressions
 
-An `EXISTS` expression is evaluated by recursively evaluating a `Query` on a related collection, and testing to see whether the resulting `RowSet` contains any rows:
+An `EXISTS` expression is evaluated by recursively evaluating a `Query` on a related collection, and testing to see whether the resulting `RowSet` contains any rows.
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_exists}}
 ```
+
+Note in particular, we push the current row onto the stack of `scopes` before executing the inner query, so that [references to columns in those scopes](../../../specification/queries/filtering.md#referencing-a-column-from-a-collection-in-scope) can be resolved correctly.

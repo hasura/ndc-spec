@@ -113,7 +113,6 @@ fn make_single_expressions(
                 column: models::ComparisonTarget::Column {
                     name: field_name.clone(),
                     field_path: None,
-                    path: vec![],
                 },
                 operator: models::UnaryComparisonOperator::IsNull,
             },
@@ -133,7 +132,6 @@ fn make_single_expressions(
                                 column: models::ComparisonTarget::Column {
                                     name: field_name.clone(),
                                     field_path: None,
-                                    path: vec![],
                                 },
                                 operator: operator_name.clone(),
                                 value: models::ComparisonValue::Scalar {
@@ -156,7 +154,6 @@ fn make_single_expressions(
                                 column: models::ComparisonTarget::Column {
                                     name: field_name.clone(),
                                     field_path: None,
-                                    path: vec![],
                                 },
                                 operator: operator_name.clone(),
                                 value: models::ComparisonValue::Scalar {
@@ -193,6 +190,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
             offset: None,
             order_by: None,
             predicate: Some(predicate.expr.clone()),
+            groups: None,
         },
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),

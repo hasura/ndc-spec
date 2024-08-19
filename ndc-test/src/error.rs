@@ -38,6 +38,10 @@ pub enum Error {
     UnexpectedRowsets(usize, usize),
     #[error("expected RowSet in response for field {0}")]
     ExpectedRowSet(ndc_models::FieldName),
+    #[error("expected object type at path {}", .0.join("."))]
+    ExpectedObjectType(Vec<String>),
+    #[error("expected array type at path {}", .0.join("."))]
+    ExpectedArrayType(Vec<String>),
     #[error("expected <= {0} rows in RowSet, got {1}")]
     TooManyRowsInResponse(u32, u32),
     #[error("expected non-empty rows in RowSet")]

@@ -50,7 +50,7 @@
           "description": "Does the connector support aggregate queries",
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/AggregateCapabilities"
             },
             {
               "type": "null"
@@ -99,9 +99,76 @@
         }
       }
     },
+    "AggregateCapabilities": {
+      "title": "Aggregate Capabilities",
+      "type": "object",
+      "properties": {
+        "filter_by": {
+          "description": "Does the connector support filtering based on aggregated values",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "group_by": {
+          "description": "Does the connector support aggregations over groups",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/GroupByCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "LeafCapability": {
       "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
       "type": "object"
+    },
+    "GroupByCapabilities": {
+      "title": "Group By Capabilities",
+      "type": "object",
+      "properties": {
+        "filter": {
+          "description": "Does the connector support post-grouping predicates",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order": {
+          "description": "Does the connector support post-grouping ordering",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "paginate": {
+          "description": "Does the connector support post-grouping pagination",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
     },
     "NestedFieldCapabilities": {
       "title": "Nested Field Capabilities",
@@ -139,6 +206,17 @@
               "type": "null"
             }
           ]
+        },
+        "nested_collections": {
+          "description": "Does the connector support nested collection queries using `NestedField::NestedCollection`",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -146,6 +224,28 @@
       "title": "Exists Capabilities",
       "type": "object",
       "properties": {
+        "named_scopes": {
+          "description": "Does the connector support named scopes in column references inside EXISTS predicates",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unrelated": {
+          "description": "Does the connector support ExistsInCollection::Unrelated",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "nested_collections": {
           "description": "Does the connector support ExistsInCollection::NestedCollection",
           "anyOf": [

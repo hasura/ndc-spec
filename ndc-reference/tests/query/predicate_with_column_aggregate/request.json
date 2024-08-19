@@ -4,10 +4,6 @@
     "arguments": {},
     "query": {
         "fields": {
-            "id": {
-                "type": "column",
-                "column": "id"
-            },
             "first_name": {
                 "type": "column",
                 "column": "first_name"
@@ -20,26 +16,23 @@
         "predicate": {
             "type": "binary_comparison_operator",
             "column": {
-                "type": "column",
-                "name": "title",
+                "type": "aggregate",
+                "aggregate": {
+                    "type": "single_column",
+                    "column": "id",
+                    "function": "max"
+                },
                 "path": [
                     {
-                        "relationship": "author_articles",
                         "arguments": {},
-                        "predicate": {
-                            "type": "and",
-                            "expressions": []
-                        }
+                        "relationship": "author_articles"
                     }
                 ]
             },
-            "operator": "in",
+            "operator": "eq",
             "value": {
                 "type": "scalar",
-                "value": [
-                    "The Next 700 Programming Languages",
-                    "Why Functional Programming Matters"
-                ]
+                "value": 1
             }
         }
     },

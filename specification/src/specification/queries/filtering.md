@@ -67,29 +67,32 @@ This example uses a custom `like` operator:
 
 ### Columns in Operators
 
-Comparison operators compare columns to values. The column on the left hand side of any operator is described by a [`ComparisonTarget`](../../reference/types.md#comparisontarget), and the various cases will be explained next.
+Comparison operators compare values. The value on the left hand side of any operator is described by a [`ComparisonTarget`](../../reference/types.md#comparisontarget), and the various cases will be explained next.
 
 #### Referencing a column from the same collection
 
-If the `ComparisonTarget` has type `column`, and the `path` property is empty, then the `name` property refers to a column in the current collection.
-
-#### Referencing a column from a related collection
-
-If the `ComparisonTarget` has type `column`, and the `path` property is non-empty, then the `name` property refers to column in a related collection. The path consists of a collection of [`PathElement`](../../reference/types.md#pathelement)s, each of which references a named [relationship](./relationships.md), any [collection arguments](./arguments.md), and a [predicate expression](./filtering.md) to be applied to any relevant rows in the related collection.
-
-When a `PathElement` references an _array_ relationship, the enclosing operator should be considered _existentially quantified_ over all related rows.
-
-#### Referencing a column from the root collection
-
-If the `ComparisonTarget` has type `root_collection_column`, then the `name` property refers to a column in the _root collection_.
-
-The root collection is defined as the collection in scope at the nearest enclosing [`Query`](../../reference/types.md#query), and the column should be chosen from the _row_ in that collection which was in scope when that `Query` was being evaluated.
+If the `ComparisonTarget` has type `column`, then the `name` property refers to a column in the current collection.
 
 #### Referencing nested fields within columns
 
 If the `field_path` property is empty or not present then the target is the value of the named column.
-If `field_path` is non-empty then it refers to a path to a nested field within the named column.
-(A `ComparisonTarget` may only have a non-empty `field_path` if the connector supports capability `query.nested_fields.filter_by`.)
+
+If `field_path` is non-empty then it refers to a path to a nested field within the named column
+
+_Note_: a `ComparisonTarget` may only have a non-empty `field_path` if the connector supports capability `query.nested_fields.filter_by`).
+
+#### Computing an aggregate
+
+If the `ComparisonTarget` has type `aggregate`, then the target is an aggregate computed over a related collection. The relationship is described by the (non-empty) `path` field, and the aggregate to compute is specified in the `aggregate` field.
+
+For example, this query finds authors who have written exactly 2 articles:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/predicate_with_star_count/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_star_count/request.json:3: }}
+```
+
+_Note_: type `aggregate` will only be sent if the `query.aggregates.filter_by` capability is turned on. If that capability is turned on, then the schema response should also contain the `capabilities.query.aggregates.filter_by` object. That object should indicate the scalar type used for the result type of count aggregates (`star_count` and `column_count`), so that clients can know what comparison operators are valid.
 
 ### Values in Binary Operators
 
@@ -97,7 +100,30 @@ Binary (including array-valued) operators compare columns to _values_, but there
 
 - Scalar values, as seen in the examples above, compare the column to a specific value,
 - Variable values compare the column to the current value of a [variable](./variables.md),
-- Column values compare the column to _another_ column, possibly selected from a different collection. Column values are also described by a [`ComparisonTarget`](../../reference/types.md#comparisontarget).
+- Column values compare the column to _another_ column.
+
+#### Referencing a column from a collection in scope
+
+When an expression appears inside one or more [exists expressions](#exists-expressions), there are multiple collections in scope.
+
+If the `query.exists.named_scopes` capability is enabled then these scopes can be named explicitly when referencing a column in an outer scope. The `scope` field of the `ComparisonValue` type can be used to specify the scope of a column reference.
+
+Scopes are named by integers in the following manner: 
+
+- The scope named `0` refers to the current collection,
+- The scope named `1` refers to the collection under consideration outside the immediately-enclosing exists expression.
+- Scopes `2`, `3`, and so on, refer to the collections considered during the evaluation of expressions outside subsequently enclosing exists expressions.
+
+Therefore, the largest valid scope is the maximum nesting depth of exists expressions, up to the nearest enclosing `Query` object.
+
+Put another way, we can consider a stack of scopes which grows as we descend into each nested exists expression. Each stack frame contains the collection currently under consideration. The named scopes are then the top-down indices of elements of this stack.
+
+For example, we can express an equality between an `author_id` column and the `id` column of the enclosing `author` object (in scope `1`):
+
+```json
+{{#include ../../../../ndc-reference/tests/query/named_scopes/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/named_scopes/request.json:3: }}
+```
 
 ## `EXISTS` expressions
 
@@ -118,14 +144,20 @@ For example, this query fetches authors who have written articles whose titles c
 
 ### Unrelated Collections
 
+If the `query.exists.unrelated` capability is enabled, then exists expressions can reference unrelated collections.
+
+Unrelated exists expressions can be useful when using collections with [arguments](./arguments.md). For example, this query uses the unrelated `author_articles` collection, providing its arguments via the source row's columns:
+
 ```json
-{{#include ../../../../ndc-reference/tests/query/predicate_with_unrelated_exists/request.json:1 }}
-{{#include ../../../../ndc-reference/tests/query/predicate_with_unrelated_exists/request.json:3: }}
+{{#include ../../../../ndc-reference/tests/query/table_argument_unrelated_exists/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/table_argument_unrelated_exists/request.json:3: }}
 ```
+
+It can also be useful to [reference a column in another scope](#referencing-a-column-from-a-collection-in-scope) when using unrelated exists expressions.
 
 ### Nested Collections
 
-If the `query.exists.nested_collections` capability is enabled, then exists expressions can reference nested collections.
+If the `query.exists.nested_collections` capability is enabled, then exists expressions can reference [nested collections](./field-selection.md#nested-collections).
 
 For example, this query finds `institutions` which employ at least one staff member whose last name contains the letter `s`:
 
@@ -133,6 +165,8 @@ For example, this query finds `institutions` which employ at least one staff mem
 {{#include ../../../../ndc-reference/tests/query/predicate_with_exists_in_nested_collection/request.json:1 }}
 {{#include ../../../../ndc-reference/tests/query/predicate_with_exists_in_nested_collection/request.json:3: }}
 ```
+
+[References to columns in another scope](#referencing-a-column-from-a-collection-in-scope) may be useful when using these sorts of expressions, in order to refer to columns from the outer (unnested) row.
 
 ## Conjunction of expressions
 
