@@ -1,15 +1,14 @@
+use std::collections::BTreeMap;
+
 use async_trait::async_trait;
 use indexmap::IndexMap;
 use ndc_models as models;
-use std::collections::BTreeMap;
 
-use crate::{
-    connector::Connector,
-    error::{Error, Result},
-};
+use crate::connector::Connector;
+use crate::error::{Error, OtherError, Result};
 
 pub fn expect_single_non_empty_rows(
-    response: models::QueryResponse,
+    response: &models::QueryResponse,
 ) -> Result<Vec<IndexMap<models::FieldName, models::RowFieldValue>>> {
     let rows = expect_single_rows(response)?;
 
@@ -21,7 +20,7 @@ pub fn expect_single_non_empty_rows(
 }
 
 pub fn expect_single_rows(
-    response: models::QueryResponse,
+    response: &models::QueryResponse,
 ) -> Result<Vec<IndexMap<models::FieldName, models::RowFieldValue>>> {
     let row_set = expect_single_rowset(response)?;
     let rows = row_set.rows.ok_or(Error::RowsShouldBeNonNullInRowSet)?;
@@ -29,7 +28,7 @@ pub fn expect_single_rows(
     Ok(rows)
 }
 
-pub fn expect_single_rowset(response: models::QueryResponse) -> Result<models::RowSet> {
+pub fn expect_single_rowset(response: &models::QueryResponse) -> Result<models::RowSet> {
     if let [rowset] = &response.0[..] {
         Ok(rowset.clone())
     } else {
@@ -58,10 +57,10 @@ pub fn validate_response(
         validate_rowset(
             schema,
             &request.collection_relationships,
-            request.collection.clone(),
+            &request.collection,
             &request.query,
             rowset,
-            vec!["$".into(), row_index.to_string()],
+            &["$".into(), row_index.to_string()],
         )?;
     }
 
@@ -71,10 +70,10 @@ pub fn validate_response(
 pub fn validate_rowset(
     schema: &models::SchemaResponse,
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
-    collection_name: models::CollectionName,
+    collection_name: &models::CollectionName,
     query: &models::Query,
     rowset: &models::RowSet,
-    json_path: Vec<String>,
+    json_path: &[String],
 ) -> Result<()> {
     let object_type = find_collection_type_by_name(schema, collection_name)?;
 
@@ -94,11 +93,11 @@ pub fn validate_rowset_vs_object_type(
     object_type: &models::ObjectType,
     query: &models::Query,
     rowset: &models::RowSet,
-    json_path: Vec<String>,
+    json_path: &[String],
 ) -> std::result::Result<(), Error> {
     match (&query.fields, &rowset.rows) {
         (Some(fields), Some(rows)) => {
-            let new_json_path = [json_path.as_slice(), &["rows".to_string()]].concat();
+            let new_json_path = [json_path, &["rows".to_string()]].concat();
 
             validate_rows(
                 schema,
@@ -107,7 +106,7 @@ pub fn validate_rowset_vs_object_type(
                 query,
                 fields,
                 rows,
-                new_json_path,
+                &new_json_path,
             )
         }
         (None, None) => Ok(()),
@@ -129,12 +128,12 @@ pub fn validate_rowset_vs_object_type(
 
 fn find_collection_type_by_name(
     schema: &models::SchemaResponse,
-    collection_name: models::CollectionName,
+    collection_name: &models::CollectionName,
 ) -> Result<models::ObjectType> {
     let collection = schema
         .collections
         .iter()
-        .find(|c| c.name == collection_name);
+        .find(|c| &c.name == collection_name);
 
     if let Some(collection) = collection {
         let object_type = schema.object_types.get(&collection.collection_type).ok_or(
@@ -145,7 +144,7 @@ fn find_collection_type_by_name(
         let function = schema
             .functions
             .iter()
-            .find(|f| f.name.inner() == &collection_name);
+            .find(|f| f.name.inner() == collection_name);
 
         if let Some(function) = function {
             Ok(models::ObjectType {
@@ -172,13 +171,13 @@ pub fn validate_rows(
     query: &models::Query,
     fields: &IndexMap<models::FieldName, models::Field>,
     rows: &[IndexMap<models::FieldName, models::RowFieldValue>],
-    json_path: Vec<String>,
+    json_path: &[String],
 ) -> Result<()> {
     if let Some(limit) = query.limit {
         let rows_returned: u32 = rows
             .len()
             .try_into()
-            .map_err(|e| Error::OtherError(Box::new(e)))?;
+            .map_err(|e| Error::OtherError(OtherError::from(e)))?;
         if rows_returned > limit {
             return Err(Error::TooManyRowsInResponse(limit, rows_returned));
         }
@@ -187,7 +186,7 @@ pub fn validate_rows(
     for (row_index, row) in (0_i32..).zip(rows.iter()) {
         let mut row_copy = row.clone();
 
-        let new_json_path = [json_path.as_slice(), &[row_index.to_string()]].concat();
+        let new_json_path = [json_path, &[row_index.to_string()]].concat();
 
         for (field_name, field) in fields {
             if let Some(row_field_value) = row_copy.swap_remove(field_name) {
@@ -201,7 +200,7 @@ pub fn validate_rows(
                     field_name,
                     field,
                     row_field_value,
-                    new_json_path.clone(),
+                    &new_json_path,
                 )?;
             } else {
                 return Err(Error::MissingField(field_name.clone()));
@@ -219,7 +218,7 @@ pub fn validate_field(
     field_name: &models::FieldName,
     field: &models::Field,
     row_field_value: models::RowFieldValue,
-    json_path: Vec<String>,
+    json_path: &[String],
 ) -> Result<()> {
     match field {
         models::Field::Column {
@@ -256,7 +255,7 @@ pub fn validate_field(
                 validate_rowset(
                     schema,
                     collection_relationships,
-                    relationship.target_collection.clone(),
+                    &relationship.target_collection,
                     query,
                     &row_set,
                     json_path,
@@ -304,7 +303,7 @@ pub fn check_value_matches_request(
     value: serde_json::Value,
     input_type: &models::Type,
     fields: Option<&models::NestedField>,
-    json_path: Vec<String>,
+    json_path: &[String],
 ) -> Result<()> {
     match fields {
         Some(models::NestedField::Object(models::NestedObject { fields })) => check_nested_object(
@@ -349,21 +348,24 @@ fn check_nested_array(
     value: serde_json::Value,
     input_type: &models::Type,
     fields: &models::NestedField,
-    json_path: Vec<String>,
+    json_path: &[String],
 ) -> std::result::Result<(), Error> {
     match value {
         serde_json::Value::Null => {
             if super::common::is_nullable_type(input_type) {
                 Ok(())
             } else {
-                Err(Error::InvalidValueInResponse(json_path, "array".into()))
+                Err(Error::InvalidValueInResponse(
+                    json_path.to_vec(),
+                    "array".into(),
+                ))
             }
         }
         serde_json::Value::Array(elements) => {
             for (index, element) in elements.iter().enumerate() {
-                let new_json_path = [json_path.as_slice(), &[index.to_string()]].concat();
+                let new_json_path = [json_path, &[index.to_string()]].concat();
                 let element_type = super::common::as_array_type(input_type)
-                    .ok_or(Error::ExpectedArrayType(json_path.clone()))?;
+                    .ok_or(Error::ExpectedArrayType(json_path.to_vec()))?;
 
                 check_value_matches_request(
                     schema,
@@ -371,13 +373,16 @@ fn check_nested_array(
                     element.clone(),
                     element_type,
                     Some(fields),
-                    new_json_path,
+                    &new_json_path,
                 )?;
             }
 
             Ok(())
         }
-        _ => Err(Error::InvalidValueInResponse(json_path, "array".into())),
+        _ => Err(Error::InvalidValueInResponse(
+            json_path.to_vec(),
+            "array".into(),
+        )),
     }
 }
 
@@ -387,24 +392,27 @@ fn check_nested_collection(
     value: serde_json::Value,
     input_type: &models::Type,
     query: &models::Query,
-    json_path: Vec<String>,
+    json_path: &[String],
 ) -> std::result::Result<(), Error> {
     let rowset = serde_json::from_value::<Option<models::RowSet>>(value)
-        .map_err(|_| Error::InvalidValueInResponse(json_path.clone(), "rowset".into()))?;
+        .map_err(|_| Error::InvalidValueInResponse(json_path.to_vec(), "rowset".into()))?;
 
     match rowset {
         None => {
             if super::common::is_nullable_type(input_type) {
                 Ok(())
             } else {
-                Err(Error::InvalidValueInResponse(json_path, "rowset".into()))
+                Err(Error::InvalidValueInResponse(
+                    json_path.to_vec(),
+                    "rowset".into(),
+                ))
             }
         }
         Some(rowset) => {
             let array_type = super::common::as_array_type(input_type)
-                .ok_or(Error::ExpectedArrayType(json_path.clone()))?;
+                .ok_or(Error::ExpectedArrayType(json_path.to_vec()))?;
             let object_type = super::common::get_object_type(schema, array_type)
-                .ok_or(Error::ExpectedObjectType(json_path.clone()))?;
+                .ok_or(Error::ExpectedObjectType(json_path.to_vec()))?;
             validate_rowset_vs_object_type(
                 schema,
                 collection_relationships,
@@ -423,26 +431,28 @@ fn check_nested_object(
     value: serde_json::Value,
     input_type: &models::Type,
     fields: &IndexMap<models::FieldName, models::Field>,
-    json_path: Vec<String>,
+    json_path: &[String],
 ) -> std::result::Result<(), Error> {
     match value {
         serde_json::Value::Null => {
             if super::common::is_nullable_type(input_type) {
                 Ok(())
             } else {
-                Err(Error::InvalidValueInResponse(json_path, "object".into()))
+                Err(Error::InvalidValueInResponse(
+                    json_path.to_vec(),
+                    "object".into(),
+                ))
             }
         }
         serde_json::Value::Object(object) => {
             let object_type = super::common::get_object_type(schema, input_type)
-                .ok_or(Error::ExpectedObjectType(json_path.clone()))?;
+                .ok_or(Error::ExpectedObjectType(json_path.to_vec()))?;
 
-            let mut row_copy = object.clone();
+            let mut row_copy = object;
 
             for (field_name, field) in fields {
                 if let Some(row_field_value) = row_copy.swap_remove(field_name.as_str()) {
-                    let new_json_path =
-                        [json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
+                    let new_json_path = [json_path, &[field_name.as_str().to_owned()]].concat();
 
                     validate_field(
                         schema,
@@ -451,14 +461,17 @@ fn check_nested_object(
                         field_name,
                         field,
                         models::RowFieldValue(row_field_value),
-                        new_json_path,
+                        &new_json_path,
                     )?;
                 }
             }
 
             Ok(())
         }
-        _ => Err(Error::InvalidValueInResponse(json_path, "object".into())),
+        _ => Err(Error::InvalidValueInResponse(
+            json_path.to_vec(),
+            "object".into(),
+        )),
     }
 }
 
@@ -467,7 +480,7 @@ pub fn check_value_has_type(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     value: serde_json::Value,
     r#type: &models::Type,
-    json_path: Vec<String>,
+    json_path: &[String],
 ) -> Result<()> {
     match r#type {
         models::Type::Nullable { underlying_type } => {
@@ -503,13 +516,16 @@ pub fn check_value_has_type(
                         json_path,
                     )
                 } else {
-                    Err(Error::InvalidValueInResponse(json_path, "object".into()))
+                    Err(Error::InvalidValueInResponse(
+                        json_path.to_vec(),
+                        "object".into(),
+                    ))
                 }
             } else if let Some(scalar_type) = schema.scalar_types.get(name) {
                 if let Some(representation) = &scalar_type.representation {
                     representations::check_value_has_representation(
                         representation,
-                        value,
+                        &value,
                         json_path,
                     )
                 } else {
@@ -522,27 +538,31 @@ pub fn check_value_has_type(
         models::Type::Array { element_type } => {
             if let Some(elements) = value.as_array() {
                 for (index, element) in elements.iter().enumerate() {
-                    let new_json_path = [json_path.as_slice(), &[index.to_string()]].concat();
+                    let new_json_path = [json_path, &[index.to_string()]].concat();
 
                     check_value_has_type(
                         schema,
                         collection_relationships,
                         element.clone(),
                         element_type,
-                        new_json_path,
+                        &new_json_path,
                     )?;
                 }
 
                 Ok(())
             } else {
-                Err(Error::InvalidValueInResponse(json_path, "array".into()))
+                Err(Error::InvalidValueInResponse(
+                    json_path.to_vec(),
+                    "array".into(),
+                ))
             }
         }
         models::Type::Predicate {
             object_type_name: _,
         } => {
-            serde_json::from_value::<models::Expression>(value)
-                .map_err(|_| Error::InvalidValueInResponse(json_path, "expression".into()))?;
+            serde_json::from_value::<models::Expression>(value).map_err(|_| {
+                Error::InvalidValueInResponse(json_path.to_vec(), "expression".into())
+            })?;
 
             Ok(())
         }
@@ -557,13 +577,16 @@ mod representations {
 
     pub fn check_value_has_representation(
         representation: &models::TypeRepresentation,
-        value: serde_json::Value,
-        json_path: Vec<String>,
+        value: &serde_json::Value,
+        json_path: &[String],
     ) -> Result<()> {
         macro_rules! check {
             ($test: expr, $expected: expr) => {{
                 if !$test {
-                    return Err(Error::InvalidValueInResponse(json_path, $expected.into()));
+                    return Err(Error::InvalidValueInResponse(
+                        json_path.to_vec(),
+                        $expected.into(),
+                    ));
                 }
             }};
         }
@@ -609,20 +632,20 @@ pub(crate) fn check_value_has_object_type(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     object: &IndexMap<models::FieldName, models::RowFieldValue>,
     object_type: &models::ObjectType,
-    json_path: Vec<String>,
+    json_path: &[String],
 ) -> Result<()> {
     let mut row_copy = object.clone();
 
     for (field_name, field) in &object_type.fields {
         if let Some(row_field_value) = row_copy.swap_remove(field_name) {
-            let new_json_path = [json_path.as_slice(), &[field_name.as_str().to_owned()]].concat();
+            let new_json_path = [json_path, &[field_name.as_str().to_owned()]].concat();
 
             check_value_has_type(
                 schema,
                 collection_relationships,
                 row_field_value.0,
                 &field.r#type,
-                new_json_path,
+                &new_json_path,
             )?;
         } else {
             return Err(Error::MissingField(field_name.clone()));
