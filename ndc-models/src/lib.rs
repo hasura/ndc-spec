@@ -67,8 +67,21 @@ pub struct QueryCapabilities {
     /// Does the connector support nested fields
     #[serde(default)]
     pub nested_fields: NestedFieldCapabilities,
+    /// Does the connector support EXISTS predicates
+    #[serde(default)]
+    pub exists: ExistsCapabilities,
 }
 // ANCHOR_END: QueryCapabilities
+
+// ANCHOR: ExistsCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Exists Capabilities")]
+pub struct ExistsCapabilities {
+    /// Does the connector support ExistsInCollection::NestedCollection
+    pub nested_collections: Option<LeafCapability>,
+}
+// ANCHOR_END: ExistsCapabilities
 
 // ANCHOR: NestedFieldCapabilities
 #[skip_serializing_none]
@@ -82,7 +95,7 @@ pub struct NestedFieldCapabilities {
     /// Does the connector support aggregating values within nested fields
     pub aggregates: Option<LeafCapability>,
 }
-// ANCHOR_END: NestedFieldCapabilities
+// ANCHOR_END: NestedCollectionCapabilities
 
 // ANCHOR: MutationCapabilities
 #[skip_serializing_none]
@@ -671,6 +684,14 @@ pub enum ExistsInCollection {
         collection: CollectionName,
         /// Values to be provided to any collection arguments
         arguments: BTreeMap<ArgumentName, RelationshipArgument>,
+    },
+    NestedCollection {
+        column_name: FieldName,
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap<ArgumentName, Argument>,
+        /// Path to a nested collection via object columns
+        #[serde(skip_serializing_if = "Vec::is_empty", default)]
+        field_path: Vec<FieldName>,
     },
 }
 // ANCHOR_END: ExistsInCollection
