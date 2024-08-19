@@ -25,6 +25,13 @@ Root column references were generalized to _named scopes_. Scopes are introduced
 ### Filter by aggregates
 
 `ComparisonTarget` was extended to allow [filtering by aggregates](./queries/filtering.md#computing-an-aggregate).
+
+## `0.1.6`
+
+### Specification
+
+- `EXISTS` expressions can now query nested collections
+
 ## `0.1.5`
 
 ### Rust Libraries
