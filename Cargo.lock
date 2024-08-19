@@ -841,7 +841,7 @@ dependencies = [
 
 [[package]]
 name = "ndc-models"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "goldenfile",
  "indexmap 2.2.6",
@@ -855,7 +855,7 @@ dependencies = [
 
 [[package]]
 name = "ndc-reference"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "async-trait",
  "axum",
@@ -872,7 +872,7 @@ dependencies = [
 
 [[package]]
 name = "ndc-test"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "async-trait",
  "clap",
