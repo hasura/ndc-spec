@@ -20,6 +20,7 @@ We can order by aggregates, but not filter. This proposal adds filtering capabil
       },
   }
   ```
+
 - Break `OrderByTarget` while we have the chance as well, to reuse the same structure (and support column count aggregates):
   ```rust
   pub enum OrderByTarget {

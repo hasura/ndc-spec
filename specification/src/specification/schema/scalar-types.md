@@ -12,26 +12,26 @@ If the representation is omitted, it defaults to `json`.
 
 ### Supported Representations
 
-| `type` | Description | JSON representation |
-| - | - | - |
-| `boolean` | Boolean | Boolean |
-| `string` | String | String |
-| `int8` | An 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1 | Number |
-| `int16` | A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1 | Number |
-| `int32` | A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1 | Number |
-| `int64` | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1 | String |
-| `float32` | An IEEE-754 single-precision floating-point number | Number |
-| `float64` | An IEEE-754 double-precision floating-point number | Number |
-| `biginteger` | Arbitrary-precision integer string | String |
-| `bigdecimal` | Arbitrary-precision decimal string | String |
-| `uuid` | UUID string (8-4-4-4-12 format) | String |
-| `date` | ISO 8601 date | String |
-| `timestamp` | ISO 8601 timestamp | String |
-| `timestamptz` | ISO 8601 timestamp-with-timezone | String |
-| `geography` | GeoJSON, per RFC 7946 | JSON |
-| `geometry` | GeoJSON Geometry object, per RFC 7946 | JSON |
-| `bytes` | Base64-encoded bytes | String |
-| `json` | Arbitrary JSON | JSON |
+| `type`        | Description                                                                           | JSON representation |
+| ------------- | ------------------------------------------------------------------------------------- | ------------------- |
+| `boolean`     | Boolean                                                                               | Boolean             |
+| `string`      | String                                                                                | String              |
+| `int8`        | An 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1   | Number              |
+| `int16`       | A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1 | Number              |
+| `int32`       | A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1 | Number              |
+| `int64`       | A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1 | String              |
+| `float32`     | An IEEE-754 single-precision floating-point number                                    | Number              |
+| `float64`     | An IEEE-754 double-precision floating-point number                                    | Number              |
+| `biginteger`  | Arbitrary-precision integer string                                                    | String              |
+| `bigdecimal`  | Arbitrary-precision decimal string                                                    | String              |
+| `uuid`        | UUID string (8-4-4-4-12 format)                                                       | String              |
+| `date`        | ISO 8601 date                                                                         | String              |
+| `timestamp`   | ISO 8601 timestamp                                                                    | String              |
+| `timestamptz` | ISO 8601 timestamp-with-timezone                                                      | String              |
+| `geography`   | GeoJSON, per RFC 7946                                                                 | JSON                |
+| `geometry`    | GeoJSON Geometry object, per RFC 7946                                                 | JSON                |
+| `bytes`       | Base64-encoded bytes                                                                  | String              |
+| `json`        | Arbitrary JSON                                                                        | JSON                |
 
 ### Enum Representations
 
@@ -50,10 +50,10 @@ For example, this representation indicates that the only three valid values are 
 
 The following representations are deprecated as of version 0.1.2:
 
-| `type` | Description | JSON representation |
-| - | - | - |
-| `number` | Any JSON number | Number |
-| `integer` | Any JSON number with no decimal part | Number |
+| `type`    | Description                          | JSON representation |
+| --------- | ------------------------------------ | ------------------- |
+| `number`  | Any JSON number                      | Number              |
+| `integer` | Any JSON number with no decimal part | Number              |
 
 Connectors should use the sized integer and floating-point types instead.
 

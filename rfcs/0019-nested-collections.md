@@ -7,8 +7,8 @@ Nested arrays are like collections, but cannot be queried like collections. Many
 ```sql
 # Sample table with nested array:
 CREATE TABLE "Artists_Flattened" AS
-SELECT 
-  "Name", 
+SELECT
+  "Name",
   (
     SELECT json_agg(row_to_json("Album".*))
     FROM "Album"
@@ -17,21 +17,21 @@ SELECT
 FROM "Artist";
 
 # Simple aggregation over nested albums arrays:
-SELECT 
-  "Name", 
+SELECT
+  "Name",
   (
-    SELECT 
+    SELECT
       COUNT(*)
-    FROM 
+    FROM
       json_to_recordset("Albums")
   )
 FROM "Artists_Flattened";
 
 # Example with filtering and ordering:
-SELECT 
-  "Name", 
+SELECT
+  "Name",
   (
-    SELECT 
+    SELECT
       json_agg("row")
     FROM (
       SELECT * FROM
@@ -69,6 +69,6 @@ The scope stack (in the sense of named scopes) should be reset on each nested ro
 
 There is some overlap in functionality between `NestedField::Array` and `NestedField::Collection`: if we just want to select some `fields` from a nested array of objects, then we can use either.
 
-But neither is strictly more general than the other: `NestedField::Collection` only works for arrays of objects, whereas `NestedField::Array` works for all nested types, and `NestedField::Collection` uses the full `Query` API where `NestedField::Array` only supports selection. 
+But neither is strictly more general than the other: `NestedField::Collection` only works for arrays of objects, whereas `NestedField::Array` works for all nested types, and `NestedField::Collection` uses the full `Query` API where `NestedField::Array` only supports selection.
 
 It probably makes most sense to keep both, provided by different capabilities, because some connectors might only be able to support one but not the other, and we will need `NestedField::Array` to deal with e.g. arrays of arrays.

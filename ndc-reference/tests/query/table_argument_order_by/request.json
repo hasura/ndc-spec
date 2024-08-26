@@ -1,50 +1,50 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "authors",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "id": {
-                "type": "column",
-                "column": "id"
-            }
-        },
-        "order_by": {
-            "elements": [
-                {
-                    "order_direction": "desc",
-                    "target": {
-                        "type": "aggregate",
-                        "aggregate": {
-                            "type": "star_count"
-                        },
-                        "path": [
-                            {
-                                "arguments": {
-                                    "author_id": {
-                                        "type": "column",
-                                        "name": "id"
-                                    }
-                                },
-                                "relationship": "author_articles",
-                                "predicate": {
-                                    "type": "and",
-                                    "expressions": []
-                                }
-                            }
-                        ]
-                    }
-                }
-            ]
-        }
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "authors",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      }
     },
-    "collection_relationships": {
-        "author_articles": {
-            "arguments": {},
-            "column_mapping": {},
-            "relationship_type": "array",
-            "source_collection_or_type": "author",
-            "target_collection": "articles_by_author"
+    "order_by": {
+      "elements": [
+        {
+          "order_direction": "desc",
+          "target": {
+            "type": "aggregate",
+            "aggregate": {
+              "type": "star_count"
+            },
+            "path": [
+              {
+                "arguments": {
+                  "author_id": {
+                    "type": "column",
+                    "name": "id"
+                  }
+                },
+                "relationship": "author_articles",
+                "predicate": {
+                  "type": "and",
+                  "expressions": []
+                }
+              }
+            ]
+          }
         }
+      ]
     }
+  },
+  "collection_relationships": {
+    "author_articles": {
+      "arguments": {},
+      "column_mapping": {},
+      "relationship_type": "array",
+      "source_collection_or_type": "author",
+      "target_collection": "articles_by_author"
+    }
+  }
 }

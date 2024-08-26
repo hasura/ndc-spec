@@ -1,44 +1,44 @@
 {
-    "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-    "collection": "authors",
-    "arguments": {},
-    "query": {
-        "fields": {
-            "id": {
-                "type": "column",
-                "column": "id"
-            }
-        },
-        "predicate": {
-            "type": "exists",
-            "in_collection": {
-                "type": "unrelated",
-                "arguments": {
-                    "author_id": {
-                        "type": "column",
-                        "name": "id"
-                    }
-                },
-                "collection": "articles_by_author"
-            },
-            "predicate": {
-                "type": "and",
-                "expressions": [
-                    {
-                        "type": "binary_comparison_operator",
-                        "column": {
-                            "type": "column",
-                            "name": "title"
-                        },
-                        "operator": "like",
-                        "value": {
-                            "type": "scalar",
-                            "value": "Functional"
-                        }
-                    }
-                ]
-            }
-        }
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "authors",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      }
     },
-    "collection_relationships": {}
+    "predicate": {
+      "type": "exists",
+      "in_collection": {
+        "type": "unrelated",
+        "arguments": {
+          "author_id": {
+            "type": "column",
+            "name": "id"
+          }
+        },
+        "collection": "articles_by_author"
+      },
+      "predicate": {
+        "type": "and",
+        "expressions": [
+          {
+            "type": "binary_comparison_operator",
+            "column": {
+              "type": "column",
+              "name": "title"
+            },
+            "operator": "like",
+            "value": {
+              "type": "scalar",
+              "value": "Functional"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "collection_relationships": {}
 }

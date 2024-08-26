@@ -42,7 +42,6 @@
 {{#include ../../../ndc-models/tests/json_schema/query_response.jsonschema}}
 ```
 
-
 ## `QueryRequest`
 
 ```json
@@ -54,4 +53,3 @@
 ```json
 {{#include ../../../ndc-models/tests/json_schema/schema_response.jsonschema}}
 ```
-
