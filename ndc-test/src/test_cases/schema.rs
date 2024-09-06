@@ -25,7 +25,12 @@ pub async fn validate_schema<R: Reporter>(
     let _ = test!("scalar_types", reporter, async {
         for (type_name, scalar_type) in &schema.scalar_types {
             for aggregate_function in scalar_type.aggregate_functions.values() {
-                validate_type(schema, &aggregate_function.result_type)?;
+                match aggregate_function {
+                    models::AggregateFunctionDefinition::Custom { result_type } => {
+                        validate_type(schema, &result_type)
+                    }
+                    _ => Ok(()),
+                }?
             }
 
             let mut has_equality = false;

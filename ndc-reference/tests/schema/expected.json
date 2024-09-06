@@ -6,22 +6,10 @@
       },
       "aggregate_functions": {
         "max": {
-          "result_type": {
-            "type": "nullable",
-            "underlying_type": {
-              "type": "named",
-              "name": "Int"
-            }
-          }
+          "type": "max"
         },
         "min": {
-          "result_type": {
-            "type": "nullable",
-            "underlying_type": {
-              "type": "named",
-              "name": "Int"
-            }
-          }
+          "type": "min"
         }
       },
       "comparison_operators": {
