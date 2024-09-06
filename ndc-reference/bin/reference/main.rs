@@ -289,26 +289,8 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             models::ScalarType {
                 representation: Some(models::TypeRepresentation::Int32),
                 aggregate_functions: BTreeMap::from_iter([
-                    (
-                        "max".into(),
-                        models::AggregateFunctionDefinition {
-                            result_type: models::Type::Nullable {
-                                underlying_type: Box::new(models::Type::Named {
-                                    name: "Int".into(),
-                                }),
-                            },
-                        },
-                    ),
-                    (
-                        "min".into(),
-                        models::AggregateFunctionDefinition {
-                            result_type: models::Type::Nullable {
-                                underlying_type: Box::new(models::Type::Named {
-                                    name: "Int".into(),
-                                }),
-                            },
-                        },
-                    ),
+                    ("max".into(), models::AggregateFunctionDefinition::Max),
+                    ("min".into(), models::AggregateFunctionDefinition::Min),
                 ]),
                 comparison_operators: BTreeMap::from_iter([
                     ("eq".into(), models::ComparisonOperatorDefinition::Equal),

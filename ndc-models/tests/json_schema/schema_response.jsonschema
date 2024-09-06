@@ -427,20 +427,87 @@
     "AggregateFunctionDefinition": {
       "title": "Aggregate Function Definition",
       "description": "The definition of an aggregation function on a scalar type",
-      "type": "object",
-      "required": [
-        "result_type"
-      ],
-      "properties": {
-        "result_type": {
-          "description": "The scalar or object type of the result of this function",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Type"
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "sum"
+              ]
             }
-          ]
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "min"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "max"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "average"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "custom"
+              ]
+            },
+            "result_type": {
+              "description": "The scalar or object type of the result of this function",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Type"
+                }
+              ]
+            }
+          }
         }
-      }
+      ]
     },
     "Type": {
       "title": "Type",
@@ -564,6 +631,62 @@
               "type": "string",
               "enum": [
                 "in"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "less_than"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "less_than_or_equal"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "greater_than"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "greater_than_or_equal"
               ]
             }
           }

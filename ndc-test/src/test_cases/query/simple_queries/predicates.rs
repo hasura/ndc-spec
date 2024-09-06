@@ -163,7 +163,7 @@ fn make_single_expressions(
                             expect_nonempty: value_count > 0,
                         });
                     }
-                    models::ComparisonOperatorDefinition::Custom { .. } => {}
+                    _ => {}
                 }
             }
         }
