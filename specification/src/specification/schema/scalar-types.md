@@ -110,6 +110,20 @@ An operator defined using type `in` tests if a column value is a member of an ar
 
 It should accept an array type as its argument, whose element type is the scalar type for which it is defined. It should be equivalent to a disjunction of individual equality tests on the elements of the provided array, where the equality test is an equivalence relation in the same sense as above.
 
+#### `less_than`, `greater_than`, `less_than_or_equal`, `greater_than_or_equal`
+
+An operator defined using type `less_than` tests if a column value is less than a specified value. Similarly for the other comparisons here.
+
+If a connector defines more than one of these standard operators, then they should be compatible:
+
+- When using `less_than`, a row should be included in the generated row set if and only if it would _not_ be returned in the corresponding `greater_than_or_equal` comparison, and vice versa. More succinctly, it is expected that `x < y` holds exactly when `x >= y` does not hold.
+- It is expected that `x < y` holds exactly when `y > x` holds.
+- It is expected that `x <= y` holds exactly when `y >= x` holds.
+
+The `less_than_or_equal` and `greater_than_or_equal` operators are expected to be _reflexive_. That is, they should return a superset of those rows returned by the corresponding `equal` (syntactic equality) operator.
+
+Each of these four operators is expected to be _transitive_. That is, for example `x < y` and `y < z` together imply `x < z`, and similarly for the other operators.
+
 ### Custom Comparison Operators
 
 Data connectors can also define custom comparison operators using type `custom`. A custom operator is defined by its argument type, and its semantics is undefined.
@@ -122,7 +136,7 @@ _Note_: data connectors are required to implement the _count_ and _count-distinc
 
 For example, a data connector might augment a `Float` scalar type with a `SUM` function which aggregates a sum of a collection of floating-point numbers.
 
-An aggregation function is defined by its _result type_ - that is, the type of the aggregated data.
+Just like for comparison operators, an aggregation function is either a _standard_ function, or a custom function.
 
 To define an aggregation function, add a [`AggregateFunctionDefinition`](../../reference/types.md#aggregatefunctiondefinition) to the `aggregate_functions` field of the schema response.
 
@@ -134,10 +148,7 @@ For example:
     "Float": {
       "aggregate_functions": {
         "sum": {
-          "result_type": {
-            "type": "named",
-            "name": "Float"
-          }
+          "type": "sum"
         }
       },
       "comparison_operators": {}
@@ -146,6 +157,38 @@ For example:
   ...
 }
 ```
+
+### Standard Aggregation Functions
+
+#### `sum`
+
+An aggregation function defined using type `sum` should return the numerical sum of its provided values.
+
+A `sum` function should ignore the order of its input values, and should be invariant of partitioning, that is: `sum(x, sum(y, z))` = `sum(x, y, z)` for any partitioning `x, y, z` of the input values.
+
+#### `average`
+
+An aggregation function defined using type `average` should return the numerical average of its provided values.
+
+Its implicit result type, i.e. the type of the aggregated values, is the same as the scalar type on which the function is defined, but with nulls allowed if not allowed already.
+
+An `average` function should return null for an empty set of input values.
+
+#### `min`, `max`
+
+An aggregation function defined using type `min` or `max` should return the minimal/maximal value from its provided values, according to some ordering.
+
+Its implicit result type, i.e. the type of the aggregated values, is the same as the scalar type on which the function is defined, but with nulls allowed if not allowed already.
+
+A `min`/`max` function should return null for an empty set of input values.
+
+If the set of input values is a singleton, then the function should return the single value.
+
+A `min`/`max` function should ignore the order of its input values, and should be invariant of partitioning, that is: `min(x, min(y, z))` = `min(x, y, z)` for any partitioning `x, y, z` of the input values.
+
+### Custom Aggregation Functions
+
+A custom aggregation function has type `custom` and is defined by its _result type_ - that is, the type of the aggregated data.
 
 ## See also
 
