@@ -338,7 +338,7 @@ pub enum ComparisonOperatorDefinition {
 #[schemars(title = "Aggregate Function Definition")]
 pub enum AggregateFunctionDefinition {
     Sum,
-    Min, 
+    Min,
     Max,
     Average,
     Custom {

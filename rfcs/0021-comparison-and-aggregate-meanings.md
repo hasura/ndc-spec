@@ -31,7 +31,7 @@ There are two ways we can go about extracting a specification here: either based
 
 If we go the first route, we're likely to run into a variety of unusual implementations of these operators, e.g. databases will depend on collation settings, some operators may not be intuitive, e.g. operators may not be transitive, may use 3-valued logic, etc.
 
-For certain type representations, we could use existing specs, e.g. IEEE 754 defines these operators for floating point numbers. However, for other types, it will depend on the database in question, e.g. collation settings will affect these operators for strings. 
+For certain type representations, we could use existing specs, e.g. IEEE 754 defines these operators for floating point numbers. However, for other types, it will depend on the database in question, e.g. collation settings will affect these operators for strings.
 
 If we start with the needs of the clients then what does SQL/datafusion require of these operators?
 
@@ -46,7 +46,7 @@ Change `AggregateFunctionDefinition` into an `enum`:
 ```rust
 pub enum AggregateFunctionDefinition {
     Sum,
-    Min, 
+    Min,
     Max,
     Average,
     Custom {
@@ -55,7 +55,7 @@ pub enum AggregateFunctionDefinition {
 }
 ```
 
-Again, these will need to be standardized. 
+Again, these will need to be standardized.
 
 We can require `Sum` and `Average` to be only defined on types with numeric type representations, and then simply define them in terms of IEEE 754 floats or integers.
 
