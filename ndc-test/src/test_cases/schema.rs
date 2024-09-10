@@ -27,10 +27,10 @@ pub async fn validate_schema<R: Reporter>(
             for aggregate_function in scalar_type.aggregate_functions.values() {
                 match aggregate_function {
                     models::AggregateFunctionDefinition::Custom { result_type } => {
-                        validate_type(schema, &result_type)
+                        validate_type(schema, result_type)
                     }
                     _ => Ok(()),
-                }?
+                }?;
             }
 
             let mut has_equality = false;
