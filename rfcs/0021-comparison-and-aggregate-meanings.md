@@ -45,10 +45,11 @@ Change `AggregateFunctionDefinition` into an `enum`:
 
 ```rust
 pub enum AggregateFunctionDefinition {
-    Sum,
+    Sum {
+        result_type: Type,
+    },
     Min,
     Max,
-    Average,
     Custom {
         result_type: Type,
     },
@@ -57,11 +58,11 @@ pub enum AggregateFunctionDefinition {
 
 Again, these will need to be standardized.
 
-We can require `Sum` and `Average` to be only defined on types with numeric type representations, and then simply define them in terms of IEEE 754 floats or integers.
+We can require `Sum` to be only defined on types with numeric type representations, and then simply define them in terms of IEEE 754 floats or integers.
 
-`Min` and `Max` ought to also be definable on strings and date/times. We could require these to be compatible with `<` and `<=`, or we could rely on standard definitions from e.g. ISO 8601.
+`Min` and `Max` ought to also be definable on other types like strings and date/times.
 
-_TODO_: consider datafusion rewrites.
+We can require these aggregates to be commutative and monoidal.
 
 ## Future Work
 
@@ -73,6 +74,7 @@ Other possible comparison operators (from https://datafusion.apache.org/user-gui
 
 Other possible aggregate functions (from https://datafusion.apache.org/user-guide/sql/operators.html#comparison-operators):
 
+- `avg`
 - `bit_and`, `bit_or`, `bit_xor`
 - `bool_and`, `bool_or`
 - `mean`, `median`
