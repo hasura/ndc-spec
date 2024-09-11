@@ -164,15 +164,9 @@ For example:
 
 An aggregation function defined using type `sum` should return the numerical sum of its provided values.
 
+The result type should be provided explicitly, in the `result_type` field, and should be a scalar type with a type representation of either `Int64` or `Float64`, depending on whether the scalar type defining this function has an integer representation or floating point representation,
+
 A `sum` function should ignore the order of its input values, and should be invariant of partitioning, that is: `sum(x, sum(y, z))` = `sum(x, y, z)` for any partitioning `x, y, z` of the input values.
-
-#### `average`
-
-An aggregation function defined using type `average` should return the numerical average of its provided values.
-
-Its implicit result type, i.e. the type of the aggregated values, is the same as the scalar type on which the function is defined, but with nulls allowed if not allowed already.
-
-An `average` function should return null for an empty set of input values.
 
 #### `min`, `max`
 

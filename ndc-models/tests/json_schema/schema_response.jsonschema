@@ -437,20 +437,6 @@
             "type": {
               "type": "string",
               "enum": [
-                "sum"
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
                 "min"
               ]
             }
@@ -473,14 +459,19 @@
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
             "type": {
               "type": "string",
               "enum": [
-                "average"
+                "sum"
               ]
+            },
+            "result_type": {
+              "description": "The scalar type of the result of this function, which should have one of the type representations Int64 or Float64, depending on whether this function is defined on a scalar type with an integer or floating-point representation, respectively.",
+              "type": "string"
             }
           }
         },

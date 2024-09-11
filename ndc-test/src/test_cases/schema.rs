@@ -26,6 +26,18 @@ pub async fn validate_schema<R: Reporter>(
         for (type_name, scalar_type) in &schema.scalar_types {
             for aggregate_function in scalar_type.aggregate_functions.values() {
                 match aggregate_function {
+                    models::AggregateFunctionDefinition::Sum { result_type } => {
+                        let Some(scalar_type) = schema.scalar_types.get(result_type) else {
+                            return Err(Error::NamedTypeIsNotDefined(result_type.inner().clone()));
+                        };
+                        let Some(
+                            models::TypeRepresentation::Int64 | models::TypeRepresentation::Float64,
+                        ) = scalar_type.representation
+                        else {
+                            return Err(Error::InvalidTypeRepresentation(result_type.clone()));
+                        };
+                        Ok(())
+                    }
                     models::AggregateFunctionDefinition::Custom { result_type } => {
                         validate_type(schema, result_type)
                     }

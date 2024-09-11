@@ -52,6 +52,8 @@ pub enum Error {
     UnexpectedField(ndc_models::FieldName),
     #[error("scalar type {0} has multiple equality operators")]
     MultipleEqualityOperators(ndc_models::ScalarTypeName),
+    #[error("scalar type {0} has an invalid type representation")]
+    InvalidTypeRepresentation(ndc_models::ScalarTypeName),
     #[error("error response from connector: {0:?}")]
     ConnectorError(ndc_models::ErrorResponse),
     #[error("cannot open snapshot file: {0:?}")]

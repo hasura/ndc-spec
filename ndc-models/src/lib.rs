@@ -337,10 +337,15 @@ pub enum ComparisonOperatorDefinition {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate Function Definition")]
 pub enum AggregateFunctionDefinition {
-    Sum,
     Min,
     Max,
-    Average,
+    Sum {
+        /// The scalar type of the result of this function, which should have
+        /// one of the type representations Int64 or Float64, depending on
+        /// whether this function is defined on a scalar type with an integer or
+        /// floating-point representation, respectively.
+        result_type: ScalarTypeName,
+    },
     Custom {
         /// The scalar or object type of the result of this function
         result_type: Type,
