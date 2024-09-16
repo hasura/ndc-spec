@@ -19,6 +19,5 @@ The result contains one rowset containing articles from the author with ID `1`, 
 
 ## Requirements
 
-- If `variables` are provided in the [`QueryRequest`](../../reference/types.md#queryrequest), then the [`QueryResponse`](../../reference/types.md#queryresponse) should contain one [`RowSet`](../../reference/types.md#rowset) for each set of variables.
-  - The ordering of `RowSet`s should EXACTLY match the ordering of the `variables` provided.
+- If `variables` are provided in the [`QueryRequest`](../../reference/types.md#queryrequest), then the [`QueryResponse`](../../reference/types.md#queryresponse) should contain one [`RowSet`](../../reference/types.md#rowset) for each set of variables, in the same order.
 - If `variables` are not provided, the data connector should return a single [`RowSet`](../../reference/types.md#rowset).
