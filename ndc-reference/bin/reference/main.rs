@@ -10,6 +10,7 @@ use std::{
 use axum::{
     extract::State,
     http::StatusCode,
+    response::IntoResponse,
     routing::{get, post},
     Json, Router,
 };
@@ -143,6 +144,7 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
         .route("/query/explain", post(post_query_explain))
         .route("/mutation", post(post_mutation))
         .route("/mutation/explain", post(post_mutation_explain))
+        .layer(axum::middleware::from_fn(check_version_header))
         .layer(axum::middleware::from_fn_with_state(
             Arc::clone(&app_state),
             metrics_middleware,
@@ -193,6 +195,58 @@ async fn shutdown_handler() {
         _ = sigint => (),
     }
 }
+// ANCHOR: check_version_header
+async fn check_version_header(
+    request: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    if let Some(version) = request.headers().get(ndc_models::VERSION_HEADER_NAME) {
+        let Ok(version) = version.to_str() else {
+            return (
+                StatusCode::BAD_REQUEST,
+                format!(
+                    "Invalid {} header, expected a semver version string",
+                    ndc_models::VERSION_HEADER_NAME
+                ),
+            )
+                .into_response();
+        };
+
+        let Ok(wanted_version) = semver::Version::parse(version) else {
+            return (
+                StatusCode::BAD_REQUEST,
+                format!(
+                    "Invalid {} header, expected a semver version string",
+                    ndc_models::VERSION_HEADER_NAME
+                ),
+            )
+                .into_response();
+        };
+
+        let comparator = semver::Comparator {
+            op: semver::Op::Caret,
+            major: wanted_version.major,
+            minor: Some(wanted_version.minor),
+            patch: Some(wanted_version.patch),
+            pre: wanted_version.pre,
+        };
+
+        if !comparator.matches(&semver::Version::parse(ndc_models::VERSION).unwrap()) {
+            return (
+                StatusCode::BAD_REQUEST,
+                format!(
+                    "NDC version range ^{} does not match implemented version {}",
+                    version,
+                    ndc_models::VERSION
+                ),
+            )
+                .into_response();
+        }
+    }
+
+    next.run(request).await
+}
+// ANCHOR_END: check_version_header
 // ANCHOR: health
 async fn get_health() -> StatusCode {
     StatusCode::OK

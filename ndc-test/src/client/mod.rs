@@ -109,7 +109,11 @@ pub(crate) async fn capabilities_get(
 
     let uri = append_path(&configuration.base_path, &["capabilities"])
         .map_err(|()| Error::InvalidBaseURL)?;
-    let req = client.get(uri).build()?;
+    let mut req_builder = client.request(reqwest::Method::GET, uri);
+
+    req_builder = req_builder.header(ndc_models::VERSION_HEADER_NAME, ndc_models::VERSION);
+
+    let req = req_builder.build()?;
     let resp = client.execute(req).await?;
 
     let response_status = resp.status();
@@ -133,6 +137,7 @@ pub(crate) async fn mutation_post(
     let mut req_builder = client.request(reqwest::Method::POST, uri);
 
     req_builder = req_builder.json(&mutation_request);
+    req_builder = req_builder.header(ndc_models::VERSION_HEADER_NAME, ndc_models::VERSION);
 
     let req = req_builder.build()?;
     let resp = client.execute(req).await?;
@@ -158,6 +163,7 @@ pub(crate) async fn query_post(
     let mut req_builder = client.request(reqwest::Method::POST, uri);
 
     req_builder = req_builder.json(&query_request);
+    req_builder = req_builder.header(ndc_models::VERSION_HEADER_NAME, ndc_models::VERSION);
 
     let req = req_builder.build()?;
     let resp = client.execute(req).await?;
@@ -179,7 +185,11 @@ pub(crate) async fn schema_get(
 
     let uri =
         append_path(&configuration.base_path, &["schema"]).map_err(|()| Error::InvalidBaseURL)?;
-    let req = client.get(uri).build()?;
+    let mut req_builder = client.request(reqwest::Method::GET, uri);
+
+    req_builder = req_builder.header(ndc_models::VERSION_HEADER_NAME, ndc_models::VERSION);
+
+    let req = req_builder.build()?;
     let resp = client.execute(req).await?;
 
     let response_status = resp.status();

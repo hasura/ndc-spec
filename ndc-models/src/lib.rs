@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use smol_str::SmolStr;
 
+pub const VERSION_HEADER_NAME: &str = "X-Hasura-NDC-Version";
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 // ANCHOR: ErrorResponse
