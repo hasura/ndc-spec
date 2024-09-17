@@ -12,7 +12,7 @@ The schema endpoint should return data describing the data connector's scalar an
 
 We define two scalar types: `String` and `Int`.
 
-`String` supports a custom `like` comparison operator, and `Int` supports custom aggregation operators `min` and `max`.
+`String` supports a custom `like` comparison operator, and `Int` supports the standard aggregation operators `min` and `max`.
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-reference/bin/reference/main.rs:schema_scalar_types}}
