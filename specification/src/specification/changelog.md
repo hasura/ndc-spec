@@ -26,6 +26,10 @@ Root column references were generalized to _named scopes_. Scopes are introduced
 
 `ComparisonTarget` was extended to allow [filtering by aggregates](./queries/filtering.md#computing-an-aggregate).
 
+### `X-Hasura-NDC-Version` header
+
+Clients can now [indicate the intended protocol version](./versioning.md#requirements) in a HTTP header alongside any request.
+
 ## `0.1.6`
 
 ### Specification
