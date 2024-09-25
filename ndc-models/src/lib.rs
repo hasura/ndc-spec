@@ -95,7 +95,7 @@ pub struct ExistsCapabilities {
 #[schemars(title = "Nested Field Capabilities")]
 pub struct NestedFieldCapabilities {
     /// Does the connector support filtering by values of nested fields
-    pub filter_by: Option<LeafCapability>,
+    pub filter_by: Option<NestedFieldFilterByCapabilities>,
     /// Does the connector support ordering by values of nested fields
     pub order_by: Option<LeafCapability>,
     /// Does the connector support aggregating values within nested fields
@@ -104,7 +104,17 @@ pub struct NestedFieldCapabilities {
     /// `NestedField::NestedCollection`
     pub nested_collections: Option<LeafCapability>,
 }
-// ANCHOR_END: NestedCollectionCapabilities
+// ANCHOR_END: NestedFieldCapabilities
+
+// ANCHOR: NestedFieldFilterByCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Nested Field Filter By Capabilities")]
+pub struct NestedFieldFilterByCapabilities {
+    // Does the connector support filtering over arrays of scalars using existential quantification
+    pub scalar_arrays: Option<LeafCapability>
+}
+// ANCHOR_END: NestedFieldFilterByCapabilities
 
 // ANCHOR: AggregateCapabilities
 #[skip_serializing_none]
