@@ -290,7 +290,9 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 },
                 explain: None,
                 nested_fields: models::NestedFieldCapabilities {
-                    filter_by: Some(models::LeafCapability {}),
+                    filter_by: Some(models::NestedFieldFilterByCapabilities {
+                        scalar_arrays: None,
+                    }),
                     order_by: Some(models::LeafCapability {}),
                     aggregates: Some(models::LeafCapability {}),
                     nested_collections: Some(models::LeafCapability {}),
