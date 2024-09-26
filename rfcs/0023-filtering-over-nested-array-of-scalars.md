@@ -59,6 +59,92 @@ collection_relationships: {}
 However, this would currently be illegal since the type of the the `roles` column (array of `String`) does not match the value's type (`String`).
 
 ## Proposal
+We could add another variant to Expression to represent a comparison against an array type:
+
+```rust
+pub enum Expression {
+    ...
+    ArrayComparison {
+        column: ComparisonTarget,
+        comparison: ArrayComparison,
+    },
+}
+```
+
+The `ArrayComparison` type would then capture the different types of comparisons one could do against the array:
+
+```rust
+pub enum ArrayComparison {
+    /// Perform a binary comparison operation against the elements of the array.
+    /// The comparison is asserting that there must exist at least one element 
+    /// in the array that the comparison succeeds for
+    ExistsBinary {
+        operator: ComparisonOperatorName,
+        value: ComparisonValue,
+    },
+    /// Perform a unary comparison operation against the elements of the array.
+    /// The comparison is asserting that there must exist at least one element 
+    /// in the array that the comparison succeeds for
+    ExistsUnary {
+        operator: UnaryComparisonOperator
+    },
+    /// Nest a comparison through one level of a nested array, asserting that
+    /// there must exist at least one element in the outer array who matches
+    /// the comparison applied to the inner array
+    ExistsInNestedArray {
+        nested_comparison: Box<ArrayComparison>
+    },
+    /// Check if the array contains the specified value
+    Contains {
+        value: ComparisonValue,
+    },
+    /// Check is the array is empty
+    IsEmpty,
+}
+```
+
+Whether or not these new array comparisons would be supported by the connector would be declared in the capabilities:
+
+```jsonc
+{
+  "query": {
+    "aggregates": {},
+    "variables": {},
+    "nested_fields": {
+      "filter_by": {
+        // NEW!!
+        // Does the connector support filtering over nested arrays
+        "nested_arrays": {
+          // Does the connector support filtering over nested arrays using existential quantification.
+          // This must be supported for all types that can be contained in an array that have a comparison operator.
+          "exists": {
+            // Does the connector support filtering over nested arrays of arrays using existential quantification
+            "nested": {}
+          },
+          // Does the connector support filtering over nested arrays by checking if the array contains a value.
+          // This must be supported for all types that can be contained in an array.
+          "contains": {},
+          // Does the connector support filtering over nested arrays by checking if the array is empty.
+          // This must be supported no matter what type is contained in the array.
+          "isEmpty": {}
+        } 
+      },
+      "order_by": {},
+      "aggregates": {}
+    },
+    "exists": {
+      "nested_collections": {}
+    }
+  },
+  "mutation": {},
+  "relationships": {
+    "relation_comparisons": {},
+    "order_by_aggregate": {}
+  }
+}
+```
+
+## Alternative Proposal
 
 We could update the definition of `ComparisonTarget::Column` to specify that if the targeted column is an array of scalars, then the comparison operator should be considered to be existentially quantified over all elements in the array. In simpler terms, at least one element in the array of scalars must match the specified comparison.
 
@@ -88,9 +174,9 @@ This behaviour for `ComparisonTarget::Column` is new, and as such would need to 
 }
 ```
 
-## Issues
+### Issues
 
-### Implicit existential quantification
+#### Implicit existential quantification
 
 This new interpretation of the query structure is implicit, which is suboptimal as it may be non-obvious to connector authors that this is how things are supposed to work. It is better to be explicit with such things.
 
@@ -169,7 +255,7 @@ The use of `ComparisonTarget::ExistsInColumn` would be gated behind the proposed
 
 The issue with this is that it requires more work to support, as more extensive changes are required to v3-engine so that it uses this new `ComparisonTarget`.
 
-### How about existential quantification over arrays of nested objects?
+#### How about existential quantification over arrays of nested objects?
 
 What about if we had the following `User` and `Role` object types:
 

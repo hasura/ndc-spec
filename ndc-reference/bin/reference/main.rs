@@ -291,7 +291,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 explain: None,
                 nested_fields: models::NestedFieldCapabilities {
                     filter_by: Some(models::NestedFieldFilterByCapabilities {
-                        scalar_arrays: None,
+                        nested_arrays: None,
                     }),
                     order_by: Some(models::LeafCapability {}),
                     aggregates: Some(models::LeafCapability {}),
@@ -2088,6 +2088,7 @@ fn eval_expression(
             ))?;
             Ok(!rows.is_empty())
         } // ANCHOR_END: eval_expression_exists
+        models::Expression::ArrayComparison { .. } => todo!(),
     }
 }
 // ANCHOR_END: eval_expression
