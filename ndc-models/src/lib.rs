@@ -112,7 +112,7 @@ pub struct NestedFieldCapabilities {
 #[schemars(title = "Nested Field Filter By Capabilities")]
 pub struct NestedFieldFilterByCapabilities {
     /// Does the connector support filtering over nested arrays
-    pub nested_arrays: Option<NestedArrayFilterByCapabilities>
+    pub nested_arrays: Option<NestedArrayFilterByCapabilities>,
 }
 // ANCHOR_END: NestedFieldFilterByCapabilities
 
@@ -122,26 +122,17 @@ pub struct NestedFieldFilterByCapabilities {
 #[schemars(title = "Nested Array Filter By Capabilities")]
 pub struct NestedArrayFilterByCapabilities {
     /// Does the connector support filtering over nested arrays using existential quantification.
-    /// This must be supported for all types that can be contained in an array that have a comparison operator.
-    pub exists: Option<NestedFieldExistsFilterByCapabilities>,
+    /// This means the connector must support ExistsInCollection::NestedScalarCollection.
+    pub exists: Option<LeafCapability>,
     /// Does the connector support filtering over nested arrays by checking if the array contains a value.
-    /// This must be supported for all types that can be contained in an array.
+    /// This must be supported for all types that can be contained in an array that implement an 'eq'
+    /// comparison operator.
     pub contains: Option<LeafCapability>,
     /// Does the connector support filtering over nested arrays by checking if the array is empty.
     /// This must be supported no matter what type is contained in the array.
     pub is_empty: Option<LeafCapability>,
 }
 // ANCHOR_END: NestedArrayFilterByCapabilities
-
-// ANCHOR: NestedFieldExistsFilterByCapabilities
-#[skip_serializing_none]
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = "Nested Array Exists Filter By Capabilities")]
-pub struct NestedFieldExistsFilterByCapabilities {
-    /// Does the connector support filtering over nested arrays of arrays using existential quantification
-    pub nested: Option<LeafCapability>
-}
-// ANCHOR_END: NestedFieldExistsFilterByCapabilities
 
 // ANCHOR: AggregateCapabilities
 #[skip_serializing_none]
@@ -870,29 +861,8 @@ pub enum Expression {
 #[schemars(title = "Array Comparison")]
 #[serde(rename_all = "snake_case")]
 pub enum ArrayComparison {
-    /// Perform a binary comparison operation against the elements of the array.
-    /// The comparison is asserting that there must exist at least one element 
-    /// in the array that the comparison succeeds for
-    ExistsBinary {
-        operator: ComparisonOperatorName,
-        value: ComparisonValue,
-    },
-    /// Perform a unary comparison operation against the elements of the array.
-    /// The comparison is asserting that there must exist at least one element 
-    /// in the array that the comparison succeeds for
-    ExistsUnary {
-        operator: UnaryComparisonOperator
-    },
-    /// Nest a comparison through one level of a nested array, asserting that
-    /// there must exist at least one element in the outer array who matches
-    /// the comparison applied to the inner array
-    ExistsInNestedArray {
-        nested_comparison: Box<ArrayComparison>
-    },
     /// Check if the array contains the specified value
-    Contains {
-        value: ComparisonValue,
-    },
+    Contains { value: ComparisonValue },
     /// Check is the array is empty
     IsEmpty,
 }
@@ -998,6 +968,18 @@ pub enum ExistsInCollection {
         arguments: BTreeMap<ArgumentName, RelationshipArgument>,
     },
     NestedCollection {
+        column_name: FieldName,
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap<ArgumentName, Argument>,
+        /// Path to a nested collection via object columns
+        #[serde(skip_serializing_if = "Vec::is_empty", default)]
+        field_path: Vec<FieldName>,
+    },
+    /// Specifies a column that contains a nested array of scalars. The
+    /// array will be brought into scope of the nested expression where
+    /// each element becomes an object with one '__value' column that
+    /// contains the element value.
+    NestedScalarCollection {
         column_name: FieldName,
         #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
         arguments: BTreeMap<ArgumentName, Argument>,
