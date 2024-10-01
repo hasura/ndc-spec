@@ -465,7 +465,7 @@ Whether or not these new array comparisons would be supported by the connector w
 ```
 
 #### Issues
-This approach doesn't allow use of logical operators beyond the new `ArrayComparison::ExistsInNestedArray` boundary. So, for example, if the following data existed:
+This approach doesn't allow use of logical operators beyond the new `ArrayComparison` boundary. So, for example, if the following data existed:
 
 ```
 [
@@ -480,17 +480,17 @@ This approach doesn't allow use of logical operators beyond the new `ArrayCompar
 
 and we wanted to ask the following question: 
 
-> give me all customers where the inner array inside nested_numbers contains 1 and also contains 2
+> give me all customers where there exists at least one inner array element that is greater than 1 and also less than 3.
 
 ```graphql
 query {
-  Customer(where: { nested_numbers: { inner: { _and: [ { _eq: 1 }, { _eq: 2 } ] } } }) {
+  Customer(where: { nested_numbers: { inner: { _and: [ { _gt: 1 }, { _lt: 3 } ] } } }) {
     id
   }
 }
 ```
 
-We couldn't because there's no way to nest logical operators inside a `ArrayComparison::ExistsInNestedArray`.
+We couldn't because there's no way to nest logical operators inside a `ArrayComparison::ExistsBinary`.
 
 ```yaml
 collection: customers
@@ -508,32 +508,12 @@ query:
     comparison:
       type: exists_in_nested_array
       nested_comparison:
-        type: and # This does not exist
-        comparisons:
-          - type: exists_binary
-            operator: eq
-            value:
-              type: literal
-              value: 1
-          - type: exists_binary
-            operator: eq
-            value:
-              type: literal
-              value: 2
-
+        type: exists_binary # Nowhere to nest an AND inside this exists_binary
+        operator: gt
+        value:
+          type: literal
+          value: 1
+        
 arguments: {}
 collection_relationships: {}
 ```
-
-Perhaps a simple solution to this, that doesn't require another level of "And", "Or", "Not" inside `ArrayComparison`, is to make `ArrayComparison::ExistsInNestedArray` take an array of nested comparisons which are implicitly "and-ed" together.
-
-```rust
-enum ArrayComparison {
-    ...
-    ExistsInNestedArray {
-        nested_comparisons: Vec<ArrayComparison>
-    }
-}
-```
-
-This would allow us to do logical conjunction (ie "and") within the same exists scope. For disjunction, we can always lift the logical "or" to the top of the expression. 
