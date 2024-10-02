@@ -181,8 +181,20 @@ pub struct RelationshipCapabilities {
     pub relation_comparisons: Option<LeafCapability>,
     /// Does the connector support ordering by an aggregated array relationship?
     pub order_by_aggregate: Option<LeafCapability>,
+    /// Does the connector support navigating a relationship from inside a nested object
+    pub nested: Option<NestedRelationshipCapabilities>,
 }
 // ANCHOR_END: RelationshipCapabilities
+
+// ANCHOR: NestedRelationshipCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Nested Relationship Capabilities")]
+pub struct NestedRelationshipCapabilities {
+    /// Does the connector support navigating a relationship from inside a nested object inside a nested array
+    pub array: Option<LeafCapability>,
+}
+// ANCHOR_END: NestedRelationshipCapabilities
 
 // ANCHOR: SchemaResponse
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -290,6 +302,8 @@ pub struct ObjectType {
     pub description: Option<String>,
     /// Fields defined on this object type
     pub fields: BTreeMap<FieldName, ObjectField>,
+    /// Any foreign keys defined for this object type's columns
+    pub foreign_keys: BTreeMap<String, ForeignKeyConstraint>,
 }
 // ANCHOR_END: ObjectType
 
@@ -385,8 +399,6 @@ pub struct CollectionInfo {
     pub collection_type: ObjectTypeName,
     /// Any uniqueness constraints enforced on this collection
     pub uniqueness_constraints: BTreeMap<String, UniquenessConstraint>,
-    /// Any foreign key constraints enforced on this collection
-    pub foreign_keys: BTreeMap<String, ForeignKeyConstraint>,
 }
 // ANCHOR_END: CollectionInfo
 
@@ -908,6 +920,10 @@ pub enum ComparisonTarget {
 #[serde(rename_all = "snake_case")]
 #[schemars(title = "Path Element")]
 pub struct PathElement {
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    /// Path to a nested field within an object column that must be navigated
+    /// before the relationship is navigated
+    pub field_path: Option<Vec<FieldName>>,
     /// The name of the relationship to follow
     pub relationship: RelationshipName,
     /// Values to be provided to any collection arguments
@@ -957,6 +973,11 @@ pub enum ComparisonValue {
 #[schemars(title = "Exists In Collection")]
 pub enum ExistsInCollection {
     Related {
+        #[serde(skip_serializing_if = "Option::is_none", default)]
+        /// Path to a nested field within an object column that must be navigated
+        /// before the relationship is navigated
+        field_path: Option<Vec<FieldName>>,
+        /// The name of the relationship to follow
         relationship: RelationshipName,
         /// Values to be provided to any collection arguments
         arguments: BTreeMap<ArgumentName, RelationshipArgument>,
