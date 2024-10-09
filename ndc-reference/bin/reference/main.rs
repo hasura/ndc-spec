@@ -580,7 +580,13 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
         ]),
-        foreign_keys: BTreeMap::new(),
+        foreign_keys: BTreeMap::from_iter([(
+            "Location_CountryID".into(),
+            models::ForeignKeyConstraint {
+                foreign_collection: "countries".into(),
+                column_mapping: BTreeMap::from_iter([("country_id".into(), "id".into())]),
+            },
+        )]),
     };
     // ANCHOR_END: schema_object_type_location
     // ANCHOR: schema_object_type_staff_member
@@ -628,7 +634,13 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
         ]),
-        foreign_keys: BTreeMap::new(),
+        foreign_keys: BTreeMap::from_iter([(
+            "Staff_BornCountryID".into(),
+            models::ForeignKeyConstraint {
+                foreign_collection: "countries".into(),
+                column_mapping: BTreeMap::from_iter([("born_country_id".into(), "id".into())]),
+            },
+        )]),
     };
     // ANCHOR_END: schema_object_type_staff_member
     // ANCHOR: schema_object_type_country
@@ -674,6 +686,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
         ]),
+        foreign_keys: BTreeMap::new(),
     };
     // ANCHOR_END: schema_object_type_country
     // ANCHOR: schema_object_type_city
@@ -689,6 +702,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 arguments: BTreeMap::new(),
             },
         )]),
+        foreign_keys: BTreeMap::new(),
     };
     // ANCHOR_END: schema_object_type_city
     // ANCHOR: schema_object_types
@@ -750,7 +764,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         description: Some("A collection of countries".into()),
         collection_type: "country".into(),
         arguments: BTreeMap::new(),
-        foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::from_iter([(
             "CountryByID".into(),
             models::UniquenessConstraint {

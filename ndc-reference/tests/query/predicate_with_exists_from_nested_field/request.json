@@ -1,0 +1,78 @@
+{
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "institutions",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "name": {
+        "type": "column",
+        "column": "name"
+      },
+      "location": {
+        "type": "column",
+        "column": "location",
+        "fields": {
+          "type": "object",
+          "fields": {
+            "country_id": {
+              "type": "column",
+              "column": "country_id"
+            },
+            "country": {
+              "type": "relationship",
+              "arguments": {},
+              "relationship": "location_country",
+              "query": {
+                "fields": {
+                  "id": {
+                    "type": "column",
+                    "column": "id"
+                  },
+                  "name": {
+                    "type": "column",
+                    "column": "name"
+                  },
+                  "area_km2": {
+                    "type": "column",
+                    "column": "area_km2"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "predicate": {
+      "type": "exists",
+      "in_collection": {
+        "type": "related",
+        "field_path": ["location"],
+        "arguments": {},
+        "relationship": "location_country"
+      },
+      "predicate": {
+        "type": "binary_comparison_operator",
+        "column": {
+          "type": "column",
+          "name": "area_km2"
+        },
+        "operator": "gt",
+        "value": {
+          "type": "scalar",
+          "value": 300000
+        }
+      }
+    }
+  },
+  "collection_relationships": {
+    "location_country": {
+      "arguments": {},
+      "column_mapping": {
+        "country_id": "id"
+      },
+      "relationship_type": "object",
+      "target_collection": "countries"
+    }
+  }
+}
