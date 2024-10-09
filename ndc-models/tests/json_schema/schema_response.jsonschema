@@ -598,7 +598,8 @@
       "description": "The definition of an object type",
       "type": "object",
       "required": [
-        "fields"
+        "fields",
+        "foreign_keys"
       ],
       "properties": {
         "description": {
@@ -613,6 +614,13 @@
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ObjectField"
+          }
+        },
+        "foreign_keys": {
+          "description": "Any foreign keys defined for this object type's columns",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ForeignKeyConstraint"
           }
         }
       }
@@ -673,12 +681,32 @@
         }
       }
     },
+    "ForeignKeyConstraint": {
+      "title": "Foreign Key Constraint",
+      "type": "object",
+      "required": [
+        "column_mapping",
+        "foreign_collection"
+      ],
+      "properties": {
+        "column_mapping": {
+          "description": "The columns on which you want want to define the foreign key.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "foreign_collection": {
+          "description": "The name of a collection",
+          "type": "string"
+        }
+      }
+    },
     "CollectionInfo": {
       "title": "Collection Info",
       "type": "object",
       "required": [
         "arguments",
-        "foreign_keys",
         "name",
         "type",
         "uniqueness_constraints"
@@ -712,13 +740,6 @@
           "additionalProperties": {
             "$ref": "#/definitions/UniquenessConstraint"
           }
-        },
-        "foreign_keys": {
-          "description": "Any foreign key constraints enforced on this collection",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/ForeignKeyConstraint"
-          }
         }
       }
     },
@@ -735,27 +756,6 @@
           "items": {
             "type": "string"
           }
-        }
-      }
-    },
-    "ForeignKeyConstraint": {
-      "title": "Foreign Key Constraint",
-      "type": "object",
-      "required": [
-        "column_mapping",
-        "foreign_collection"
-      ],
-      "properties": {
-        "column_mapping": {
-          "description": "The columns on which you want want to define the foreign key.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "foreign_collection": {
-          "description": "The name of a collection",
-          "type": "string"
         }
       }
     },
