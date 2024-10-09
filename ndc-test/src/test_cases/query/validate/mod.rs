@@ -157,6 +157,7 @@ fn find_collection_type_by_name(
                         arguments: BTreeMap::default(),
                     },
                 )]),
+                foreign_keys: BTreeMap::new(),
             })
         } else {
             Err(Error::CollectionIsNotDefined(collection_name.clone()))

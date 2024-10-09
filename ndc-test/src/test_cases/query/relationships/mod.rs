@@ -27,7 +27,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
         ))
         .ok()?;
 
-    for (foreign_key_name, foreign_key) in &collection_info.foreign_keys {
+    for (foreign_key_name, foreign_key) in &collection_type.foreign_keys {
         nest!(foreign_key_name, reporter, {
             async {
                 let _ = test!(
@@ -216,6 +216,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
                     order_by: None,
                     predicate: Some(models::Expression::Exists {
                         in_collection: models::ExistsInCollection::Related {
+                            field_path: None,
                             relationship: "__array_relationship".into(),
                             arguments: BTreeMap::new(),
                         },
