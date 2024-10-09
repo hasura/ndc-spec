@@ -94,6 +94,14 @@
             "name": "String"
           }
         }
+      },
+      "foreign_keys": {
+        "Article_AuthorID": {
+          "column_mapping": {
+            "author_id": "id"
+          },
+          "foreign_collection": "authors"
+        }
       }
     },
     "author": {
@@ -120,7 +128,8 @@
             "name": "String"
           }
         }
-      }
+      },
+      "foreign_keys": {}
     },
     "city": {
       "description": "A city",
@@ -247,7 +256,8 @@
             }
           }
         }
-      }
+      },
+      "foreign_keys": {}
     },
     "location": {
       "description": "A location",
@@ -294,7 +304,8 @@
             "name": "Int"
           }
         }
-      }
+      },
+      "foreign_keys": {}
     },
     "staff_member": {
       "description": "A staff member",
@@ -341,7 +352,8 @@
             }
           }
         }
-      }
+      },
+      "foreign_keys": {}
     }
   },
   "collections": [
@@ -356,14 +368,6 @@
             "id"
           ]
         }
-      },
-      "foreign_keys": {
-        "Article_AuthorID": {
-          "column_mapping": {
-            "author_id": "id"
-          },
-          "foreign_collection": "authors"
-        }
       }
     },
     {
@@ -377,8 +381,7 @@
             "id"
           ]
         }
-      },
-      "foreign_keys": {}
+      }
     },
     {
       "name": "institutions",
@@ -391,8 +394,7 @@
             "id"
           ]
         }
-      },
-      "foreign_keys": {}
+      }
     },
     {
       "name": "countries",
@@ -420,8 +422,7 @@
         }
       },
       "type": "article",
-      "uniqueness_constraints": {},
-      "foreign_keys": {}
+      "uniqueness_constraints": {}
     }
   ],
   "functions": [

@@ -591,6 +591,16 @@
         "relationship"
       ],
       "properties": {
+        "field_path": {
+          "description": "Path to a nested field within an object column that must be navigated before the relationship is navigated",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
         "relationship": {
           "description": "The name of the relationship to follow",
           "type": "string"
@@ -1005,7 +1015,18 @@
                 "related"
               ]
             },
+            "field_path": {
+              "description": "Path to a nested field within an object column that must be navigated before the relationship is navigated",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
             "relationship": {
+              "description": "The name of the relationship to follow",
               "type": "string"
             },
             "arguments": {
