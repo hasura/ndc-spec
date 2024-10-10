@@ -52,7 +52,9 @@
             "path": [
               {
                 "relationship": "location_country",
-                "field_path": ["location"],
+                "field_path": [
+                  "location"
+                ],
                 "arguments": {},
                 "predicate": null
               }
@@ -68,7 +70,9 @@
     "location_country": {
       "arguments": {},
       "column_mapping": {
-        "country_id": "id"
+        "country_id": [
+          "id"
+        ]
       },
       "relationship_type": "object",
       "target_collection": "countries"

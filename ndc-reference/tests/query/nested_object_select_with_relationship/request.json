@@ -62,8 +62,12 @@
     "author_by_first_and_last": {
       "arguments": {},
       "column_mapping": {
-        "first_name": "first_name",
-        "last_name": "last_name"
+        "first_name": [
+          "first_name"
+        ],
+        "last_name": [
+          "last_name"
+        ]
       },
       "relationship_type": "object",
       "target_collection": "authors"

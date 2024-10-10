@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     cmp::Ordering,
     collections::{BTreeMap, HashSet},
     env,
@@ -434,7 +435,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             "Article_AuthorID".into(),
             models::ForeignKeyConstraint {
                 foreign_collection: "authors".into(),
-                column_mapping: BTreeMap::from_iter([("author_id".into(), "id".into())]),
+                column_mapping: BTreeMap::from_iter([("author_id".into(), vec!["id".into()])]),
             },
         )]),
     };
@@ -584,7 +585,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             "Location_CountryID".into(),
             models::ForeignKeyConstraint {
                 foreign_collection: "countries".into(),
-                column_mapping: BTreeMap::from_iter([("country_id".into(), "id".into())]),
+                column_mapping: BTreeMap::from_iter([("country_id".into(), vec!["id".into()])]),
             },
         )]),
     };
@@ -638,7 +639,10 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             "Staff_BornCountryID".into(),
             models::ForeignKeyConstraint {
                 foreign_collection: "countries".into(),
-                column_mapping: BTreeMap::from_iter([("born_country_id".into(), "id".into())]),
+                column_mapping: BTreeMap::from_iter([(
+                    "born_country_id".into(),
+                    vec!["id".into()],
+                )]),
             },
         )]),
     };
@@ -2977,16 +2981,34 @@ fn eval_column_mapping(
     src_row: &Row,
     tgt_row: &Row,
 ) -> Result<bool> {
-    for (src_column, tgt_column) in &relationship.column_mapping {
+    for (src_column, tgt_column_path) in &relationship.column_mapping {
         let src_value = eval_column(
             &BTreeMap::default(),
             src_row,
             src_column,
             &BTreeMap::default(),
         )?;
+
+        let (tgt_row, tgt_column) = match tgt_column_path.as_slice() {
+            [tgt_column] => (Cow::Borrowed(tgt_row), tgt_column),
+            [field_path @ .., tgt_column] => {
+                let nested_row = eval_row_field_path(Some(field_path), tgt_row)?;
+                (Cow::Owned(nested_row), tgt_column)
+            }
+            [] => {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: format!("relationship column mapping target column path were empty for column {src_column}"),
+                        details: serde_json::Value::Null,
+                    }),
+                ));
+            }
+        };
+
         let tgt_value = eval_column(
             &BTreeMap::default(),
-            tgt_row,
+            &tgt_row,
             tgt_column,
             &BTreeMap::default(),
         )?;

@@ -693,7 +693,10 @@
           "description": "The columns on which you want want to define the foreign key.",
           "type": "object",
           "additionalProperties": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "foreign_collection": {

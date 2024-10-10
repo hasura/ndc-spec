@@ -445,7 +445,7 @@ pub struct UniquenessConstraint {
 #[schemars(title = "Foreign Key Constraint")]
 pub struct ForeignKeyConstraint {
     /// The columns on which you want want to define the foreign key.
-    pub column_mapping: BTreeMap<FieldName, FieldName>,
+    pub column_mapping: BTreeMap<FieldName, Vec<FieldName>>,
     /// The name of a collection
     pub foreign_collection: CollectionName,
 }
@@ -1109,7 +1109,7 @@ pub enum MutationOperation {
 #[schemars(title = "Relationship")]
 pub struct Relationship {
     /// A mapping between columns on the source collection to columns on the target collection
-    pub column_mapping: BTreeMap<FieldName, FieldName>,
+    pub column_mapping: BTreeMap<FieldName, Vec<FieldName>>,
     pub relationship_type: RelationshipType,
     /// The name of a collection
     pub target_collection: CollectionName,

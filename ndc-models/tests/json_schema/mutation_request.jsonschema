@@ -1528,7 +1528,10 @@
           "description": "A mapping between columns on the source collection to columns on the target collection",
           "type": "object",
           "additionalProperties": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "relationship_type": {

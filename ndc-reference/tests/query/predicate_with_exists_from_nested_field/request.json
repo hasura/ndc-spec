@@ -47,7 +47,9 @@
       "type": "exists",
       "in_collection": {
         "type": "related",
-        "field_path": ["location"],
+        "field_path": [
+          "location"
+        ],
         "arguments": {},
         "relationship": "location_country"
       },
@@ -69,7 +71,9 @@
     "location_country": {
       "arguments": {},
       "column_mapping": {
-        "country_id": "id"
+        "country_id": [
+          "id"
+        ]
       },
       "relationship_type": "object",
       "target_collection": "countries"
