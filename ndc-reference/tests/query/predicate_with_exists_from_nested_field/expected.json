@@ -15,6 +15,21 @@
             ]
           }
         }
+      },
+      {
+        "name": "Stockholm University",
+        "location": {
+          "country_id": 2,
+          "country": {
+            "rows": [
+              {
+                "id": 2,
+                "name": "Sweden",
+                "area_km2": 450295
+              }
+            ]
+          }
+        }
       }
     ]
   }

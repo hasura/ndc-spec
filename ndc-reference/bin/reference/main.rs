@@ -2480,7 +2480,9 @@ fn eval_column(
                     )
                 })?;
 
-        let result_array = array[0..limit.unwrap_or(array.len())].to_vec();
+        let array_length = array.len();
+        let limit = limit.map_or(array_length, |l| if l > array_length { array_length } else { l });
+        let result_array = array[0..limit].to_vec();
 
         Ok(serde_json::Value::Array(result_array))
     } else {
