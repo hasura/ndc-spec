@@ -1077,13 +1077,7 @@ fn eval_groups(
         .collect();
     // ANCHOR_END: eval_groups_partition
     // ANCHOR: eval_groups_sort
-    let sorted = group_sort(
-        collection_relationships,
-        variables,
-        state,
-        chunks,
-        &grouping.order_by,
-    )?;
+    let sorted = group_sort(chunks, &grouping.order_by)?;
     // ANCHOR_END: eval_groups_sort
     // ANCHOR: eval_groups_filter
     let mut groups: Vec<models::Group> = vec![];
@@ -1197,13 +1191,7 @@ struct Chunk {
 }
 // ANCHOR_END: Chunk
 // ANCHOR: group_sort
-fn group_sort(
-    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
-    variables: &BTreeMap<models::VariableName, serde_json::Value>,
-    state: &AppState,
-    groups: Vec<Chunk>,
-    order_by: &Option<models::GroupOrderBy>,
-) -> Result<Vec<Chunk>> {
+fn group_sort(groups: Vec<Chunk>, order_by: &Option<models::GroupOrderBy>) -> Result<Vec<Chunk>> {
     match order_by {
         None => Ok(groups),
         Some(order_by) => {
@@ -1211,14 +1199,9 @@ fn group_sort(
             for item_to_insert in groups {
                 let mut index = 0;
                 for other in &copy {
-                    if let Ordering::Greater = eval_group_order_by(
-                        collection_relationships,
-                        variables,
-                        state,
-                        order_by,
-                        other,
-                        &item_to_insert,
-                    )? {
+                    if let Ordering::Greater =
+                        eval_group_order_by(order_by, other, &item_to_insert)?
+                    {
                         break;
                     }
                     index += 1;
@@ -1233,9 +1216,6 @@ fn group_sort(
 
 // ANCHOR: eval_group_order_by
 fn eval_group_order_by(
-    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
-    variables: &BTreeMap<models::VariableName, serde_json::Value>,
-    state: &AppState,
     order_by: &models::GroupOrderBy,
     t1: &Chunk,
     t2: &Chunk,
@@ -1243,10 +1223,8 @@ fn eval_group_order_by(
     let mut result = Ordering::Equal;
 
     for element in &order_by.elements {
-        let v1 =
-            eval_group_order_by_element(collection_relationships, variables, state, element, t1)?;
-        let v2 =
-            eval_group_order_by_element(collection_relationships, variables, state, element, t2)?;
+        let v1 = eval_group_order_by_element(element, t1)?;
+        let v2 = eval_group_order_by_element(element, t2)?;
         let x = match element.order_direction {
             models::OrderDirection::Asc => compare(v1, v2)?,
             models::OrderDirection::Desc => compare(v2, v1)?,
@@ -1259,9 +1237,6 @@ fn eval_group_order_by(
 // ANCHOR_END: eval_group_order_by
 // ANCHOR: eval_group_order_by_element
 fn eval_group_order_by_element(
-    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
-    variables: &BTreeMap<models::VariableName, serde_json::Value>,
-    state: &AppState,
     element: &models::GroupOrderByElement,
     group: &Chunk,
 ) -> Result<serde_json::Value> {
@@ -1275,15 +1250,8 @@ fn eval_group_order_by_element(
                 }),
             ))
         }
-        models::GroupOrderByTarget::Aggregate { aggregate, path } => {
-            let rows = eval_path(
-                collection_relationships,
-                variables,
-                state,
-                &path,
-                &group.rows,
-            )?;
-            eval_aggregate(&aggregate, &rows)
+        models::GroupOrderByTarget::Aggregate { aggregate } => {
+            eval_aggregate(&aggregate, &group.rows)
         }
     }
 }
