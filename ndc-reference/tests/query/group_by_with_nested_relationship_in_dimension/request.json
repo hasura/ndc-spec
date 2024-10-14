@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "institutions",
+  "arguments": {},
+  "query": {
+    "groups": {
+      "aggregates": {
+        "institution_count": {
+          "type": "star_count"
+        }
+      },
+      "dimensions": [
+        {
+          "type": "column",
+          "column_name": "name",
+          "path": [
+            {
+              "field_path": ["location"],
+              "relationship": "location_country",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "collection_relationships": {
+    "location_country": {
+      "arguments": {},
+      "column_mapping": {
+        "country_id": [
+          "id"
+        ]
+      },
+      "relationship_type": "object",
+      "target_collection": "countries"
+    }
+  }
+}
