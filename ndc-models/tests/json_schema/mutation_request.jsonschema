@@ -1337,7 +1337,6 @@
           "type": "object",
           "required": [
             "aggregate",
-            "path",
             "type"
           ],
           "properties": {
@@ -1354,13 +1353,6 @@
                   "$ref": "#/definitions/Aggregate"
                 }
               ]
-            },
-            "path": {
-              "description": "Non-empty collection of relationships to traverse",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
-              }
             }
           }
         }

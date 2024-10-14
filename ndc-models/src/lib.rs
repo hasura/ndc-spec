@@ -636,8 +636,6 @@ pub enum GroupOrderByTarget {
     Aggregate {
         /// Aggregation method to apply
         aggregate: Aggregate,
-        /// Non-empty collection of relationships to traverse
-        path: Vec<PathElement>,
     },
 }
 // ANCHOR_END: GroupOrderByTarget
