@@ -111,9 +111,6 @@ However, there are other contexts where we cannot navigate nested relationships.
 
   * `Dimension::Column` - when selecting a column to group by that occurs across a nested object relationship ([example usage](#dimensioncolumn))
 
-  * `GroupOrderByTarget::Aggregate` - when you want order your groups by an aggregate applied to the group ([example usage](#grouporderbytargetaggregate))
-
-
 We are also unable to target a relationship at a collection where the target columns are nested. This is because `Relationship.column_mapping` does not allow for the target column to reference anything other than a column directly on the collection type. So if we wanted to follow the `Invoice.addresses.billingAddressId -> Address.addressId` object relationship in reverse, from Address (ie `Address.addressId -> Invoice.addresses.billingAddressId`), we couldn't.
 
 ```yaml
@@ -548,63 +545,6 @@ collection_relationships:
   BillingAddressToAddress:
     column_mapping:
       billingAddressId: ["addressId"]
-    relationship_type: object
-    target_collection: Address
-    arguments: {}
-```
-
-### `GroupOrderByTarget::Aggregate`
-This example groups invoices by their customerId, and then orders the groups by those customers that have invoices shipped to the most different countries first.
-
-```graphql
-query {
-  Invoice_groups(
-    grouping_keys: { _scalar_field: customerId } # Group by Invoice customer
-    order_by: { # Order Customer-Invoice groups by those customers that have shipped to the most different countries first
-      group_aggregate: {
-        addresses: { # Nested object
-          shippingAddress: { # Object relationship
-            country: { _count_distinct: Desc }
-          }
-        }
-      }
-    }
-  ) {
-    grouping_key {
-      customerId
-    }
-  }
-}
-```
-
-```yaml
-collection: Invoice
-query:
-  groups:
-    dimensions:
-      - type: column
-        path: []
-        column_name: customerId
-    aggregates: {}
-    order_by:
-      elements:
-        - target:
-            type: aggregate
-            aggregate:
-              type: column_count
-              column: country
-              distinct: true
-            path:
-              - field_path: ["addresses"]
-                relationship: ShippingAddressToAddress
-                arguments: {}
-                predicate: null
-          order_direction: desc
-arguments: {}
-collection_relationships:
-  ShippingAddressToAddress:
-    column_mapping:
-      shippingAddressId: ["addressId"]
     relationship_type: object
     target_collection: Address
     arguments: {}
