@@ -11,11 +11,13 @@ If the dimension's column's schema defines [arguments](./arguments.html#field-ar
 In addition, a grouping operation specifies _aggregates_ which should be computed and returned for each group separately.
 
 ## Dimensions
+
 Dimension columns can be:
-* A column
-* A object-nested column
-* A column across an object relationship
-* A column across an object-nested object relationship
+
+- A column
+- A object-nested column
+- A column across an object relationship
+- A column across an object-nested object relationship
 
 A key property is that nested arrays or nested relationships cannot be traversed from the rows being grouped over when selecting a dimension column. Only nested objects or object relationships can be traversed.
 

@@ -107,6 +107,7 @@ For example, here we define a type `widget`, and a second type which contains a 
 ```
 
 ## Foreign Keys Example
+
 Foreign keys can be defined on an object type to hint that a [relationship](../queries/relationships.md) can be established between this object type and a collection. The column mapping maps fields from the object type to field paths on the foreign collection. The field path is an array of field names; an array of one field name simply indicates a field on the object type of the collection. More than one element in the array indicates a path through nested object types, following the field names in order.
 
 ```json

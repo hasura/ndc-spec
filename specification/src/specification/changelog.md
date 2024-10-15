@@ -38,6 +38,7 @@ Nested scalar arrays can now be compared against in filter expressions.
 `ComparisonTarget` was extended to allow [filtering by aggregates](./queries/filtering.md#computing-an-aggregate).
 
 #### Nested relationships
+
 Nested relationships are relationships where the columns being joined upon exist on nested objects within collection's object type. While NDC 0.1.x supports selecting fields across a relationship that starts from within a nested object, it does not support nested relationships in other contexts, such as filtering and ordering. To resolve this, the following additions have been made:
 
 - `ExistsInCollection::Related` has gained a `field_path` field that enables descent through nested fields before applying the relationship. This enables support for filtering across a nested relationship.
@@ -49,7 +50,6 @@ Nested relationships are relationships where the columns being joined upon exist
   - `Dimension::Column` - when selecting a column to group by that occurs across a nested object relationship
 
 Column mappings used in relationships were also modified to allow the target column to be referenced via a field path, to allow targeting of object-nested columns across a relationship. Foreign keys are also now defined on the object type rather than the collection, which allows the declaration of foreign keys on object types that are used in nested fields inside a collection.
-
 
 #### Wider field arguments support
 
