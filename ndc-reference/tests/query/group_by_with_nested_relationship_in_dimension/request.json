@@ -28,9 +28,7 @@
     "location_country": {
       "arguments": {},
       "column_mapping": {
-        "country_id": [
-          "id"
-        ]
+        "country_id": ["id"]
       },
       "relationship_type": "object",
       "target_collection": "countries"

@@ -20,8 +20,8 @@
             },
             "country": {
               "type": "relationship",
-              "arguments": {},
               "relationship": "location_country",
+              "arguments": {},
               "query": {
                 "fields": {
                   "id": {
@@ -47,11 +47,9 @@
       "type": "exists",
       "in_collection": {
         "type": "related",
-        "field_path": [
-          "location"
-        ],
-        "arguments": {},
-        "relationship": "location_country"
+        "field_path": ["location"],
+        "relationship": "location_country",
+        "arguments": {}
       },
       "predicate": {
         "type": "binary_comparison_operator",
@@ -71,9 +69,7 @@
     "location_country": {
       "arguments": {},
       "column_mapping": {
-        "country_id": [
-          "id"
-        ]
+        "country_id": ["id"]
       },
       "relationship_type": "object",
       "target_collection": "countries"

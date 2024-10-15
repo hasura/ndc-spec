@@ -10,6 +10,15 @@ If the dimension's column's schema defines [arguments](./arguments.html#field-ar
 
 In addition, a grouping operation specifies _aggregates_ which should be computed and returned for each group separately.
 
+## Dimensions
+Dimension columns can be:
+* A column
+* A object-nested column
+* A column across an object relationship
+* A column across an object-nested object relationship
+
+A key property is that nested arrays or nested relationships cannot be traversed from the rows being grouped over when selecting a dimension column. Only nested objects or object relationships can be traversed.
+
 ## Filtering
 
 Grouping operations have two types of filtering:
@@ -26,7 +35,7 @@ As with filtering, group operations support two types of ordering:
 - The initial row set can be ordered _before the grouping operation_, using the `order_by` field of the [`Query`](../../reference/types.md#query) object as usual, and
 - The _groups themselves_ can be ordered _after the grouping operation_, using the `order_by` field of the [`Grouping`](../../reference/types.md#grouping) object. This is controlled by the `queries.aggregates.group_by.order` capability.
 
-And just as with filtering, group sort orders are restricted to comparing aggregate values. For example, we can order groups by a _count_, but not by the value of individual rows.
+Group sort orders are restricted to comparing aggregate values, similar to filtering. For example, we can order groups by a _count_, but not by the value of individual rows. However, we can also choose to sort by the selected grouping dimensions.
 
 ## Pagination
 
@@ -67,6 +76,13 @@ This example computes the article count for the author with the most articles, b
 ```json
 {{#include ../../../../ndc-reference/tests/query/group_by_with_order_by/request.json:1 }}
 {{#include ../../../../ndc-reference/tests/query/group_by_with_order_by/request.json:3: }}
+```
+
+This example sorts the groups by the values of their dimensions. It groups articles by their `author_id`, and then sorts the groups by that `author_id` dimension, descending:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/group_by_with_order_by_dimension/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/group_by_with_order_by_dimension/request.json:3: }}
 ```
 
 ## Requirements
