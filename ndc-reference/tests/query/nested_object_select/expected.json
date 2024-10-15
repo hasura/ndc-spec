@@ -15,6 +15,7 @@
         "location_all": {
           "city": "London",
           "country": "UK",
+          "country_id": 1,
           "campuses": [
             "Mile End",
             "Whitechapel",
@@ -35,9 +36,29 @@
         "location_all": {
           "city": "Gothenburg",
           "country": "Sweden",
+          "country_id": 2,
           "campuses": [
             "Johanneberg",
             "Lindholmen"
+          ]
+        }
+      },
+      {
+        "id": 3,
+        "location": {
+          "city": "Stockholm",
+          "campuses": [
+            "Frescati",
+            "Kista"
+          ]
+        },
+        "location_all": {
+          "city": "Stockholm",
+          "country": "Sweden",
+          "country_id": 2,
+          "campuses": [
+            "Frescati",
+            "Kista"
           ]
         }
       }

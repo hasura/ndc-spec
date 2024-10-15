@@ -54,6 +54,27 @@
             "first_name": "Koen"
           }
         ]
+      },
+      {
+        "id": 3,
+        "staff_groups": {
+          "groups": [
+            {
+              "dimensions": [
+                "Zdravkovic"
+              ],
+              "aggregates": {
+                "count": 1
+              }
+            }
+          ]
+        },
+        "staff": [
+          {
+            "last_name": "Zdravkovic",
+            "first_name": "Jelena"
+          }
+        ]
       }
     ]
   }

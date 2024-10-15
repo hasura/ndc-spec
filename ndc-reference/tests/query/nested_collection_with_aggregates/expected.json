@@ -32,6 +32,20 @@
             "first_name": "Koen"
           }
         ]
+      },
+      {
+        "id": 3,
+        "staff_aggregates": {
+          "aggregates": {
+            "count": 1
+          }
+        },
+        "staff": [
+          {
+            "last_name": "Zdravkovic",
+            "first_name": "Jelena"
+          }
+        ]
       }
     ]
   }
