@@ -10,7 +10,7 @@ It does this by successively evaluating each edge in turn using the `eval_path_e
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_path}}
 ```
 
-The `eval_path_element` function computes a collection from a single relationship, one source row at a time, by evaluating all relationship arguments, computing the target collection using `get_collection_by_name`, and evaluating any column mapping on any resulting rows:
+The `eval_path_element` function computes a collection from a single relationship, one source row at a time. If a `field_path` exists, the source row is replaced by descending through the nested objects as specified by the field path (using `eval_row_field_path`). Once this is done, all relationship arguments are evaluated, and the target collection is computed by using `get_collection_by_name`. Finally the column mapping is evaluated on any resulting rows.
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_path_element}}
