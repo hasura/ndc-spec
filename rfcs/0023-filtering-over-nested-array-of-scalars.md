@@ -59,6 +59,7 @@ collection_relationships: {}
 However, this would currently be illegal since the type of the the `roles` column (array of `String`) does not match the value's type (`String`).
 
 ## Proposal
+
 We could add another variant to `ExistsInCollection` that brings into scope of the nested expression where each element becomes an object with one `__value` column that contains the element value. Then, the usual `Expression::BinaryComparisonOperator`, etc operations could be used over that virtual column.
 
 ```rust
@@ -142,30 +143,30 @@ Whether or not these new array comparisons would be supported by the connector w
           // This means the connector must support ExistsInCollection::NestedScalarCollection.
           "exists": {},
           // Does the connector support filtering over nested arrays by checking if the array contains a value.
-          /// This must be supported for all types that can be contained in an array that implement an 'eq' 
+          /// This must be supported for all types that can be contained in an array that implement an 'eq'
           /// comparison operator.
           "contains": {},
           // Does the connector support filtering over nested arrays by checking if the array is empty.
           // This must be supported no matter what type is contained in the array.
-          "isEmpty": {}
-        } 
+          "isEmpty": {},
+        },
       },
       "order_by": {},
-      "aggregates": {}
+      "aggregates": {},
     },
     "exists": {
-      "nested_collections": {}
-    }
+      "nested_collections": {},
+    },
   },
   "mutation": {},
   "relationships": {
     "relation_comparisons": {},
-    "order_by_aggregate": {}
-  }
+    "order_by_aggregate": {},
+  },
 }
 ```
 
-## Alternative Proposals 
+## Alternative Proposals
 
 ### Implicit existential quantification
 
@@ -379,6 +380,7 @@ collection_relationships: {}
 We should state that the existential quantification only works when the _end-point_ of the `ComparisonTarget::Column` is targeting an array of scalars. `field_path` can only be used to navigate nested objects.
 
 ### Expression::ArrayComparison with exists support nested inside
+
 We could add another variant to Expression to represent a comparison against an array type:
 
 ```rust
@@ -396,14 +398,14 @@ The `ArrayComparison` type would then capture the different types of comparisons
 ```rust
 pub enum ArrayComparison {
     /// Perform a binary comparison operation against the elements of the array.
-    /// The comparison is asserting that there must exist at least one element 
+    /// The comparison is asserting that there must exist at least one element
     /// in the array that the comparison succeeds for
     ExistsBinary {
         operator: ComparisonOperatorName,
         value: ComparisonValue,
     },
     /// Perform a unary comparison operation against the elements of the array.
-    /// The comparison is asserting that there must exist at least one element 
+    /// The comparison is asserting that there must exist at least one element
     /// in the array that the comparison succeeds for
     ExistsUnary {
         operator: UnaryComparisonOperator
@@ -439,32 +441,33 @@ Whether or not these new array comparisons would be supported by the connector w
           // This must be supported for all types that can be contained in an array that have a comparison operator.
           "exists": {
             // Does the connector support filtering over nested arrays of arrays using existential quantification
-            "nested": {}
+            "nested": {},
           },
           // Does the connector support filtering over nested arrays by checking if the array contains a value.
           // This must be supported for all types that can be contained in an array.
           "contains": {},
           // Does the connector support filtering over nested arrays by checking if the array is empty.
           // This must be supported no matter what type is contained in the array.
-          "isEmpty": {}
-        } 
+          "isEmpty": {},
+        },
       },
       "order_by": {},
-      "aggregates": {}
+      "aggregates": {},
     },
     "exists": {
-      "nested_collections": {}
-    }
+      "nested_collections": {},
+    },
   },
   "mutation": {},
   "relationships": {
     "relation_comparisons": {},
-    "order_by_aggregate": {}
-  }
+    "order_by_aggregate": {},
+  },
 }
 ```
 
 #### Issues
+
 This approach doesn't allow use of logical operators beyond the new `ArrayComparison` boundary. So, for example, if the following data existed:
 
 ```
@@ -475,16 +478,18 @@ This approach doesn't allow use of logical operators beyond the new `ArrayCompar
   Customer {
     nested_numbers: [ [2,3], [1,0] ]
   }
-]  
+]
 ```
 
-and we wanted to ask the following question: 
+and we wanted to ask the following question:
 
 > give me all customers where there exists at least one inner array element that is greater than 1 and also less than 3.
 
 ```graphql
 query {
-  Customer(where: { nested_numbers: { inner: { _and: [ { _gt: 1 }, { _lt: 3 } ] } } }) {
+  Customer(
+    where: { nested_numbers: { inner: { _and: [{ _gt: 1 }, { _lt: 3 }] } } }
+  ) {
     id
   }
 }
@@ -513,7 +518,7 @@ query:
         value:
           type: literal
           value: 1
-        
+
 arguments: {}
 collection_relationships: {}
 ```
