@@ -859,7 +859,7 @@ pub enum Expression {
 // ANCHOR: ArrayComparison
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Array Comparison")]
-#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum ArrayComparison {
     /// Check if the array contains the specified value
     Contains { value: ComparisonValue },

@@ -744,6 +744,28 @@
         {
           "type": "object",
           "required": [
+            "column",
+            "comparison",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "array_comparison"
+              ]
+            },
+            "column": {
+              "$ref": "#/definitions/ComparisonTarget"
+            },
+            "comparison": {
+              "$ref": "#/definitions/ArrayComparison"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
             "in_collection",
             "type"
           ],
@@ -942,6 +964,45 @@
         }
       ]
     },
+    "ArrayComparison": {
+      "title": "Array Comparison",
+      "oneOf": [
+        {
+          "description": "Check if the array contains the specified value",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "contains"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/ComparisonValue"
+            }
+          }
+        },
+        {
+          "description": "Check is the array is empty",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_empty"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "ExistsInCollection": {
       "title": "Exists In Collection",
       "oneOf": [
@@ -1009,6 +1070,38 @@
               "type": "string",
               "enum": [
                 "nested_collection"
+              ]
+            },
+            "column_name": {
+              "type": "string"
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested collection via object columns",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "description": "Specifies a column that contains a nested array of scalars. The array will be brought into scope of the nested expression where each element becomes an object with one '__value' column that contains the element value.",
+          "type": "object",
+          "required": [
+            "column_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nested_scalar_collection"
               ]
             },
             "column_name": {

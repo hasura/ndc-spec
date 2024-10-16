@@ -12,7 +12,13 @@
       },
       "variables": {},
       "nested_fields": {
-        "filter_by": {},
+        "filter_by": {
+          "nested_arrays": {
+            "exists": {},
+            "contains": {},
+            "is_empty": {}
+          }
+        },
         "order_by": {},
         "aggregates": {},
         "nested_collections": {}

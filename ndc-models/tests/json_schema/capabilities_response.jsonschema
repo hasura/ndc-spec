@@ -178,7 +178,7 @@
           "description": "Does the connector support filtering by values of nested fields",
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/NestedFieldFilterByCapabilities"
             },
             {
               "type": "null"
@@ -209,6 +209,62 @@
         },
         "nested_collections": {
           "description": "Does the connector support nested collection queries using `NestedField::NestedCollection`",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "NestedFieldFilterByCapabilities": {
+      "title": "Nested Field Filter By Capabilities",
+      "type": "object",
+      "properties": {
+        "nested_arrays": {
+          "description": "Does the connector support filtering over nested arrays",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NestedArrayFilterByCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "NestedArrayFilterByCapabilities": {
+      "title": "Nested Array Filter By Capabilities",
+      "type": "object",
+      "properties": {
+        "exists": {
+          "description": "Does the connector support filtering over nested arrays using existential quantification. This means the connector must support ExistsInCollection::NestedScalarCollection.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contains": {
+          "description": "Does the connector support filtering over nested arrays by checking if the array contains a value. This must be supported for all types that can be contained in an array that implement an 'eq' comparison operator.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "is_empty": {
+          "description": "Does the connector support filtering over nested arrays by checking if the array is empty. This must be supported no matter what type is contained in the array.",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
