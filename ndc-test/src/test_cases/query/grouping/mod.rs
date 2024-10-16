@@ -48,6 +48,7 @@ pub async fn test_grouping<C: Connector, R: Reporter>(
                             )]),
                             dimensions: vec![models::Dimension::Column {
                                 column_name: dimension_column_name.clone(),
+                                arguments: BTreeMap::new(),
                                 field_path: None,
                                 path: vec![],
                             }],
