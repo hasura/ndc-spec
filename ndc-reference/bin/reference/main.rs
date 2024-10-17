@@ -2239,6 +2239,7 @@ fn eval_array_comparison(
     })?;
 
     match comparison {
+        // ANCHOR: eval_array_comparison_contains
         models::ArrayComparison::Contains { value } => {
             let right_vals = eval_comparison_value(
                 collection_relationships,
@@ -2257,7 +2258,10 @@ fn eval_array_comparison(
 
             Ok(false)
         }
+        // ANCHOR_END: eval_array_comparison_contains
+        // ANCHOR: eval_array_comparison_is_empty
         models::ArrayComparison::IsEmpty => Ok(left_val_array.is_empty()),
+        // ANCHOR_END: eval_array_comparison_is_empty
     }
 }
 // ANCHOR_END: eval_array_comparison
@@ -2270,6 +2274,7 @@ fn eval_in_collection(
     in_collection: &models::ExistsInCollection,
 ) -> Result<Vec<Row>> {
     match in_collection {
+        // ANCHOR: eval_in_collection_related
         models::ExistsInCollection::Related {
             relationship,
             arguments,
@@ -2292,6 +2297,8 @@ fn eval_in_collection(
                 &None,
             )
         }
+        // ANCHOR_END: eval_in_collection_related
+        // ANCHOR: eval_in_collection_unrelated
         models::ExistsInCollection::Unrelated {
             collection,
             arguments,
@@ -2303,6 +2310,8 @@ fn eval_in_collection(
 
             get_collection_by_name(collection, &arguments, state)
         }
+        // ANCHOR_END: eval_in_collection_unrelated
+        // ANCHOR: eval_in_collection_nested_collection
         ndc_models::ExistsInCollection::NestedCollection {
             column_name,
             field_path,
@@ -2320,6 +2329,8 @@ fn eval_in_collection(
                 )
             })
         }
+        // ANCHOR_END: eval_in_collection_nested_collection
+        // ANCHOR: eval_in_collection_nested_scalar_collection
         models::ExistsInCollection::NestedScalarCollection {
             field_path,
             column_name,
@@ -2341,7 +2352,7 @@ fn eval_in_collection(
                 .map(|v| BTreeMap::from([(FieldName::from("__value"), v.clone())]))
                 .collect();
             Ok(wrapped_array_values)
-        }
+        } // ANCHOR_END: eval_in_collection_nested_scalar_collection
     }
 }
 // ANCHOR_END: eval_in_collection

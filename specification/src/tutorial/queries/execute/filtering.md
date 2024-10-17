@@ -68,12 +68,60 @@ The reference implementation provides a single custom binary operator as an exam
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_custom_binary_operators}}
 ```
 
+### Scalar Array Comparison Operators
+
+The next category of expressions are the _scalar array comparison operators_. First we must evaluate the _comparison target_ and then we can evaluate the array comparison itself.
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_array_comparison}}
+```
+
+Evaluating the array comparison is done using `eval_array_comparison`. In it, we can evaluate the two standard operators we have: `contains` and `is_empty`.
+
+`contains` simply evaluates the comparison value and then tests whether the array from the comparison target contains any of the comparison values.
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_array_comparison_contains}}
+```
+
+`is_empty` simply checks is the comparison target array is empty:
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_array_comparison_is_empty}}
+```
+
 ### `EXISTS` expressions
 
-An `EXISTS` expression is evaluated by recursively evaluating a `Query` on a related collection, and testing to see whether the resulting `RowSet` contains any rows.
+An `EXISTS` expression is evaluated by recursively evaluating a `Query` on another source of rows, and testing to see whether the resulting `RowSet` contains any rows.
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_exists}}
 ```
 
 Note in particular, we push the current row onto the stack of `scopes` before executing the inner query, so that [references to columns in those scopes](../../../specification/queries/filtering.md#referencing-a-column-from-a-collection-in-scope) can be resolved correctly.
+
+The source of the rows is defined by `in_collection`, which we evaluate with `eval_in_collection` in order to get the rows to evaluate the inner query against. There are four different sources of rows.
+
+The first source of rows is a related collection. We first find the specified relationship, and then use `eval_path_element` to get the rows across that relationship from the current row:
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_in_collection_related}}
+```
+
+The second source of rows is an unrelated collection. This simply returns all rows in that collection by using `get_collection_by_name`:
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_in_collection_unrelated}}
+```
+
+The third source of rows is a nested collection. This allows us to source our rows from a nested array of objects in a column on the current row. We do this using `eval_column_field_path`.
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_in_collection_nested_collection}}
+```
+
+The fourth source of rows is a nested scalar collection. This allows us to read a nested array of scalars from a column on the current row (using `eval_column_field_path`) and create a virtual row for each element in the array, placing the array element into a `__value` field on the row:
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_in_collection_nested_scalar_collection}}
+```
