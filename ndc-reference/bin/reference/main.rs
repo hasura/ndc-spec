@@ -288,12 +288,12 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                     named_scopes: Some(models::LeafCapability {}),
                     unrelated: Some(models::LeafCapability {}),
                     nested_collections: Some(models::LeafCapability {}),
+                    nested_scalar_collections: Some(models::LeafCapability {}),
                 },
                 explain: None,
                 nested_fields: models::NestedFieldCapabilities {
                     filter_by: Some(models::NestedFieldFilterByCapabilities {
                         nested_arrays: Some(models::NestedArrayFilterByCapabilities {
-                            exists: Some(models::LeafCapability {}),
                             contains: Some(models::LeafCapability {}),
                             is_empty: Some(models::LeafCapability {}),
                         }),

@@ -225,7 +225,7 @@
       "type": "object",
       "properties": {
         "nested_arrays": {
-          "description": "Does the connector support filtering over nested arrays",
+          "description": "Does the connector support filtering over nested arrays (ie. Expression::ArrayComparison)",
           "anyOf": [
             {
               "$ref": "#/definitions/NestedArrayFilterByCapabilities"
@@ -241,17 +241,6 @@
       "title": "Nested Array Filter By Capabilities",
       "type": "object",
       "properties": {
-        "exists": {
-          "description": "Does the connector support filtering over nested arrays using existential quantification. This means the connector must support ExistsInCollection::NestedScalarCollection.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "contains": {
           "description": "Does the connector support filtering over nested arrays by checking if the array contains a value. This must be supported for all types that can be contained in an array that implement an 'eq' comparison operator.",
           "anyOf": [
@@ -304,6 +293,17 @@
         },
         "nested_collections": {
           "description": "Does the connector support ExistsInCollection::NestedCollection",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nested_scalar_collections": {
+          "description": "Does the connector support filtering over nested scalar arrays using existential quantification. This means the connector must support ExistsInCollection::NestedScalarCollection.",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"

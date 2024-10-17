@@ -137,18 +137,15 @@ Whether or not these new array comparisons would be supported by the connector w
     "nested_fields": {
       "filter_by": {
         // NEW!!
-        // Does the connector support filtering over nested arrays
+        // Does the connector support filtering over nested arrays (ie. Expression::ArrayComparison)
         "nested_arrays": {
-          // Does the connector support filtering over nested arrays using existential quantification.
-          // This means the connector must support ExistsInCollection::NestedScalarCollection.
-          "exists": {},
           // Does the connector support filtering over nested arrays by checking if the array contains a value.
-          /// This must be supported for all types that can be contained in an array that implement an 'eq'
-          /// comparison operator.
+          // This must be supported for all types that can be contained in an array that implement an 'eq'
+          // comparison operator.
           "contains": {},
           // Does the connector support filtering over nested arrays by checking if the array is empty.
           // This must be supported no matter what type is contained in the array.
-          "isEmpty": {},
+          "is_empty": {},
         },
       },
       "order_by": {},
@@ -156,6 +153,10 @@ Whether or not these new array comparisons would be supported by the connector w
     },
     "exists": {
       "nested_collections": {},
+      // NEW!!
+      // Does the connector support filtering over nested arrays using existential quantification.
+      // This means the connector must support ExistsInCollection::NestedScalarCollection.
+      "nested_scalar_collection": {},
     },
   },
   "mutation": {},

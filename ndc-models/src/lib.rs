@@ -86,6 +86,9 @@ pub struct ExistsCapabilities {
     pub unrelated: Option<LeafCapability>,
     /// Does the connector support ExistsInCollection::NestedCollection
     pub nested_collections: Option<LeafCapability>,
+    /// Does the connector support filtering over nested scalar arrays using existential quantification.
+    /// This means the connector must support ExistsInCollection::NestedScalarCollection.
+    pub nested_scalar_collections: Option<LeafCapability>,
 }
 // ANCHOR_END: ExistsCapabilities
 
@@ -111,7 +114,7 @@ pub struct NestedFieldCapabilities {
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Nested Field Filter By Capabilities")]
 pub struct NestedFieldFilterByCapabilities {
-    /// Does the connector support filtering over nested arrays
+    /// Does the connector support filtering over nested arrays (ie. Expression::ArrayComparison)
     pub nested_arrays: Option<NestedArrayFilterByCapabilities>,
 }
 // ANCHOR_END: NestedFieldFilterByCapabilities
@@ -121,9 +124,6 @@ pub struct NestedFieldFilterByCapabilities {
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Nested Array Filter By Capabilities")]
 pub struct NestedArrayFilterByCapabilities {
-    /// Does the connector support filtering over nested arrays using existential quantification.
-    /// This means the connector must support ExistsInCollection::NestedScalarCollection.
-    pub exists: Option<LeafCapability>,
     /// Does the connector support filtering over nested arrays by checking if the array contains a value.
     /// This must be supported for all types that can be contained in an array that implement an 'eq'
     /// comparison operator.

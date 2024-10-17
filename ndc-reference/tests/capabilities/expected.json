@@ -14,7 +14,6 @@
       "nested_fields": {
         "filter_by": {
           "nested_arrays": {
-            "exists": {},
             "contains": {},
             "is_empty": {}
           }
@@ -26,7 +25,8 @@
       "exists": {
         "named_scopes": {},
         "unrelated": {},
-        "nested_collections": {}
+        "nested_collections": {},
+        "nested_scalar_collections": {}
       }
     },
     "mutation": {},
