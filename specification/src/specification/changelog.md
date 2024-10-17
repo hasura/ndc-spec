@@ -22,6 +22,13 @@ Root column references were generalized to _named scopes_. Scopes are introduced
 - `NestedField::Collection` was added to support [querying nested collections](./queries/field-selection.md#nested-collections).
 - Exists predicates can now [search nested collections](./queries/filtering.html#nested-collections).
 
+### Filtering involving nested scalar arrays
+
+Nested scalar arrays can now be compared against in filter expressions.
+
+- Exists predicates can now [search nested scalar collections](./queries/filtering.md#nested-scalar-collections)
+- Expressions now have [nested array comparison operators](./queries/filtering.md#nested-array-comparison-operators) that can be used to test if a scalar array is empty or if it contains an element
+
 ### Filter by aggregates
 
 `ComparisonTarget` was extended to allow [filtering by aggregates](./queries/filtering.md#computing-an-aggregate).
