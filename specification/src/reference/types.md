@@ -42,6 +42,12 @@
 {{#include ../../../ndc-models/src/lib.rs:ArgumentInfo}}
 ```
 
+## `ArrayComparison`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:ArrayComparison}}
+```
+
 ## `Capabilities`
 
 ```rust,no_run,noplayground
@@ -216,6 +222,12 @@
 {{#include ../../../ndc-models/src/lib.rs:NestedArray}}
 ```
 
+## `NestedArrayFilterByCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:NestedArrayFilterByCapabilities}}
+```
+
 ## `NestedCollection`
 
 ```rust,no_run,noplayground
@@ -232,6 +244,12 @@
 
 ```rust,no_run,noplayground
 {{#include ../../../ndc-models/src/lib.rs:NestedFieldCapabilities}}
+```
+
+## `NestedFieldFilterByCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:NestedFieldFilterByCapabilities}}
 ```
 
 ## `NestedObject`
