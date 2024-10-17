@@ -1,0 +1,58 @@
+{
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "institutions",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "name": {
+        "type": "column",
+        "column": "name"
+      },
+      "location": {
+        "type": "column",
+        "column": "location",
+        "fields": {
+          "type": "object",
+          "fields": {
+            "campuses": {
+              "type": "column",
+              "column": "campuses",
+              "arguments": {
+                "limit": {
+                  "type": "literal",
+                  "value": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "predicate": {
+      "type": "exists",
+      "in_collection": {
+        "type": "nested_scalar_collection",
+        "column_name": "location",
+        "field_path": ["campuses"],
+        "arguments": {}
+      },
+      "predicate": {
+        "type": "binary_comparison_operator",
+        "column": {
+          "type": "column",
+          "name": "__value"
+        },
+        "operator": "like",
+        "value": {
+          "type": "scalar",
+          "value": "d"
+        }
+      }
+    }
+  },
+  "collection_relationships": {}
+}
