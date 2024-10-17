@@ -26,6 +26,18 @@ Root column references were generalized to _named scopes_. Scopes are introduced
 
 `ComparisonTarget` was extended to allow [filtering by aggregates](./queries/filtering.md#computing-an-aggregate).
 
+### Wider field arguments support
+
+Object type fields can declare arguments that must be submitted when the field is evaluated. However, support for using these fields is not universal; there are some features which do not allow the use of fields with arguments, for example in nested field paths, or in relationship column mappings.
+
+Now, support for field arguments has been added to:
+
+- `ComparisonTarget::Column`
+- `ComparisonValue::Column`
+- `OrderByTarget::Column`
+- `Aggregate::ColumnCount`
+- `Aggregate::SingleColumn`
+
 ### `X-Hasura-NDC-Version` header
 
 Clients can now [indicate the intended protocol version](./versioning.md#requirements) in a HTTP header alongside any request.
