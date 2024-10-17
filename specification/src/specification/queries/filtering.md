@@ -71,7 +71,7 @@ Comparison operators compare values. The value on the left hand side of any oper
 
 #### Referencing a column from the same collection
 
-If the `ComparisonTarget` has type `column`, then the `name` property refers to a column in the current collection.
+If the `ComparisonTarget` has type `column`, then the `name` property refers to a column in the current collection. The `arguments` property allows clients to submit argument values for columns that require [arguments](./arguments.html#field-arguments).
 
 #### Referencing nested fields within columns
 
@@ -79,7 +79,7 @@ If the `field_path` property is empty or not present then the target is the valu
 
 If `field_path` is non-empty then it refers to a path to a nested field within the named column
 
-_Note_: a `ComparisonTarget` may only have a non-empty `field_path` if the connector supports capability `query.nested_fields.filter_by`).
+_Note_: a `ComparisonTarget` may only have a non-empty `field_path` if the connector supports capability `query.nested_fields.filter_by`.
 
 #### Computing an aggregate
 
