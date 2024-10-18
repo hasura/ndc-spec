@@ -1,0 +1,82 @@
+{
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "institutions",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "name": {
+        "type": "column",
+        "column": "name"
+      },
+      "location": {
+        "type": "column",
+        "column": "location",
+        "fields": {
+          "type": "object",
+          "fields": {
+            "country_id": {
+              "type": "column",
+              "column": "country_id"
+            },
+            "country": {
+              "type": "relationship",
+              "arguments": {},
+              "relationship": "location_institution_location_country",
+              "query": {
+                "fields": {
+                  "name": {
+                    "type": "column",
+                    "column": "name"
+                  },
+                  "location": {
+                    "type": "column",
+                    "column": "location"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "order_by": {
+      "elements": [
+        {
+          "order_direction": "desc",
+          "target": {
+            "type": "aggregate",
+            "path": [
+              {
+                "field_path": ["location"],
+                "relationship": "location_institution_location_country",
+                "arguments": {},
+                "predicate": null
+              }
+            ],
+            "aggregate": {
+              "type": "star_count"
+            }
+          }
+        },
+        {
+          "order_direction": "desc",
+          "target": {
+            "type": "column",
+            "name": "name",
+            "path": []
+          }
+        }
+      ]
+    }
+  },
+  "collection_relationships": {
+    "location_institution_location_country": {
+      "arguments": {},
+      "column_mapping": {
+        "country_id": ["location", "country_id"]
+      },
+      "relationship_type": "array",
+      "target_collection": "institutions"
+    }
+  }
+}

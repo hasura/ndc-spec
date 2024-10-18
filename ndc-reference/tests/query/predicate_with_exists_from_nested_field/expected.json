@@ -1,0 +1,36 @@
+[
+  {
+    "rows": [
+      {
+        "name": "Chalmers University of Technology",
+        "location": {
+          "country_id": 2,
+          "country": {
+            "rows": [
+              {
+                "id": 2,
+                "name": "Sweden",
+                "area_km2": 450295
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Stockholm University",
+        "location": {
+          "country_id": 2,
+          "country": {
+            "rows": [
+              {
+                "id": 2,
+                "name": "Sweden",
+                "area_km2": 450295
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+]

@@ -94,6 +94,16 @@
             "name": "String"
           }
         }
+      },
+      "foreign_keys": {
+        "Article_AuthorID": {
+          "column_mapping": {
+            "author_id": [
+              "id"
+            ]
+          },
+          "foreign_collection": "authors"
+        }
       }
     },
     "author": {
@@ -120,7 +130,8 @@
             "name": "String"
           }
         }
-      }
+      },
+      "foreign_keys": {}
     },
     "city": {
       "description": "A city",
@@ -132,7 +143,8 @@
             "name": "String"
           }
         }
-      }
+      },
+      "foreign_keys": {}
     },
     "country": {
       "description": "A country",
@@ -179,7 +191,8 @@
             "name": "String"
           }
         }
-      }
+      },
+      "foreign_keys": {}
     },
     "institution": {
       "description": "An institution",
@@ -247,7 +260,8 @@
             }
           }
         }
-      }
+      },
+      "foreign_keys": {}
     },
     "location": {
       "description": "A location",
@@ -293,6 +307,16 @@
             "type": "named",
             "name": "Int"
           }
+        }
+      },
+      "foreign_keys": {
+        "Location_CountryID": {
+          "column_mapping": {
+            "country_id": [
+              "id"
+            ]
+          },
+          "foreign_collection": "countries"
         }
       }
     },
@@ -341,6 +365,16 @@
             }
           }
         }
+      },
+      "foreign_keys": {
+        "Staff_BornCountryID": {
+          "column_mapping": {
+            "born_country_id": [
+              "id"
+            ]
+          },
+          "foreign_collection": "countries"
+        }
       }
     }
   },
@@ -356,14 +390,6 @@
             "id"
           ]
         }
-      },
-      "foreign_keys": {
-        "Article_AuthorID": {
-          "column_mapping": {
-            "author_id": "id"
-          },
-          "foreign_collection": "authors"
-        }
       }
     },
     {
@@ -377,8 +403,7 @@
             "id"
           ]
         }
-      },
-      "foreign_keys": {}
+      }
     },
     {
       "name": "institutions",
@@ -391,8 +416,7 @@
             "id"
           ]
         }
-      },
-      "foreign_keys": {}
+      }
     },
     {
       "name": "countries",
@@ -405,8 +429,7 @@
             "id"
           ]
         }
-      },
-      "foreign_keys": {}
+      }
     },
     {
       "name": "articles_by_author",
@@ -420,8 +443,7 @@
         }
       },
       "type": "article",
-      "uniqueness_constraints": {},
-      "foreign_keys": {}
+      "uniqueness_constraints": {}
     }
   ],
   "functions": [

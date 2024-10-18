@@ -56,6 +56,8 @@ Within the scope of a nested object, that object should be used as the "current 
   - A [column mapping](./relationships.md#column-mappings) refers to fields from the nested object,
   - A [relationship argument](./arguments.md#relationships) which selects a column refers to fields of the nested object.
 
+Note that only connectors that enable the `relationships.nested` capability will receive queries where relationships start from a nested object. Additionally, only connectors that enable the `relationships.nested.array` will receive queries where relationships start from nested objects inside nested arrays.
+
 ## Examples
 
 ### Simple column selection

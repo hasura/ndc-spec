@@ -1,0 +1,22 @@
+[
+  {
+    "groups": [
+      {
+        "dimensions": [
+          "UK"
+        ],
+        "aggregates": {
+          "institution_count": 1
+        }
+      },
+      {
+        "dimensions": [
+          "Sweden"
+        ],
+        "aggregates": {
+          "institution_count": 2
+        }
+      }
+    ]
+  }
+]

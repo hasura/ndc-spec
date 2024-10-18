@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     cmp::Ordering,
     collections::{BTreeMap, HashSet},
     env,
@@ -310,6 +311,9 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
             relationships: Some(models::RelationshipCapabilities {
                 order_by_aggregate: Some(models::LeafCapability {}),
                 relation_comparisons: Some(models::LeafCapability {}),
+                nested: Some(models::NestedRelationshipCapabilities {
+                    array: Some(models::LeafCapability {}),
+                }),
             }),
         },
     })
@@ -427,6 +431,13 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
         ]),
+        foreign_keys: BTreeMap::from_iter([(
+            "Article_AuthorID".into(),
+            models::ForeignKeyConstraint {
+                foreign_collection: "authors".into(),
+                column_mapping: BTreeMap::from_iter([("author_id".into(), vec!["id".into()])]),
+            },
+        )]),
     };
     // ANCHOR_END: schema_object_type_article
     // ANCHOR: schema_object_type_author
@@ -462,6 +473,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
         ]),
+        foreign_keys: BTreeMap::new(),
     };
     // ANCHOR_END: schema_object_type_author
     // ANCHOR: schema_object_type_institution
@@ -521,6 +533,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
         ]),
+        foreign_keys: BTreeMap::new(),
     };
     // ANCHOR_END: schema_object_type_institution
     // ANCHOR: schema_object_type_location
@@ -568,6 +581,13 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
         ]),
+        foreign_keys: BTreeMap::from_iter([(
+            "Location_CountryID".into(),
+            models::ForeignKeyConstraint {
+                foreign_collection: "countries".into(),
+                column_mapping: BTreeMap::from_iter([("country_id".into(), vec!["id".into()])]),
+            },
+        )]),
     };
     // ANCHOR_END: schema_object_type_location
     // ANCHOR: schema_object_type_staff_member
@@ -615,6 +635,16 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
         ]),
+        foreign_keys: BTreeMap::from_iter([(
+            "Staff_BornCountryID".into(),
+            models::ForeignKeyConstraint {
+                foreign_collection: "countries".into(),
+                column_mapping: BTreeMap::from_iter([(
+                    "born_country_id".into(),
+                    vec!["id".into()],
+                )]),
+            },
+        )]),
     };
     // ANCHOR_END: schema_object_type_staff_member
     // ANCHOR: schema_object_type_country
@@ -660,6 +690,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
         ]),
+        foreign_keys: BTreeMap::new(),
     };
     // ANCHOR_END: schema_object_type_country
     // ANCHOR: schema_object_type_city
@@ -675,6 +706,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 arguments: BTreeMap::new(),
             },
         )]),
+        foreign_keys: BTreeMap::new(),
     };
     // ANCHOR_END: schema_object_type_city
     // ANCHOR: schema_object_types
@@ -694,13 +726,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         description: Some("A collection of articles".into()),
         collection_type: "article".into(),
         arguments: BTreeMap::new(),
-        foreign_keys: BTreeMap::from_iter([(
-            "Article_AuthorID".into(),
-            models::ForeignKeyConstraint {
-                foreign_collection: "authors".into(),
-                column_mapping: BTreeMap::from_iter([("author_id".into(), "id".into())]),
-            },
-        )]),
         uniqueness_constraints: BTreeMap::from_iter([(
             "ArticleByID".into(),
             models::UniquenessConstraint {
@@ -715,7 +740,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         description: Some("A collection of authors".into()),
         collection_type: "author".into(),
         arguments: BTreeMap::new(),
-        foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::from_iter([(
             "AuthorByID".into(),
             models::UniquenessConstraint {
@@ -730,7 +754,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         description: Some("A collection of institutions".into()),
         collection_type: "institution".into(),
         arguments: BTreeMap::new(),
-        foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::from_iter([(
             "InstitutionByID".into(),
             models::UniquenessConstraint {
@@ -745,7 +768,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         description: Some("A collection of countries".into()),
         collection_type: "country".into(),
         arguments: BTreeMap::new(),
-        foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::from_iter([(
             "CountryByID".into(),
             models::UniquenessConstraint {
@@ -766,7 +788,6 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 description: None,
             },
         )]),
-        foreign_keys: BTreeMap::new(),
         uniqueness_constraints: BTreeMap::new(),
     };
     // ANCHOR_END: schema_collection_articles_by_author
@@ -1816,6 +1837,7 @@ fn eval_path(
             relationship,
             &path_element.arguments,
             &result,
+            path_element.field_path.as_deref(),
             &path_element.predicate,
         )?;
     }
@@ -1823,6 +1845,7 @@ fn eval_path(
     Ok(result)
 }
 // ANCHOR_END: eval_path
+#[allow(clippy::too_many_arguments)]
 // ANCHOR: eval_path_element
 fn eval_path_element(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
@@ -1831,6 +1854,7 @@ fn eval_path_element(
     relationship: &models::Relationship,
     arguments: &BTreeMap<models::ArgumentName, models::RelationshipArgument>,
     source: &[Row],
+    field_path: Option<&[models::FieldName]>,
     predicate: &Option<Box<models::Expression>>,
 ) -> Result<Vec<Row>> {
     let mut matching_rows: Vec<Row> = vec![];
@@ -1853,13 +1877,15 @@ fn eval_path_element(
     // single array relationship, so there should be no double counting.
 
     for src_row in source {
+        let src_row = eval_row_field_path(field_path, src_row)?;
+
         let mut all_arguments = BTreeMap::new();
 
         for (argument_name, argument_value) in &relationship.arguments {
             if all_arguments
                 .insert(
                     argument_name.clone(),
-                    eval_relationship_argument(variables, src_row, argument_value)?,
+                    eval_relationship_argument(variables, &src_row, argument_value)?,
                 )
                 .is_some()
             {
@@ -1877,7 +1903,7 @@ fn eval_path_element(
             if all_arguments
                 .insert(
                     argument_name.clone(),
-                    eval_relationship_argument(variables, src_row, argument_value)?,
+                    eval_relationship_argument(variables, &src_row, argument_value)?,
                 )
                 .is_some()
             {
@@ -1895,7 +1921,7 @@ fn eval_path_element(
             get_collection_by_name(&relationship.target_collection, &all_arguments, state)?;
 
         for tgt_row in &target {
-            if eval_column_mapping(relationship, src_row, tgt_row)?
+            if eval_column_mapping(relationship, &src_row, tgt_row)?
                 && if let Some(expression) = predicate {
                     eval_expression(
                         collection_relationships,
@@ -1917,6 +1943,40 @@ fn eval_path_element(
     Ok(matching_rows)
 }
 // ANCHOR_END: eval_path_element
+// ANCHOR: eval_row_field_path
+fn eval_row_field_path(field_path: Option<&[ndc_models::FieldName]>, row: &Row) -> Result<Row> {
+    if let Some(field_path) = field_path {
+        field_path
+            .iter()
+            .try_fold(row.clone(), |mut row, field_name| {
+                row.remove(field_name.as_str())
+                    .ok_or_else(|| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "invalid row field path".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })
+                    .and_then(|value| {
+                        serde_json::from_value(value).map_err(|_| {
+                            (
+                                StatusCode::BAD_REQUEST,
+                                Json(models::ErrorResponse {
+                                    message: "Expected object when navigating row field path"
+                                        .into(),
+                                    details: serde_json::Value::Null,
+                                }),
+                            )
+                        })
+                    })
+            })
+    } else {
+        Ok(row.clone())
+    }
+}
+// ANCHOR_END: eval_row_field_path
 // ANCHOR: eval_argument
 fn eval_argument(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
@@ -2276,6 +2336,7 @@ fn eval_in_collection(
     match in_collection {
         // ANCHOR: eval_in_collection_related
         models::ExistsInCollection::Related {
+            field_path,
             relationship,
             arguments,
         } => {
@@ -2294,6 +2355,7 @@ fn eval_in_collection(
                 relationship,
                 arguments,
                 &source,
+                field_path.as_deref(),
                 &None,
             )
         }
@@ -2418,7 +2480,15 @@ fn eval_column(
                     )
                 })?;
 
-        let result_array = array[0..limit.unwrap_or(array.len())].to_vec();
+        let array_length = array.len();
+        let limit = limit.map_or(array_length, |l| {
+            if l > array_length {
+                array_length
+            } else {
+                l
+            }
+        });
+        let result_array = array[0..limit].to_vec();
 
         Ok(serde_json::Value::Array(result_array))
     } else {
@@ -2637,6 +2707,7 @@ fn eval_field(
                 relationship,
                 arguments,
                 &source,
+                None,
                 &None,
             )?;
             let row_set = execute_query(
@@ -2918,16 +2989,34 @@ fn eval_column_mapping(
     src_row: &Row,
     tgt_row: &Row,
 ) -> Result<bool> {
-    for (src_column, tgt_column) in &relationship.column_mapping {
+    for (src_column, tgt_column_path) in &relationship.column_mapping {
         let src_value = eval_column(
             &BTreeMap::default(),
             src_row,
             src_column,
             &BTreeMap::default(),
         )?;
+
+        let (tgt_row, tgt_column) = match tgt_column_path.as_slice() {
+            [tgt_column] => (Cow::Borrowed(tgt_row), tgt_column),
+            [field_path @ .., tgt_column] => {
+                let nested_row = eval_row_field_path(Some(field_path), tgt_row)?;
+                (Cow::Owned(nested_row), tgt_column)
+            }
+            [] => {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: format!("relationship column mapping target column path were empty for column {src_column}"),
+                        details: serde_json::Value::Null,
+                    }),
+                ));
+            }
+        };
+
         let tgt_value = eval_column(
             &BTreeMap::default(),
-            tgt_row,
+            &tgt_row,
             tgt_column,
             &BTreeMap::default(),
         )?;

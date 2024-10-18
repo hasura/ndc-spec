@@ -368,6 +368,34 @@
               "type": "null"
             }
           ]
+        },
+        "nested": {
+          "description": "Does the connector support navigating a relationship from inside a nested object",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NestedRelationshipCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "NestedRelationshipCapabilities": {
+      "title": "Nested Relationship Capabilities",
+      "type": "object",
+      "properties": {
+        "array": {
+          "description": "Does the connector support navigating a relationship from inside a nested object inside a nested array",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     }
