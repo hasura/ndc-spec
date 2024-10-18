@@ -16,7 +16,7 @@ To compute the ordering from the `order_by` field, data connectors should implem
 ### Type `column`
 
 The property `element.target.name` refers to a column name.
-If the connector supports capability `query.nested_fields.order_by` then the target may also [reference nested fields within a column](./filtering.md#referencing-nested-fields-within-columns) using the `field_path` property.
+If the connector supports capability `query.nested_fields.order_by` then the target may also [reference nested fields within a column](./filtering.md#referencing-nested-fields-within-columns) using the `field_path` property. If the column has [arguments](./arguments.html#field-arguments), the the `arguments` property is used to provide values for the arguments.
 
 If `element.order_direction` is `asc`, then the row with the smaller column comes first.
 

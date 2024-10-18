@@ -596,6 +596,9 @@ pub enum Dimension {
     Column {
         /// The name of the column
         column_name: FieldName,
+        /// Arguments to satisfy the column specified by 'column_name'
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap<ArgumentName, Argument>,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
         /// Any (object) relationships to traverse to reach this column
@@ -649,6 +652,9 @@ pub enum Aggregate {
     ColumnCount {
         /// The column to apply the count aggregate function to
         column: FieldName,
+        /// Arguments to satisfy the column specified by 'column'
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap<ArgumentName, Argument>,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
         /// Whether or not only distinct items should be counted
@@ -657,6 +663,9 @@ pub enum Aggregate {
     SingleColumn {
         /// The column to apply the aggregation function to
         column: FieldName,
+        /// Arguments to satisfy the column specified by 'column'
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap<ArgumentName, Argument>,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
         /// Single column aggregate function name.
@@ -756,6 +765,9 @@ pub enum OrderByTarget {
     Column {
         /// The name of the column
         name: FieldName,
+        /// Arguments to satisfy the column specified by 'name'
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap<ArgumentName, Argument>,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
         /// Any (object) relationships to traverse to reach this column
@@ -832,6 +844,9 @@ pub enum ComparisonTarget {
     Column {
         /// The name of the column
         name: FieldName,
+        /// Arguments to satisfy the column specified by 'name'
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap<ArgumentName, Argument>,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
     },
@@ -866,6 +881,9 @@ pub enum ComparisonValue {
     Column {
         /// The name of the column
         name: FieldName,
+        /// Arguments to satisfy the column specified by 'name'
+        #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+        arguments: BTreeMap<ArgumentName, Argument>,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
         /// Any relationships to traverse to reach this column

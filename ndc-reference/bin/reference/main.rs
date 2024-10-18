@@ -1118,7 +1118,7 @@ fn execute_query(
     let aggregates = query
         .aggregates
         .as_ref()
-        .map(|aggregates| eval_aggregates(aggregates, &paginated))
+        .map(|aggregates| eval_aggregates(variables, aggregates, &paginated))
         .transpose()?;
     // ANCHOR_END: execute_query_aggregates
     // ANCHOR: execute_query_groups
@@ -1188,7 +1188,7 @@ fn eval_groups(
         .collect();
     // ANCHOR_END: eval_groups_partition
     // ANCHOR: eval_groups_sort
-    let sorted = group_sort(chunks, &grouping.order_by)?;
+    let sorted = group_sort(variables, chunks, &grouping.order_by)?;
     // ANCHOR_END: eval_groups_sort
     // ANCHOR: eval_groups_filter
     let mut groups: Vec<models::Group> = vec![];
@@ -1200,7 +1200,7 @@ fn eval_groups(
         for (aggregate_name, aggregate) in &grouping.aggregates {
             aggregates.insert(
                 aggregate_name.clone(),
-                eval_aggregate(aggregate, &chunk.rows)?,
+                eval_aggregate(variables, aggregate, &chunk.rows)?,
             );
         }
         if let Some(predicate) = &grouping.predicate {
@@ -1258,14 +1258,14 @@ fn eval_group_expression(
             operator,
             value,
         } => {
-            let left_val = eval_group_comparison_target(target, rows)?;
+            let left_val = eval_group_comparison_target(variables, target, rows)?;
             let right_vals = eval_aggregate_comparison_value(variables, value)?;
             eval_comparison_operator(operator, &left_val, &right_vals)
         }
         ndc_models::GroupExpression::UnaryComparisonOperator { target, operator } => match operator
         {
             models::UnaryComparisonOperator::IsNull => {
-                let val = eval_group_comparison_target(target, rows)?;
+                let val = eval_group_comparison_target(variables, target, rows)?;
                 Ok(val.is_null())
             }
         },
@@ -1302,7 +1302,11 @@ struct Chunk {
 }
 // ANCHOR_END: Chunk
 // ANCHOR: group_sort
-fn group_sort(groups: Vec<Chunk>, order_by: &Option<models::GroupOrderBy>) -> Result<Vec<Chunk>> {
+fn group_sort(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    groups: Vec<Chunk>,
+    order_by: &Option<models::GroupOrderBy>,
+) -> Result<Vec<Chunk>> {
     match order_by {
         None => Ok(groups),
         Some(order_by) => {
@@ -1311,7 +1315,7 @@ fn group_sort(groups: Vec<Chunk>, order_by: &Option<models::GroupOrderBy>) -> Re
                 let mut index = 0;
                 for other in &copy {
                     if let Ordering::Greater =
-                        eval_group_order_by(order_by, other, &item_to_insert)?
+                        eval_group_order_by(variables, order_by, other, &item_to_insert)?
                     {
                         break;
                     }
@@ -1327,6 +1331,7 @@ fn group_sort(groups: Vec<Chunk>, order_by: &Option<models::GroupOrderBy>) -> Re
 
 // ANCHOR: eval_group_order_by
 fn eval_group_order_by(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     order_by: &models::GroupOrderBy,
     t1: &Chunk,
     t2: &Chunk,
@@ -1334,8 +1339,8 @@ fn eval_group_order_by(
     let mut result = Ordering::Equal;
 
     for element in &order_by.elements {
-        let v1 = eval_group_order_by_element(element, t1)?;
-        let v2 = eval_group_order_by_element(element, t2)?;
+        let v1 = eval_group_order_by_element(variables, element, t1)?;
+        let v2 = eval_group_order_by_element(variables, element, t2)?;
         let x = match element.order_direction {
             models::OrderDirection::Asc => compare(v1, v2)?,
             models::OrderDirection::Desc => compare(v2, v1)?,
@@ -1348,6 +1353,7 @@ fn eval_group_order_by(
 // ANCHOR_END: eval_group_order_by
 // ANCHOR: eval_group_order_by_element
 fn eval_group_order_by_element(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     element: &models::GroupOrderByElement,
     group: &Chunk,
 ) -> Result<serde_json::Value> {
@@ -1362,7 +1368,7 @@ fn eval_group_order_by_element(
             ))
         }
         models::GroupOrderByTarget::Aggregate { aggregate } => {
-            eval_aggregate(&aggregate, &group.rows)
+            eval_aggregate(variables, &aggregate, &group.rows)
         }
     }
 }
@@ -1394,6 +1400,7 @@ fn eval_dimension(
     match dimension {
         models::Dimension::Column {
             column_name,
+            arguments,
             field_path,
             path,
         } => eval_column_at_path(
@@ -1403,6 +1410,7 @@ fn eval_dimension(
             row,
             path,
             column_name,
+            arguments,
             field_path.as_deref(),
         ),
     }
@@ -1428,16 +1436,20 @@ fn eval_row(
 // ANCHOR_END: eval_row
 // ANCHOR: eval_group_comparison_target
 fn eval_group_comparison_target(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     target: &models::GroupComparisonTarget,
     rows: &[Row],
 ) -> Result<serde_json::Value> {
     match target {
-        models::GroupComparisonTarget::Aggregate { aggregate } => eval_aggregate(aggregate, rows),
+        models::GroupComparisonTarget::Aggregate { aggregate } => {
+            eval_aggregate(variables, aggregate, rows)
+        }
     }
 }
 // ANCHOR_END: eval_group_comparison_target
 // ANCHOR: eval_aggregates
 fn eval_aggregates(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     aggregates: &IndexMap<ndc_models::FieldName, ndc_models::Aggregate>,
     rows: &[Row],
 ) -> std::result::Result<
@@ -1446,24 +1458,32 @@ fn eval_aggregates(
 > {
     let mut row: IndexMap<models::FieldName, serde_json::Value> = IndexMap::new();
     for (aggregate_name, aggregate) in aggregates {
-        row.insert(aggregate_name.clone(), eval_aggregate(aggregate, rows)?);
+        row.insert(
+            aggregate_name.clone(),
+            eval_aggregate(variables, aggregate, rows)?,
+        );
     }
     Ok(row)
 }
 // ANCHOR_END: eval_aggregates
 // ANCHOR: eval_aggregate
-fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_json::Value> {
+fn eval_aggregate(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    aggregate: &models::Aggregate,
+    rows: &[Row],
+) -> Result<serde_json::Value> {
     match aggregate {
         models::Aggregate::StarCount {} => Ok(serde_json::Value::from(rows.len())),
         models::Aggregate::ColumnCount {
             column,
+            arguments,
             field_path,
             distinct,
         } => {
             let values = rows
                 .iter()
                 .map(|row| {
-                    eval_column_field_path(row, column, field_path.as_deref(), &BTreeMap::new())
+                    eval_column_field_path(variables, row, column, field_path.as_deref(), arguments)
                 })
                 .collect::<Result<Vec<_>>>()?;
 
@@ -1499,13 +1519,14 @@ fn eval_aggregate(aggregate: &models::Aggregate, rows: &[Row]) -> Result<serde_j
         }
         models::Aggregate::SingleColumn {
             column,
+            arguments,
             field_path,
             function,
         } => {
             let values = rows
                 .iter()
                 .map(|row| {
-                    eval_column_field_path(row, column, field_path.as_deref(), &BTreeMap::new())
+                    eval_column_field_path(variables, row, column, field_path.as_deref(), arguments)
                 })
                 .collect::<Result<Vec<_>>>()?;
             eval_aggregate_function(function, &values)
@@ -1668,6 +1689,7 @@ fn eval_order_by_element(
     match element.target.clone() {
         models::OrderByTarget::Column {
             name,
+            arguments,
             field_path,
             path,
         } => eval_column_at_path(
@@ -1677,6 +1699,7 @@ fn eval_order_by_element(
             item,
             &path,
             &name,
+            &arguments,
             field_path.as_deref(),
         ),
         models::OrderByTarget::Aggregate { aggregate, path } => {
@@ -1687,19 +1710,20 @@ fn eval_order_by_element(
                 &path,
                 &[item.clone()],
             )?;
-            eval_aggregate(&aggregate, &rows)
+            eval_aggregate(variables, &aggregate, &rows)
         }
     }
 }
 // ANCHOR_END: eval_order_by_element
 // ANCHOR: eval_column_field_path
 fn eval_column_field_path(
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
     row: &Row,
     column_name: &models::FieldName,
     field_path: Option<&[models::FieldName]>,
     arguments: &BTreeMap<models::ArgumentName, models::Argument>,
 ) -> Result<serde_json::Value> {
-    let column_value = eval_column(&BTreeMap::default(), row, column_name, arguments)?;
+    let column_value = eval_column(variables, row, column_name, arguments)?;
     match field_path {
         None => Ok(column_value),
         Some(path) => eval_field_path(path, &column_value),
@@ -1724,6 +1748,7 @@ fn eval_field_path(
 }
 // ANCHOR_END: eval_field_path
 // ANCHOR: eval_column_at_path
+#[allow(clippy::too_many_arguments)]
 fn eval_column_at_path(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
@@ -1731,6 +1756,7 @@ fn eval_column_at_path(
     item: &Row,
     path: &[models::PathElement],
     name: &models::FieldName,
+    arguments: &BTreeMap<models::ArgumentName, models::Argument>,
     field_path: Option<&[models::FieldName]>,
 ) -> Result<serde_json::Value> {
     let rows: Vec<Row> = eval_path(
@@ -1751,7 +1777,7 @@ fn eval_column_at_path(
         ));
     }
     match rows.first() {
-        Some(row) => eval_column_field_path(row, name, field_path, &BTreeMap::new()),
+        Some(row) => eval_column_field_path(variables, row, name, field_path, arguments),
         None => Ok(serde_json::Value::Null),
     }
 }
@@ -2217,7 +2243,8 @@ fn eval_in_collection(
             field_path,
             arguments,
         } => {
-            let value = eval_column_field_path(item, column_name, Some(field_path), arguments)?;
+            let value =
+                eval_column_field_path(variables, item, column_name, Some(field_path), arguments)?;
             serde_json::from_value(value).map_err(|_| {
                 (
                     StatusCode::BAD_REQUEST,
@@ -2240,9 +2267,11 @@ fn eval_comparison_target(
     item: &Row,
 ) -> Result<serde_json::Value> {
     match target {
-        models::ComparisonTarget::Column { name, field_path } => {
-            eval_column_field_path(item, name, field_path.as_deref(), &BTreeMap::new())
-        }
+        models::ComparisonTarget::Column {
+            name,
+            arguments,
+            field_path,
+        } => eval_column_field_path(variables, item, name, field_path.as_deref(), arguments),
         models::ComparisonTarget::Aggregate { aggregate, path } => {
             let rows: Vec<Row> = eval_path(
                 collection_relationships,
@@ -2251,7 +2280,7 @@ fn eval_comparison_target(
                 path,
                 &[item.clone()],
             )?;
-            eval_aggregate(aggregate, &rows)
+            eval_aggregate(variables, aggregate, &rows)
         }
     }
 }
@@ -2311,6 +2340,7 @@ fn eval_comparison_value(
     match comparison_value {
         models::ComparisonValue::Column {
             name,
+            arguments,
             field_path,
             path,
             scope,
@@ -2340,7 +2370,7 @@ fn eval_comparison_value(
             items
                 .iter()
                 .map(|item| {
-                    eval_column_field_path(item, name, field_path.as_deref(), &BTreeMap::new())
+                    eval_column_field_path(variables, item, name, field_path.as_deref(), arguments)
                 })
                 .collect()
         }

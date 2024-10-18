@@ -12,6 +12,8 @@ There are three types of aggregate:
 
 If the connector supports capability `query.nested_fields.aggregates` then `single_column` and `column_count` aggregates may also [reference nested fields within a column](./filtering.md#referencing-nested-fields-within-columns) using the `field_path` property.
 
+If the column referenced in `single_column` and `column_count` aggregates has [arguments](./arguments.html#field-arguments) defined for it in the schema, then the `arguments` property is used to provide values for those arguments.
+
 ## Example
 
 The following query object requests the aggregated sum of all order totals, along with the count of all orders, and the count of all orders which have associated invoices (via the nullable `invoice_id` column):
