@@ -6,6 +6,7 @@
 
 - `ComparisonTarget::RootCollectionColumn` was removed and replaced by _named scopes_ ([RFC](https://github.com/hasura/ndc-spec/blob/36855ff20dcbd7d129427794aee9746b895390af/rfcs/0015-named-scopes.md))
 - `path` was removed from `ComparisonTarget::Column` ([RFC](https://github.com/hasura/ndc-spec/blob/36855ff20dcbd7d129427794aee9746b895390af/rfcs/0011-no-paths-in-comparison-target.md))
+- `AggregateFunctionDefinition` was changed to an `enum`, to support _standardized aggregate functions_ ([RFC](https://github.com/hasura/ndc-spec/blob/a6610169f72cec6792d5e0830c57254e212b37d9/rfcs/0021-comparison-and-aggregate-meanings.md))
 
 ### Specification
 
