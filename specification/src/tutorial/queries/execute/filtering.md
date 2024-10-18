@@ -102,11 +102,15 @@ Note in particular, we push the current row onto the stack of `scopes` before ex
 
 The source of the rows is defined by `in_collection`, which we evaluate with `eval_in_collection` in order to get the rows to evaluate the inner query against. There are four different sources of rows.
 
+#### `ExistsInCollection::Related`
+
 The first source of rows is a related collection. We first find the specified relationship, and then use `eval_path_element` to get the rows across that relationship from the current row:
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_in_collection_related}}
 ```
+
+#### `ExistsInCollection::Unrelated`
 
 The second source of rows is an unrelated collection. This simply returns all rows in that collection by using `get_collection_by_name`:
 
@@ -114,11 +118,15 @@ The second source of rows is an unrelated collection. This simply returns all ro
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_in_collection_unrelated}}
 ```
 
+#### `ExistsInCollection::NestedCollection`
+
 The third source of rows is a nested collection. This allows us to source our rows from a nested array of objects in a column on the current row. We do this using `eval_column_field_path`.
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_in_collection_nested_collection}}
 ```
+
+#### `ExistsInCollection::NestedScalarCollection`
 
 The fourth source of rows is a nested scalar collection. This allows us to read a nested array of scalars from a column on the current row (using `eval_column_field_path`) and create a virtual row for each element in the array, placing the array element into a `__value` field on the row:
 
