@@ -2,7 +2,7 @@
 
 | Version |
 | ------- |
-| `0.1.0` |
+| `0.2.0` |
 
 A data connector encapsulates a data source by implementing the protocol in this specification.
 
@@ -15,3 +15,4 @@ A data connector must implement several web service endpoints:
 - A **mutation** endpoint, which modifies the data in one of the relations described by the schema endpoint.
 - A **mutation/explain** endpoint, which explains a mutation plan, without actually executing it.
 - A **metrics** endpoint, which exposes runtime metrics about the data connector.
+- A **health** endpoint, which indicates service health and readiness

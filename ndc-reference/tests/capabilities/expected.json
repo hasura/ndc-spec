@@ -12,7 +12,12 @@
       },
       "variables": {},
       "nested_fields": {
-        "filter_by": {},
+        "filter_by": {
+          "nested_arrays": {
+            "contains": {},
+            "is_empty": {}
+          }
+        },
         "order_by": {},
         "aggregates": {},
         "nested_collections": {}
@@ -20,7 +25,8 @@
       "exists": {
         "named_scopes": {},
         "unrelated": {},
-        "nested_collections": {}
+        "nested_collections": {},
+        "nested_scalar_collections": {}
       }
     },
     "mutation": {},

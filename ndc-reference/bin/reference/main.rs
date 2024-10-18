@@ -16,6 +16,7 @@ use axum::{
 };
 use indexmap::IndexMap;
 use itertools::Itertools;
+use models::FieldName;
 use ndc_models::{self as models};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
@@ -287,10 +288,16 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                     named_scopes: Some(models::LeafCapability {}),
                     unrelated: Some(models::LeafCapability {}),
                     nested_collections: Some(models::LeafCapability {}),
+                    nested_scalar_collections: Some(models::LeafCapability {}),
                 },
                 explain: None,
                 nested_fields: models::NestedFieldCapabilities {
-                    filter_by: Some(models::LeafCapability {}),
+                    filter_by: Some(models::NestedFieldFilterByCapabilities {
+                        nested_arrays: Some(models::NestedArrayFilterByCapabilities {
+                            contains: Some(models::LeafCapability {}),
+                            is_empty: Some(models::LeafCapability {}),
+                        }),
+                    }),
                     order_by: Some(models::LeafCapability {}),
                     aggregates: Some(models::LeafCapability {}),
                     nested_collections: Some(models::LeafCapability {}),
@@ -2048,6 +2055,21 @@ fn eval_expression(
             eval_comparison_operator(operator, &left_val, &right_vals)
         }
         // ANCHOR_END: eval_expression_binary_operators
+        // ANCHOR: eval_expression_array_comparison
+        models::Expression::ArrayComparison { column, comparison } => {
+            let left_val =
+                eval_comparison_target(collection_relationships, variables, state, column, item)?;
+            eval_array_comparison(
+                collection_relationships,
+                variables,
+                &left_val,
+                comparison,
+                state,
+                scopes,
+                item,
+            )
+        }
+        // ANCHOR_END: eval_expression_array_comparison
         // ANCHOR: eval_expression_exists
         models::Expression::Exists {
             in_collection,
@@ -2085,7 +2107,7 @@ fn eval_expression(
                 }),
             ))?;
             Ok(!rows.is_empty())
-        } // ANCHOR_END: eval_expression_exists
+        } // ANCHOR_END: eval_expression_exists,
     }
 }
 // ANCHOR_END: eval_expression
@@ -2196,6 +2218,53 @@ fn eval_comparison_operator(
     }
 }
 // ANCHOR_END: eval_comparison_operator
+// ANCHOR: eval_array_comparison
+fn eval_array_comparison(
+    collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
+    variables: &BTreeMap<models::VariableName, serde_json::Value>,
+    left_val: &serde_json::Value,
+    comparison: &models::ArrayComparison,
+    state: &AppState,
+    scopes: &[&BTreeMap<models::FieldName, serde_json::Value>],
+    item: &BTreeMap<models::FieldName, serde_json::Value>,
+) -> Result<bool> {
+    let left_val_array = left_val.as_array().ok_or_else(|| {
+        (
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "column used in array comparison is not an array".into(),
+                details: serde_json::Value::Null,
+            }),
+        )
+    })?;
+
+    match comparison {
+        // ANCHOR: eval_array_comparison_contains
+        models::ArrayComparison::Contains { value } => {
+            let right_vals = eval_comparison_value(
+                collection_relationships,
+                variables,
+                value,
+                state,
+                scopes,
+                item,
+            )?;
+
+            for right_val in right_vals {
+                if left_val_array.contains(&right_val) {
+                    return Ok(true);
+                }
+            }
+
+            Ok(false)
+        }
+        // ANCHOR_END: eval_array_comparison_contains
+        // ANCHOR: eval_array_comparison_is_empty
+        models::ArrayComparison::IsEmpty => Ok(left_val_array.is_empty()),
+        // ANCHOR_END: eval_array_comparison_is_empty
+    }
+}
+// ANCHOR_END: eval_array_comparison
 // ANCHOR: eval_in_collection
 fn eval_in_collection(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
@@ -2205,6 +2274,7 @@ fn eval_in_collection(
     in_collection: &models::ExistsInCollection,
 ) -> Result<Vec<Row>> {
     match in_collection {
+        // ANCHOR: eval_in_collection_related
         models::ExistsInCollection::Related {
             relationship,
             arguments,
@@ -2227,6 +2297,8 @@ fn eval_in_collection(
                 &None,
             )
         }
+        // ANCHOR_END: eval_in_collection_related
+        // ANCHOR: eval_in_collection_unrelated
         models::ExistsInCollection::Unrelated {
             collection,
             arguments,
@@ -2238,6 +2310,8 @@ fn eval_in_collection(
 
             get_collection_by_name(collection, &arguments, state)
         }
+        // ANCHOR_END: eval_in_collection_unrelated
+        // ANCHOR: eval_in_collection_nested_collection
         ndc_models::ExistsInCollection::NestedCollection {
             column_name,
             field_path,
@@ -2255,6 +2329,30 @@ fn eval_in_collection(
                 )
             })
         }
+        // ANCHOR_END: eval_in_collection_nested_collection
+        // ANCHOR: eval_in_collection_nested_scalar_collection
+        models::ExistsInCollection::NestedScalarCollection {
+            field_path,
+            column_name,
+            arguments,
+        } => {
+            let value =
+                eval_column_field_path(variables, item, column_name, Some(field_path), arguments)?;
+            let value_array = value.as_array().ok_or_else(|| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "nested scalar collection column value must be an array".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                )
+            })?;
+            let wrapped_array_values = value_array
+                .iter()
+                .map(|v| BTreeMap::from([(FieldName::from("__value"), v.clone())]))
+                .collect();
+            Ok(wrapped_array_values)
+        } // ANCHOR_END: eval_in_collection_nested_scalar_collection
     }
 }
 // ANCHOR_END: eval_in_collection
