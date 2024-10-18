@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "institutions",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "name": {
+        "type": "column",
+        "column": "name"
+      },
+      "location": {
+        "type": "column",
+        "column": "location",
+        "fields": {
+          "type": "object",
+          "fields": {
+            "campuses": {
+              "type": "column",
+              "column": "campuses",
+              "arguments": {
+                "limit": {
+                  "type": "literal",
+                  "value": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "predicate": {
+      "type": "array_comparison",
+      "column": {
+        "type": "column",
+        "name": "location",
+        "field_path": ["campuses"]
+      },
+      "comparison": {
+        "type": "contains",
+        "value": {
+          "type": "scalar",
+          "value": "Lindholmen"
+        }
+      }
+    }
+  },
+  "collection_relationships": {}
+}

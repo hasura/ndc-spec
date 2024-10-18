@@ -12,7 +12,8 @@
               "Computer Science",
               "Functional Programming",
               "Software Testing"
-            ]
+            ],
+            "born_country_id": 2
           },
           {
             "first_name": "Koen",
@@ -21,7 +22,8 @@
               "Computer Science",
               "Functional Programming",
               "Automated Reasoning"
-            ]
+            ],
+            "born_country_id": 2
           }
         ]
       }

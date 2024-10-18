@@ -1,0 +1,44 @@
+{
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "countries",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "id": {
+        "type": "column",
+        "column": "id"
+      },
+      "name": {
+        "type": "column",
+        "column": "name"
+      },
+      "cities": {
+        "type": "column",
+        "column": "cities",
+        "arguments": {
+          "limit": {
+            "type": "literal",
+            "value": null
+          }
+        }
+      }
+    },
+    "predicate": {
+      "type": "array_comparison",
+      "column": {
+        "type": "column",
+        "name": "cities",
+        "arguments": {
+          "limit": {
+            "type": "literal",
+            "value": null
+          }
+        }
+      },
+      "comparison": {
+        "type": "is_empty"
+      }
+    }
+  },
+  "collection_relationships": {}
+}

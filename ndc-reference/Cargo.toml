@@ -17,6 +17,7 @@ axum = { workspace = true }
 indexmap = { workspace = true, features = ["serde"] }
 prometheus = { workspace = true }
 regex = { workspace = true }
+semver = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["macros", "parking_lot", "rt-multi-thread", "signal"] }
 itertools = { workspace = true }

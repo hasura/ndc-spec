@@ -1,3 +1,4 @@
 /flake.lock
 /ndc-reference/*.json
 **/expected.json
+/specification/book/**

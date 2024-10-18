@@ -111,6 +111,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
     for field_name in &field_names {
         let aggregate = models::Aggregate::ColumnCount {
             column: field_name.clone(),
+            arguments: BTreeMap::new(),
             field_path: None,
             distinct: false,
         };
@@ -121,6 +122,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
 
         let aggregate = models::Aggregate::ColumnCount {
             column: field_name.clone(),
+            arguments: BTreeMap::new(),
             field_path: None,
             distinct: true,
         };
@@ -193,12 +195,15 @@ pub async fn test_single_column_aggregates<C: Connector>(
     let mut available_aggregates: IndexMap<models::FieldName, ndc_models::Aggregate> =
         IndexMap::new();
 
-    for (field_name, field) in &collection_type.fields {
+    let fields = common::select_all_columns_without_arguments(collection_type).collect::<Vec<_>>();
+
+    for (field_name, field) in fields {
         if let Some(name) = super::common::as_named_type(&field.r#type) {
             if let Some(scalar_type) = schema.scalar_types.get(name) {
                 for function_name in scalar_type.aggregate_functions.keys() {
                     let aggregate = models::Aggregate::SingleColumn {
                         column: field_name.clone(),
+                        arguments: BTreeMap::new(),
                         field_path: None,
                         function: function_name.clone(),
                     };

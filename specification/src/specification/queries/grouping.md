@@ -4,7 +4,9 @@ If a connector supports [aggregates](./aggregates.md), it may also support _grou
 
 Grouping is requested in the query API alongside fields and aggregates, in the `groups` field of the [`Query`](../../reference/types.md#query) object.
 
-A grouping operation specifies one or more _dimensions_ along which to partition the row set. For each group, every row should have equal values in each of those dimension columns.
+A grouping operation specifies one or more _dimensions_ along which to partition the row set. Each dimension selects a column from which to draw values (see [`Dimension::Column`](../../reference/types.md#dimension)). For each group, every row should have equal values in each of those dimension columns.
+
+If the dimension's column's schema defines [arguments](./arguments.html#field-arguments), then the `arguments` property is used to provide values for those arguments.
 
 In addition, a grouping operation specifies _aggregates_ which should be computed and returned for each group separately.
 

@@ -98,12 +98,17 @@ fn make_single_expressions(
     values: &[serde_json::Value],
     rng: &mut SmallRng,
 ) -> Result<Vec<GeneratedExpression>> {
-    let field_type = &context
+    let object_field = context
         .collection_type
         .fields
         .get(field_name)
-        .ok_or(Error::UnexpectedField(field_name.clone()))?
-        .r#type;
+        .ok_or(Error::UnexpectedField(field_name.clone()))?;
+    let field_type = &object_field.r#type;
+
+    // The tests don't support fields with arguments at this time
+    if !object_field.arguments.is_empty() {
+        return Ok(vec![]);
+    }
 
     let mut expressions: Vec<GeneratedExpression> = vec![];
 
@@ -112,6 +117,7 @@ fn make_single_expressions(
             expr: models::Expression::UnaryComparisonOperator {
                 column: models::ComparisonTarget::Column {
                     name: field_name.clone(),
+                    arguments: BTreeMap::new(),
                     field_path: None,
                 },
                 operator: models::UnaryComparisonOperator::IsNull,
@@ -131,6 +137,7 @@ fn make_single_expressions(
                             expr: models::Expression::BinaryComparisonOperator {
                                 column: models::ComparisonTarget::Column {
                                     name: field_name.clone(),
+                                    arguments: BTreeMap::new(),
                                     field_path: None,
                                 },
                                 operator: operator_name.clone(),
@@ -153,6 +160,7 @@ fn make_single_expressions(
                             expr: models::Expression::BinaryComparisonOperator {
                                 column: models::ComparisonTarget::Column {
                                     name: field_name.clone(),
+                                    arguments: BTreeMap::new(),
                                     field_path: None,
                                 },
                                 operator: operator_name.clone(),

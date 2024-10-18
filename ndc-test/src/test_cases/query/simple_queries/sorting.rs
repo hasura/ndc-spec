@@ -48,6 +48,8 @@ fn make_order_by_elements(
             if schema
                 .scalar_types
                 .contains_key(&ndc_models::ScalarTypeName::new(name.clone()))
+                // The tests don't support fields with arguments at this time
+                && field.arguments.is_empty()
             {
                 sortable_fields.push(field_name);
             }
@@ -72,6 +74,7 @@ fn make_order_by_elements(
                 order_direction,
                 target: models::OrderByTarget::Column {
                     name: field_name.clone(),
+                    arguments: BTreeMap::new(),
                     field_path: None,
                     path: vec![],
                 },

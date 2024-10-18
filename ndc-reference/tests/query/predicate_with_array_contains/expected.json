@@ -1,0 +1,16 @@
+[
+  {
+    "rows": [
+      {
+        "id": 2,
+        "name": "Chalmers University of Technology",
+        "location": {
+          "campuses": [
+            "Johanneberg",
+            "Lindholmen"
+          ]
+        }
+      }
+    ]
+  }
+]

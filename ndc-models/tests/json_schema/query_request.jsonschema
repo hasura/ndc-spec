@@ -147,6 +147,13 @@
               "description": "The column to apply the count aggregate function to",
               "type": "string"
             },
+            "arguments": {
+              "description": "Arguments to satisfy the column specified by 'column'",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
             "field_path": {
               "description": "Path to a nested field within an object column",
               "type": [
@@ -181,6 +188,13 @@
               "description": "The column to apply the aggregation function to",
               "type": "string"
             },
+            "arguments": {
+              "description": "Arguments to satisfy the column specified by 'column'",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
             "field_path": {
               "description": "Path to a nested field within an object column",
               "type": [
@@ -209,6 +223,47 @@
                 "star_count"
               ]
             }
+          }
+        }
+      ]
+    },
+    "Argument": {
+      "title": "Argument",
+      "oneOf": [
+        {
+          "description": "The argument is provided by reference to a variable",
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variable"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "The argument is provided as a literal value",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "literal"
+              ]
+            },
+            "value": true
           }
         }
       ]
@@ -349,47 +404,6 @@
         }
       ]
     },
-    "Argument": {
-      "title": "Argument",
-      "oneOf": [
-        {
-          "description": "The argument is provided by reference to a variable",
-          "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "variable"
-              ]
-            },
-            "name": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "The argument is provided as a literal value",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "literal"
-              ]
-            },
-            "value": true
-          }
-        }
-      ]
-    },
     "RelationshipArgument": {
       "title": "Relationship Argument",
       "oneOf": [
@@ -509,6 +523,13 @@
             "name": {
               "description": "The name of the column",
               "type": "string"
+            },
+            "arguments": {
+              "description": "Arguments to satisfy the column specified by 'name'",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
             },
             "field_path": {
               "description": "Path to a nested field within an object column",
@@ -708,6 +729,28 @@
         {
           "type": "object",
           "required": [
+            "column",
+            "comparison",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "array_comparison"
+              ]
+            },
+            "column": {
+              "$ref": "#/definitions/ComparisonTarget"
+            },
+            "comparison": {
+              "$ref": "#/definitions/ArrayComparison"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
             "in_collection",
             "type"
           ],
@@ -754,6 +797,13 @@
             "name": {
               "description": "The name of the column",
               "type": "string"
+            },
+            "arguments": {
+              "description": "Arguments to satisfy the column specified by 'name'",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
             },
             "field_path": {
               "description": "Path to a nested field within an object column",
@@ -827,6 +877,13 @@
               "description": "The name of the column",
               "type": "string"
             },
+            "arguments": {
+              "description": "Arguments to satisfy the column specified by 'name'",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
             "field_path": {
               "description": "Path to a nested field within an object column",
               "type": [
@@ -887,6 +944,45 @@
             },
             "name": {
               "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "ArrayComparison": {
+      "title": "Array Comparison",
+      "oneOf": [
+        {
+          "description": "Check if the array contains the specified value",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "contains"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/ComparisonValue"
+            }
+          }
+        },
+        {
+          "description": "Check is the array is empty",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_empty"
+              ]
             }
           }
         }
@@ -959,6 +1055,38 @@
               "type": "string",
               "enum": [
                 "nested_collection"
+              ]
+            },
+            "column_name": {
+              "type": "string"
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested collection via object columns",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "description": "Specifies a column that contains a nested array of scalars. The array will be brought into scope of the nested expression where each element becomes an object with one '__value' column that contains the element value.",
+          "type": "object",
+          "required": [
+            "column_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nested_scalar_collection"
               ]
             },
             "column_name": {
@@ -1065,6 +1193,13 @@
             "column_name": {
               "description": "The name of the column",
               "type": "string"
+            },
+            "arguments": {
+              "description": "Arguments to satisfy the column specified by 'column_name'",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
             },
             "field_path": {
               "description": "Path to a nested field within an object column",
@@ -1322,7 +1457,6 @@
           "type": "object",
           "required": [
             "aggregate",
-            "path",
             "type"
           ],
           "properties": {
@@ -1339,13 +1473,6 @@
                   "$ref": "#/definitions/Aggregate"
                 }
               ]
-            },
-            "path": {
-              "description": "Non-empty collection of relationships to traverse",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
-              }
             }
           }
         }

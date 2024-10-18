@@ -23,9 +23,34 @@ Root column references were generalized to _named scopes_. Scopes are introduced
 - `NestedField::Collection` was added to support [querying nested collections](./queries/field-selection.md#nested-collections).
 - Exists predicates can now [search nested collections](./queries/filtering.html#nested-collections).
 
+### Filtering involving nested scalar arrays
+
+Nested scalar arrays can now be compared against in filter expressions.
+
+- Exists predicates can now [search nested scalar collections](./queries/filtering.md#nested-scalar-collections)
+- Expressions now have [nested array comparison operators](./queries/filtering.md#nested-array-comparison-operators) that can be used to test if a scalar array is empty or if it contains an element
+
 ### Filter by aggregates
 
 `ComparisonTarget` was extended to allow [filtering by aggregates](./queries/filtering.md#computing-an-aggregate).
+
+### Wider field arguments support
+
+Object type fields can declare arguments that must be submitted when the field is evaluated. However, support for using these fields is not universal; there are some features which do not allow the use of fields with arguments, for example in nested field paths, or in relationship column mappings.
+
+Now, support for field arguments has been added to:
+
+- `ComparisonTarget::Column`
+- `ComparisonValue::Column`
+- `OrderByTarget::Column`
+- `Aggregate::ColumnCount`
+- `Aggregate::SingleColumn`
+
+However, field arguments are still considered an unstable feature and their use is not recommended outside of very specialized, advanced use cases.
+
+### `X-Hasura-NDC-Version` header
+
+Clients can now [indicate the intended protocol version](./versioning.md#requirements) in a HTTP header alongside any request.
 
 ## `0.1.6`
 

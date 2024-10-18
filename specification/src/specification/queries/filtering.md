@@ -65,13 +65,38 @@ This example uses a custom `like` operator:
 {{#include ../../../../ndc-reference/tests/query/predicate_with_like/request.json:3: }}
 ```
 
+### Nested Array Comparison Operators
+
+If the connector declares support for the `query.nested_fields.filter_by.nested_arrays` capability, it can receive expressions of type `array_comparison`. These expressions allow scalar array-specific comparisons against columns that contain an array of scalar values.
+
+There are two supported comparison operators that connectors can declare support for:
+
+- `contains`: Whether or not the array contains the specified scalar value. This must be supported for all types that can be contained in an array that implement an 'eq' comparison operator.
+  - Capability: `query.nested_fields.filter_by.nested_arrays.contains`
+- `is_empty`: Whether or not the array is empty. This must be supported no matter what type is contained in the array.
+  - Capability: `query.nested_fields.filter_by.nested_arrays.is_empty`
+
+This example finds `institutions` where the nested `location.campuses` array contains the `Lindholmen` value:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/predicate_with_array_contains/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_array_contains/request.json:3: }}
+```
+
+This example finds `countries` which have an empty `cities` array:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/predicate_with_array_is_empty/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_array_is_empty/request.json:3: }}
+```
+
 ### Columns in Operators
 
 Comparison operators compare values. The value on the left hand side of any operator is described by a [`ComparisonTarget`](../../reference/types.md#comparisontarget), and the various cases will be explained next.
 
 #### Referencing a column from the same collection
 
-If the `ComparisonTarget` has type `column`, then the `name` property refers to a column in the current collection.
+If the `ComparisonTarget` has type `column`, then the `name` property refers to a column in the current collection. The `arguments` property allows clients to submit argument values for columns that require [arguments](./arguments.html#field-arguments).
 
 #### Referencing nested fields within columns
 
@@ -79,7 +104,7 @@ If the `field_path` property is empty or not present then the target is the valu
 
 If `field_path` is non-empty then it refers to a path to a nested field within the named column
 
-_Note_: a `ComparisonTarget` may only have a non-empty `field_path` if the connector supports capability `query.nested_fields.filter_by`).
+_Note_: a `ComparisonTarget` may only have a non-empty `field_path` if the connector supports capability `query.nested_fields.filter_by`.
 
 #### Computing an aggregate
 
@@ -167,6 +192,19 @@ For example, this query finds `institutions` which employ at least one staff mem
 ```
 
 [References to columns in another scope](#referencing-a-column-from-a-collection-in-scope) may be useful when using these sorts of expressions, in order to refer to columns from the outer (unnested) row.
+
+### Nested Scalar Collections
+
+If the `query.exists.nested_scalar_collections` capability is enabled, then exists expressions can reference columns that contain nested arrays of scalar values. In this case, each element of the nested array is lifted into a virtual row with the element value in a field called `__value`. This allows predicate applied to the exists to reference the `__value` column to compare against the scalar element.
+
+For example, if there was a nested array such as `[1,2,3]`, it would be converted into a virtual rows `[{"__value": 1}, {"_value": 2}, {"_value": 3}]`.
+
+For example, this query finds `institutions` that have at least one campus whose name contains the letter `d` (campuses are a string array nested inside location):
+
+```json
+{{#include ../../../../ndc-reference/tests/query/predicate_with_exists_in_nested_scalar_collection/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/predicate_with_exists_in_nested_scalar_collection/request.json:3: }}
+```
 
 ## Conjunction of expressions
 

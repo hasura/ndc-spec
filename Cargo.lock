@@ -899,6 +899,7 @@ dependencies = [
  "ndc-test",
  "prometheus",
  "regex",
+ "semver",
  "serde_json",
  "tokio",
  "tokio-test",
