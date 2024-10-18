@@ -28,8 +28,22 @@
         "eq": {
           "type": "equal"
         },
+        "gt": {
+          "type": "custom",
+          "argument_type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
         "in": {
           "type": "in"
+        },
+        "lt": {
+          "type": "custom",
+          "argument_type": {
+            "type": "named",
+            "name": "Int"
+          }
         }
       }
     },
@@ -101,6 +115,65 @@
         },
         "last_name": {
           "description": "The author's last name",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        }
+      }
+    },
+    "city": {
+      "description": "A city",
+      "fields": {
+        "name": {
+          "description": "The institution's name",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        }
+      }
+    },
+    "country": {
+      "description": "A country",
+      "fields": {
+        "area_km2": {
+          "description": "The country's area size in square kilometers",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "cities": {
+          "description": "The cities in the country",
+          "type": {
+            "type": "array",
+            "element_type": {
+              "type": "named",
+              "name": "city"
+            }
+          },
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "description": "The country's primary key",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "name": {
+          "description": "The country's name",
           "type": {
             "type": "named",
             "name": "String"
@@ -213,12 +286,26 @@
             "type": "named",
             "name": "String"
           }
+        },
+        "country_id": {
+          "description": "The location's country ID",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
         }
       }
     },
     "staff_member": {
       "description": "A staff member",
       "fields": {
+        "born_country_id": {
+          "description": "The ID of the country the staff member was born in",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
         "first_name": {
           "description": "The staff member's first name",
           "type": {
@@ -300,6 +387,20 @@
       "type": "institution",
       "uniqueness_constraints": {
         "InstitutionByID": {
+          "unique_columns": [
+            "id"
+          ]
+        }
+      },
+      "foreign_keys": {}
+    },
+    {
+      "name": "countries",
+      "description": "A collection of countries",
+      "arguments": {},
+      "type": "country",
+      "uniqueness_constraints": {
+        "CountryByID": {
           "unique_columns": [
             "id"
           ]

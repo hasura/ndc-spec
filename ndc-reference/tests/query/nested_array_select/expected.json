@@ -45,6 +45,24 @@
           "Physics",
           "Industrial and Materials Science"
         ]
+      },
+      {
+        "id": 3,
+        "staff": [
+          {
+            "last_name": "Zdravkovic",
+            "fields_of_study": [
+              "Requirements Engineering",
+              "Enterprise Modeling",
+              "System Analysis"
+            ]
+          }
+        ],
+        "departments": [
+          "Computer and Systems Sciences",
+          "Physics",
+          "Astronomy"
+        ]
       }
     ]
   }

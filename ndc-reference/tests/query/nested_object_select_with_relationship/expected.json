@@ -43,6 +43,18 @@
             }
           }
         ]
+      },
+      {
+        "name": "Stockholm University",
+        "staff": [
+          {
+            "first_name": "Jelena",
+            "last_name": "Zdravkovic",
+            "author": {
+              "rows": []
+            }
+          }
+        ]
       }
     ]
   }

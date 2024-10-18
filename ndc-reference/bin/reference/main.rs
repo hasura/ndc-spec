@@ -23,9 +23,10 @@ use tokio::sync::Mutex;
 
 const DEFAULT_PORT: u16 = 8080;
 
-const ARTICLES_JSON: &str = include_str!("../../articles.json");
-const AUTHORS_JSON: &str = include_str!("../../authors.json");
-const INSTITUTIONS_JSON: &str = include_str!("../../institutions.json");
+const ARTICLES_JSON: &str = include_str!("../../articles.jsonl");
+const AUTHORS_JSON: &str = include_str!("../../authors.jsonl");
+const INSTITUTIONS_JSON: &str = include_str!("../../institutions.jsonl");
+const COUNTRIES_JSON: &str = include_str!("../../countries.jsonl");
 
 // ANCHOR: row-type
 type Row = BTreeMap<models::FieldName, serde_json::Value>;
@@ -36,6 +37,7 @@ pub struct AppState {
     pub articles: BTreeMap<i32, Row>,
     pub authors: BTreeMap<i32, Row>,
     pub institutions: BTreeMap<i32, Row>,
+    pub countries: BTreeMap<i32, Row>,
     pub metrics: Metrics,
 }
 // ANCHOR_END: app-state
@@ -116,6 +118,7 @@ fn init_app_state() -> AppState {
     let articles = read_json_lines(ARTICLES_JSON).unwrap();
     let authors = read_json_lines(AUTHORS_JSON).unwrap();
     let institutions = read_json_lines(INSTITUTIONS_JSON).unwrap();
+    let countries = read_json_lines(COUNTRIES_JSON).unwrap();
 
     let metrics = Metrics::new().unwrap();
 
@@ -123,6 +126,7 @@ fn init_app_state() -> AppState {
         articles,
         authors,
         institutions,
+        countries,
         metrics,
     }
 }
@@ -368,6 +372,18 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 comparison_operators: BTreeMap::from_iter([
                     ("eq".into(), models::ComparisonOperatorDefinition::Equal),
                     ("in".into(), models::ComparisonOperatorDefinition::In),
+                    (
+                        "gt".into(),
+                        models::ComparisonOperatorDefinition::Custom {
+                            argument_type: models::Type::Named { name: "Int".into() },
+                        },
+                    ),
+                    (
+                        "lt".into(),
+                        models::ComparisonOperatorDefinition::Custom {
+                            argument_type: models::Type::Named { name: "Int".into() },
+                        },
+                    ),
                 ]),
             },
         ),
@@ -525,6 +541,14 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 },
             ),
             (
+                "country_id".into(),
+                models::ObjectField {
+                    description: Some("The location's country ID".into()),
+                    r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
+                },
+            ),
+            (
                 "campuses".into(),
                 models::ObjectField {
                     description: Some("The location's campuses".into()),
@@ -572,12 +596,80 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                             name: "String".into(),
                         }),
                     },
-                    arguments: array_arguments,
+                    arguments: array_arguments.clone(),
+                },
+            ),
+            (
+                "born_country_id".into(),
+                models::ObjectField {
+                    description: Some("The ID of the country the staff member was born in".into()),
+                    r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
                 },
             ),
         ]),
     };
     // ANCHOR_END: schema_object_type_staff_member
+    // ANCHOR: schema_object_type_country
+    let country_type = models::ObjectType {
+        description: Some("A country".into()),
+        fields: BTreeMap::from_iter([
+            (
+                "id".into(),
+                models::ObjectField {
+                    description: Some("The country's primary key".into()),
+                    r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
+                },
+            ),
+            (
+                "name".into(),
+                models::ObjectField {
+                    description: Some("The country's name".into()),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                    arguments: BTreeMap::new(),
+                },
+            ),
+            (
+                "area_km2".into(),
+                models::ObjectField {
+                    description: Some("The country's area size in square kilometers".into()),
+                    r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
+                },
+            ),
+            (
+                "cities".into(),
+                models::ObjectField {
+                    description: Some("The cities in the country".into()),
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: "city".into(),
+                        }),
+                    },
+                    arguments: array_arguments,
+                },
+            ),
+        ]),
+    };
+    // ANCHOR_END: schema_object_type_country
+    // ANCHOR: schema_object_type_city
+    let city_type = models::ObjectType {
+        description: Some("A city".into()),
+        fields: BTreeMap::from_iter([(
+            "name".into(),
+            models::ObjectField {
+                description: Some("The institution's name".into()),
+                r#type: models::Type::Named {
+                    name: "String".into(),
+                },
+                arguments: BTreeMap::new(),
+            },
+        )]),
+    };
+    // ANCHOR_END: schema_object_type_city
     // ANCHOR: schema_object_types
     let object_types = BTreeMap::from_iter([
         ("article".into(), article_type),
@@ -585,6 +677,8 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         ("institution".into(), institution_type),
         ("location".into(), location_type),
         ("staff_member".into(), staff_member_type),
+        ("country".into(), country_type),
+        ("city".into(), city_type),
     ]);
     // ANCHOR_END: schema_object_types
     // ANCHOR: schema_collection_article
@@ -638,6 +732,21 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         )]),
     };
     // ANCHOR_END: schema_collection_institution
+    // ANCHOR: schema_collection_country
+    let countries_collection = models::CollectionInfo {
+        name: "countries".into(),
+        description: Some("A collection of countries".into()),
+        collection_type: "country".into(),
+        arguments: BTreeMap::new(),
+        foreign_keys: BTreeMap::new(),
+        uniqueness_constraints: BTreeMap::from_iter([(
+            "CountryByID".into(),
+            models::UniquenessConstraint {
+                unique_columns: vec!["id".into()],
+            },
+        )]),
+    };
+    // ANCHOR_END: schema_collection_country
     // ANCHOR: schema_collection_articles_by_author
     let articles_by_author_collection = models::CollectionInfo {
         name: "articles_by_author".into(),
@@ -659,6 +768,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         articles_collection,
         authors_collection,
         institutions_collection,
+        countries_collection,
         articles_by_author_collection,
     ];
     // ANCHOR_END: schema_collections
@@ -834,6 +944,7 @@ fn get_collection_by_name(
         "articles" => Ok(state.articles.values().cloned().collect()),
         "authors" => Ok(state.authors.values().cloned().collect()),
         "institutions" => Ok(state.institutions.values().cloned().collect()),
+        "countries" => Ok(state.countries.values().cloned().collect()),
         "articles_by_author" => {
             let author_id = arguments.get("author_id").ok_or((
                 StatusCode::BAD_REQUEST,
@@ -1968,6 +2079,33 @@ fn eval_comparison_operator(
 
             Ok(false)
         }
+        op @ ("gt" | "lt") => {
+            let column_int = left_val.as_i64().ok_or((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "column is not an integer".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))?;
+
+            for right_val in right_vals {
+                let right_val_int = right_val.as_i64().ok_or((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "value is not an integer".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ))?;
+
+                if op == "gt" && column_int > right_val_int
+                    || op == "lt" && column_int < right_val_int
+                {
+                    return Ok(true);
+                }
+            }
+
+            Ok(false)
+        }
         // ANCHOR: eval_expression_custom_binary_operators
         "like" => {
             for regex_val in right_vals {
@@ -2879,6 +3017,10 @@ mod tests {
             };
             let mut reporter = TestResults::default();
             test_connector(&configuration, &connector, &mut reporter).await;
+            if !reporter.failures.is_empty() {
+                let failures = &reporter.failures;
+                println!("Failures: {failures:#?}");
+            }
             assert!(reporter.failures.is_empty());
         });
     }

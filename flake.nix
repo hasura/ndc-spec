@@ -56,10 +56,12 @@
           let
             isCsvFile = path: _type: builtins.match ".*\\.csv$" path != null;
             isJsonFile = path: _type: builtins.match ".*\\.json$" path != null;
+            isJsonLinesFile = path: _type: builtins.match ".*\\.jsonl$" path != null;
             isJsonSchemaFile = path: _type: builtins.match ".*\\.jsonschema$" path != null;
             isSourceFile = path: type:
               isCsvFile path type
               || isJsonFile path type
+              || isJsonLinesFile path type
               || isJsonSchemaFile path type
               || craneLib.filterCargoSources path type;
           in
