@@ -38,6 +38,8 @@ Now, support for field arguments has been added to:
 - `Aggregate::ColumnCount`
 - `Aggregate::SingleColumn`
 
+However, field arguments are still considered an unstable feature and their use is not recommended outside of very specialized, advanced use cases.
+
 ### `X-Hasura-NDC-Version` header
 
 Clients can now [indicate the intended protocol version](./versioning.md#requirements) in a HTTP header alongside any request.

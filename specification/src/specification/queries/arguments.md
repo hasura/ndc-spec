@@ -57,5 +57,9 @@ For example, when ordering by an aggregate of rows in a related collection, and 
 
 ## Field Arguments
 
+> **CAUTION**
+>
+> Field arguments considered somewhat unstable. Fields arguments are not well supported across all aspects of the specification. It is not recommended that field arguments are used, except for very specialized, advanced use cases.
+
 Field arguments can be provided to any field requested (in addition to those described for top-level collections).
 These are specified in the [schema response](../schema/object-types.md) and their use is described in [field selection](./field-selection.md). Their specification and usage matches that of collection arguments above.
