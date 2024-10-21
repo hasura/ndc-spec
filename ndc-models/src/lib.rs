@@ -375,6 +375,11 @@ pub enum AggregateFunctionDefinition {
         /// floating-point representation, respectively.
         result_type: ScalarTypeName,
     },
+    Average {
+        /// The scalar type of the result of this function, which should have
+        /// the type representation Float64
+        result_type: ScalarTypeName,
+    },
     Custom {
         /// The scalar or object type of the result of this function
         result_type: Type,

@@ -485,6 +485,25 @@
             "type": {
               "type": "string",
               "enum": [
+                "average"
+              ]
+            },
+            "result_type": {
+              "description": "The scalar type of the result of this function, which should have the type representation Float64",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
                 "custom"
               ]
             },

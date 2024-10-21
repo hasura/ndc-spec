@@ -2,7 +2,7 @@
 
 The schema should describe any irreducible _scalar types_. Scalar types can be used as the types of columns, or in general as the types of object fields.
 
-Scalar types define several types of operations, which extend the capabilities of the query and mutation APIs: _comparison operators_ and _aggregation functions_.
+Scalar types define several types of operations, which extend the capabilities of the query and mutation APIs: _comparison operators_ and _aggregate functions_.
 
 ## Type Representations
 
@@ -128,17 +128,17 @@ Each of these four operators is expected to be _transitive_. That is, for exampl
 
 Data connectors can also define custom comparison operators using type `custom`. A custom operator is defined by its argument type, and its semantics is undefined.
 
-## Aggregation Functions
+## Aggregate Functions
 
-Aggregation functions extend the query AST with the ability to express new aggregates within the `aggregates` portion of a query. They also allow sorting the query results via the `order_by` query field.
+Aggregate functions extend the query AST with the ability to express new aggregates within the `aggregates` portion of a query. They also allow sorting the query results via the `order_by` query field.
 
-_Note_: data connectors are required to implement the _count_ and _count-distinct_ aggregations for columns of all scalar types, and those operator is distinguished in the query AST. There is no need to define these aggregates as aggregation functions.
+_Note_: data connectors are required to implement the _count_ and _count-distinct_ aggregations for columns of all scalar types, and those operator is distinguished in the query AST. There is no need to define these aggregates as aggregate functions.
 
 For example, a data connector might augment a `Float` scalar type with a `SUM` function which aggregates a sum of a collection of floating-point numbers.
 
-Just like for comparison operators, an aggregation function is either a _standard_ function, or a custom function.
+Just like for comparison operators, an aggregate function is either a _standard_ function, or a custom function.
 
-To define an aggregation function, add a [`AggregateFunctionDefinition`](../../reference/types.md#aggregatefunctiondefinition) to the `aggregate_functions` field of the schema response.
+To define an aggregate function, add a [`AggregateFunctionDefinition`](../../reference/types.md#aggregatefunctiondefinition) to the `aggregate_functions` field of the schema response.
 
 For example:
 
@@ -148,7 +148,15 @@ For example:
     "Float": {
       "aggregate_functions": {
         "sum": {
-          "type": "sum"
+          "type": "sum",
+          "result_type": "Float"
+        },
+        "stddev": {
+          "type": "custom",
+          "result_type": {
+            "type": "named",
+            "name": "Float"
+          }
         }
       },
       "comparison_operators": {}
@@ -158,19 +166,27 @@ For example:
 }
 ```
 
-### Standard Aggregation Functions
+### Standard Aggregate Functions
 
 #### `sum`
 
-An aggregation function defined using type `sum` should return the numerical sum of its provided values.
+An aggregate function defined using type `sum` should return the numerical sum of its provided values.
 
-The result type should be provided explicitly, in the `result_type` field, and should be a scalar type with a type representation of either `Int64` or `Float64`, depending on whether the scalar type defining this function has an integer representation or floating point representation,
+The result type should be provided explicitly, in the `result_type` field, and should be a scalar type with a type representation of either `Int64` or `Float64`, depending on whether the scalar type defining this function has an integer representation or floating point representation.
 
 A `sum` function should ignore the order of its input values, and should be invariant of partitioning, that is: `sum(x, sum(y, z))` = `sum(x, y, z)` for any partitioning `x, y, z` of the input values.
 
+#### `average`
+
+An aggregate function defined using type `average` should return the average of its provided values.
+
+The result type should be provided explicitly, in the `result_type` field, and should be a scalar type with a type representation of `Float64`.
+
+An `average` function should ignore the order of its input values.
+
 #### `min`, `max`
 
-An aggregation function defined using type `min` or `max` should return the minimal/maximal value from its provided values, according to some ordering.
+An aggregate function defined using type `min` or `max` should return the minimal/maximal value from its provided values, according to some ordering.
 
 Its implicit result type, i.e. the type of the aggregated values, is the same as the scalar type on which the function is defined, but with nulls allowed if not allowed already.
 
@@ -180,9 +196,9 @@ If the set of input values is a singleton, then the function should return the s
 
 A `min`/`max` function should ignore the order of its input values, and should be invariant of partitioning, that is: `min(x, min(y, z))` = `min(x, y, z)` for any partitioning `x, y, z` of the input values.
 
-### Custom Aggregation Functions
+### Custom Aggregate Functions
 
-A custom aggregation function has type `custom` and is defined by its _result type_ - that is, the type of the aggregated data.
+A custom aggregate function has type `custom` and is defined by its _result type_ - that is, the type of the aggregated data. The result type can be any type, not just a scalar type.
 
 ## See also
 

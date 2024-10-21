@@ -48,6 +48,12 @@ Now, support for field arguments has been added to:
 
 However, field arguments are still considered an unstable feature and their use is not recommended outside of very specialized, advanced use cases.
 
+### More standard comparison operators, standard aggregate functions
+
+Standard comparison operators have been added for [`>`, `>=`, `<`, and `<=`](./schema/scalar-types.md#less_than-greater_than-less_than_or_equal-greater_than_or_equal). Connectors that have already defined these operators as custom operators should migrate them to standard operators.
+
+In addition, aggregate functions now have a set of [standard functions](./schema/scalar-types.md#standard-aggregation-functions) that can be implemented: `sum`, `average`, `min`, `max`. Connectors that have already defined these functions as custom aggregate functions should migrate them to standard aggregate functions.
+
 ### `X-Hasura-NDC-Version` header
 
 Clients can now [indicate the intended protocol version](./versioning.md#requirements) in a HTTP header alongside any request.

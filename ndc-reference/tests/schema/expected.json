@@ -1,8 +1,131 @@
 {
   "scalar_types": {
+    "Float": {
+      "representation": {
+        "type": "float64"
+      },
+      "aggregate_functions": {
+        "avg": {
+          "type": "average",
+          "result_type": "Float"
+        },
+        "max": {
+          "type": "max"
+        },
+        "min": {
+          "type": "min"
+        },
+        "sum": {
+          "type": "sum",
+          "result_type": "Float"
+        }
+      },
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "gt": {
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
+        },
+        "in": {
+          "type": "in"
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
+        }
+      }
+    },
     "Int": {
       "representation": {
         "type": "int32"
+      },
+      "aggregate_functions": {
+        "avg": {
+          "type": "average",
+          "result_type": "Float"
+        },
+        "max": {
+          "type": "max"
+        },
+        "min": {
+          "type": "min"
+        },
+        "sum": {
+          "type": "sum",
+          "result_type": "Int64"
+        }
+      },
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "gt": {
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
+        },
+        "in": {
+          "type": "in"
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
+        }
+      }
+    },
+    "Int64": {
+      "representation": {
+        "type": "int64"
+      },
+      "aggregate_functions": {
+        "avg": {
+          "type": "average",
+          "result_type": "Float"
+        },
+        "max": {
+          "type": "max"
+        },
+        "min": {
+          "type": "min"
+        },
+        "sum": {
+          "type": "sum",
+          "result_type": "Int64"
+        }
+      },
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "gt": {
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
+        },
+        "in": {
+          "type": "in"
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
+        }
+      }
+    },
+    "String": {
+      "representation": {
+        "type": "string"
       },
       "aggregate_functions": {
         "max": {
@@ -17,32 +140,10 @@
           "type": "equal"
         },
         "gt": {
-          "type": "custom",
-          "argument_type": {
-            "type": "named",
-            "name": "Int"
-          }
+          "type": "greater_than"
         },
-        "in": {
-          "type": "in"
-        },
-        "lt": {
-          "type": "custom",
-          "argument_type": {
-            "type": "named",
-            "name": "Int"
-          }
-        }
-      }
-    },
-    "String": {
-      "representation": {
-        "type": "string"
-      },
-      "aggregate_functions": {},
-      "comparison_operators": {
-        "eq": {
-          "type": "equal"
+        "gte": {
+          "type": "greater_than_or_equal"
         },
         "in": {
           "type": "in"
@@ -53,6 +154,12 @@
             "type": "named",
             "name": "String"
           }
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
         }
       }
     }
