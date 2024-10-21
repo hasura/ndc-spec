@@ -44,11 +44,24 @@ For example, this query sorts articles by their author's last names, and then by
 {{#include ../../../../ndc-reference/tests/query/order_by_relationship/request.json:3: }}
 ```
 
+#### Nested relationships
+
+If the connector enables the `relationships.nested` capability, it may receive `path` relationships where the relationship starts from inside a nested object. The path to descend through the nested objects before navigating the relationship is specified by the `field_path` property.
+
+For example, this query sorts `institutions` by their location's country's area. The relationship starts from within the `location` nested object and joins its `country_id` column to the `countries` collection's `id` column.
+
+```json
+{{#include ../../../../ndc-reference/tests/query/order_by_nested_relationship/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/order_by_nested_relationship/request.json:3: }}
+```
+
 ### Type `aggregate`
 
-An ordering of type `aggregate` orders rows by aggregating rows in some [related collection](./relationships.md), and comparing aggregations for each of the teo two rows.
+An ordering of type `aggregate` orders rows by aggregating rows in some [related collection](./relationships.md), and comparing aggregations for each of the two rows. The relationship path is specified by the `path` property.
 
 If the respective aggregates are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
+
+If the connector enables the `relationships.nested` capability, it may receive `path` relationships where the relationship starts from inside a nested object. The path to descend through the nested objects before navigating the relationship is specified by the `field_path` property.
 
 #### Examples
 
@@ -64,6 +77,13 @@ This query sorts article authors by their maximum article ID:
 ```json
 {{#include ../../../../ndc-reference/tests/query/order_by_aggregate_function/request.json:1 }}
 {{#include ../../../../ndc-reference/tests/query/order_by_aggregate_function/request.json:3: }}
+```
+
+This query sorts institutions first by those institutions that are in countries that have the most institutions in them, then by the institutions' name. This example navigates the nested relationship that begins in the `location` nested object and joins back onto the `institutions` collection, targeting the nested `location.country_id` property.
+
+```json
+{{#include ../../../../ndc-reference/tests/query/order_by_aggregate_nested_relationship/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/order_by_aggregate_nested_relationship/request.json:3: }}
 ```
 
 ## Requirements

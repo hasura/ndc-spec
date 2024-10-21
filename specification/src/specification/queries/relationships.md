@@ -11,7 +11,13 @@ Relationships are defined (and given names) in the top-level `QueryRequest` obje
 
 ## Column Mappings
 
-A column mapping is a set of pairs of columns - each consisting of one column from the source collection and one column from the target collection - which must be pairwise equal in order for a pair of rows to be considered equal.
+A column mapping is a set of pairs of columns - each consisting of one column from the source object type and one column from the target collection - which must be pairwise equal in order for a pair of rows to be considered equal.
+
+What the source object type is depends on where the relationship is used. Often, a relationship will simply relate columns from one source collection's object type to a target collection's object type. However, at various locations such as field selection, filtering, ordering, grouping, queries can descend into nested objects and arrays before navigating the relationship. In these cases, the source column will be on the nested object type. Only connectors that enable the `relationships.nested` capability will encounter relationships that involve nested objects. Additionally, only connectors that enable the `relationships.nested.array` capability will encounter relationships that start from inside nested objects in nested arrays.
+
+The column from the target collection may be an object-nested column, so it is specified using a field path to the column. An array of one field name specifies a column on the target collection's object type. Two field names specifies, firstly, the column on the target collection that contains a nested object, and secondly the column on the nested object type.
+
+However, unless a connector enables the `relationships.nested` capability, it can expect to only receive field paths with only one entry in column mappings (ie. non-nested columns).
 
 For example, we can fetch each `author` with its list of related `articles` by establishing a column mapping between the author's primary key and the article's `author_id` column:
 
