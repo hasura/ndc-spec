@@ -30,9 +30,8 @@ pub async fn validate_schema<R: Reporter>(
                         let Some(scalar_type) = schema.scalar_types.get(result_type) else {
                             return Err(Error::NamedTypeIsNotDefined(result_type.inner().clone()));
                         };
-                        let Some(
-                            models::TypeRepresentation::Int64 | models::TypeRepresentation::Float64,
-                        ) = scalar_type.representation
+                        let (models::TypeRepresentation::Int64
+                        | models::TypeRepresentation::Float64) = scalar_type.representation
                         else {
                             return Err(Error::InvalidTypeRepresentation(result_type.clone()));
                         };

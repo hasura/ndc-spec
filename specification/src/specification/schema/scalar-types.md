@@ -6,9 +6,7 @@ Scalar types define several types of operations, which extend the capabilities o
 
 ## Type Representations
 
-A scalar type definition can include an optional _type representation_. The representation, if provided, indicates to potential callers what values can be expected in responses, and what values are considered acceptable in requests.
-
-If the representation is omitted, it defaults to `json`.
+A scalar type definition must include a _type representation_. The representation indicates to potential callers what values can be expected in responses, and what values are considered acceptable in requests.
 
 ### Supported Representations
 
@@ -45,17 +43,6 @@ For example, this representation indicates that the only three valid values are 
   "one_of": ["foo", "bar", "baz"]
 }
 ```
-
-### Deprecated Representations
-
-The following representations are deprecated as of version 0.1.2:
-
-| `type`    | Description                          | JSON representation |
-| --------- | ------------------------------------ | ------------------- |
-| `number`  | Any JSON number                      | Number              |
-| `integer` | Any JSON number with no decimal part | Number              |
-
-Connectors should use the sized integer and floating-point types instead.
 
 ## Comparison Operators
 
