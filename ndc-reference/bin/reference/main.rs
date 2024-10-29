@@ -333,7 +333,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "String".into(),
             models::ScalarType {
-                representation: Some(models::TypeRepresentation::String),
+                representation: models::TypeRepresentation::String,
                 aggregate_functions: BTreeMap::from_iter([
                     ("max".into(), models::AggregateFunctionDefinition::Max),
                     ("min".into(), models::AggregateFunctionDefinition::Min),
@@ -368,7 +368,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "Int".into(),
             models::ScalarType {
-                representation: Some(models::TypeRepresentation::Int32),
+                representation: models::TypeRepresentation::Int32,
                 aggregate_functions: BTreeMap::from_iter([
                     ("max".into(), models::AggregateFunctionDefinition::Max),
                     ("min".into(), models::AggregateFunctionDefinition::Min),
@@ -407,7 +407,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "Int64".into(),
             models::ScalarType {
-                representation: Some(models::TypeRepresentation::Int64),
+                representation: models::TypeRepresentation::Int64,
                 aggregate_functions: BTreeMap::from_iter([
                     ("max".into(), models::AggregateFunctionDefinition::Max),
                     ("min".into(), models::AggregateFunctionDefinition::Min),
@@ -446,7 +446,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "Float".into(),
             models::ScalarType {
-                representation: Some(models::TypeRepresentation::Float64),
+                representation: models::TypeRepresentation::Float64,
                 aggregate_functions: BTreeMap::from_iter([
                     ("max".into(), models::AggregateFunctionDefinition::Max),
                     ("min".into(), models::AggregateFunctionDefinition::Min),

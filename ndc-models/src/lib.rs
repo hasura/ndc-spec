@@ -1,5 +1,3 @@
-#![allow(deprecated)]
-
 use std::{borrow::Borrow, collections::BTreeMap};
 
 use indexmap::IndexMap;
@@ -211,8 +209,7 @@ pub struct SchemaResponse {
 #[schemars(title = "Scalar Type")]
 pub struct ScalarType {
     /// A description of valid values for this scalar type.
-    /// Defaults to `TypeRepresentation::JSON` if omitted
-    pub representation: Option<TypeRepresentation>,
+    pub representation: TypeRepresentation,
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap<AggregateFunctionName, AggregateFunctionDefinition>,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
@@ -232,12 +229,6 @@ pub enum TypeRepresentation {
     Boolean,
     /// Any JSON string
     String,
-    /// Any JSON number
-    #[deprecated(since = "0.1.2", note = "Use sized numeric types instead")]
-    Number,
-    /// Any JSON number, with no decimal part
-    #[deprecated(since = "0.1.2", note = "Use sized numeric types instead")]
-    Integer,
     /// A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1
     Int8,
     /// A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1
