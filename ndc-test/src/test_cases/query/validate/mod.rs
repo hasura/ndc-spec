@@ -522,15 +522,11 @@ pub fn check_value_has_type(
                     ))
                 }
             } else if let Some(scalar_type) = schema.scalar_types.get(name) {
-                if let Some(representation) = &scalar_type.representation {
-                    representations::check_value_has_representation(
-                        representation,
-                        &value,
-                        json_path,
-                    )
-                } else {
-                    Ok(())
-                }
+                representations::check_value_has_representation(
+                    &scalar_type.representation,
+                    &value,
+                    json_path,
+                )
             } else {
                 Err(Error::NamedTypeIsNotDefined(name.clone()))
             }
@@ -593,11 +589,10 @@ mod representations {
 
         match representation {
             models::TypeRepresentation::Boolean => check!(value.is_boolean(), "boolean"),
-            models::TypeRepresentation::Number
-            | models::TypeRepresentation::Float32
-            | models::TypeRepresentation::Float64 => check!(value.is_number(), "number"),
-            models::TypeRepresentation::Integer
-            | models::TypeRepresentation::Int8
+            models::TypeRepresentation::Float32 | models::TypeRepresentation::Float64 => {
+                check!(value.is_number(), "number");
+            }
+            models::TypeRepresentation::Int8
             | models::TypeRepresentation::Int16
             | models::TypeRepresentation::Int32 => check!(value.is_i64(), "integer"),
             models::TypeRepresentation::String

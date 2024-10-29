@@ -51,6 +51,10 @@ However, field arguments are still considered an unstable feature and their use 
 
 Clients can now [indicate the intended protocol version](./versioning.md#requirements) in a HTTP header alongside any request.
 
+### Scalar type representations
+
+Scalar type representations are now required; previously they were optional, where a missing representation was assumed to mean JSON. In addition, the deprecated number and integer representations have been removed; a more precise representation (such as float64 or int32) should be chosen instead.
+
 ## `0.1.6`
 
 ### Specification
