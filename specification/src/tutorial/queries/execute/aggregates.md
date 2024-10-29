@@ -21,11 +21,12 @@ The `eval_aggregate` function works by pattern matching on the type of the aggre
 The `eval_aggregate_function` function discovers the type of data being aggregated and then dispatches to a specific function that implements aggregation for that type.
 
 ```rust,no_run,noplayground
-{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_aggregate_function}}
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_aggregate_function_snippet}}
+...
 ```
 
-For example, float aggregation is implemented by `eval_float_aggregate_function`. In it, the `min`, `max`, `sum`, and `avg` functions are implemented.
+For example, integer aggregation is implemented by `eval_integer_aggregate_function`. In it, the `min`, `max`, `sum`, and `avg` functions are implemented.
 
 ```rust,no_run,noplayground
-{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_float_aggregate_function}}
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_integer_aggregate_function}}
 ```

@@ -1629,7 +1629,7 @@ fn eval_aggregate(
     }
 }
 // ANCHOR_END: eval_aggregate
-// ANCHOR: eval_aggregate_function
+// ANCHOR: eval_aggregate_function_snippet
 fn eval_aggregate_function(
     function: &models::AggregateFunctionName,
     values: &[serde_json::Value],
@@ -1652,7 +1652,9 @@ fn eval_aggregate_function(
                 .collect::<Result<Vec<i64>>>()?;
 
             eval_integer_aggregate_function(function, int_values)
-        } else if first_value.is_f64() {
+        }
+        // ANCHOR_END: eval_aggregate_function_snippet
+        else if first_value.is_f64() {
             let float_values = values
                 .iter()
                 .map(|value| {
@@ -1699,7 +1701,6 @@ fn eval_aggregate_function(
         Ok(serde_json::Value::Null)
     }
 }
-// ANCHOR_END: eval_aggregate_function
 // ANCHOR: eval_integer_aggregate_function
 #[allow(clippy::cast_precision_loss)]
 fn eval_integer_aggregate_function(
