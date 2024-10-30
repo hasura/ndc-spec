@@ -1,0 +1,15 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/named_scopes/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "first_name": "John",
+        "last_name": "Hughes"
+      }
+    ]
+  }
+]

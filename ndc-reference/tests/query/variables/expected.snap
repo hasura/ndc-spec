@@ -1,0 +1,23 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/variables/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "id": 1,
+        "title": "The Next 700 Programming Languages"
+      }
+    ]
+  },
+  {
+    "rows": [
+      {
+        "id": 2,
+        "title": "Why Functional Programming Matters"
+      }
+    ]
+  }
+]

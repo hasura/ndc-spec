@@ -26,5 +26,5 @@ itertools = { workspace = true }
 ndc-test = { path = "../ndc-test" }
 
 async-trait = { workspace = true }
-goldenfile = { workspace = true }
+insta = { workspace = true }
 tokio-test = { workspace = true }

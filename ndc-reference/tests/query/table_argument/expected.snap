@@ -1,0 +1,15 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/table_argument/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "id": 1,
+        "title": "The Next 700 Programming Languages"
+      }
+    ]
+  }
+]

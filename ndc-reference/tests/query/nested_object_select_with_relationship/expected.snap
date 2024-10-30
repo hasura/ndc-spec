@@ -1,0 +1,66 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/nested_object_select_with_relationship/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "name": "Queen Mary University of London",
+        "staff": [
+          {
+            "first_name": "Peter",
+            "last_name": "Landin",
+            "author": {
+              "rows": [
+                {
+                  "id": 1,
+                  "first_name": "Peter",
+                  "last_name": "Landin"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Chalmers University of Technology",
+        "staff": [
+          {
+            "first_name": "John",
+            "last_name": "Hughes",
+            "author": {
+              "rows": [
+                {
+                  "id": 2,
+                  "first_name": "John",
+                  "last_name": "Hughes"
+                }
+              ]
+            }
+          },
+          {
+            "first_name": "Koen",
+            "last_name": "Claessen",
+            "author": {
+              "rows": []
+            }
+          }
+        ]
+      },
+      {
+        "name": "Stockholm University",
+        "staff": [
+          {
+            "first_name": "Jelena",
+            "last_name": "Zdravkovic",
+            "author": {
+              "rows": []
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

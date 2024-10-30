@@ -3269,7 +3269,6 @@ fn eval_column_mapping(
 mod tests {
     use async_trait::async_trait;
     use axum::{extract::State, Json};
-    use goldenfile::Mint;
     use ndc_models as models;
     use ndc_test::{
         configuration::{TestConfiguration, TestGenerationConfiguration, TestOptions},
@@ -3279,12 +3278,7 @@ mod tests {
         test_cases::query::validate::validate_response,
         test_connector,
     };
-    use std::{
-        fs::{self, File},
-        io::Write,
-        path::PathBuf,
-        sync::Arc,
-    };
+    use std::{fs::File, path::PathBuf, sync::Arc};
     use tokio::sync::Mutex;
 
     use crate::{get_capabilities, get_schema, init_app_state, post_mutation, post_query};
@@ -3292,23 +3286,24 @@ mod tests {
     #[test]
     fn test_capabilities() {
         tokio_test::block_on(async {
-            let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+            let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("tests")
+                .join("capabilities");
 
-            let mut mint = Mint::new(&test_dir);
+            let response = crate::get_capabilities().await.0;
+            let response_json = serde_json::to_string_pretty(&response).unwrap();
 
-            let expected_path = PathBuf::from_iter(["capabilities", "expected.json"]);
-
-            let response = crate::get_capabilities().await;
-
-            let mut expected = mint.new_goldenfile(expected_path).unwrap();
-
-            let response_json = serde_json::to_string_pretty(&response.0).unwrap();
-
-            write!(expected, "{response_json}").unwrap();
+            insta::with_settings!({
+                snapshot_path => test_dir,
+                snapshot_suffix => "",
+                prepend_module_to_snapshot => false,
+            }, {
+                insta::assert_json_snapshot!("expected", response);
+            });
 
             // Test roundtrip
             assert_eq!(
-                response.0,
+                response,
                 serde_json::from_str(response_json.as_str()).unwrap()
             );
         });
@@ -3317,106 +3312,87 @@ mod tests {
     #[test]
     fn test_schema() {
         tokio_test::block_on(async {
-            let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+            let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("tests")
+                .join("schema");
 
-            let mut mint = Mint::new(&test_dir);
+            let response = crate::get_schema().await.0;
+            let response_json = serde_json::to_string_pretty(&response).unwrap();
 
-            let expected_path = PathBuf::from_iter(["schema", "expected.json"]);
+            insta::with_settings!({
+                snapshot_path => test_dir,
+                snapshot_suffix => "",
+                prepend_module_to_snapshot => false,
+            }, {
+                insta::assert_json_snapshot!("expected", response);
+            });
 
-            let response = crate::get_schema().await;
-
-            let mut expected = mint.new_goldenfile(expected_path).unwrap();
-
-            write!(
-                expected,
-                "{}",
-                serde_json::to_string_pretty(&response.0).unwrap()
-            )
-            .unwrap();
+            // Test roundtrip
+            assert_eq!(
+                response,
+                serde_json::from_str(response_json.as_str()).unwrap()
+            );
         });
     }
 
     #[test]
     fn test_query() {
-        tokio_test::block_on(async {
-            let schema = crate::get_schema().await;
+        let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+        let schema = tokio_test::block_on(crate::get_schema());
 
-            let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+        insta::glob!(test_dir, "query/**/request.json", |req_path| {
+            let path = req_path.parent().unwrap();
+            let req_file = File::open(req_path).unwrap();
+            let request = serde_json::from_reader::<_, models::QueryRequest>(req_file).unwrap();
 
-            let mut mint = Mint::new(&test_dir);
+            let test_name = path.file_name().unwrap().to_str().unwrap();
 
-            for input_file in fs::read_dir(test_dir.join("query")).unwrap() {
-                let entry = input_file.unwrap();
-                let request = {
-                    let path = entry.path();
-                    assert!(path.is_dir());
-                    let req_path = path.join("request.json");
-                    let req_file = File::open(req_path).unwrap();
-                    serde_json::from_reader::<_, models::QueryRequest>(req_file).unwrap()
-                };
-
-                let path = entry.path();
-                let test_name = path.file_name().unwrap().to_str().unwrap();
-
-                let expected_path = { PathBuf::from_iter(["query", test_name, "expected.json"]) };
-
+            let response = tokio_test::block_on(async {
                 let state = Arc::new(Mutex::new(crate::init_app_state()));
-                let response = crate::post_query(State(state), Json(request.clone()))
+                crate::post_query(State(state), Json(request.clone()))
                     .await
-                    .unwrap();
+                    .unwrap()
+            });
 
-                validate_response(&schema, &request, &response)
-                    .unwrap_or_else(|_| panic!("unable to validate response in test {test_name}"));
+            validate_response(&schema, &request, &response).unwrap_or_else(|err| {
+                panic!("unable to validate response in test {test_name}: {err}")
+            });
 
-                let mut expected = mint.new_goldenfile(expected_path).unwrap();
-
-                write!(
-                    expected,
-                    "{}",
-                    serde_json::to_string_pretty(&response.0).unwrap()
-                )
-                .unwrap();
-            }
+            insta::with_settings!({
+                snapshot_path => path,
+                snapshot_suffix => "",
+                prepend_module_to_snapshot => false,
+                input_file => req_path,
+            }, {
+                insta::assert_json_snapshot!("expected", response.0);
+            });
         });
     }
 
     #[test]
     fn test_mutation() {
-        tokio_test::block_on(async {
-            let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
+        let test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests");
 
-            let mut mint = Mint::new(&test_dir);
+        insta::glob!(test_dir, "mutation/**/request.json", |req_path| {
+            let path = req_path.parent().unwrap();
+            let req_file = File::open(req_path).unwrap();
+            let request = serde_json::from_reader::<_, models::MutationRequest>(req_file).unwrap();
 
-            for input_file in fs::read_dir(test_dir.join("mutation")).unwrap() {
-                let entry = input_file.unwrap();
-                let request = {
-                    let path = entry.path();
-                    assert!(path.is_dir());
-                    let req_path = path.join("request.json");
-                    let req_file = File::open(req_path).unwrap();
-                    serde_json::from_reader::<_, models::MutationRequest>(req_file).unwrap()
-                };
-
-                let expected_path = {
-                    let path = entry.path();
-                    let test_name = path.file_name().unwrap().to_str().unwrap();
-                    PathBuf::from_iter(["mutation", test_name, "expected.json"])
-                };
-
+            let response = tokio_test::block_on(async {
                 let state = Arc::new(Mutex::new(crate::init_app_state()));
-                let response = crate::post_mutation(State(state), Json(request))
+                crate::post_mutation(State(state), Json(request.clone()))
                     .await
-                    .unwrap();
+                    .unwrap()
+            });
 
-                let mut expected = mint.new_goldenfile(expected_path).unwrap();
-
-                write!(
-                    expected,
-                    "{}",
-                    serde_json::to_string_pretty(&response.0).unwrap()
-                )
-                .unwrap();
-            }
+            insta::with_settings!({
+                snapshot_path => path,
+                snapshot_suffix => "",
+                prepend_module_to_snapshot => false,
+                input_file => req_path,
+            }, {
+                insta::assert_json_snapshot!("expected", response.0);
+            });
         });
     }
 

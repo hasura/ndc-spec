@@ -1,0 +1,14 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/get_max_article_id/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "__value": 3
+      }
+    ]
+  }
+]

@@ -1,0 +1,13 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/mutation/upsert_article/request.json
+---
+{
+  "operation_results": [
+    {
+      "type": "procedure",
+      "result": null
+    }
+  ]
+}

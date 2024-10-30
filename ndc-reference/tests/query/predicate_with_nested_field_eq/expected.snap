@@ -1,0 +1,23 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/predicate_with_nested_field_eq/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "id": 1,
+        "location": {
+          "city": "London",
+          "campuses": [
+            "Mile End",
+            "Whitechapel",
+            "Charterhouse Square",
+            "West Smithfield"
+          ]
+        }
+      }
+    ]
+  }
+]

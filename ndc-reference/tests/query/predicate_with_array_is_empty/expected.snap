@@ -1,0 +1,16 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/predicate_with_array_is_empty/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "id": 4,
+        "name": "Mars",
+        "cities": []
+      }
+    ]
+  }
+]

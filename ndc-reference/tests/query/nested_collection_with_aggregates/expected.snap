@@ -1,0 +1,57 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/nested_collection_with_aggregates/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "id": 1,
+        "staff_aggregates": {
+          "aggregates": {
+            "count": 1
+          }
+        },
+        "staff": [
+          {
+            "last_name": "Landin",
+            "first_name": "Peter"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "staff_aggregates": {
+          "aggregates": {
+            "count": 2
+          }
+        },
+        "staff": [
+          {
+            "last_name": "Hughes",
+            "first_name": "John"
+          },
+          {
+            "last_name": "Claessen",
+            "first_name": "Koen"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "staff_aggregates": {
+          "aggregates": {
+            "count": 1
+          }
+        },
+        "staff": [
+          {
+            "last_name": "Zdravkovic",
+            "first_name": "Jelena"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,37 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/predicate_with_exists_in_nested_collection/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "id": 2,
+        "name": "Chalmers University of Technology",
+        "staff": [
+          {
+            "first_name": "John",
+            "last_name": "Hughes",
+            "specialities": [
+              "Computer Science",
+              "Functional Programming",
+              "Software Testing"
+            ],
+            "born_country_id": 2
+          },
+          {
+            "first_name": "Koen",
+            "last_name": "Claessen",
+            "specialities": [
+              "Computer Science",
+              "Functional Programming",
+              "Automated Reasoning"
+            ],
+            "born_country_id": 2
+          }
+        ]
+      }
+    ]
+  }
+]
