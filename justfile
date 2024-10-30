@@ -26,6 +26,9 @@ ci-lint:
 ci-bench:
   just docker cargo bench
 
+lint:
+  cargo clippy --all-targets --no-deps
+
 # Runs the tests
 test *ARGS:
   #!/usr/bin/env bash
