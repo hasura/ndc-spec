@@ -75,6 +75,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - uses: taiki-e/install-action@nextest
+
       - name: install tools
         run: |
           rustup show
