@@ -17,7 +17,6 @@ use axum::{
 };
 use indexmap::IndexMap;
 use itertools::Itertools;
-use models::FieldName;
 use ndc_models::{self as models};
 use prometheus::{Encoder, IntCounter, IntGauge, Opts, Registry, TextEncoder};
 use regex::Regex;
@@ -338,10 +337,26 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "String".into(),
             models::ScalarType {
-                representation: Some(models::TypeRepresentation::String),
-                aggregate_functions: BTreeMap::new(),
+                representation: models::TypeRepresentation::String,
+                aggregate_functions: BTreeMap::from_iter([
+                    ("max".into(), models::AggregateFunctionDefinition::Max),
+                    ("min".into(), models::AggregateFunctionDefinition::Min),
+                ]),
                 comparison_operators: BTreeMap::from_iter([
                     ("eq".into(), models::ComparisonOperatorDefinition::Equal),
+                    (
+                        "gt".into(),
+                        models::ComparisonOperatorDefinition::GreaterThan,
+                    ),
+                    (
+                        "gte".into(),
+                        models::ComparisonOperatorDefinition::GreaterThanOrEqual,
+                    ),
+                    ("lt".into(), models::ComparisonOperatorDefinition::LessThan),
+                    (
+                        "lte".into(),
+                        models::ComparisonOperatorDefinition::LessThanOrEqual,
+                    ),
                     ("in".into(), models::ComparisonOperatorDefinition::In),
                     (
                         "like".into(),
@@ -357,26 +372,20 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         (
             "Int".into(),
             models::ScalarType {
-                representation: Some(models::TypeRepresentation::Int32),
+                representation: models::TypeRepresentation::Int32,
                 aggregate_functions: BTreeMap::from_iter([
+                    ("max".into(), models::AggregateFunctionDefinition::Max),
+                    ("min".into(), models::AggregateFunctionDefinition::Min),
                     (
-                        "max".into(),
-                        models::AggregateFunctionDefinition {
-                            result_type: models::Type::Nullable {
-                                underlying_type: Box::new(models::Type::Named {
-                                    name: "Int".into(),
-                                }),
-                            },
+                        "sum".into(),
+                        models::AggregateFunctionDefinition::Sum {
+                            result_type: models::ScalarTypeName::from("Int64"),
                         },
                     ),
                     (
-                        "min".into(),
-                        models::AggregateFunctionDefinition {
-                            result_type: models::Type::Nullable {
-                                underlying_type: Box::new(models::Type::Named {
-                                    name: "Int".into(),
-                                }),
-                            },
+                        "avg".into(),
+                        models::AggregateFunctionDefinition::Average {
+                            result_type: models::ScalarTypeName::from("Float"),
                         },
                     ),
                 ]),
@@ -385,15 +394,94 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                     ("in".into(), models::ComparisonOperatorDefinition::In),
                     (
                         "gt".into(),
-                        models::ComparisonOperatorDefinition::Custom {
-                            argument_type: models::Type::Named { name: "Int".into() },
+                        models::ComparisonOperatorDefinition::GreaterThan,
+                    ),
+                    (
+                        "gte".into(),
+                        models::ComparisonOperatorDefinition::GreaterThanOrEqual,
+                    ),
+                    ("lt".into(), models::ComparisonOperatorDefinition::LessThan),
+                    (
+                        "lte".into(),
+                        models::ComparisonOperatorDefinition::LessThanOrEqual,
+                    ),
+                ]),
+            },
+        ),
+        (
+            "Int64".into(),
+            models::ScalarType {
+                representation: models::TypeRepresentation::Int64,
+                aggregate_functions: BTreeMap::from_iter([
+                    ("max".into(), models::AggregateFunctionDefinition::Max),
+                    ("min".into(), models::AggregateFunctionDefinition::Min),
+                    (
+                        "sum".into(),
+                        models::AggregateFunctionDefinition::Sum {
+                            result_type: models::ScalarTypeName::from("Int64"),
                         },
                     ),
                     (
-                        "lt".into(),
-                        models::ComparisonOperatorDefinition::Custom {
-                            argument_type: models::Type::Named { name: "Int".into() },
+                        "avg".into(),
+                        models::AggregateFunctionDefinition::Average {
+                            result_type: models::ScalarTypeName::from("Float"),
                         },
+                    ),
+                ]),
+                comparison_operators: BTreeMap::from_iter([
+                    ("eq".into(), models::ComparisonOperatorDefinition::Equal),
+                    ("in".into(), models::ComparisonOperatorDefinition::In),
+                    (
+                        "gt".into(),
+                        models::ComparisonOperatorDefinition::GreaterThan,
+                    ),
+                    (
+                        "gte".into(),
+                        models::ComparisonOperatorDefinition::GreaterThanOrEqual,
+                    ),
+                    ("lt".into(), models::ComparisonOperatorDefinition::LessThan),
+                    (
+                        "lte".into(),
+                        models::ComparisonOperatorDefinition::LessThanOrEqual,
+                    ),
+                ]),
+            },
+        ),
+        (
+            "Float".into(),
+            models::ScalarType {
+                representation: models::TypeRepresentation::Float64,
+                aggregate_functions: BTreeMap::from_iter([
+                    ("max".into(), models::AggregateFunctionDefinition::Max),
+                    ("min".into(), models::AggregateFunctionDefinition::Min),
+                    (
+                        "sum".into(),
+                        models::AggregateFunctionDefinition::Sum {
+                            result_type: models::ScalarTypeName::from("Float"),
+                        },
+                    ),
+                    (
+                        "avg".into(),
+                        models::AggregateFunctionDefinition::Average {
+                            result_type: models::ScalarTypeName::from("Float"),
+                        },
+                    ),
+                ]),
+                comparison_operators: BTreeMap::from_iter([
+                    ("eq".into(), models::ComparisonOperatorDefinition::Equal),
+                    ("in".into(), models::ComparisonOperatorDefinition::In),
+                    (
+                        "gt".into(),
+                        models::ComparisonOperatorDefinition::GreaterThan,
+                    ),
+                    (
+                        "gte".into(),
+                        models::ComparisonOperatorDefinition::GreaterThanOrEqual,
+                    ),
+                    ("lt".into(), models::ComparisonOperatorDefinition::LessThan),
+                    (
+                        "lte".into(),
+                        models::ComparisonOperatorDefinition::LessThanOrEqual,
                     ),
                 ]),
             },
@@ -1562,57 +1650,154 @@ fn eval_aggregate(
     }
 }
 // ANCHOR_END: eval_aggregate
-// ANCHOR: eval_aggregate_function
+// ANCHOR: eval_aggregate_function_snippet
 fn eval_aggregate_function(
     function: &models::AggregateFunctionName,
     values: &[serde_json::Value],
 ) -> Result<serde_json::Value> {
-    let int_values = values
-        .iter()
-        .map(|value| {
-            value
-                .as_i64()
-                .ok_or((
-                    StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: "column is not an integer".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ))?
-                .try_into()
-                .map_err(|_| {
-                    (
-                        StatusCode::BAD_REQUEST,
-                        Json(models::ErrorResponse {
-                            message: "column value out of range".into(),
-                            details: serde_json::Value::Null,
-                        }),
-                    )
+    if let Some(first_value) = values.iter().next() {
+        if first_value.is_i64() {
+            let int_values = values
+                .iter()
+                .map(|value| {
+                    value.as_i64().ok_or_else(|| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "column is not an integer".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })
                 })
-        })
-        .collect::<Result<Vec<i32>>>()?;
-    let agg_value = match function.as_str() {
-        "min" => Ok(int_values.iter().min()),
-        "max" => Ok(int_values.iter().max()),
+                .collect::<Result<Vec<i64>>>()?;
+
+            eval_integer_aggregate_function(function, int_values)
+        }
+        // ANCHOR_END: eval_aggregate_function_snippet
+        else if first_value.is_f64() {
+            let float_values = values
+                .iter()
+                .map(|value| {
+                    value.as_f64().ok_or_else(|| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "column is not a float".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })
+                })
+                .collect::<Result<Vec<f64>>>()?;
+
+            eval_float_aggregate_function(function, float_values)
+        } else if first_value.is_string() {
+            let string_values = values
+                .iter()
+                .map(|value| {
+                    value.as_str().ok_or_else(|| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "column is not a string".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })
+                })
+                .collect::<Result<Vec<&str>>>()?;
+
+            eval_string_aggregate_function(function, string_values)
+        } else {
+            Err((
+                StatusCode::BAD_REQUEST,
+                Json(models::ErrorResponse {
+                    message: "column does not contain an aggregatable type".into(),
+                    details: serde_json::Value::Null,
+                }),
+            ))
+        }
+    } else {
+        Ok(serde_json::Value::Null)
+    }
+}
+// ANCHOR: eval_integer_aggregate_function
+#[allow(clippy::cast_precision_loss)]
+fn eval_integer_aggregate_function(
+    function: &models::AggregateFunctionName,
+    int_values: Vec<i64>,
+) -> Result<serde_json::Value> {
+    match function.as_str() {
+        "min" => Ok(serde_json::Value::from(int_values.into_iter().min())),
+        "max" => Ok(serde_json::Value::from(int_values.into_iter().max())),
+        "sum" => Ok(serde_json::Value::from(int_values.into_iter().sum::<i64>())),
+        "avg" => {
+            let count: f64 = int_values.len() as f64; // Potential precision loss (u64 -> f64)
+            let sum: f64 = int_values.into_iter().sum::<i64>() as f64; // Potential precision loss (i64 -> f64)
+            let avg = sum / count;
+            Ok(serde_json::Value::from(avg))
+        }
         _ => Err((
             StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
-                message: "invalid aggregation function".into(),
+                message: "invalid integer aggregation function".into(),
                 details: serde_json::Value::Null,
             }),
         )),
-    }?;
-    serde_json::to_value(agg_value).map_err(|_| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
+    }
+}
+// ANCHOR_END: eval_integer_aggregate_function
+// ANCHOR: eval_float_aggregate_function
+#[allow(clippy::cast_precision_loss)]
+fn eval_float_aggregate_function(
+    function: &models::AggregateFunctionName,
+    float_values: Vec<f64>,
+) -> Result<serde_json::Value> {
+    match function.as_str() {
+        "min" => Ok(serde_json::Value::from(
+            float_values.into_iter().reduce(f64::min),
+        )),
+        "max" => Ok(serde_json::Value::from(
+            float_values.into_iter().reduce(f64::max),
+        )),
+        "sum" => Ok(serde_json::Value::from(
+            float_values.into_iter().sum::<f64>(),
+        )),
+        "avg" => {
+            let count: f64 = float_values.len() as f64; // Potential precision loss (u64 -> f64)
+            let sum: f64 = float_values.into_iter().sum();
+            let avg = sum / count;
+            Ok(serde_json::Value::from(avg))
+        }
+        _ => Err((
+            StatusCode::BAD_REQUEST,
             Json(models::ErrorResponse {
-                message: "unable to encode value".into(),
+                message: "invalid float aggregation function".into(),
                 details: serde_json::Value::Null,
             }),
-        )
-    })
+        )),
+    }
 }
-// ANCHOR_END: eval_aggregate_function
+// ANCHOR_END: eval_float_aggregate_function
+// ANCHOR: eval_string_aggregate_function
+fn eval_string_aggregate_function(
+    function: &models::AggregateFunctionName,
+    string_values: Vec<&str>,
+) -> Result<serde_json::Value> {
+    match function.as_str() {
+        "min" => Ok(serde_json::Value::from(string_values.into_iter().min())),
+        "max" => Ok(serde_json::Value::from(string_values.into_iter().max())),
+        _ => Err((
+            StatusCode::BAD_REQUEST,
+            Json(models::ErrorResponse {
+                message: "invalid string aggregation function".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
+    }
+}
+// ANCHOR_END: eval_string_aggregate_function
 // ANCHOR: sort
 fn sort(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
@@ -2178,6 +2363,7 @@ fn eval_comparison_operator(
     right_vals: &[serde_json::Value],
 ) -> std::prelude::v1::Result<bool, (StatusCode, Json<models::ErrorResponse>)> {
     match operator.as_str() {
+        // ANCHOR: eval_expression_operator_eq
         "eq" => {
             for right_val in right_vals {
                 if left_val == right_val {
@@ -2187,33 +2373,58 @@ fn eval_comparison_operator(
 
             Ok(false)
         }
-        op @ ("gt" | "lt") => {
-            let column_int = left_val.as_i64().ok_or((
-                StatusCode::BAD_REQUEST,
-                Json(models::ErrorResponse {
-                    message: "column is not an integer".into(),
-                    details: serde_json::Value::Null,
-                }),
-            ))?;
-
-            for right_val in right_vals {
-                let right_val_int = right_val.as_i64().ok_or((
+        // ANCHOR_END: eval_expression_operator_eq
+        // ANCHOR: eval_expression_operator_ordering
+        "gt" | "lt" | "gte" | "lte" => {
+            if let Some(column_int) = left_val.as_i64() {
+                eval_partial_ord_comparison(operator, &column_int, right_vals, |right_val| {
+                    right_val.as_i64().ok_or_else(|| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "value is not an integer".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })
+                })
+            } else if let Some(column_float) = left_val.as_f64() {
+                eval_partial_ord_comparison(operator, &column_float, right_vals, |right_val| {
+                    right_val.as_f64().ok_or_else(|| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "value is not a float".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })
+                })
+            } else if let Some(column_string) = left_val.as_str() {
+                eval_partial_ord_comparison(operator, &column_string, right_vals, |right_val| {
+                    right_val.as_str().ok_or_else(|| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "value is not a string".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })
+                })
+            } else {
+                Err((
                     StatusCode::BAD_REQUEST,
                     Json(models::ErrorResponse {
-                        message: "value is not an integer".into(),
+                        message: format!(
+                            "column is does not support comparison operator {operator}"
+                        ),
                         details: serde_json::Value::Null,
                     }),
-                ))?;
-
-                if op == "gt" && column_int > right_val_int
-                    || op == "lt" && column_int < right_val_int
-                {
-                    return Ok(true);
-                }
+                ))
             }
-
-            Ok(false)
         }
+        // ANCHOR_END: eval_expression_operator_ordering
         // ANCHOR: eval_expression_custom_binary_operators
         "like" => {
             for regex_val in right_vals {
@@ -2278,6 +2489,33 @@ fn eval_comparison_operator(
     }
 }
 // ANCHOR_END: eval_comparison_operator
+// ANCHOR: eval_partial_ord_comparison
+fn eval_partial_ord_comparison<'a, T, FConvert>(
+    operator: &ndc_models::ComparisonOperatorName,
+    left_value: &T,
+    right_values: &'a [serde_json::Value],
+    convert: FConvert,
+) -> Result<bool>
+where
+    T: PartialOrd,
+    FConvert: Fn(&'a serde_json::Value) -> Result<T>,
+{
+    for right_val in right_values {
+        let right_val = convert(right_val)?;
+
+        let op = operator.as_str();
+        if op == "gt" && *left_value > right_val
+            || op == "lt" && *left_value < right_val
+            || op == "gte" && *left_value >= right_val
+            || op == "lte" && *left_value <= right_val
+        {
+            return Ok(true);
+        }
+    }
+
+    Ok(false)
+}
+// ANCHOR_END: eval_partial_ord_comparison
 // ANCHOR: eval_array_comparison
 fn eval_array_comparison(
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
@@ -2411,7 +2649,7 @@ fn eval_in_collection(
             })?;
             let wrapped_array_values = value_array
                 .iter()
-                .map(|v| BTreeMap::from([(FieldName::from("__value"), v.clone())]))
+                .map(|v| BTreeMap::from([(models::FieldName::from("__value"), v.clone())]))
                 .collect();
             Ok(wrapped_array_values)
         } // ANCHOR_END: eval_in_collection_nested_scalar_collection

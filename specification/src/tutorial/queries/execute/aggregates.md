@@ -18,8 +18,15 @@ The `eval_aggregate` function works by pattern matching on the type of the aggre
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_aggregate}}
 ```
 
-The `eval_aggregate_function` function implements the custom aggregate operators `min` and `max`, which are provided for integer-valued columns:
+The `eval_aggregate_function` function discovers the type of data being aggregated and then dispatches to a specific function that implements aggregation for that type.
 
 ```rust,no_run,noplayground
-{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_aggregate_function}}
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_aggregate_function_snippet}}
+...
+```
+
+For example, integer aggregation is implemented by `eval_integer_aggregate_function`. In it, the `min`, `max`, `sum`, and `avg` functions are implemented.
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_integer_aggregate_function}}
 ```

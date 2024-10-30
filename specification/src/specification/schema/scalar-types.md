@@ -2,13 +2,11 @@
 
 The schema should describe any irreducible _scalar types_. Scalar types can be used as the types of columns, or in general as the types of object fields.
 
-Scalar types define several types of operations, which extend the capabilities of the query and mutation APIs: _comparison operators_ and _aggregation functions_.
+Scalar types define several types of operations, which extend the capabilities of the query and mutation APIs: _comparison operators_ and _aggregate functions_.
 
 ## Type Representations
 
-A scalar type definition can include an optional _type representation_. The representation, if provided, indicates to potential callers what values can be expected in responses, and what values are considered acceptable in requests.
-
-If the representation is omitted, it defaults to `json`.
+A scalar type definition must include a _type representation_. The representation indicates to potential callers what values can be expected in responses, and what values are considered acceptable in requests.
 
 ### Supported Representations
 
@@ -45,17 +43,6 @@ For example, this representation indicates that the only three valid values are 
   "one_of": ["foo", "bar", "baz"]
 }
 ```
-
-### Deprecated Representations
-
-The following representations are deprecated as of version 0.1.2:
-
-| `type`    | Description                          | JSON representation |
-| --------- | ------------------------------------ | ------------------- |
-| `number`  | Any JSON number                      | Number              |
-| `integer` | Any JSON number with no decimal part | Number              |
-
-Connectors should use the sized integer and floating-point types instead.
 
 ## Comparison Operators
 
@@ -110,21 +97,35 @@ An operator defined using type `in` tests if a column value is a member of an ar
 
 It should accept an array type as its argument, whose element type is the scalar type for which it is defined. It should be equivalent to a disjunction of individual equality tests on the elements of the provided array, where the equality test is an equivalence relation in the same sense as above.
 
+#### `less_than`, `greater_than`, `less_than_or_equal`, `greater_than_or_equal`
+
+An operator defined using type `less_than` tests if a column value is less than a specified value. Similarly for the other comparisons here.
+
+If a connector defines more than one of these standard operators, then they should be compatible:
+
+- When using `less_than`, a row should be included in the generated row set if and only if it would _not_ be returned in the corresponding `greater_than_or_equal` comparison, and vice versa. More succinctly, it is expected that `x < y` holds exactly when `x >= y` does not hold.
+- It is expected that `x < y` holds exactly when `y > x` holds.
+- It is expected that `x <= y` holds exactly when `y >= x` holds.
+
+The `less_than_or_equal` and `greater_than_or_equal` operators are expected to be _reflexive_. That is, they should return a superset of those rows returned by the corresponding `equal` (syntactic equality) operator.
+
+Each of these four operators is expected to be _transitive_. That is, for example `x < y` and `y < z` together imply `x < z`, and similarly for the other operators.
+
 ### Custom Comparison Operators
 
 Data connectors can also define custom comparison operators using type `custom`. A custom operator is defined by its argument type, and its semantics is undefined.
 
-## Aggregation Functions
+## Aggregate Functions
 
-Aggregation functions extend the query AST with the ability to express new aggregates within the `aggregates` portion of a query. They also allow sorting the query results via the `order_by` query field.
+Aggregate functions extend the query AST with the ability to express new aggregates within the `aggregates` portion of a query. They also allow sorting the query results via the `order_by` query field.
 
-_Note_: data connectors are required to implement the _count_ and _count-distinct_ aggregations for columns of all scalar types, and those operator is distinguished in the query AST. There is no need to define these aggregates as aggregation functions.
+_Note_: data connectors are required to implement the _count_ and _count-distinct_ aggregations for columns of all scalar types, and those operator is distinguished in the query AST. There is no need to define these aggregates as aggregate functions.
 
 For example, a data connector might augment a `Float` scalar type with a `SUM` function which aggregates a sum of a collection of floating-point numbers.
 
-An aggregation function is defined by its _result type_ - that is, the type of the aggregated data.
+Just like for comparison operators, an aggregate function is either a _standard_ function, or a custom function.
 
-To define an aggregation function, add a [`AggregateFunctionDefinition`](../../reference/types.md#aggregatefunctiondefinition) to the `aggregate_functions` field of the schema response.
+To define an aggregate function, add a [`AggregateFunctionDefinition`](../../reference/types.md#aggregatefunctiondefinition) to the `aggregate_functions` field of the schema response.
 
 For example:
 
@@ -134,6 +135,11 @@ For example:
     "Float": {
       "aggregate_functions": {
         "sum": {
+          "type": "sum",
+          "result_type": "Float"
+        },
+        "stddev": {
+          "type": "custom",
           "result_type": {
             "type": "named",
             "name": "Float"
@@ -146,6 +152,40 @@ For example:
   ...
 }
 ```
+
+### Standard Aggregate Functions
+
+#### `sum`
+
+An aggregate function defined using type `sum` should return the numerical sum of its provided values.
+
+The result type should be provided explicitly, in the `result_type` field, and should be a scalar type with a type representation of either `Int64` or `Float64`, depending on whether the scalar type defining this function has an integer representation or floating point representation.
+
+A `sum` function should ignore the order of its input values, and should be invariant of partitioning, that is: `sum(x, sum(y, z))` = `sum(x, y, z)` for any partitioning `x, y, z` of the input values.
+
+#### `average`
+
+An aggregate function defined using type `average` should return the average of its provided values.
+
+The result type should be provided explicitly, in the `result_type` field, and should be a scalar type with a type representation of `Float64`.
+
+An `average` function should ignore the order of its input values.
+
+#### `min`, `max`
+
+An aggregate function defined using type `min` or `max` should return the minimal/maximal value from its provided values, according to some ordering.
+
+Its implicit result type, i.e. the type of the aggregated values, is the same as the scalar type on which the function is defined, but with nulls allowed if not allowed already.
+
+A `min`/`max` function should return null for an empty set of input values.
+
+If the set of input values is a singleton, then the function should return the single value.
+
+A `min`/`max` function should ignore the order of its input values, and should be invariant of partitioning, that is: `min(x, min(y, z))` = `min(x, y, z)` for any partitioning `x, y, z` of the input values.
+
+### Custom Aggregate Functions
+
+A custom aggregate function has type `custom` and is defined by its _result type_ - that is, the type of the aggregated data. The result type can be any type, not just a scalar type.
 
 ## See also
 

@@ -1,5 +1,3 @@
-#![allow(deprecated)]
-
 use std::{borrow::Borrow, collections::BTreeMap};
 
 use indexmap::IndexMap;
@@ -223,8 +221,7 @@ pub struct SchemaResponse {
 #[schemars(title = "Scalar Type")]
 pub struct ScalarType {
     /// A description of valid values for this scalar type.
-    /// Defaults to `TypeRepresentation::JSON` if omitted
-    pub representation: Option<TypeRepresentation>,
+    pub representation: TypeRepresentation,
     /// A map from aggregate function names to their definitions. Result type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub aggregate_functions: BTreeMap<AggregateFunctionName, AggregateFunctionDefinition>,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
@@ -244,12 +241,6 @@ pub enum TypeRepresentation {
     Boolean,
     /// Any JSON string
     String,
-    /// Any JSON number
-    #[deprecated(since = "0.1.2", note = "Use sized numeric types instead")]
-    Number,
-    /// Any JSON number, with no decimal part
-    #[deprecated(since = "0.1.2", note = "Use sized numeric types instead")]
-    Integer,
     /// A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1
     Int8,
     /// A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1
@@ -363,6 +354,10 @@ pub enum Type {
 pub enum ComparisonOperatorDefinition {
     Equal,
     In,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
     Custom {
         /// The type of the argument to this operator
         argument_type: Type,
@@ -373,10 +368,27 @@ pub enum ComparisonOperatorDefinition {
 // ANCHOR: AggregateFunctionDefinition
 /// The definition of an aggregation function on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate Function Definition")]
-pub struct AggregateFunctionDefinition {
-    /// The scalar or object type of the result of this function
-    pub result_type: Type,
+pub enum AggregateFunctionDefinition {
+    Min,
+    Max,
+    Sum {
+        /// The scalar type of the result of this function, which should have
+        /// one of the type representations Int64 or Float64, depending on
+        /// whether this function is defined on a scalar type with an integer or
+        /// floating-point representation, respectively.
+        result_type: ScalarTypeName,
+    },
+    Average {
+        /// The scalar type of the result of this function, which should have
+        /// the type representation Float64
+        result_type: ScalarTypeName,
+    },
+    Custom {
+        /// The scalar or object type of the result of this function
+        result_type: Type,
+    },
 }
 // ANCHOR_END: AggregateFunctionDefinition
 

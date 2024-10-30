@@ -6,6 +6,7 @@
 
 - `ComparisonTarget::RootCollectionColumn` was removed and replaced by _named scopes_ ([RFC](https://github.com/hasura/ndc-spec/blob/36855ff20dcbd7d129427794aee9746b895390af/rfcs/0015-named-scopes.md))
 - `path` was removed from `ComparisonTarget::Column` ([RFC](https://github.com/hasura/ndc-spec/blob/36855ff20dcbd7d129427794aee9746b895390af/rfcs/0011-no-paths-in-comparison-target.md))
+- `AggregateFunctionDefinition` was changed to an `enum`, to support _standardized aggregate functions_ ([RFC](https://github.com/hasura/ndc-spec/blob/a6610169f72cec6792d5e0830c57254e212b37d9/rfcs/0021-comparison-and-aggregate-meanings.md))
 - Declarations of foreign keys has moved from `CollectionInfo` to `ObjectType`. This enables object types nested within a collection's object type to declare foreign keys.
 - The target column in column mappings can now reference an object-nested field. The target column is now a field path (`Vec<FieldName>`) instead of just a field (`FieldName`). Column mappings occur in:
   - `Relationship::column_mapping`
@@ -65,9 +66,19 @@ Now, support for field arguments has been added to:
 
 However, field arguments are still considered an unstable feature and their use is not recommended outside of very specialized, advanced use cases.
 
+#### More standard comparison operators, standard aggregate functions
+
+Standard comparison operators have been added for [`>`, `>=`, `<`, and `<=`](./schema/scalar-types.md#less_than-greater_than-less_than_or_equal-greater_than_or_equal). Connectors that have already defined these operators as custom operators should migrate them to standard operators.
+
+In addition, aggregate functions now have a set of [standard functions](./schema/scalar-types.md#standard-aggregation-functions) that can be implemented: `sum`, `average`, `min`, `max`. Connectors that have already defined these functions as custom aggregate functions should migrate them to standard aggregate functions.
+
 #### `X-Hasura-NDC-Version` header
 
 Clients can now [indicate the intended protocol version](./versioning.md#requirements) in a HTTP header alongside any request.
+
+#### Scalar type representations
+
+Scalar type representations are now required; previously they were optional, where a missing representation was assumed to mean JSON. In addition, the deprecated number and integer representations have been removed; a more precise representation (such as float64 or int32) should be chosen instead.
 
 ## `0.1.6`
 
