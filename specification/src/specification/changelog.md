@@ -6,6 +6,7 @@
 
 - `ComparisonTarget::RootCollectionColumn` was removed and replaced by _named scopes_ ([RFC](https://github.com/hasura/ndc-spec/blob/36855ff20dcbd7d129427794aee9746b895390af/rfcs/0015-named-scopes.md))
 - `path` was removed from `ComparisonTarget::Column` ([RFC](https://github.com/hasura/ndc-spec/blob/36855ff20dcbd7d129427794aee9746b895390af/rfcs/0011-no-paths-in-comparison-target.md))
+- `AggregateFunctionDefinition` was changed to an `enum`, to support _standardized aggregate functions_ ([RFC](https://github.com/hasura/ndc-spec/blob/a6610169f72cec6792d5e0830c57254e212b37d9/rfcs/0021-comparison-and-aggregate-meanings.md))
 
 ### Specification
 
@@ -46,6 +47,12 @@ Now, support for field arguments has been added to:
 - `Aggregate::SingleColumn`
 
 However, field arguments are still considered an unstable feature and their use is not recommended outside of very specialized, advanced use cases.
+
+### More standard comparison operators, standard aggregate functions
+
+Standard comparison operators have been added for [`>`, `>=`, `<`, and `<=`](./schema/scalar-types.md#less_than-greater_than-less_than_or_equal-greater_than_or_equal). Connectors that have already defined these operators as custom operators should migrate them to standard operators.
+
+In addition, aggregate functions now have a set of [standard functions](./schema/scalar-types.md#standard-aggregation-functions) that can be implemented: `sum`, `average`, `min`, `max`. Connectors that have already defined these functions as custom aggregate functions should migrate them to standard aggregate functions.
 
 ### `X-Hasura-NDC-Version` header
 

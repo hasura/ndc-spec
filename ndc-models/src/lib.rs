@@ -340,6 +340,10 @@ pub enum Type {
 pub enum ComparisonOperatorDefinition {
     Equal,
     In,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
     Custom {
         /// The type of the argument to this operator
         argument_type: Type,
@@ -350,10 +354,27 @@ pub enum ComparisonOperatorDefinition {
 // ANCHOR: AggregateFunctionDefinition
 /// The definition of an aggregation function on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate Function Definition")]
-pub struct AggregateFunctionDefinition {
-    /// The scalar or object type of the result of this function
-    pub result_type: Type,
+pub enum AggregateFunctionDefinition {
+    Min,
+    Max,
+    Sum {
+        /// The scalar type of the result of this function, which should have
+        /// one of the type representations Int64 or Float64, depending on
+        /// whether this function is defined on a scalar type with an integer or
+        /// floating-point representation, respectively.
+        result_type: ScalarTypeName,
+    },
+    Average {
+        /// The scalar type of the result of this function, which should have
+        /// the type representation Float64
+        result_type: ScalarTypeName,
+    },
+    Custom {
+        /// The scalar or object type of the result of this function
+        result_type: Type,
+    },
 }
 // ANCHOR_END: AggregateFunctionDefinition
 

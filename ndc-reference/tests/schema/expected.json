@@ -1,27 +1,23 @@
 {
   "scalar_types": {
-    "Int": {
+    "Float": {
       "representation": {
-        "type": "int32"
+        "type": "float64"
       },
       "aggregate_functions": {
+        "avg": {
+          "type": "average",
+          "result_type": "Float"
+        },
         "max": {
-          "result_type": {
-            "type": "nullable",
-            "underlying_type": {
-              "type": "named",
-              "name": "Int"
-            }
-          }
+          "type": "max"
         },
         "min": {
-          "result_type": {
-            "type": "nullable",
-            "underlying_type": {
-              "type": "named",
-              "name": "Int"
-            }
-          }
+          "type": "min"
+        },
+        "sum": {
+          "type": "sum",
+          "result_type": "Float"
         }
       },
       "comparison_operators": {
@@ -29,21 +25,101 @@
           "type": "equal"
         },
         "gt": {
-          "type": "custom",
-          "argument_type": {
-            "type": "named",
-            "name": "Int"
-          }
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
         },
         "in": {
           "type": "in"
         },
         "lt": {
-          "type": "custom",
-          "argument_type": {
-            "type": "named",
-            "name": "Int"
-          }
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
+        }
+      }
+    },
+    "Int": {
+      "representation": {
+        "type": "int32"
+      },
+      "aggregate_functions": {
+        "avg": {
+          "type": "average",
+          "result_type": "Float"
+        },
+        "max": {
+          "type": "max"
+        },
+        "min": {
+          "type": "min"
+        },
+        "sum": {
+          "type": "sum",
+          "result_type": "Int64"
+        }
+      },
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "gt": {
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
+        },
+        "in": {
+          "type": "in"
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
+        }
+      }
+    },
+    "Int64": {
+      "representation": {
+        "type": "int64"
+      },
+      "aggregate_functions": {
+        "avg": {
+          "type": "average",
+          "result_type": "Float"
+        },
+        "max": {
+          "type": "max"
+        },
+        "min": {
+          "type": "min"
+        },
+        "sum": {
+          "type": "sum",
+          "result_type": "Int64"
+        }
+      },
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "gt": {
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
+        },
+        "in": {
+          "type": "in"
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
         }
       }
     },
@@ -51,10 +127,23 @@
       "representation": {
         "type": "string"
       },
-      "aggregate_functions": {},
+      "aggregate_functions": {
+        "max": {
+          "type": "max"
+        },
+        "min": {
+          "type": "min"
+        }
+      },
       "comparison_operators": {
         "eq": {
           "type": "equal"
+        },
+        "gt": {
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
         },
         "in": {
           "type": "in"
@@ -65,6 +154,12 @@
             "type": "named",
             "name": "String"
           }
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
         }
       }
     }

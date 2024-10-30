@@ -48,12 +48,28 @@ To evaluate the comparison target, we delegate to the `eval_comparison_target` f
 
 The next category of expressions are the _binary operators_. Binary operators can be _standard_ or _custom_.
 
-The only standard binary operators are the `equal` and `in` operators.
-
-`equal` evaluated by evaluating its _comparison target_ and _comparison value_, and comparing them for equality:
+Binary operators are evaluated by evaluating their _comparison target_ and _comparison value_, and comparing them using a specific _comparison operator_:
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_binary_operators}}
+```
+
+The standard binary comparison operators are the `equal`, `in`, `less_than`, `less_than_or_equal`, `greater_than`, and `greater_than_or_equal` operators.
+
+`equal` is evaluated by evaluating its _comparison target_ and _comparison value_, and comparing them for equality:
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_operator_eq}}
+```
+
+The ordering comparisons (`less_than`, `less_than_or_equal`, `greater_than`, and `greater_than_or_equal`) depend on their type, so first we need to determine the type of the comparison target and dispatch on it to `eval_partial_ord_comparison` to perform the actual comparisons:
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_operator_ordering}}
+```
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_partial_ord_comparison}}
 ```
 
 The `in` operator is evaluated by evaluating its comparison target, and all of its comparison values, and testing whether the evaluated target appears in the list of evaluated values:
