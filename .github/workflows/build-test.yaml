@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: install tools
+      - name: install rust toolchain
         run: |
           rustup show
 
@@ -19,7 +19,7 @@ jobs:
         with:
           shared-key: "build"
 
-      - name: check crates
+      - name: cargo check --all-targets
         run: |
           cargo check --all-targets
 
@@ -46,11 +46,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: extractions/setup-just@v2
+      - name: install just
+        uses: extractions/setup-just@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: install tools
+      - name: install rust toolchain
         run: |
           rustup show
 
@@ -58,7 +59,7 @@ jobs:
         with:
           shared-key: "build"
 
-      - name: lint
+      - name: just lint
         run: |
           just lint
 
@@ -71,13 +72,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: extractions/setup-just@v2
+      - name: install just
+        uses: extractions/setup-just@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: taiki-e/install-action@nextest
+      - name: install cargo nextest
+        uses: taiki-e/install-action@nextest
 
-      - name: install tools
+      - name: install rust toolchain
         run: |
           rustup show
 
@@ -85,6 +88,6 @@ jobs:
         with:
           shared-key: "test"
 
-      - name: test
+      - name: just test
         run: |
           just test
