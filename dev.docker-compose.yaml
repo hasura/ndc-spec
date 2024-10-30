@@ -1,7 +1,0 @@
-services:
-  source:
-    build:
-      context: .
-      dockerfile: dev.dockerfile
-      ssh:
-        - default
