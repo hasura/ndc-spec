@@ -1,31 +1,22 @@
 {
   "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
-  "collection": "articles",
+  "collection": "institutions",
   "arguments": {},
   "query": {
     "groups": {
       "aggregates": {
-        "article_count": {
+        "institution_count": {
           "type": "star_count"
         }
       },
       "dimensions": [
         {
           "type": "column",
-          "column_name": "last_name",
+          "column_name": "name",
           "path": [
             {
-              "relationship": "article_author",
-              "arguments": {}
-            }
-          ]
-        },
-        {
-          "type": "column",
-          "column_name": "first_name",
-          "path": [
-            {
-              "relationship": "article_author",
+              "field_path": ["location"],
+              "relationship": "location_country",
               "arguments": {}
             }
           ]
@@ -34,14 +25,13 @@
     }
   },
   "collection_relationships": {
-    "article_author": {
+    "location_country": {
       "arguments": {},
       "column_mapping": {
-        "author_id": ["id"]
+        "country_id": ["id"]
       },
       "relationship_type": "object",
-      "source_collection_or_type": "article",
-      "target_collection": "authors"
+      "target_collection": "countries"
     }
   }
 }

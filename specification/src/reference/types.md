@@ -258,6 +258,12 @@
 {{#include ../../../ndc-models/src/lib.rs:NestedObject}}
 ```
 
+## `NestedRelationshipCapabilities`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/lib.rs:NestedRelationshipCapabilities}}
+```
+
 ## `ObjectField`
 
 ```rust,no_run,noplayground

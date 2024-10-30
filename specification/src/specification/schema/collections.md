@@ -27,8 +27,7 @@ To describe a collection, add a [`CollectionInfo`](../../reference/types.md#coll
             "id"
           ]
         }
-      },
-      "foreign_keys": {}
+      }
     },
     {
       "name": "authors",
@@ -42,8 +41,7 @@ To describe a collection, add a [`CollectionInfo`](../../reference/types.md#coll
             "id"
           ]
         }
-      },
-      "foreign_keys": {}
+      }
     }
   ],
   ...
