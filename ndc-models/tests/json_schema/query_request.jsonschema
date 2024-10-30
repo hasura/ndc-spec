@@ -49,83 +49,6 @@
     }
   },
   "definitions": {
-    "Query": {
-      "title": "Query",
-      "type": "object",
-      "properties": {
-        "aggregates": {
-          "description": "Aggregate fields of the query",
-          "type": [
-            "object",
-            "null"
-          ],
-          "additionalProperties": {
-            "$ref": "#/definitions/Aggregate"
-          }
-        },
-        "fields": {
-          "description": "Fields of the query",
-          "type": [
-            "object",
-            "null"
-          ],
-          "additionalProperties": {
-            "$ref": "#/definitions/Field"
-          }
-        },
-        "limit": {
-          "description": "Optionally limit to N results",
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint32",
-          "minimum": 0.0
-        },
-        "offset": {
-          "description": "Optionally offset from the Nth result",
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint32",
-          "minimum": 0.0
-        },
-        "order_by": {
-          "description": "Optionally specify how rows should be ordered",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/OrderBy"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "predicate": {
-          "description": "Optionally specify a predicate to apply to the rows",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Expression"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "groups": {
-          "description": "Optionally group and aggregate the selected rows",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Grouping"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
     "Aggregate": {
       "title": "Aggregate",
       "oneOf": [
@@ -268,166 +191,11 @@
         }
       ]
     },
-    "Field": {
-      "title": "Field",
+    "ArrayComparison": {
+      "title": "Array Comparison",
       "oneOf": [
         {
-          "type": "object",
-          "required": [
-            "column",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "column"
-              ]
-            },
-            "column": {
-              "type": "string"
-            },
-            "fields": {
-              "description": "When the type of the column is a (possibly-nullable) array or object, the caller can request a subset of the complete column data, by specifying fields to fetch here. If omitted, the column data will be fetched in full.",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/NestedField"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "arguments": {
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/Argument"
-              }
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "arguments",
-            "query",
-            "relationship",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "relationship"
-              ]
-            },
-            "query": {
-              "$ref": "#/definitions/Query"
-            },
-            "relationship": {
-              "description": "The name of the relationship to follow for the subquery",
-              "type": "string"
-            },
-            "arguments": {
-              "description": "Values to be provided to any collection arguments",
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/RelationshipArgument"
-              }
-            }
-          }
-        }
-      ]
-    },
-    "NestedField": {
-      "title": "NestedField",
-      "oneOf": [
-        {
-          "title": "NestedObject",
-          "type": "object",
-          "required": [
-            "fields",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "object"
-              ]
-            },
-            "fields": {
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/Field"
-              }
-            }
-          }
-        },
-        {
-          "title": "NestedArray",
-          "type": "object",
-          "required": [
-            "fields",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "array"
-              ]
-            },
-            "fields": {
-              "$ref": "#/definitions/NestedField"
-            }
-          }
-        },
-        {
-          "title": "NestedCollection",
-          "type": "object",
-          "required": [
-            "query",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "collection"
-              ]
-            },
-            "query": {
-              "$ref": "#/definitions/Query"
-            }
-          }
-        }
-      ]
-    },
-    "RelationshipArgument": {
-      "title": "Relationship Argument",
-      "oneOf": [
-        {
-          "description": "The argument is provided by reference to a variable",
-          "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "variable"
-              ]
-            },
-            "name": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "The argument is provided as a literal value",
+          "description": "Check if the array contains the specified value",
           "type": "object",
           "required": [
             "type",
@@ -437,80 +205,38 @@
             "type": {
               "type": "string",
               "enum": [
-                "literal"
+                "contains"
               ]
             },
-            "value": true
+            "value": {
+              "$ref": "#/definitions/ComparisonValue"
+            }
           }
         },
         {
+          "description": "Check is the array is empty",
           "type": "object",
           "required": [
-            "name",
             "type"
           ],
           "properties": {
             "type": {
               "type": "string",
               "enum": [
-                "column"
+                "is_empty"
               ]
-            },
-            "name": {
-              "type": "string"
             }
           }
         }
       ]
     },
-    "OrderBy": {
-      "title": "Order By",
-      "type": "object",
-      "required": [
-        "elements"
-      ],
-      "properties": {
-        "elements": {
-          "description": "The elements to order by, in priority order",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/OrderByElement"
-          }
-        }
-      }
-    },
-    "OrderByElement": {
-      "title": "Order By Element",
-      "type": "object",
-      "required": [
-        "order_direction",
-        "target"
-      ],
-      "properties": {
-        "order_direction": {
-          "$ref": "#/definitions/OrderDirection"
-        },
-        "target": {
-          "$ref": "#/definitions/OrderByTarget"
-        }
-      }
-    },
-    "OrderDirection": {
-      "title": "Order Direction",
-      "type": "string",
-      "enum": [
-        "asc",
-        "desc"
-      ]
-    },
-    "OrderByTarget": {
-      "title": "Order By Target",
+    "ComparisonTarget": {
+      "title": "Comparison Target",
       "oneOf": [
         {
           "type": "object",
           "required": [
             "name",
-            "path",
             "type"
           ],
           "properties": {
@@ -539,13 +265,6 @@
               ],
               "items": {
                 "type": "string"
-              }
-            },
-            "path": {
-              "description": "Any (object) relationships to traverse to reach this column",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
               }
             }
           }
@@ -583,47 +302,278 @@
         }
       ]
     },
-    "PathElement": {
-      "title": "Path Element",
-      "type": "object",
-      "required": [
-        "arguments",
-        "relationship"
-      ],
-      "properties": {
-        "field_path": {
-          "description": "Path to a nested field within an object column that must be navigated before the relationship is navigated",
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "type": "string"
-          }
-        },
-        "relationship": {
-          "description": "The name of the relationship to follow",
-          "type": "string"
-        },
-        "arguments": {
-          "description": "Values to be provided to any collection arguments",
+    "ComparisonValue": {
+      "title": "Comparison Value",
+      "oneOf": [
+        {
           "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/RelationshipArgument"
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "column"
+              ]
+            },
+            "name": {
+              "description": "The name of the column",
+              "type": "string"
+            },
+            "arguments": {
+              "description": "Arguments to satisfy the column specified by 'name'",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "path": {
+              "description": "Any relationships to traverse to reach this column",
+              "default": [],
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
+            },
+            "scope": {
+              "description": "The scope in which this column exists, identified by an top-down index into the stack of scopes. The stack grows inside each `Expression::Exists`, so scope 0 (the default) refers to the current collection, and each subsequent index refers to the collection outside its predecessor's immediately enclosing `Expression::Exists` expression.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint",
+              "minimum": 0.0
+            }
           }
         },
-        "predicate": {
-          "description": "A predicate expression to apply to the target collection",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Expression"
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "scalar"
+              ]
             },
-            {
-              "type": "null"
+            "value": true
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variable"
+              ]
+            },
+            "name": {
+              "type": "string"
             }
-          ]
+          }
         }
-      }
+      ]
+    },
+    "Dimension": {
+      "title": "Dimension",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "column_name",
+            "path",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "column"
+              ]
+            },
+            "column_name": {
+              "description": "The name of the column",
+              "type": "string"
+            },
+            "arguments": {
+              "description": "Arguments to satisfy the column specified by 'column_name'",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "path": {
+              "description": "Any (object) relationships to traverse to reach this column",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ExistsInCollection": {
+      "title": "Exists In Collection",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "arguments",
+            "relationship",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "related"
+              ]
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column that must be navigated before the relationship is navigated",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "relationship": {
+              "description": "The name of the relationship to follow",
+              "type": "string"
+            },
+            "arguments": {
+              "description": "Values to be provided to any collection arguments",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/RelationshipArgument"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "arguments",
+            "collection",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "unrelated"
+              ]
+            },
+            "collection": {
+              "description": "The name of a collection",
+              "type": "string"
+            },
+            "arguments": {
+              "description": "Values to be provided to any collection arguments",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/RelationshipArgument"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "column_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nested_collection"
+              ]
+            },
+            "column_name": {
+              "type": "string"
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested collection via object columns",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "description": "Specifies a column that contains a nested array of scalars. The array will be brought into scope of the nested expression where each element becomes an object with one '__value' column that contains the element value.",
+          "type": "object",
+          "required": [
+            "column_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nested_scalar_collection"
+              ]
+            },
+            "column_name": {
+              "type": "string"
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested collection via object columns",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
     },
     "Expression": {
       "title": "Expression",
@@ -788,13 +738,13 @@
         }
       ]
     },
-    "ComparisonTarget": {
-      "title": "Comparison Target",
+    "Field": {
+      "title": "Field",
       "oneOf": [
         {
           "type": "object",
           "required": [
-            "name",
+            "column",
             "type"
           ],
           "properties": {
@@ -804,25 +754,24 @@
                 "column"
               ]
             },
-            "name": {
-              "description": "The name of the column",
+            "column": {
               "type": "string"
             },
+            "fields": {
+              "description": "When the type of the column is a (possibly-nullable) array or object, the caller can request a subset of the complete column data, by specifying fields to fetch here. If omitted, the column data will be fetched in full.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/NestedField"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "arguments": {
-              "description": "Arguments to satisfy the column specified by 'name'",
               "type": "object",
               "additionalProperties": {
                 "$ref": "#/definitions/Argument"
-              }
-            },
-            "field_path": {
-              "description": "Path to a nested field within an object column",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "string"
               }
             }
           }
@@ -830,8 +779,43 @@
         {
           "type": "object",
           "required": [
+            "arguments",
+            "query",
+            "relationship",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "relationship"
+              ]
+            },
+            "query": {
+              "$ref": "#/definitions/Query"
+            },
+            "relationship": {
+              "description": "The name of the relationship to follow for the subquery",
+              "type": "string"
+            },
+            "arguments": {
+              "description": "Values to be provided to any collection arguments",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/RelationshipArgument"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GroupComparisonTarget": {
+      "title": "Aggregate Comparison Target",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
             "aggregate",
-            "path",
             "type"
           ],
           "properties": {
@@ -842,87 +826,15 @@
               ]
             },
             "aggregate": {
-              "description": "The aggregation method to use",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Aggregate"
-                }
-              ]
-            },
-            "path": {
-              "description": "Non-empty collection of relationships to traverse",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
-              }
+              "$ref": "#/definitions/Aggregate"
             }
           }
         }
       ]
     },
-    "UnaryComparisonOperator": {
-      "title": "Unary Comparison Operator",
-      "type": "string",
-      "enum": [
-        "is_null"
-      ]
-    },
-    "ComparisonValue": {
-      "title": "Comparison Value",
+    "GroupComparisonValue": {
+      "title": "Aggregate Comparison Value",
       "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "column"
-              ]
-            },
-            "name": {
-              "description": "The name of the column",
-              "type": "string"
-            },
-            "arguments": {
-              "description": "Arguments to satisfy the column specified by 'name'",
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/Argument"
-              }
-            },
-            "field_path": {
-              "description": "Path to a nested field within an object column",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "string"
-              }
-            },
-            "path": {
-              "description": "Any relationships to traverse to reach this column",
-              "default": [],
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
-              }
-            },
-            "scope": {
-              "description": "The scope in which this column exists, identified by an top-down index into the stack of scopes. The stack grows inside each `Expression::Exists`, so scope 0 (the default) refers to the current collection, and each subsequent index refers to the collection outside its predecessor's immediately enclosing `Expression::Exists` expression.",
-              "type": [
-                "integer",
-                "null"
-              ],
-              "format": "uint",
-              "minimum": 0.0
-            }
-          }
-        },
         {
           "type": "object",
           "required": [
@@ -954,290 +866,6 @@
             },
             "name": {
               "type": "string"
-            }
-          }
-        }
-      ]
-    },
-    "ArrayComparison": {
-      "title": "Array Comparison",
-      "oneOf": [
-        {
-          "description": "Check if the array contains the specified value",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "contains"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/ComparisonValue"
-            }
-          }
-        },
-        {
-          "description": "Check is the array is empty",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "is_empty"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    "ExistsInCollection": {
-      "title": "Exists In Collection",
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "arguments",
-            "relationship",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "related"
-              ]
-            },
-            "field_path": {
-              "description": "Path to a nested field within an object column that must be navigated before the relationship is navigated",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "string"
-              }
-            },
-            "relationship": {
-              "description": "The name of the relationship to follow",
-              "type": "string"
-            },
-            "arguments": {
-              "description": "Values to be provided to any collection arguments",
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/RelationshipArgument"
-              }
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "arguments",
-            "collection",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "unrelated"
-              ]
-            },
-            "collection": {
-              "description": "The name of a collection",
-              "type": "string"
-            },
-            "arguments": {
-              "description": "Values to be provided to any collection arguments",
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/RelationshipArgument"
-              }
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "column_name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "nested_collection"
-              ]
-            },
-            "column_name": {
-              "type": "string"
-            },
-            "arguments": {
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/Argument"
-              }
-            },
-            "field_path": {
-              "description": "Path to a nested collection via object columns",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        {
-          "description": "Specifies a column that contains a nested array of scalars. The array will be brought into scope of the nested expression where each element becomes an object with one '__value' column that contains the element value.",
-          "type": "object",
-          "required": [
-            "column_name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "nested_scalar_collection"
-              ]
-            },
-            "column_name": {
-              "type": "string"
-            },
-            "arguments": {
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/Argument"
-              }
-            },
-            "field_path": {
-              "description": "Path to a nested collection via object columns",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      ]
-    },
-    "Grouping": {
-      "title": "Grouping",
-      "type": "object",
-      "required": [
-        "aggregates",
-        "dimensions"
-      ],
-      "properties": {
-        "dimensions": {
-          "description": "Dimensions along which to partition the data",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Dimension"
-          }
-        },
-        "aggregates": {
-          "description": "Aggregates to compute in each group",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/Aggregate"
-          }
-        },
-        "predicate": {
-          "description": "Optionally specify a predicate to apply after grouping rows",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/GroupExpression"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "order_by": {
-          "description": "Optionally specify how groups should be ordered",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/GroupOrderBy"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "limit": {
-          "description": "Optionally limit to N groups",
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint32",
-          "minimum": 0.0
-        },
-        "offset": {
-          "description": "Optionally offset from the Nth group",
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint32",
-          "minimum": 0.0
-        }
-      }
-    },
-    "Dimension": {
-      "title": "Dimension",
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "column_name",
-            "path",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "column"
-              ]
-            },
-            "column_name": {
-              "description": "The name of the column",
-              "type": "string"
-            },
-            "arguments": {
-              "description": "Arguments to satisfy the column specified by 'column_name'",
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/Argument"
-              }
-            },
-            "field_path": {
-              "description": "Path to a nested field within an object column",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "string"
-              }
-            },
-            "path": {
-              "description": "Any (object) relationships to traverse to reach this column",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
-              }
             }
           }
         }
@@ -1356,68 +984,6 @@
         }
       ]
     },
-    "GroupComparisonTarget": {
-      "title": "Aggregate Comparison Target",
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "aggregate",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "aggregate"
-              ]
-            },
-            "aggregate": {
-              "$ref": "#/definitions/Aggregate"
-            }
-          }
-        }
-      ]
-    },
-    "GroupComparisonValue": {
-      "title": "Aggregate Comparison Value",
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "scalar"
-              ]
-            },
-            "value": true
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "variable"
-              ]
-            },
-            "name": {
-              "type": "string"
-            }
-          }
-        }
-      ]
-    },
     "GroupOrderBy": {
       "title": "Group Order By",
       "type": "object",
@@ -1499,6 +1065,374 @@
         }
       ]
     },
+    "Grouping": {
+      "title": "Grouping",
+      "type": "object",
+      "required": [
+        "aggregates",
+        "dimensions"
+      ],
+      "properties": {
+        "dimensions": {
+          "description": "Dimensions along which to partition the data",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Dimension"
+          }
+        },
+        "aggregates": {
+          "description": "Aggregates to compute in each group",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Aggregate"
+          }
+        },
+        "predicate": {
+          "description": "Optionally specify a predicate to apply after grouping rows",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/GroupExpression"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order_by": {
+          "description": "Optionally specify how groups should be ordered",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/GroupOrderBy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limit": {
+          "description": "Optionally limit to N groups",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "offset": {
+          "description": "Optionally offset from the Nth group",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      }
+    },
+    "NestedField": {
+      "title": "NestedField",
+      "oneOf": [
+        {
+          "title": "NestedObject",
+          "type": "object",
+          "required": [
+            "fields",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "object"
+              ]
+            },
+            "fields": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Field"
+              }
+            }
+          }
+        },
+        {
+          "title": "NestedArray",
+          "type": "object",
+          "required": [
+            "fields",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "array"
+              ]
+            },
+            "fields": {
+              "$ref": "#/definitions/NestedField"
+            }
+          }
+        },
+        {
+          "title": "NestedCollection",
+          "type": "object",
+          "required": [
+            "query",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "collection"
+              ]
+            },
+            "query": {
+              "$ref": "#/definitions/Query"
+            }
+          }
+        }
+      ]
+    },
+    "OrderBy": {
+      "title": "Order By",
+      "type": "object",
+      "required": [
+        "elements"
+      ],
+      "properties": {
+        "elements": {
+          "description": "The elements to order by, in priority order",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderByElement"
+          }
+        }
+      }
+    },
+    "OrderByElement": {
+      "title": "Order By Element",
+      "type": "object",
+      "required": [
+        "order_direction",
+        "target"
+      ],
+      "properties": {
+        "order_direction": {
+          "$ref": "#/definitions/OrderDirection"
+        },
+        "target": {
+          "$ref": "#/definitions/OrderByTarget"
+        }
+      }
+    },
+    "OrderByTarget": {
+      "title": "Order By Target",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "path",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "column"
+              ]
+            },
+            "name": {
+              "description": "The name of the column",
+              "type": "string"
+            },
+            "arguments": {
+              "description": "Arguments to satisfy the column specified by 'name'",
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Argument"
+              }
+            },
+            "field_path": {
+              "description": "Path to a nested field within an object column",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "path": {
+              "description": "Any (object) relationships to traverse to reach this column",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "aggregate",
+            "path",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "aggregate"
+              ]
+            },
+            "aggregate": {
+              "description": "The aggregation method to use",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Aggregate"
+                }
+              ]
+            },
+            "path": {
+              "description": "Non-empty collection of relationships to traverse",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "OrderDirection": {
+      "title": "Order Direction",
+      "type": "string",
+      "enum": [
+        "asc",
+        "desc"
+      ]
+    },
+    "PathElement": {
+      "title": "Path Element",
+      "type": "object",
+      "required": [
+        "arguments",
+        "relationship"
+      ],
+      "properties": {
+        "field_path": {
+          "description": "Path to a nested field within an object column that must be navigated before the relationship is navigated",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "relationship": {
+          "description": "The name of the relationship to follow",
+          "type": "string"
+        },
+        "arguments": {
+          "description": "Values to be provided to any collection arguments",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/RelationshipArgument"
+          }
+        },
+        "predicate": {
+          "description": "A predicate expression to apply to the target collection",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Expression"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "Query": {
+      "title": "Query",
+      "type": "object",
+      "properties": {
+        "aggregates": {
+          "description": "Aggregate fields of the query",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "$ref": "#/definitions/Aggregate"
+          }
+        },
+        "fields": {
+          "description": "Fields of the query",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "$ref": "#/definitions/Field"
+          }
+        },
+        "limit": {
+          "description": "Optionally limit to N results",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "offset": {
+          "description": "Optionally offset from the Nth result",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "order_by": {
+          "description": "Optionally specify how rows should be ordered",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/OrderBy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "predicate": {
+          "description": "Optionally specify a predicate to apply to the rows",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Expression"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "groups": {
+          "description": "Optionally group and aggregate the selected rows",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Grouping"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "Relationship": {
       "title": "Relationship",
       "type": "object",
@@ -1535,12 +1469,78 @@
         }
       }
     },
+    "RelationshipArgument": {
+      "title": "Relationship Argument",
+      "oneOf": [
+        {
+          "description": "The argument is provided by reference to a variable",
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variable"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "The argument is provided as a literal value",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "literal"
+              ]
+            },
+            "value": true
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "column"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
     "RelationshipType": {
       "title": "Relationship Type",
       "type": "string",
       "enum": [
         "object",
         "array"
+      ]
+    },
+    "UnaryComparisonOperator": {
+      "title": "Unary Comparison Operator",
+      "type": "string",
+      "enum": [
+        "is_null"
       ]
     }
   }
