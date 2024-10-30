@@ -81,10 +81,10 @@ pub enum ComparisonTarget {
         field_path: Option<Vec<FieldName>>,
     },
     Aggregate {
-        /// The aggregation method to use
-        aggregate: Aggregate,
         /// Non-empty collection of relationships to traverse
         path: Vec<PathElement>,
+        /// The aggregation method to use
+        aggregate: Aggregate,
     },
 }
 // ANCHOR_END: ComparisonTarget
@@ -95,6 +95,9 @@ pub enum ComparisonTarget {
 #[schemars(title = "Comparison Value")]
 pub enum ComparisonValue {
     Column {
+        /// Any relationships to traverse to reach this column
+        #[serde(default)]
+        path: Vec<PathElement>,
         /// The name of the column
         name: FieldName,
         /// Arguments to satisfy the column specified by 'name'
@@ -102,9 +105,6 @@ pub enum ComparisonValue {
         arguments: BTreeMap<ArgumentName, Argument>,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
-        /// Any relationships to traverse to reach this column
-        #[serde(default)]
-        path: Vec<PathElement>,
         /// The scope in which this column exists, identified
         /// by an top-down index into the stack of scopes.
         /// The stack grows inside each `Expression::Exists`,

@@ -113,6 +113,8 @@ pub enum GroupComparisonValue {
 #[schemars(title = "Dimension")]
 pub enum Dimension {
     Column {
+        /// Any (object) relationships to traverse to reach this column
+        path: Vec<PathElement>,
         /// The name of the column
         column_name: FieldName,
         /// Arguments to satisfy the column specified by 'column_name'
@@ -120,8 +122,6 @@ pub enum Dimension {
         arguments: BTreeMap<ArgumentName, Argument>,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
-        /// Any (object) relationships to traverse to reach this column
-        path: Vec<PathElement>,
     },
 }
 // ANCHOR_END: Dimension

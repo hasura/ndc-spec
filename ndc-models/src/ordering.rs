@@ -30,6 +30,8 @@ pub struct OrderByElement {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum OrderByTarget {
     Column {
+        /// Any (object) relationships to traverse to reach this column
+        path: Vec<PathElement>,
         /// The name of the column
         name: FieldName,
         /// Arguments to satisfy the column specified by 'name'
@@ -37,14 +39,12 @@ pub enum OrderByTarget {
         arguments: BTreeMap<ArgumentName, Argument>,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
-        /// Any (object) relationships to traverse to reach this column
-        path: Vec<PathElement>,
     },
     Aggregate {
-        /// The aggregation method to use
-        aggregate: Aggregate,
         /// Non-empty collection of relationships to traverse
         path: Vec<PathElement>,
+        /// The aggregation method to use
+        aggregate: Aggregate,
     },
 }
 // ANCHOR_END: OrderByTarget

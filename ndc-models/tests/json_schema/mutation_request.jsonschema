@@ -257,6 +257,13 @@
                 "aggregate"
               ]
             },
+            "path": {
+              "description": "Non-empty collection of relationships to traverse",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
+            },
             "aggregate": {
               "description": "The aggregation method to use",
               "allOf": [
@@ -264,13 +271,6 @@
                   "$ref": "#/definitions/Aggregate"
                 }
               ]
-            },
-            "path": {
-              "description": "Non-empty collection of relationships to traverse",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
-              }
             }
           }
         }
@@ -292,6 +292,14 @@
                 "column"
               ]
             },
+            "path": {
+              "description": "Any relationships to traverse to reach this column",
+              "default": [],
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
+            },
             "name": {
               "description": "The name of the column",
               "type": "string"
@@ -311,14 +319,6 @@
               ],
               "items": {
                 "type": "string"
-              }
-            },
-            "path": {
-              "description": "Any relationships to traverse to reach this column",
-              "default": [],
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
               }
             },
             "scope": {
@@ -385,6 +385,13 @@
                 "column"
               ]
             },
+            "path": {
+              "description": "Any (object) relationships to traverse to reach this column",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
+            },
             "column_name": {
               "description": "The name of the column",
               "type": "string"
@@ -404,13 +411,6 @@
               ],
               "items": {
                 "type": "string"
-              }
-            },
-            "path": {
-              "description": "Any (object) relationships to traverse to reach this column",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
               }
             }
           }
@@ -1258,6 +1258,13 @@
                 "column"
               ]
             },
+            "path": {
+              "description": "Any (object) relationships to traverse to reach this column",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
+            },
             "name": {
               "description": "The name of the column",
               "type": "string"
@@ -1278,13 +1285,6 @@
               "items": {
                 "type": "string"
               }
-            },
-            "path": {
-              "description": "Any (object) relationships to traverse to reach this column",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
-              }
             }
           }
         },
@@ -1302,6 +1302,13 @@
                 "aggregate"
               ]
             },
+            "path": {
+              "description": "Non-empty collection of relationships to traverse",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PathElement"
+              }
+            },
             "aggregate": {
               "description": "The aggregation method to use",
               "allOf": [
@@ -1309,13 +1316,6 @@
                   "$ref": "#/definitions/Aggregate"
                 }
               ]
-            },
-            "path": {
-              "description": "Non-empty collection of relationships to traverse",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/PathElement"
-              }
             }
           }
         }
