@@ -58,6 +58,505 @@
     }
   },
   "definitions": {
+    "AggregateCapabilitiesSchemaInfo": {
+      "title": "Aggregate Capabilities Schema Info",
+      "type": "object",
+      "properties": {
+        "filter_by": {
+          "description": "Schema information relevant to the aggregates.filter_by capability",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AggregateFilterByCapabilitiesSchemaInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "AggregateFilterByCapabilitiesSchemaInfo": {
+      "title": "Aggregate Filter By Capabilities Schema Info",
+      "type": "object",
+      "required": [
+        "count_scalar_type"
+      ],
+      "properties": {
+        "count_scalar_type": {
+          "description": "The scalar type which should be used for the return type of count (star_count and column_count) operations.",
+          "type": "string"
+        }
+      }
+    },
+    "AggregateFunctionDefinition": {
+      "title": "Aggregate Function Definition",
+      "description": "The definition of an aggregation function on a scalar type",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "min"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "max"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "sum"
+              ]
+            },
+            "result_type": {
+              "description": "The scalar type of the result of this function, which should have one of the type representations Int64 or Float64, depending on whether this function is defined on a scalar type with an integer or floating-point representation, respectively.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "average"
+              ]
+            },
+            "result_type": {
+              "description": "The scalar type of the result of this function, which should have the type representation Float64",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "custom"
+              ]
+            },
+            "result_type": {
+              "description": "The scalar or object type of the result of this function",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Type"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ArgumentInfo": {
+      "title": "Argument Info",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "description": {
+          "description": "Argument description",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "description": "The name of the type of this argument",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    },
+    "CapabilitySchemaInfo": {
+      "title": "Capability Schema Info",
+      "type": "object",
+      "properties": {
+        "query": {
+          "description": "Schema information relevant to query capabilities",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/QueryCapabilitiesSchemaInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "CollectionInfo": {
+      "title": "Collection Info",
+      "type": "object",
+      "required": [
+        "arguments",
+        "name",
+        "type",
+        "uniqueness_constraints"
+      ],
+      "properties": {
+        "name": {
+          "description": "The name of the collection\n\nNote: these names are abstract - there is no requirement that this name correspond to the name of an actual collection in the database.",
+          "type": "string"
+        },
+        "description": {
+          "description": "Description of the collection",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "arguments": {
+          "description": "Any arguments that this collection requires",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        },
+        "type": {
+          "description": "The name of the collection's object type",
+          "type": "string"
+        },
+        "uniqueness_constraints": {
+          "description": "Any uniqueness constraints enforced on this collection",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/UniquenessConstraint"
+          }
+        }
+      }
+    },
+    "ComparisonOperatorDefinition": {
+      "title": "Comparison Operator Definition",
+      "description": "The definition of a comparison operator on a scalar type",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "equal"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "in"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "less_than"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "less_than_or_equal"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "greater_than"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "greater_than_or_equal"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "argument_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "custom"
+              ]
+            },
+            "argument_type": {
+              "description": "The type of the argument to this operator",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Type"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ForeignKeyConstraint": {
+      "title": "Foreign Key Constraint",
+      "type": "object",
+      "required": [
+        "column_mapping",
+        "foreign_collection"
+      ],
+      "properties": {
+        "column_mapping": {
+          "description": "The columns on which you want want to define the foreign key.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "foreign_collection": {
+          "description": "The name of a collection",
+          "type": "string"
+        }
+      }
+    },
+    "FunctionInfo": {
+      "title": "Function Info",
+      "type": "object",
+      "required": [
+        "arguments",
+        "name",
+        "result_type"
+      ],
+      "properties": {
+        "name": {
+          "description": "The name of the function",
+          "type": "string"
+        },
+        "description": {
+          "description": "Description of the function",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "arguments": {
+          "description": "Any arguments that this collection requires",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        },
+        "result_type": {
+          "description": "The name of the function's result type",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    },
+    "ObjectField": {
+      "title": "Object Field",
+      "description": "The definition of an object field",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "description": {
+          "description": "Description of this field",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "description": "The type of this field",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        },
+        "arguments": {
+          "description": "The arguments available to the field - Matches implementation from CollectionInfo",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        }
+      }
+    },
+    "ObjectType": {
+      "title": "Object Type",
+      "description": "The definition of an object type",
+      "type": "object",
+      "required": [
+        "fields",
+        "foreign_keys"
+      ],
+      "properties": {
+        "description": {
+          "description": "Description of this type",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fields": {
+          "description": "Fields defined on this object type",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ObjectField"
+          }
+        },
+        "foreign_keys": {
+          "description": "Any foreign keys defined for this object type's columns",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ForeignKeyConstraint"
+          }
+        }
+      }
+    },
+    "ProcedureInfo": {
+      "title": "Procedure Info",
+      "type": "object",
+      "required": [
+        "arguments",
+        "name",
+        "result_type"
+      ],
+      "properties": {
+        "name": {
+          "description": "The name of the procedure",
+          "type": "string"
+        },
+        "description": {
+          "description": "Column description",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "arguments": {
+          "description": "Any arguments that this collection requires",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        },
+        "result_type": {
+          "description": "The name of the result type",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            }
+          ]
+        }
+      }
+    },
+    "QueryCapabilitiesSchemaInfo": {
+      "title": "Query Capabilities Schema Info",
+      "type": "object",
+      "properties": {
+        "aggregates": {
+          "description": "Schema information relevant to aggregate query capabilities",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AggregateCapabilitiesSchemaInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "ScalarType": {
       "title": "Scalar Type",
       "description": "The definition of a scalar type, i.e. types that can be used as the types of columns.",
@@ -91,6 +590,100 @@
           }
         }
       }
+    },
+    "Type": {
+      "title": "Type",
+      "description": "Types track the valid representations of values as JSON",
+      "oneOf": [
+        {
+          "description": "A named type",
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "named"
+              ]
+            },
+            "name": {
+              "description": "The name can refer to a scalar or object type",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "A nullable type",
+          "type": "object",
+          "required": [
+            "type",
+            "underlying_type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nullable"
+              ]
+            },
+            "underlying_type": {
+              "description": "The type of the non-null inhabitants of this type",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Type"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An array type",
+          "type": "object",
+          "required": [
+            "element_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "array"
+              ]
+            },
+            "element_type": {
+              "description": "The type of the elements of the array",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Type"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "A predicate type for a given object type",
+          "type": "object",
+          "required": [
+            "object_type_name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "predicate"
+              ]
+            },
+            "object_type_name": {
+              "description": "The object type name",
+              "type": "string"
+            }
+          }
+        }
+      ]
     },
     "TypeRepresentation": {
       "title": "Type Representation",
@@ -390,461 +983,6 @@
         }
       ]
     },
-    "AggregateFunctionDefinition": {
-      "title": "Aggregate Function Definition",
-      "description": "The definition of an aggregation function on a scalar type",
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "min"
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "max"
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "sum"
-              ]
-            },
-            "result_type": {
-              "description": "The scalar type of the result of this function, which should have one of the type representations Int64 or Float64, depending on whether this function is defined on a scalar type with an integer or floating-point representation, respectively.",
-              "type": "string"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "average"
-              ]
-            },
-            "result_type": {
-              "description": "The scalar type of the result of this function, which should have the type representation Float64",
-              "type": "string"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "custom"
-              ]
-            },
-            "result_type": {
-              "description": "The scalar or object type of the result of this function",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Type"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    "Type": {
-      "title": "Type",
-      "description": "Types track the valid representations of values as JSON",
-      "oneOf": [
-        {
-          "description": "A named type",
-          "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "named"
-              ]
-            },
-            "name": {
-              "description": "The name can refer to a scalar or object type",
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "A nullable type",
-          "type": "object",
-          "required": [
-            "type",
-            "underlying_type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "nullable"
-              ]
-            },
-            "underlying_type": {
-              "description": "The type of the non-null inhabitants of this type",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Type"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "description": "An array type",
-          "type": "object",
-          "required": [
-            "element_type",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "array"
-              ]
-            },
-            "element_type": {
-              "description": "The type of the elements of the array",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Type"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "description": "A predicate type for a given object type",
-          "type": "object",
-          "required": [
-            "object_type_name",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "predicate"
-              ]
-            },
-            "object_type_name": {
-              "description": "The object type name",
-              "type": "string"
-            }
-          }
-        }
-      ]
-    },
-    "ComparisonOperatorDefinition": {
-      "title": "Comparison Operator Definition",
-      "description": "The definition of a comparison operator on a scalar type",
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "equal"
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "in"
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "less_than"
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "less_than_or_equal"
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "greater_than"
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "greater_than_or_equal"
-              ]
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "argument_type",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "custom"
-              ]
-            },
-            "argument_type": {
-              "description": "The type of the argument to this operator",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Type"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    "ObjectType": {
-      "title": "Object Type",
-      "description": "The definition of an object type",
-      "type": "object",
-      "required": [
-        "fields",
-        "foreign_keys"
-      ],
-      "properties": {
-        "description": {
-          "description": "Description of this type",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "fields": {
-          "description": "Fields defined on this object type",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/ObjectField"
-          }
-        },
-        "foreign_keys": {
-          "description": "Any foreign keys defined for this object type's columns",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/ForeignKeyConstraint"
-          }
-        }
-      }
-    },
-    "ObjectField": {
-      "title": "Object Field",
-      "description": "The definition of an object field",
-      "type": "object",
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "description": {
-          "description": "Description of this field",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "type": {
-          "description": "The type of this field",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Type"
-            }
-          ]
-        },
-        "arguments": {
-          "description": "The arguments available to the field - Matches implementation from CollectionInfo",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/ArgumentInfo"
-          }
-        }
-      }
-    },
-    "ArgumentInfo": {
-      "title": "Argument Info",
-      "type": "object",
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "description": {
-          "description": "Argument description",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "type": {
-          "description": "The name of the type of this argument",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Type"
-            }
-          ]
-        }
-      }
-    },
-    "ForeignKeyConstraint": {
-      "title": "Foreign Key Constraint",
-      "type": "object",
-      "required": [
-        "column_mapping",
-        "foreign_collection"
-      ],
-      "properties": {
-        "column_mapping": {
-          "description": "The columns on which you want want to define the foreign key.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "foreign_collection": {
-          "description": "The name of a collection",
-          "type": "string"
-        }
-      }
-    },
-    "CollectionInfo": {
-      "title": "Collection Info",
-      "type": "object",
-      "required": [
-        "arguments",
-        "name",
-        "type",
-        "uniqueness_constraints"
-      ],
-      "properties": {
-        "name": {
-          "description": "The name of the collection\n\nNote: these names are abstract - there is no requirement that this name correspond to the name of an actual collection in the database.",
-          "type": "string"
-        },
-        "description": {
-          "description": "Description of the collection",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "arguments": {
-          "description": "Any arguments that this collection requires",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/ArgumentInfo"
-          }
-        },
-        "type": {
-          "description": "The name of the collection's object type",
-          "type": "string"
-        },
-        "uniqueness_constraints": {
-          "description": "Any uniqueness constraints enforced on this collection",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/UniquenessConstraint"
-          }
-        }
-      }
-    },
     "UniquenessConstraint": {
       "title": "Uniqueness Constraint",
       "type": "object",
@@ -858,144 +996,6 @@
           "items": {
             "type": "string"
           }
-        }
-      }
-    },
-    "FunctionInfo": {
-      "title": "Function Info",
-      "type": "object",
-      "required": [
-        "arguments",
-        "name",
-        "result_type"
-      ],
-      "properties": {
-        "name": {
-          "description": "The name of the function",
-          "type": "string"
-        },
-        "description": {
-          "description": "Description of the function",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "arguments": {
-          "description": "Any arguments that this collection requires",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/ArgumentInfo"
-          }
-        },
-        "result_type": {
-          "description": "The name of the function's result type",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Type"
-            }
-          ]
-        }
-      }
-    },
-    "ProcedureInfo": {
-      "title": "Procedure Info",
-      "type": "object",
-      "required": [
-        "arguments",
-        "name",
-        "result_type"
-      ],
-      "properties": {
-        "name": {
-          "description": "The name of the procedure",
-          "type": "string"
-        },
-        "description": {
-          "description": "Column description",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "arguments": {
-          "description": "Any arguments that this collection requires",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/ArgumentInfo"
-          }
-        },
-        "result_type": {
-          "description": "The name of the result type",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Type"
-            }
-          ]
-        }
-      }
-    },
-    "CapabilitySchemaInfo": {
-      "title": "Capability Schema Info",
-      "type": "object",
-      "properties": {
-        "query": {
-          "description": "Schema information relevant to query capabilities",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/QueryCapabilitiesSchemaInfo"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
-    "QueryCapabilitiesSchemaInfo": {
-      "title": "Query Capabilities Schema Info",
-      "type": "object",
-      "properties": {
-        "aggregates": {
-          "description": "Schema information relevant to aggregate query capabilities",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/AggregateCapabilitiesSchemaInfo"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
-    "AggregateCapabilitiesSchemaInfo": {
-      "title": "Aggregate Capabilities Schema Info",
-      "type": "object",
-      "properties": {
-        "filter_by": {
-          "description": "Schema information relevant to the aggregates.filter_by capability",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/AggregateFilterByCapabilitiesSchemaInfo"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
-    "AggregateFilterByCapabilitiesSchemaInfo": {
-      "title": "Aggregate Filter By Capabilities Schema Info",
-      "type": "object",
-      "required": [
-        "count_scalar_type"
-      ],
-      "properties": {
-        "count_scalar_type": {
-          "description": "The scalar type which should be used for the return type of count (star_count and column_count) operations.",
-          "type": "string"
         }
       }
     }

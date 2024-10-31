@@ -7,6 +7,29 @@
     "$ref": "#/definitions/RowSet"
   },
   "definitions": {
+    "Group": {
+      "title": "Group",
+      "type": "object",
+      "required": [
+        "aggregates",
+        "dimensions"
+      ],
+      "properties": {
+        "dimensions": {
+          "description": "Values of dimensions which identify this group",
+          "type": "array",
+          "items": true
+        },
+        "aggregates": {
+          "description": "Aggregates computed within this group",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "RowFieldValue": {
+      "title": "Row Field Value"
+    },
     "RowSet": {
       "title": "Row Set",
       "type": "object",
@@ -41,29 +64,6 @@
           "items": {
             "$ref": "#/definitions/Group"
           }
-        }
-      }
-    },
-    "RowFieldValue": {
-      "title": "Row Field Value"
-    },
-    "Group": {
-      "title": "Group",
-      "type": "object",
-      "required": [
-        "aggregates",
-        "dimensions"
-      ],
-      "properties": {
-        "dimensions": {
-          "description": "Values of dimensions which identify this group",
-          "type": "array",
-          "items": true
-        },
-        "aggregates": {
-          "description": "Aggregates computed within this group",
-          "type": "object",
-          "additionalProperties": true
         }
       }
     }

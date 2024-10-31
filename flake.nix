@@ -6,16 +6,12 @@
 
     nixpkgs.url = "github:NixOS/nixpkgs";
 
-    crane = {
-      url = "github:ipetkov/crane";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    crane.url = "github:ipetkov/crane";
 
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
       };
     };
   };
@@ -99,6 +95,7 @@
 
           pkgs.just
           pkgs.mdbook
+          pkgs.mdbook-pagetoc
           pkgs.nodePackages.prettier
         ] ++ buildDependencies;
 

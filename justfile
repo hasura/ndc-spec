@@ -2,29 +2,8 @@
 default:
   just --list
 
-# run commands in a rust docker environment
-docker +args:
-  #!/usr/bin/env sh
-  DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose -f dev.docker-compose.yaml run --build --rm --env=RUSTFLAGS='-D warnings' source {{args}}
-  exit_code=$?
-  docker compose -f dev.docker-compose.yaml down
-  exit $exit_code
-
-# Builds in docker
-ci-build:
-  just docker cargo build
-
-# Runs the tests in docker
-ci-test:
-  just docker cargo test
-
-# Runs linting checks in docker
-ci-lint:
-  just docker cargo clippy
-
-# Runs benchmarks in docker
-ci-bench:
-  just docker cargo bench
+lint:
+  cargo clippy --all-targets --no-deps
 
 # Runs the tests
 test *ARGS:

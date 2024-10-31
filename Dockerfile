@@ -1,5 +1,5 @@
 # this should match the Rust version in rust-toolchain.yaml and the
-FROM rust:1.77.0 AS chef
+FROM rust:1.82.0 AS chef
 
 WORKDIR app
 
