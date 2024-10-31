@@ -21,10 +21,12 @@ pub struct QueryRequest {
     pub query: Query,
     /// Values to be provided to any collection arguments
     pub arguments: BTreeMap<ArgumentName, Argument>,
-    /// Any relationships between collections involved in the query request
+    /// Any relationships between collections involved in the query request.
+    /// Only used if the 'relationships' capability is supported.
     pub collection_relationships: BTreeMap<RelationshipName, Relationship>,
     /// One set of named variables for each rowset to fetch. Each variable set
     /// should be subtituted in turn, and a fresh set of rows returned.
+    /// Only used if the 'query.variables' capability is supported.
     pub variables: Option<Vec<BTreeMap<VariableName, serde_json::Value>>>,
 }
 // ANCHOR_END: QueryRequest
@@ -34,7 +36,8 @@ pub struct QueryRequest {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Query")]
 pub struct Query {
-    /// Aggregate fields of the query
+    /// Aggregate fields of the query.
+    /// Only used if the 'query.aggregates' capability is supported.
     pub aggregates: Option<IndexMap<FieldName, Aggregate>>,
     /// Fields of the query
     pub fields: Option<IndexMap<FieldName, Field>>,
@@ -46,7 +49,8 @@ pub struct Query {
     pub order_by: Option<OrderBy>,
     /// Optionally specify a predicate to apply to the rows
     pub predicate: Option<Expression>,
-    /// Optionally group and aggregate the selected rows
+    /// Optionally group and aggregate the selected rows.
+    /// Only used if the 'query.aggregates.group_by' capability is supported.
     pub groups: Option<Grouping>,
 }
 // ANCHOR_END: Query
@@ -56,7 +60,8 @@ pub struct Query {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Argument")]
 pub enum Argument {
-    /// The argument is provided by reference to a variable
+    /// The argument is provided by reference to a variable.
+    /// Only used if the 'query.variables' capability is supported.
     Variable { name: VariableName },
     /// The argument is provided as a literal value
     Literal { value: serde_json::Value },
@@ -67,7 +72,11 @@ pub enum Argument {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Relationship")]
 pub struct Relationship {
-    /// A mapping between columns on the source collection to columns on the target collection
+    /// A mapping between columns on the source row to columns on the target collection.
+    /// The column on the target collection is specified via a field path (ie. an array of field
+    /// names that descend through nested object fields). The field path will only contain a single item,
+    /// meaning a column on the target collection's type, unless the 'relationships.nested'
+    /// capability is supported, in which case multiple items denotes a nested object field.
     pub column_mapping: BTreeMap<FieldName, Vec<FieldName>>,
     pub relationship_type: RelationshipType,
     /// The name of a collection
@@ -83,7 +92,8 @@ pub struct Relationship {
 #[schemars(title = "Relationship Argument")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum RelationshipArgument {
-    /// The argument is provided by reference to a variable
+    /// The argument is provided by reference to a variable.
+    /// Only used if the 'query.variables' capability is supported.
     Variable {
         name: VariableName,
     },
@@ -181,7 +191,8 @@ pub struct ExplainResponse {
 pub struct MutationRequest {
     /// The mutation operations to perform
     pub operations: Vec<MutationOperation>,
-    /// The relationships between collections involved in the entire mutation request
+    /// The relationships between collections involved in the entire mutation request.
+    /// Only used if the 'relationships' capability is supported.
     pub collection_relationships: BTreeMap<RelationshipName, Relationship>,
 }
 // ANCHOR_END: MutationRequest

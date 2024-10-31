@@ -5,6 +5,8 @@ Queries can request data from other collections via relationships. A relationshi
 - Columns in the two collections can be related via _column mappings_, and
 - [Collection arguments](./arguments.md) to the target collection can be computed via the row of the source collection.
 
+Connectors that support relationships should indicate so by enabling the `relationships` capability.
+
 ## Defining Relationships
 
 Relationships are defined (and given names) in the top-level `QueryRequest` object, and then referred to by name everywhere they are used. To define a relationship, add a [`Relationship`](../../reference/types.md#relationship) object to the `collection_relationships` property of the `QueryRequest` object.

@@ -7,6 +7,8 @@ There are two endpoints related to explain:
 
 Both endpoints return a representation of the _execution plan_ without actually executing the query or mutation.
 
+Connectors that wish to support these endpoints should indicate this in their capabilities; specifically with the `query.explain` capability and the `mutation.explain` capability.
+
 ## Request
 
 ```

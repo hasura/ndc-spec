@@ -30,14 +30,14 @@
       }
     },
     "collection_relationships": {
-      "description": "Any relationships between collections involved in the query request",
+      "description": "Any relationships between collections involved in the query request. Only used if the 'relationships' capability is supported.",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/Relationship"
       }
     },
     "variables": {
-      "description": "One set of named variables for each rowset to fetch. Each variable set should be subtituted in turn, and a fresh set of rows returned.",
+      "description": "One set of named variables for each rowset to fetch. Each variable set should be subtituted in turn, and a fresh set of rows returned. Only used if the 'query.variables' capability is supported.",
       "type": [
         "array",
         "null"
@@ -154,7 +154,7 @@
       "title": "Argument",
       "oneOf": [
         {
-          "description": "The argument is provided by reference to a variable",
+          "description": "The argument is provided by reference to a variable. Only used if the 'query.variables' capability is supported.",
           "type": "object",
           "required": [
             "name",
@@ -195,7 +195,7 @@
       "title": "Array Comparison",
       "oneOf": [
         {
-          "description": "Check if the array contains the specified value",
+          "description": "Check if the array contains the specified value. Only used if the 'query.nested_fields.filter_by.nested_arrays.contains' capability is supported.",
           "type": "object",
           "required": [
             "type",
@@ -214,7 +214,7 @@
           }
         },
         {
-          "description": "Check is the array is empty",
+          "description": "Check is the array is empty. Only used if the 'query.nested_fields.filter_by.nested_arrays.is_empty' capability is supported.",
           "type": "object",
           "required": [
             "type"
@@ -234,6 +234,7 @@
       "title": "Comparison Target",
       "oneOf": [
         {
+          "description": "The comparison targets a column.",
           "type": "object",
           "required": [
             "name",
@@ -258,7 +259,7 @@
               }
             },
             "field_path": {
-              "description": "Path to a nested field within an object column",
+              "description": "Path to a nested field within an object column. Only non-empty if the 'query.nested_fields.filter_by' capability is supported.",
               "type": [
                 "array",
                 "null"
@@ -270,6 +271,7 @@
           }
         },
         {
+          "description": "The comparison targets the result of aggregation. Only used if the 'query.aggregates.filter_by' capability is supported.",
           "type": "object",
           "required": [
             "aggregate",
@@ -306,6 +308,7 @@
       "title": "Comparison Value",
       "oneOf": [
         {
+          "description": "The value to compare against should be drawn from another column",
           "type": "object",
           "required": [
             "name",
@@ -319,7 +322,7 @@
               ]
             },
             "path": {
-              "description": "Any relationships to traverse to reach this column",
+              "description": "Any relationships to traverse to reach this column. Only non-empty if the 'relationships.relation_comparisons' is supported.",
               "default": [],
               "type": "array",
               "items": {
@@ -338,7 +341,7 @@
               }
             },
             "field_path": {
-              "description": "Path to a nested field within an object column",
+              "description": "Path to a nested field within an object column. Only non-empty if the 'query.nested_fields.filter_by' capability is supported.",
               "type": [
                 "array",
                 "null"
@@ -348,7 +351,7 @@
               }
             },
             "scope": {
-              "description": "The scope in which this column exists, identified by an top-down index into the stack of scopes. The stack grows inside each `Expression::Exists`, so scope 0 (the default) refers to the current collection, and each subsequent index refers to the collection outside its predecessor's immediately enclosing `Expression::Exists` expression.",
+              "description": "The scope in which this column exists, identified by an top-down index into the stack of scopes. The stack grows inside each `Expression::Exists`, so scope 0 (the default) refers to the current collection, and each subsequent index refers to the collection outside its predecessor's immediately enclosing `Expression::Exists` expression. Only used if the 'query.exists.named_scopes' capability is supported.",
               "type": [
                 "integer",
                 "null"
@@ -359,6 +362,7 @@
           }
         },
         {
+          "description": "A scalar value to compare against",
           "type": "object",
           "required": [
             "type",
@@ -375,6 +379,7 @@
           }
         },
         {
+          "description": "A value to compare against that is to be drawn from the query's variables. Only used if the 'query.variables' capability is supported.",
           "type": "object",
           "required": [
             "name",
@@ -412,7 +417,7 @@
               ]
             },
             "path": {
-              "description": "Any (object) relationships to traverse to reach this column",
+              "description": "Any (object) relationships to traverse to reach this column. Only non-empty if the 'relationships' capability is supported.",
               "type": "array",
               "items": {
                 "$ref": "#/definitions/PathElement"
@@ -447,6 +452,7 @@
       "title": "Exists In Collection",
       "oneOf": [
         {
+          "description": "The rows to evaluate the exists predicate against come from a related collection. Only used if the 'relationships' capability is supported.",
           "type": "object",
           "required": [
             "arguments",
@@ -461,7 +467,7 @@
               ]
             },
             "field_path": {
-              "description": "Path to a nested field within an object column that must be navigated before the relationship is navigated",
+              "description": "Path to a nested field within an object column that must be navigated before the relationship is navigated Only non-empty if the 'relationships.nested' capability is supported.",
               "type": [
                 "array",
                 "null"
@@ -484,6 +490,7 @@
           }
         },
         {
+          "description": "The rows to evaluate the exists predicate against come from an unrelated collection Only used if the 'query.exists.unrelated' capability is supported.",
           "type": "object",
           "required": [
             "arguments",
@@ -511,6 +518,7 @@
           }
         },
         {
+          "description": "The rows to evaluate the exists predicate against come from a nested array field. Only used if the 'query.exists.nested_collections' capability is supported.",
           "type": "object",
           "required": [
             "column_name",
@@ -542,7 +550,7 @@
           }
         },
         {
-          "description": "Specifies a column that contains a nested array of scalars. The array will be brought into scope of the nested expression where each element becomes an object with one '__value' column that contains the element value.",
+          "description": "Specifies a column that contains a nested array of scalars. The array will be brought into scope of the nested expression where each element becomes an object with one '__value' column that contains the element value. Only used if the 'query.exists.nested_scalar_collections' capability is supported.",
           "type": "object",
           "required": [
             "column_name",
@@ -687,6 +695,7 @@
           }
         },
         {
+          "description": "A comparison against a nested array column. Only used if the 'query.nested_fields.filter_by.nested_arrays' capability is supported.",
           "type": "object",
           "required": [
             "column",
@@ -742,6 +751,7 @@
       "title": "Field",
       "oneOf": [
         {
+          "description": "A field satisfied by returning the value of a row's column.",
           "type": "object",
           "required": [
             "column",
@@ -777,6 +787,7 @@
           }
         },
         {
+          "description": "A field satisfied by navigating a relationship from the current row to a related collection. Only used if the 'relationships' capability is supported.",
           "type": "object",
           "required": [
             "arguments",
@@ -836,6 +847,7 @@
       "title": "Aggregate Comparison Value",
       "oneOf": [
         {
+          "description": "A scalar value to compare against",
           "type": "object",
           "required": [
             "type",
@@ -852,6 +864,7 @@
           }
         },
         {
+          "description": "A value to compare against that is to be drawn from the query's variables. Only used if the 'query.variables' capability is supported.",
           "type": "object",
           "required": [
             "name",
@@ -1088,7 +1101,7 @@
           }
         },
         "predicate": {
-          "description": "Optionally specify a predicate to apply after grouping rows",
+          "description": "Optionally specify a predicate to apply after grouping rows. Only used if the 'query.aggregates.group_by.filter' capability is supported.",
           "anyOf": [
             {
               "$ref": "#/definitions/GroupExpression"
@@ -1099,7 +1112,7 @@
           ]
         },
         "order_by": {
-          "description": "Optionally specify how groups should be ordered",
+          "description": "Optionally specify how groups should be ordered Only used if the 'query.aggregates.group_by.order' capability is supported.",
           "anyOf": [
             {
               "$ref": "#/definitions/GroupOrderBy"
@@ -1110,7 +1123,7 @@
           ]
         },
         "limit": {
-          "description": "Optionally limit to N groups",
+          "description": "Optionally limit to N groups Only used if the 'query.aggregates.group_by.paginate' capability is supported.",
           "type": [
             "integer",
             "null"
@@ -1119,7 +1132,7 @@
           "minimum": 0.0
         },
         "offset": {
-          "description": "Optionally offset from the Nth group",
+          "description": "Optionally offset from the Nth group Only used if the 'query.aggregates.group_by.paginate' capability is supported.",
           "type": [
             "integer",
             "null"
@@ -1175,6 +1188,7 @@
         },
         {
           "title": "NestedCollection",
+          "description": "Perform a query over the nested array's rows. Only used if the 'query.nested_fields.nested_collections' capability is supported.",
           "type": "object",
           "required": [
             "query",
@@ -1230,6 +1244,7 @@
       "title": "Order By Target",
       "oneOf": [
         {
+          "description": "The ordering is performed over a column.",
           "type": "object",
           "required": [
             "name",
@@ -1244,7 +1259,7 @@
               ]
             },
             "path": {
-              "description": "Any (object) relationships to traverse to reach this column",
+              "description": "Any (object) relationships to traverse to reach this column. Only non-empty if the 'relationships' capability is supported.",
               "type": "array",
               "items": {
                 "$ref": "#/definitions/PathElement"
@@ -1262,7 +1277,7 @@
               }
             },
             "field_path": {
-              "description": "Path to a nested field within an object column",
+              "description": "Path to a nested field within an object column. Only non-empty if the 'query.nested_fields.order_by' capability is supported.",
               "type": [
                 "array",
                 "null"
@@ -1274,6 +1289,7 @@
           }
         },
         {
+          "description": "The ordering is performed over the result of an aggregation. Only used if the 'relationships.order_by_aggregate' capability is supported.",
           "type": "object",
           "required": [
             "aggregate",
@@ -1323,7 +1339,7 @@
       ],
       "properties": {
         "field_path": {
-          "description": "Path to a nested field within an object column that must be navigated before the relationship is navigated",
+          "description": "Path to a nested field within an object column that must be navigated before the relationship is navigated. Only non-empty if the 'relationships.nested' capability is supported.",
           "type": [
             "array",
             "null"
@@ -1361,7 +1377,7 @@
       "type": "object",
       "properties": {
         "aggregates": {
-          "description": "Aggregate fields of the query",
+          "description": "Aggregate fields of the query. Only used if the 'query.aggregates' capability is supported.",
           "type": [
             "object",
             "null"
@@ -1421,7 +1437,7 @@
           ]
         },
         "groups": {
-          "description": "Optionally group and aggregate the selected rows",
+          "description": "Optionally group and aggregate the selected rows. Only used if the 'query.aggregates.group_by' capability is supported.",
           "anyOf": [
             {
               "$ref": "#/definitions/Grouping"
@@ -1444,7 +1460,7 @@
       ],
       "properties": {
         "column_mapping": {
-          "description": "A mapping between columns on the source collection to columns on the target collection",
+          "description": "A mapping between columns on the source row to columns on the target collection. The column on the target collection is specified via a field path (ie. an array of field names that descend through nested object fields). The field path will only contain a single item, meaning a column on the target collection's type, unless the 'relationships.nested' capability is supported, in which case multiple items denotes a nested object field.",
           "type": "object",
           "additionalProperties": {
             "type": "array",
@@ -1473,7 +1489,7 @@
       "title": "Relationship Argument",
       "oneOf": [
         {
-          "description": "The argument is provided by reference to a variable",
+          "description": "The argument is provided by reference to a variable. Only used if the 'query.variables' capability is supported.",
           "type": "object",
           "required": [
             "name",

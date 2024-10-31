@@ -12,6 +12,7 @@ use crate::{
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Field")]
 pub enum Field {
+    /// A field satisfied by returning the value of a row's column.
     Column {
         column: FieldName,
         /// When the type of the column is a (possibly-nullable) array or object,
@@ -22,6 +23,8 @@ pub enum Field {
         #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
         arguments: BTreeMap<ArgumentName, Argument>,
     },
+    /// A field satisfied by navigating a relationship from the current row to a related collection.
+    /// Only used if the 'relationships' capability is supported.
     Relationship {
         query: Box<Query>,
         /// The name of the relationship to follow for the subquery
@@ -66,6 +69,8 @@ pub struct NestedCollection {
 pub enum NestedField {
     Object(NestedObject),
     Array(NestedArray),
+    /// Perform a query over the nested array's rows.
+    /// Only used if the 'query.nested_fields.nested_collections' capability is supported.
     Collection(NestedCollection),
 }
 // ANCHOR_END: NestedField
@@ -77,7 +82,8 @@ pub enum NestedField {
 pub struct PathElement {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     /// Path to a nested field within an object column that must be navigated
-    /// before the relationship is navigated
+    /// before the relationship is navigated.
+    /// Only non-empty if the 'relationships.nested' capability is supported.
     pub field_path: Option<Vec<FieldName>>,
     /// The name of the relationship to follow
     pub relationship: RelationshipName,
