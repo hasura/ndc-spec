@@ -17,7 +17,7 @@ See [`SchemaResponse`](../../reference/types.md#schemaresponse)
 ### Example
 
 ```json
-{{#include ../../../../ndc-reference/tests/schema/expected.json}}
+{{#include ../../../../ndc-reference/tests/schema/expected.snap:5:}}
 ```
 
 ## Response Fields

@@ -15,7 +15,7 @@ See [`CapabilitiesResponse`](../reference/types.md#capabilitiesresponse)
 ### Example
 
 ```json
-{{#include ../../../ndc-reference/tests/capabilities/expected.json}}
+{{#include ../../../ndc-reference/tests/capabilities/expected.snap:5:}}
 ```
 
 ## Response Fields

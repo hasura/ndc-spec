@@ -28,7 +28,7 @@ This example uses the `latest_article_id` function, which returns a scalar type:
 The response JSON includes the requested data in the special `__value` field:
 
 ```json
-{{#include ../../../../ndc-reference/tests/query/get_max_article_id/expected.json }}
+{{#include ../../../../ndc-reference/tests/query/get_max_article_id/expected.snap:6: }}
 ```
 
 ### A function returning an object type
@@ -43,5 +43,5 @@ This example uses the `latest_article` function instead, which returns the full 
 Again, the response is sent in the `__value` field:
 
 ```json
-{{#include ../../../../ndc-reference/tests/query/get_max_article/expected.json }}
+{{#include ../../../../ndc-reference/tests/query/get_max_article/expected.snap:6: }}
 ```
