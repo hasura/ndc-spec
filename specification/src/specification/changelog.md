@@ -7,10 +7,12 @@
 - `ComparisonTarget::RootCollectionColumn` was removed and replaced by _named scopes_ ([RFC](https://github.com/hasura/ndc-spec/blob/36855ff20dcbd7d129427794aee9746b895390af/rfcs/0015-named-scopes.md))
 - `path` was removed from `ComparisonTarget::Column` ([RFC](https://github.com/hasura/ndc-spec/blob/36855ff20dcbd7d129427794aee9746b895390af/rfcs/0011-no-paths-in-comparison-target.md))
 - `AggregateFunctionDefinition` was changed to an `enum`, to support _standardized aggregate functions_ ([RFC](https://github.com/hasura/ndc-spec/blob/a6610169f72cec6792d5e0830c57254e212b37d9/rfcs/0021-comparison-and-aggregate-meanings.md))
+- `ComparisonValue::Column` no longer uses `ComparisonTarget` to pick the column. Instead, the necessary column and pathing details are inlined onto the enum variant. This
 - Declarations of foreign keys has moved from `CollectionInfo` to `ObjectType`. This enables object types nested within a collection's object type to declare foreign keys.
 - The target column in column mappings can now reference an object-nested field. The target column is now a field path (`Vec<FieldName>`) instead of just a field (`FieldName`). Column mappings occur in:
   - `Relationship::column_mapping`
   - `ForeignKeyConstraint::column_mapping`
+- Scalar type representations are now required, and the previously deprecated `number` and `integer` representations have been removed.
 
 ### Specification
 
