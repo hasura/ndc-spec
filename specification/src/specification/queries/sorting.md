@@ -57,7 +57,7 @@ For example, this query sorts `institutions` by their location's country's area.
 
 ### Type `aggregate`
 
-An ordering of type `aggregate` orders rows by aggregating rows in some [related collection](./relationships.md), and comparing aggregations for each of the two rows. The relationship path is specified by the `path` property.
+An ordering of type `aggregate` orders rows by aggregating rows in some [related collection](./relationships.md), and comparing aggregations for each of the two rows. The relationship path is specified by the `path` property. Connectors must enable the `relationships.order_by_aggregate` capability to receive this ordering type.
 
 If the respective aggregates are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
 

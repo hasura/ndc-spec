@@ -271,6 +271,11 @@ pub struct UniquenessConstraint {
 #[schemars(title = "Foreign Key Constraint")]
 pub struct ForeignKeyConstraint {
     /// The columns on which you want want to define the foreign key.
+    /// This is a mapping between fields on object type to columns on the foreign collection.
+    /// The column on the foreign collection is specified via a field path (ie. an array of field
+    /// names that descend through nested object fields). The field path must only contain a single item,
+    /// meaning a column on the foreign collection's type, unless the 'relationships.nested'
+    /// capability is supported, in which case multiple items can be used to denote a nested object field.
     pub column_mapping: BTreeMap<FieldName, Vec<FieldName>>,
     /// The name of a collection
     pub foreign_collection: CollectionName,

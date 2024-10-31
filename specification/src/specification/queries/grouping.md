@@ -26,7 +26,7 @@ A key property is that nested arrays or nested relationships cannot be traversed
 Grouping operations have two types of filtering:
 
 - The initial row set can be filtered _before the grouping operation_, using the `predicate` field of the [`Query`](../../reference/types.md#query) object as usual, and
-- The _groups themselves_ can be filtered _after the grouping operation_, using the `predicate` field of the [`Grouping`](../../reference/types.md#grouping) object. This is controlled by the `queries.aggregates.group_by.filter` capability.
+- The _groups themselves_ can be filtered _after the grouping operation_, using the `predicate` field of the [`Grouping`](../../reference/types.md#grouping) object. This is controlled by the `query.aggregates.group_by.filter` capability.
 
 Unlike regular predicates on rows, group predicates are not allowed to compare _columns_, but must instead compare values of _aggregates_ over the group. For example, we can filter groups by comparing a _count_ of rows in the group, but not by comparing values in individual rows.
 
@@ -35,7 +35,7 @@ Unlike regular predicates on rows, group predicates are not allowed to compare _
 As with filtering, group operations support two types of ordering:
 
 - The initial row set can be ordered _before the grouping operation_, using the `order_by` field of the [`Query`](../../reference/types.md#query) object as usual, and
-- The _groups themselves_ can be ordered _after the grouping operation_, using the `order_by` field of the [`Grouping`](../../reference/types.md#grouping) object. This is controlled by the `queries.aggregates.group_by.order` capability.
+- The _groups themselves_ can be ordered _after the grouping operation_, using the `order_by` field of the [`Grouping`](../../reference/types.md#grouping) object. This is controlled by the `query.aggregates.group_by.order` capability.
 
 Group sort orders are restricted to comparing aggregate values, similar to filtering. For example, we can order groups by a _count_, but not by the value of individual rows. However, we can also choose to sort by the selected grouping dimensions.
 
@@ -44,7 +44,7 @@ Group sort orders are restricted to comparing aggregate values, similar to filte
 Pagination can also be applied both before and after grouping:
 
 - The initial row set can be paginated _before the grouping operation_, using the `limit` and `offset` fields of the [`Query`](../../reference/types.md#query) object as usual, and
-- The _groups themselves_ can be paginated _after the grouping operation_, using the `limit` and `offset` fields of the [`Grouping`](../../reference/types.md#grouping) object. This is controlled by the `queries.aggregates.group_by.paginate` capability.
+- The _groups themselves_ can be paginated _after the grouping operation_, using the `limit` and `offset` fields of the [`Grouping`](../../reference/types.md#grouping) object. This is controlled by the `query.aggregates.group_by.paginate` capability.
 
 ## Examples
 

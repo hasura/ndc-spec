@@ -50,13 +50,17 @@ pub struct Grouping {
     pub dimensions: Vec<Dimension>,
     /// Aggregates to compute in each group
     pub aggregates: IndexMap<String, Aggregate>,
-    /// Optionally specify a predicate to apply after grouping rows
+    /// Optionally specify a predicate to apply after grouping rows.
+    /// Only used if the 'query.aggregates.group_by.filter' capability is supported.
     pub predicate: Option<GroupExpression>,
     /// Optionally specify how groups should be ordered
+    /// Only used if the 'query.aggregates.group_by.order' capability is supported.
     pub order_by: Option<GroupOrderBy>,
     /// Optionally limit to N groups
+    /// Only used if the 'query.aggregates.group_by.paginate' capability is supported.
     pub limit: Option<u32>,
     /// Optionally offset from the Nth group
+    /// Only used if the 'query.aggregates.group_by.paginate' capability is supported.
     pub offset: Option<u32>,
 }
 // ANCHOR_END: Grouping
@@ -101,7 +105,10 @@ pub enum GroupComparisonTarget {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Aggregate Comparison Value")]
 pub enum GroupComparisonValue {
+    /// A scalar value to compare against
     Scalar { value: serde_json::Value },
+    /// A value to compare against that is to be drawn from the query's variables.
+    /// Only used if the 'query.variables' capability is supported.
     Variable { name: VariableName },
 }
 // ANCHOR_END: GroupComparisonValue
@@ -113,7 +120,8 @@ pub enum GroupComparisonValue {
 #[schemars(title = "Dimension")]
 pub enum Dimension {
     Column {
-        /// Any (object) relationships to traverse to reach this column
+        /// Any (object) relationships to traverse to reach this column.
+        /// Only non-empty if the 'relationships' capability is supported.
         path: Vec<PathElement>,
         /// The name of the column
         column_name: FieldName,

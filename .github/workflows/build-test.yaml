@@ -91,3 +91,32 @@ jobs:
       - name: just test
         run: |
           just test
+
+  build-docs:
+    name: just build-docs
+    runs-on: ubuntu-latest
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      RUSTFLAGS: "-D warnings" # fail on warnings
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install just
+        uses: extractions/setup-just@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: install mdbook
+        uses: taiki-e/install-action@mdbook
+
+      - name: install rust toolchain
+        run: |
+          rustup show
+
+      - name: install mdbook-pagetoc
+        run: |
+          cargo install mdbook-pagetoc
+
+      - name: just build-docs
+        run: |
+          just build-docs

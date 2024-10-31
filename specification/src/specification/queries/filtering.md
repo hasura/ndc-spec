@@ -125,7 +125,7 @@ Binary (including array-valued) operators compare columns to _values_, but there
 
 - Scalar values, as seen in the examples above, compare the column to a specific value,
 - Variable values compare the column to the current value of a [variable](./variables.md),
-- Column values compare the column to _another_ column.
+- Column values compare the column to _another_ column. The column may be on the same row, or it may be on a related row. Comparing against columns on related rows requires the connector to indicate support via the `relationships.relation_comparison` capability.
 
 #### Referencing a column from a collection in scope
 
