@@ -93,6 +93,7 @@
 
           pkgs.just
           pkgs.mdbook
+          pkgs.mdbook-pagetoc
           pkgs.nodePackages.prettier
         ] ++ buildDependencies;
 
