@@ -31,6 +31,19 @@ update-golden-files:
   UPDATE_GOLDENFILES=1 just test
   just fix-format-prettier
 
+build-docs:
+  #!/usr/bin/env bash
+  cd specification
+  BUILD_OUTPUT=$(mdbook build 2>&1)
+
+  if echo "$BUILD_OUTPUT" | grep -q '\[ERROR\]'; then
+    echo "Build failed with errors:"
+    echo "$BUILD_OUTPUT"
+    exit 1
+  else
+    echo "Build completed successfully."
+  fi
+
 # Starts the ndc-spec documentation webserver
 start-docs:
   cd specification && mdbook serve
