@@ -1,0 +1,93 @@
+name: Build and test
+on: push
+
+jobs:
+  check:
+    name: cargo check
+    runs-on: ubuntu-latest
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      RUSTFLAGS: "-D warnings" # fail on warnings
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install rust toolchain
+        run: |
+          rustup show
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "build"
+
+      - name: cargo check --all-targets
+        run: |
+          cargo check --all-targets
+
+      # Sadly, `cargo build --locked` isn't enough to check that the lockfile
+      # is up to date, as it will happily run even if there are extra entries in
+      # there.
+      #
+      # It does, however, make sure that the file is not updated, which is quite
+      # unhelpful.
+      - name: ensure lockfile hasn't changed
+        run: |
+          if [[ -n "$(git status --porcelain Cargo.lock)" ]]; then
+            echo 'The Cargo.lock file was changed!'
+            git diff Cargo.lock
+            exit 1
+          fi
+
+  lint:
+    name: just lint
+    runs-on: ubuntu-latest
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      RUSTFLAGS: "-D warnings" # fail on warnings
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install just
+        uses: extractions/setup-just@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: install rust toolchain
+        run: |
+          rustup show
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "build"
+
+      - name: just lint
+        run: |
+          just lint
+
+  test:
+    name: just test
+    runs-on: ubuntu-latest
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      RUSTFLAGS: "-D warnings" # fail on warnings
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install just
+        uses: extractions/setup-just@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: install cargo nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: install rust toolchain
+        run: |
+          rustup show
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "test"
+
+      - name: just test
+        run: |
+          just test
