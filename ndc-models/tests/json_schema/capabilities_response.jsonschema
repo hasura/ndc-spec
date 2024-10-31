@@ -15,90 +15,6 @@
     }
   },
   "definitions": {
-    "Capabilities": {
-      "title": "Capabilities",
-      "description": "Describes the features of the specification which a data connector implements.",
-      "type": "object",
-      "required": [
-        "mutation",
-        "query"
-      ],
-      "properties": {
-        "query": {
-          "$ref": "#/definitions/QueryCapabilities"
-        },
-        "mutation": {
-          "$ref": "#/definitions/MutationCapabilities"
-        },
-        "relationships": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/RelationshipCapabilities"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
-    "QueryCapabilities": {
-      "title": "Query Capabilities",
-      "type": "object",
-      "properties": {
-        "aggregates": {
-          "description": "Does the connector support aggregate queries",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/AggregateCapabilities"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "variables": {
-          "description": "Does the connector support queries which use variables",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "explain": {
-          "description": "Does the connector support explaining queries",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "nested_fields": {
-          "description": "Does the connector support nested fields",
-          "default": {},
-          "allOf": [
-            {
-              "$ref": "#/definitions/NestedFieldCapabilities"
-            }
-          ]
-        },
-        "exists": {
-          "description": "Does the connector support EXISTS predicates",
-          "default": {},
-          "allOf": [
-            {
-              "$ref": "#/definitions/ExistsCapabilities"
-            }
-          ]
-        }
-      }
-    },
     "AggregateCapabilities": {
       "title": "Aggregate Capabilities",
       "type": "object",
@@ -127,9 +43,82 @@
         }
       }
     },
-    "LeafCapability": {
-      "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
-      "type": "object"
+    "Capabilities": {
+      "title": "Capabilities",
+      "description": "Describes the features of the specification which a data connector implements.",
+      "type": "object",
+      "required": [
+        "mutation",
+        "query"
+      ],
+      "properties": {
+        "query": {
+          "$ref": "#/definitions/QueryCapabilities"
+        },
+        "mutation": {
+          "$ref": "#/definitions/MutationCapabilities"
+        },
+        "relationships": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelationshipCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ExistsCapabilities": {
+      "title": "Exists Capabilities",
+      "type": "object",
+      "properties": {
+        "named_scopes": {
+          "description": "Does the connector support named scopes in column references inside EXISTS predicates",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unrelated": {
+          "description": "Does the connector support ExistsInCollection::Unrelated",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nested_collections": {
+          "description": "Does the connector support ExistsInCollection::NestedCollection",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nested_scalar_collections": {
+          "description": "Does the connector support filtering over nested scalar arrays using existential quantification. This means the connector must support ExistsInCollection::NestedScalarCollection.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
     },
     "GroupByCapabilities": {
       "title": "Group By Capabilities",
@@ -159,6 +148,66 @@
         },
         "paginate": {
           "description": "Does the connector support post-grouping pagination",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "LeafCapability": {
+      "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
+      "type": "object"
+    },
+    "MutationCapabilities": {
+      "title": "Mutation Capabilities",
+      "type": "object",
+      "properties": {
+        "transactional": {
+          "description": "Does the connector support executing multiple mutations in a transaction.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "explain": {
+          "description": "Does the connector support explaining mutations",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "NestedArrayFilterByCapabilities": {
+      "title": "Nested Array Filter By Capabilities",
+      "type": "object",
+      "properties": {
+        "contains": {
+          "description": "Does the connector support filtering over nested arrays by checking if the array contains a value. This must be supported for all types that can be contained in an array that implement an 'eq' comparison operator.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "is_empty": {
+          "description": "Does the connector support filtering over nested arrays by checking if the array is empty. This must be supported no matter what type is contained in the array.",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -237,23 +286,12 @@
         }
       }
     },
-    "NestedArrayFilterByCapabilities": {
-      "title": "Nested Array Filter By Capabilities",
+    "NestedRelationshipCapabilities": {
+      "title": "Nested Relationship Capabilities",
       "type": "object",
       "properties": {
-        "contains": {
-          "description": "Does the connector support filtering over nested arrays by checking if the array contains a value. This must be supported for all types that can be contained in an array that implement an 'eq' comparison operator.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "is_empty": {
-          "description": "Does the connector support filtering over nested arrays by checking if the array is empty. This must be supported no matter what type is contained in the array.",
+        "array": {
+          "description": "Does the connector support navigating a relationship from inside a nested object inside a nested array",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -265,62 +303,23 @@
         }
       }
     },
-    "ExistsCapabilities": {
-      "title": "Exists Capabilities",
+    "QueryCapabilities": {
+      "title": "Query Capabilities",
       "type": "object",
       "properties": {
-        "named_scopes": {
-          "description": "Does the connector support named scopes in column references inside EXISTS predicates",
+        "aggregates": {
+          "description": "Does the connector support aggregate queries",
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/AggregateCapabilities"
             },
             {
               "type": "null"
             }
           ]
         },
-        "unrelated": {
-          "description": "Does the connector support ExistsInCollection::Unrelated",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "nested_collections": {
-          "description": "Does the connector support ExistsInCollection::NestedCollection",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "nested_scalar_collections": {
-          "description": "Does the connector support filtering over nested scalar arrays using existential quantification. This means the connector must support ExistsInCollection::NestedScalarCollection.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
-    "MutationCapabilities": {
-      "title": "Mutation Capabilities",
-      "type": "object",
-      "properties": {
-        "transactional": {
-          "description": "Does the connector support executing multiple mutations in a transaction.",
+        "variables": {
+          "description": "Does the connector support queries which use variables",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -331,13 +330,31 @@
           ]
         },
         "explain": {
-          "description": "Does the connector support explaining mutations",
+          "description": "Does the connector support explaining queries",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
             },
             {
               "type": "null"
+            }
+          ]
+        },
+        "nested_fields": {
+          "description": "Does the connector support nested fields",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/NestedFieldCapabilities"
+            }
+          ]
+        },
+        "exists": {
+          "description": "Does the connector support EXISTS predicates",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/ExistsCapabilities"
             }
           ]
         }
@@ -374,23 +391,6 @@
           "anyOf": [
             {
               "$ref": "#/definitions/NestedRelationshipCapabilities"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
-    "NestedRelationshipCapabilities": {
-      "title": "Nested Relationship Capabilities",
-      "type": "object",
-      "properties": {
-        "array": {
-          "description": "Does the connector support navigating a relationship from inside a nested object inside a nested array",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
             },
             {
               "type": "null"
