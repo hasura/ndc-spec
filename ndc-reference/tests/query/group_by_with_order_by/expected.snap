@@ -1,0 +1,19 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/group_by_with_order_by/request.json
+---
+[
+  {
+    "groups": [
+      {
+        "dimensions": [
+          2
+        ],
+        "aggregates": {
+          "article_count": 2
+        }
+      }
+    ]
+  }
+]

@@ -1,8 +1,0 @@
-[
-  {
-    "aggregates": {
-      "distinct_author_count": 2,
-      "author_count": 3
-    }
-  }
-]

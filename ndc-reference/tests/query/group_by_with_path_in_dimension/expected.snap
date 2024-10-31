@@ -1,0 +1,29 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/group_by_with_path_in_dimension/request.json
+---
+[
+  {
+    "groups": [
+      {
+        "dimensions": [
+          "Landin",
+          "Peter"
+        ],
+        "aggregates": {
+          "article_count": 1
+        }
+      },
+      {
+        "dimensions": [
+          "Hughes",
+          "John"
+        ],
+        "aggregates": {
+          "article_count": 2
+        }
+      }
+    ]
+  }
+]

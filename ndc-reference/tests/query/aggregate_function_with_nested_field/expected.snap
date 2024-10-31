@@ -1,0 +1,12 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/aggregate_function_with_nested_field/request.json
+---
+[
+  {
+    "aggregates": {
+      "locations": 3
+    }
+  }
+]

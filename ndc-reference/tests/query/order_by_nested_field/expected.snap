@@ -1,0 +1,29 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/order_by_nested_field/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "id": 2,
+        "location": {
+          "country": "Sweden"
+        }
+      },
+      {
+        "id": 3,
+        "location": {
+          "country": "Sweden"
+        }
+      },
+      {
+        "id": 1,
+        "location": {
+          "country": "UK"
+        }
+      }
+    ]
+  }
+]

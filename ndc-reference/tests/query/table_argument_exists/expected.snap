@@ -1,0 +1,14 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/table_argument_exists/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "id": 2
+      }
+    ]
+  }
+]

@@ -54,11 +54,13 @@
             isJsonFile = path: _type: builtins.match ".*\\.json$" path != null;
             isJsonLinesFile = path: _type: builtins.match ".*\\.jsonl$" path != null;
             isJsonSchemaFile = path: _type: builtins.match ".*\\.jsonschema$" path != null;
+            isSnapshotFile = path: _type: builtins.match ".*\\.snap$" path != null;
             isSourceFile = path: type:
               isCsvFile path type
               || isJsonFile path type
               || isJsonLinesFile path type
               || isJsonSchemaFile path type
+              || isSnapshotFile path type
               || craneLib.filterCargoSources path type;
           in
           pkgs.lib.cleanSourceWith { src = craneLib.path ./.; filter = isSourceFile; };

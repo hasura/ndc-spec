@@ -1,0 +1,29 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/table_argument_aggregate/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "first_name": "Peter",
+        "last_name": "Landin",
+        "articles_aggregate": {
+          "aggregates": {
+            "count": 1
+          }
+        }
+      },
+      {
+        "first_name": "John",
+        "last_name": "Hughes",
+        "articles_aggregate": {
+          "aggregates": {
+            "count": 2
+          }
+        }
+      }
+    ]
+  }
+]

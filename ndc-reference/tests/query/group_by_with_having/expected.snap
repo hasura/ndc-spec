@@ -1,0 +1,20 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/group_by_with_having/request.json
+---
+[
+  {
+    "groups": [
+      {
+        "dimensions": [
+          2
+        ],
+        "aggregates": {
+          "min_id": 2,
+          "max_id": 3
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,625 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response
+---
+{
+  "scalar_types": {
+    "Float": {
+      "representation": {
+        "type": "float64"
+      },
+      "aggregate_functions": {
+        "avg": {
+          "type": "average",
+          "result_type": "Float"
+        },
+        "max": {
+          "type": "max"
+        },
+        "min": {
+          "type": "min"
+        },
+        "sum": {
+          "type": "sum",
+          "result_type": "Float"
+        }
+      },
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "gt": {
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
+        },
+        "in": {
+          "type": "in"
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
+        }
+      }
+    },
+    "Int": {
+      "representation": {
+        "type": "int32"
+      },
+      "aggregate_functions": {
+        "avg": {
+          "type": "average",
+          "result_type": "Float"
+        },
+        "max": {
+          "type": "max"
+        },
+        "min": {
+          "type": "min"
+        },
+        "sum": {
+          "type": "sum",
+          "result_type": "Int64"
+        }
+      },
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "gt": {
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
+        },
+        "in": {
+          "type": "in"
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
+        }
+      }
+    },
+    "Int64": {
+      "representation": {
+        "type": "int64"
+      },
+      "aggregate_functions": {
+        "avg": {
+          "type": "average",
+          "result_type": "Float"
+        },
+        "max": {
+          "type": "max"
+        },
+        "min": {
+          "type": "min"
+        },
+        "sum": {
+          "type": "sum",
+          "result_type": "Int64"
+        }
+      },
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "gt": {
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
+        },
+        "in": {
+          "type": "in"
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
+        }
+      }
+    },
+    "String": {
+      "representation": {
+        "type": "string"
+      },
+      "aggregate_functions": {
+        "max": {
+          "type": "max"
+        },
+        "min": {
+          "type": "min"
+        }
+      },
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "gt": {
+          "type": "greater_than"
+        },
+        "gte": {
+          "type": "greater_than_or_equal"
+        },
+        "in": {
+          "type": "in"
+        },
+        "like": {
+          "type": "custom",
+          "argument_type": {
+            "type": "named",
+            "name": "String"
+          }
+        },
+        "lt": {
+          "type": "less_than"
+        },
+        "lte": {
+          "type": "less_than_or_equal"
+        }
+      }
+    }
+  },
+  "object_types": {
+    "article": {
+      "description": "An article",
+      "fields": {
+        "author_id": {
+          "description": "The article's author ID",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "id": {
+          "description": "The article's primary key",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "title": {
+          "description": "The article's title",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        }
+      },
+      "foreign_keys": {
+        "Article_AuthorID": {
+          "column_mapping": {
+            "author_id": [
+              "id"
+            ]
+          },
+          "foreign_collection": "authors"
+        }
+      }
+    },
+    "author": {
+      "description": "An author",
+      "fields": {
+        "first_name": {
+          "description": "The author's first name",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        },
+        "id": {
+          "description": "The author's primary key",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "last_name": {
+          "description": "The author's last name",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        }
+      },
+      "foreign_keys": {}
+    },
+    "city": {
+      "description": "A city",
+      "fields": {
+        "name": {
+          "description": "The institution's name",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        }
+      },
+      "foreign_keys": {}
+    },
+    "country": {
+      "description": "A country",
+      "fields": {
+        "area_km2": {
+          "description": "The country's area size in square kilometers",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "cities": {
+          "description": "The cities in the country",
+          "type": {
+            "type": "array",
+            "element_type": {
+              "type": "named",
+              "name": "city"
+            }
+          },
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "description": "The country's primary key",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "name": {
+          "description": "The country's name",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        }
+      },
+      "foreign_keys": {}
+    },
+    "institution": {
+      "description": "An institution",
+      "fields": {
+        "departments": {
+          "description": "The institution's departments",
+          "type": {
+            "type": "array",
+            "element_type": {
+              "type": "named",
+              "name": "String"
+            }
+          },
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "description": "The institution's primary key",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "location": {
+          "description": "The institution's location",
+          "type": {
+            "type": "named",
+            "name": "location"
+          }
+        },
+        "name": {
+          "description": "The institution's name",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        },
+        "staff": {
+          "description": "The institution's staff",
+          "type": {
+            "type": "array",
+            "element_type": {
+              "type": "named",
+              "name": "staff_member"
+            }
+          },
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
+          }
+        }
+      },
+      "foreign_keys": {}
+    },
+    "location": {
+      "description": "A location",
+      "fields": {
+        "campuses": {
+          "description": "The location's campuses",
+          "type": {
+            "type": "array",
+            "element_type": {
+              "type": "named",
+              "name": "String"
+            }
+          },
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
+          }
+        },
+        "city": {
+          "description": "The location's city",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        },
+        "country": {
+          "description": "The location's country",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        },
+        "country_id": {
+          "description": "The location's country ID",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        }
+      },
+      "foreign_keys": {
+        "Location_CountryID": {
+          "column_mapping": {
+            "country_id": [
+              "id"
+            ]
+          },
+          "foreign_collection": "countries"
+        }
+      }
+    },
+    "staff_member": {
+      "description": "A staff member",
+      "fields": {
+        "born_country_id": {
+          "description": "The ID of the country the staff member was born in",
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        },
+        "first_name": {
+          "description": "The staff member's first name",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        },
+        "last_name": {
+          "description": "The staff member's last name",
+          "type": {
+            "type": "named",
+            "name": "String"
+          }
+        },
+        "specialities": {
+          "description": "The staff member's specialities",
+          "type": {
+            "type": "array",
+            "element_type": {
+              "type": "named",
+              "name": "String"
+            }
+          },
+          "arguments": {
+            "limit": {
+              "type": {
+                "type": "nullable",
+                "underlying_type": {
+                  "type": "named",
+                  "name": "Int"
+                }
+              }
+            }
+          }
+        }
+      },
+      "foreign_keys": {
+        "Staff_BornCountryID": {
+          "column_mapping": {
+            "born_country_id": [
+              "id"
+            ]
+          },
+          "foreign_collection": "countries"
+        }
+      }
+    }
+  },
+  "collections": [
+    {
+      "name": "articles",
+      "description": "A collection of articles",
+      "arguments": {},
+      "type": "article",
+      "uniqueness_constraints": {
+        "ArticleByID": {
+          "unique_columns": [
+            "id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "authors",
+      "description": "A collection of authors",
+      "arguments": {},
+      "type": "author",
+      "uniqueness_constraints": {
+        "AuthorByID": {
+          "unique_columns": [
+            "id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "institutions",
+      "description": "A collection of institutions",
+      "arguments": {},
+      "type": "institution",
+      "uniqueness_constraints": {
+        "InstitutionByID": {
+          "unique_columns": [
+            "id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "countries",
+      "description": "A collection of countries",
+      "arguments": {},
+      "type": "country",
+      "uniqueness_constraints": {
+        "CountryByID": {
+          "unique_columns": [
+            "id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "articles_by_author",
+      "description": "Articles parameterized by author",
+      "arguments": {
+        "author_id": {
+          "type": {
+            "type": "named",
+            "name": "Int"
+          }
+        }
+      },
+      "type": "article",
+      "uniqueness_constraints": {}
+    }
+  ],
+  "functions": [
+    {
+      "name": "latest_article_id",
+      "description": "Get the ID of the most recent article",
+      "arguments": {},
+      "result_type": {
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "Int"
+        }
+      }
+    },
+    {
+      "name": "latest_article",
+      "description": "Get the most recent article",
+      "arguments": {},
+      "result_type": {
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "article"
+        }
+      }
+    }
+  ],
+  "procedures": [
+    {
+      "name": "upsert_article",
+      "description": "Insert or update an article",
+      "arguments": {
+        "article": {
+          "description": "The article to insert or update",
+          "type": {
+            "type": "named",
+            "name": "article"
+          }
+        }
+      },
+      "result_type": {
+        "type": "nullable",
+        "underlying_type": {
+          "type": "named",
+          "name": "article"
+        }
+      }
+    },
+    {
+      "name": "delete_articles",
+      "description": "Delete articles which match a predicate",
+      "arguments": {
+        "where": {
+          "description": "The predicate",
+          "type": {
+            "type": "predicate",
+            "object_type_name": "article"
+          }
+        }
+      },
+      "result_type": {
+        "type": "array",
+        "element_type": {
+          "type": "named",
+          "name": "article"
+        }
+      }
+    }
+  ],
+  "capabilities": {
+    "query": {
+      "aggregates": {
+        "filter_by": {
+          "count_scalar_type": "Int"
+        }
+      }
+    }
+  }
+}

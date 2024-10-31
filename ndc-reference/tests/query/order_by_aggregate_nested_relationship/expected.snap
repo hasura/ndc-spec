@@ -1,0 +1,103 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/order_by_aggregate_nested_relationship/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "name": "Stockholm University",
+        "location": {
+          "country_id": 2,
+          "country": {
+            "rows": [
+              {
+                "name": "Chalmers University of Technology",
+                "location": {
+                  "city": "Gothenburg",
+                  "country": "Sweden",
+                  "country_id": 2,
+                  "campuses": [
+                    "Johanneberg",
+                    "Lindholmen"
+                  ]
+                }
+              },
+              {
+                "name": "Stockholm University",
+                "location": {
+                  "city": "Stockholm",
+                  "country": "Sweden",
+                  "country_id": 2,
+                  "campuses": [
+                    "Frescati",
+                    "Kista"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Chalmers University of Technology",
+        "location": {
+          "country_id": 2,
+          "country": {
+            "rows": [
+              {
+                "name": "Chalmers University of Technology",
+                "location": {
+                  "city": "Gothenburg",
+                  "country": "Sweden",
+                  "country_id": 2,
+                  "campuses": [
+                    "Johanneberg",
+                    "Lindholmen"
+                  ]
+                }
+              },
+              {
+                "name": "Stockholm University",
+                "location": {
+                  "city": "Stockholm",
+                  "country": "Sweden",
+                  "country_id": 2,
+                  "campuses": [
+                    "Frescati",
+                    "Kista"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Queen Mary University of London",
+        "location": {
+          "country_id": 1,
+          "country": {
+            "rows": [
+              {
+                "name": "Queen Mary University of London",
+                "location": {
+                  "city": "London",
+                  "country": "UK",
+                  "country_id": 1,
+                  "campuses": [
+                    "Mile End",
+                    "Whitechapel",
+                    "Charterhouse Square",
+                    "West Smithfield"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+]

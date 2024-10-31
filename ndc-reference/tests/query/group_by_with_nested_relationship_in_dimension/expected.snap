@@ -1,0 +1,27 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/group_by_with_nested_relationship_in_dimension/request.json
+---
+[
+  {
+    "groups": [
+      {
+        "dimensions": [
+          "UK"
+        ],
+        "aggregates": {
+          "institution_count": 1
+        }
+      },
+      {
+        "dimensions": [
+          "Sweden"
+        ],
+        "aggregates": {
+          "institution_count": 2
+        }
+      }
+    ]
+  }
+]

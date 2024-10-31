@@ -1,0 +1,13 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/aggregate_function/request.json
+---
+[
+  {
+    "aggregates": {
+      "min_id": 1,
+      "max_id": 3
+    }
+  }
+]

@@ -1,0 +1,23 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/mutation/upsert_article_with_relationship/request.json
+---
+{
+  "operation_results": [
+    {
+      "type": "procedure",
+      "result": {
+        "id": 2,
+        "author": {
+          "rows": [
+            {
+              "first_name": "John",
+              "last_name": "Hughes"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

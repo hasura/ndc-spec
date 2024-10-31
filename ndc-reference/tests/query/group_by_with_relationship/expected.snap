@@ -1,0 +1,54 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/group_by_with_relationship/request.json
+---
+[
+  {
+    "rows": [
+      {
+        "first_name": "Peter",
+        "last_name": "Landin",
+        "articles": {
+          "groups": [
+            {
+              "dimensions": [
+                "The Next 700 Programming Languages"
+              ],
+              "aggregates": {
+                "min_id": 1,
+                "max_id": 1
+              }
+            }
+          ]
+        }
+      },
+      {
+        "first_name": "John",
+        "last_name": "Hughes",
+        "articles": {
+          "groups": [
+            {
+              "dimensions": [
+                "Why Functional Programming Matters"
+              ],
+              "aggregates": {
+                "min_id": 2,
+                "max_id": 2
+              }
+            },
+            {
+              "dimensions": [
+                "The Design And Implementation Of Programming Languages"
+              ],
+              "aggregates": {
+                "min_id": 3,
+                "max_id": 3
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+]
