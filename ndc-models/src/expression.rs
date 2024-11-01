@@ -106,7 +106,6 @@ pub enum ComparisonValue {
     Column {
         /// Any relationships to traverse to reach this column.
         /// Only non-empty if the 'relationships.relation_comparisons' is supported.
-        #[serde(default)]
         path: Vec<PathElement>,
         /// The name of the column
         name: FieldName,

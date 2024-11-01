@@ -32,6 +32,7 @@
             "operator": "eq",
             "value": {
               "type": "column",
+              "path": [],
               "name": "id",
               "scope": 1
             }
