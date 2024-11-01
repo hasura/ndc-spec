@@ -3342,10 +3342,12 @@ mod tests {
 
         insta::glob!(test_dir, "query/**/request.json", |req_path| {
             let path = req_path.parent().unwrap();
-            let req_file = File::open(req_path).unwrap();
-            let request = serde_json::from_reader::<_, models::QueryRequest>(req_file).unwrap();
-
             let test_name = path.file_name().unwrap().to_str().unwrap();
+            let req_file = File::open(req_path).unwrap();
+            let request = serde_json::from_reader::<_, models::QueryRequest>(req_file)
+                .unwrap_or_else(|err| {
+                    panic!("unable to deserialize request in test {test_name}: {err}")
+                });
 
             let response = tokio_test::block_on(async {
                 let state = Arc::new(Mutex::new(crate::init_app_state()));
@@ -3375,8 +3377,12 @@ mod tests {
 
         insta::glob!(test_dir, "mutation/**/request.json", |req_path| {
             let path = req_path.parent().unwrap();
+            let test_name = path.file_name().unwrap().to_str().unwrap();
             let req_file = File::open(req_path).unwrap();
-            let request = serde_json::from_reader::<_, models::MutationRequest>(req_file).unwrap();
+            let request = serde_json::from_reader::<_, models::MutationRequest>(req_file)
+                .unwrap_or_else(|err| {
+                    panic!("unable to deserialize request in test {test_name}: {err}")
+                });
 
             let response = tokio_test::block_on(async {
                 let state = Arc::new(Mutex::new(crate::init_app_state()));

@@ -312,6 +312,7 @@
           "type": "object",
           "required": [
             "name",
+            "path",
             "type"
           ],
           "properties": {
@@ -323,7 +324,6 @@
             },
             "path": {
               "description": "Any relationships to traverse to reach this column. Only non-empty if the 'relationships.relation_comparisons' is supported.",
-              "default": [],
               "type": "array",
               "items": {
                 "$ref": "#/definitions/PathElement"
