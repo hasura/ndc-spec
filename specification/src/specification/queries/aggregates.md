@@ -1,6 +1,6 @@
 # Aggregates
 
-In addition to fetching multiple rows of raw data from a collection, the query API supports fetching aggregated data. If a connector wants to support aggregates, it needs to enable the `query.aggregates` capability.
+In addition to fetching multiple rows of raw data from a collection, the query API supports fetching aggregated data. If a connector wants to support aggregates, it needs to enable the `query.aggregates` capability. It also needs to return the [`capabilities.query.aggregates`](../schema/capabilities.md#requirements) object from the schema to indicate which scalar type is used to return the result of count aggregates.
 
 Aggregates are requested in the `aggregates` field of the [`Query`](../../reference/types.md#query) object.
 

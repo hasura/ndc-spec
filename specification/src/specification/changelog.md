@@ -13,6 +13,7 @@
   - `Relationship::column_mapping`
   - `ForeignKeyConstraint::column_mapping`
 - Scalar type representations are now required, and the previously deprecated `number` and `integer` representations have been removed.
+- If the capability `query.aggregates` is enabled, it is now expected that the new [schema property `capabilities.query.aggregates`](./schema/capabilities.md) is also returned.
 
 ### Specification
 
@@ -81,6 +82,12 @@ Clients can now [indicate the intended protocol version](./versioning.md#require
 #### Scalar type representations
 
 Scalar type representations are now required; previously they were optional, where a missing representation was assumed to mean JSON. In addition, the deprecated number and integer representations have been removed; a more precise representation (such as float64 or int32) should be chosen instead.
+
+#### Capability-specific schema information
+
+Certain capabilities may require specific data to be returned in the schema to support them. This data is now returned in the [capabilities property](./schema/capabilities.md) on the schema response.
+
+Specifically, there is a new schema property, `capabilities.query.aggregates.count_scalar_type`, that defines the result type of all count aggregate functions. This must be returned if the capability `query.aggregates` is enabled.
 
 ## `0.1.6`
 

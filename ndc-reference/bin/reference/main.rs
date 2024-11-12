@@ -961,9 +961,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     let capabilities = Some(models::CapabilitySchemaInfo {
         query: Some(models::QueryCapabilitiesSchemaInfo {
             aggregates: Some(ndc_models::AggregateCapabilitiesSchemaInfo {
-                filter_by: Some(ndc_models::AggregateFilterByCapabilitiesSchemaInfo {
-                    count_scalar_type: "Int".into(),
-                }),
+                count_scalar_type: "Int".into(),
             }),
         }),
     });
