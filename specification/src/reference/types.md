@@ -18,12 +18,6 @@
 {{#include ../../../ndc-models/src/schema.rs:AggregateCapabilitiesSchemaInfo}}
 ```
 
-## `AggregateFilterByCapabilitiesSchemaInfo`
-
-```rust,norun,noplayground
-{{#include ../../../ndc-models/src/schema.rs:AggregateFilterByCapabilitiesSchemaInfo}}
-```
-
 ## `AggregateFunctionDefinition`
 
 ```rust,no_run,noplayground

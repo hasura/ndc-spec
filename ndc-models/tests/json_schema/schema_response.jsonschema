@@ -61,23 +61,6 @@
     "AggregateCapabilitiesSchemaInfo": {
       "title": "Aggregate Capabilities Schema Info",
       "type": "object",
-      "properties": {
-        "filter_by": {
-          "description": "Schema information relevant to the aggregates.filter_by capability",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/AggregateFilterByCapabilitiesSchemaInfo"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
-    "AggregateFilterByCapabilitiesSchemaInfo": {
-      "title": "Aggregate Filter By Capabilities Schema Info",
-      "type": "object",
       "required": [
         "count_scalar_type"
       ],

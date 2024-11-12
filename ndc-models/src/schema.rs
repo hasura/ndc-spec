@@ -323,18 +323,8 @@ pub struct QueryCapabilitiesSchemaInfo {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Aggregate Capabilities Schema Info")]
 pub struct AggregateCapabilitiesSchemaInfo {
-    /// Schema information relevant to the aggregates.filter_by capability
-    pub filter_by: Option<AggregateFilterByCapabilitiesSchemaInfo>,
-}
-// ANCHOR_END: AggregateCapabilitiesSchemaInfo
-
-// ANCHOR: AggregateFilterByCapabilitiesSchemaInfo
-#[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = "Aggregate Filter By Capabilities Schema Info")]
-pub struct AggregateFilterByCapabilitiesSchemaInfo {
     /// The scalar type which should be used for the return type of count
     /// (star_count and column_count) operations.
     pub count_scalar_type: String,
 }
-// ANCHOR_END: AggregateFilterByCapabilitiesSchemaInfo
+// ANCHOR_END: AggregateCapabilitiesSchemaInfo
