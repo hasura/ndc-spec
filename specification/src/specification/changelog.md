@@ -71,7 +71,7 @@ However, field arguments are still considered an unstable feature and their use 
 
 #### More standard comparison operators, standard aggregate functions
 
-Standard comparison operators have been added for [`>`, `>=`, `<`, and `<=`](./schema/scalar-types.md#less_than-greater_than-less_than_or_equal-greater_than_or_equal). Connectors that have already defined these operators as custom operators should migrate them to standard operators.
+Standard comparison operators have been added for [`>`, `>=`, `<`, and `<=`](./schema/scalar-types.md#less_than-greater_than-less_than_or_equal-greater_than_or_equal), and string comparisons [`contains`, `icontains`, `starts_with`, `istarts_with`, `ends_with` and `ends_with`](./schema/scalar-types.md#contains-icontains-starts_with-istarts_with-ends_with-iends_with). Connectors that have already defined these operators as custom operators should migrate them to standard operators.
 
 In addition, aggregate functions now have a set of [standard functions](./schema/scalar-types.md#standard-aggregation-functions) that can be implemented: `sum`, `average`, `min`, `max`. Connectors that have already defined these functions as custom aggregate functions should migrate them to standard aggregate functions.
 
