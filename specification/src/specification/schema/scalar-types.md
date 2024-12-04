@@ -111,6 +111,16 @@ The `less_than_or_equal` and `greater_than_or_equal` operators are expected to b
 
 Each of these four operators is expected to be _transitive_. That is, for example `x < y` and `y < z` together imply `x < z`, and similarly for the other operators.
 
+#### `contains`, `icontains`, `starts_with`, `istarts_with`, `ends_with`, `iends_with`
+
+These operators must only apply to scalar types whose type representation is `string`.
+
+An operator defined using type `contains` tests if a string-valued column on the left contains a string value on the right. `icontains` is the case-insensitive variant.
+
+An operator defined using type `starts_with` tests if a string-valued column on the left starts with a string value on the right. `istarts_with` is the case-insensitive variant.
+
+An operator defined using type `ends_with` tests if a string-valued column on the left ends with a string value on the right. `iends_with` is the case-insensitive variant.
+
 ### Custom Comparison Operators
 
 Data connectors can also define custom comparison operators using type `custom`. A custom operator is defined by its argument type, and its semantics is undefined.

@@ -54,7 +54,12 @@ Binary operators are evaluated by evaluating their _comparison target_ and _comp
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_binary_operators}}
 ```
 
-The standard binary comparison operators are the `equal`, `in`, `less_than`, `less_than_or_equal`, `greater_than`, and `greater_than_or_equal` operators.
+The standard binary comparison operators are:
+
+- The equality operator, `equal`,
+- The set membership operator, `in`, 
+- Comparison operators `less_than`, `less_than_or_equal`, `greater_than`, and `greater_than_or_equal`,
+- String comparisons `contains`, `icontains`, `starts_with`, `istarts_with`, `ends_with`, `iends_with` and `like`.
 
 `equal` is evaluated by evaluating its _comparison target_ and _comparison value_, and comparing them for equality:
 
@@ -76,6 +81,12 @@ The `in` operator is evaluated by evaluating its comparison target, and all of i
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_binary_array_operators}}
+```
+
+String comparison operators are evaluated similarly:
+
+```rust,no_run,noplayground
+{{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_expression_operator_string_comparisons}}
 ```
 
 The reference implementation provides a single custom binary operator as an example, which is the `like` operator on strings:

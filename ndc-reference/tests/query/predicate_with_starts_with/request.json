@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../../ndc-models/tests/json_schema/query_request.jsonschema",
+  "collection": "authors",
+  "arguments": {},
+  "query": {
+    "fields": {
+      "first_name": {
+        "type": "column",
+        "column": "first_name"
+      },
+      "last_name": {
+        "type": "column",
+        "column": "last_name"
+      }
+    },
+    "predicate": {
+      "type": "binary_comparison_operator",
+      "column": {
+        "type": "column",
+        "name": "first_name"
+      },
+      "operator": "istarts_with",
+      "value": {
+        "type": "scalar",
+        "value": "p"
+      }
+    }
+  },
+  "collection_relationships": {}
+}

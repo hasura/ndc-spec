@@ -172,6 +172,12 @@ pub enum ComparisonOperatorDefinition {
     LessThanOrEqual,
     GreaterThan,
     GreaterThanOrEqual,
+    Contains,
+    ContainsInsensitive,
+    StartsWith,
+    StartsWithInsensitive,
+    EndsWith,
+    EndsWithInsensitive,
     Custom {
         /// The type of the argument to this operator
         argument_type: Type,
