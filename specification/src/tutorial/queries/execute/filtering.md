@@ -57,7 +57,7 @@ Binary operators are evaluated by evaluating their _comparison target_ and _comp
 The standard binary comparison operators are:
 
 - The equality operator, `equal`,
-- The set membership operator, `in`, 
+- The set membership operator, `in`,
 - Comparison operators `less_than`, `less_than_or_equal`, `greater_than`, and `greater_than_or_equal`,
 - String comparisons `contains`, `icontains`, `starts_with`, `istarts_with`, `ends_with`, `iends_with` and `like`.
 
