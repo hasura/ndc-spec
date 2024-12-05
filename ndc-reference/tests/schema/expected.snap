@@ -140,6 +140,12 @@ expression: response
         }
       },
       "comparison_operators": {
+        "contains": {
+          "type": "contains"
+        },
+        "ends_with": {
+          "type": "ends_with"
+        },
         "eq": {
           "type": "equal"
         },
@@ -149,8 +155,17 @@ expression: response
         "gte": {
           "type": "greater_than_or_equal"
         },
+        "icontains": {
+          "type": "contains_insensitive"
+        },
+        "iends_with": {
+          "type": "ends_with_insensitive"
+        },
         "in": {
           "type": "in"
+        },
+        "istarts_with": {
+          "type": "starts_with_insensitive"
         },
         "like": {
           "type": "custom",
@@ -164,6 +179,9 @@ expression: response
         },
         "lte": {
           "type": "less_than_or_equal"
+        },
+        "starts_with": {
+          "type": "starts_with"
         }
       }
     }

@@ -357,6 +357,30 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         "lte".into(),
                         models::ComparisonOperatorDefinition::LessThanOrEqual,
                     ),
+                    (
+                        "contains".into(),
+                        models::ComparisonOperatorDefinition::Contains,
+                    ),
+                    (
+                        "icontains".into(),
+                        models::ComparisonOperatorDefinition::ContainsInsensitive,
+                    ),
+                    (
+                        "starts_with".into(),
+                        models::ComparisonOperatorDefinition::StartsWith,
+                    ),
+                    (
+                        "istarts_with".into(),
+                        models::ComparisonOperatorDefinition::StartsWithInsensitive,
+                    ),
+                    (
+                        "ends_with".into(),
+                        models::ComparisonOperatorDefinition::EndsWith,
+                    ),
+                    (
+                        "iends_with".into(),
+                        models::ComparisonOperatorDefinition::EndsWithInsensitive,
+                    ),
                     ("in".into(), models::ComparisonOperatorDefinition::In),
                     (
                         "like".into(),
@@ -2423,6 +2447,49 @@ fn eval_comparison_operator(
             }
         }
         // ANCHOR_END: eval_expression_operator_ordering
+        // ANCHOR: eval_expression_operator_string_comparisons
+        "contains" | "icontains" | "starts_with" | "istarts_with" | "ends_with" | "iends_with" => {
+            if let Some(left_str) = left_val.as_str() {
+                for right_val in right_vals {
+                    let right_str = right_val.as_str().ok_or_else(|| {
+                        (
+                            StatusCode::BAD_REQUEST,
+                            Json(models::ErrorResponse {
+                                message: "value is not a string".into(),
+                                details: serde_json::Value::Null,
+                            }),
+                        )
+                    })?;
+
+                    let op = operator.as_str();
+                    let left_str_lower = left_str.to_lowercase();
+                    let right_str_lower = right_str.to_lowercase();
+
+                    if op == "contains" && left_str.contains(right_str)
+                        || op == "icontains" && left_str_lower.contains(&right_str_lower)
+                        || op == "starts_with" && left_str.starts_with(right_str)
+                        || op == "istarts_with" && left_str_lower.starts_with(&right_str_lower)
+                        || op == "ends_with" && left_str.ends_with(right_str)
+                        || op == "iends_with" && left_str_lower.ends_with(&right_str_lower)
+                    {
+                        return Ok(true);
+                    }
+                }
+
+                Ok(false)
+            } else {
+                Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: format!(
+                            "comparison operator {operator} is only supported on strings"
+                        ),
+                        details: serde_json::Value::Null,
+                    }),
+                ))
+            }
+        }
+        // ANCHOR_END: eval_expression_operator_string_comparisons
         // ANCHOR: eval_expression_custom_binary_operators
         "like" => {
             for regex_val in right_vals {

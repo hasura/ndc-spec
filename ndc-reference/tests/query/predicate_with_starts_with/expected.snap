@@ -1,0 +1,17 @@
+---
+source: ndc-reference/bin/reference/main.rs
+assertion_line: 3432
+expression: response.0
+input_file: ndc-reference/tests/query/predicate_with_starts_with/request.json
+snapshot_kind: text
+---
+[
+  {
+    "rows": [
+      {
+        "first_name": "Peter",
+        "last_name": "Landin"
+      }
+    ]
+  }
+]
