@@ -171,7 +171,7 @@ An aggregate function defined using type `sum` should return the numerical sum o
 
 The result type should be provided explicitly, in the `result_type` field, and should be a scalar type with a type representation of either `Int64` or `Float64`, depending on whether the scalar type defining this function has an integer representation or floating point representation.
 
-A `sum` function should ignore the order of its input values, and should be invariant of partitioning, that is: `sum(x, sum(y, z))` = `sum(x, y, z)` for any partitioning `x, y, z` of the input values.
+A `sum` function should ignore the order of its input values, and should be invariant of partitioning, that is: `sum(x, sum(y, z))` = `sum(x, y, z)` for any partitioning `x, y, z` of the input values. It should return `0` for an empty set of input values.
 
 #### `average`
 
@@ -179,7 +179,7 @@ An aggregate function defined using type `average` should return the average of 
 
 The result type should be provided explicitly, in the `result_type` field, and should be a scalar type with a type representation of `Float64`.
 
-An `average` function should ignore the order of its input values.
+An `average` function should ignore the order of its input values. It should return `null` for an empty set of input values.
 
 #### `min`, `max`
 
