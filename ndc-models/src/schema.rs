@@ -331,6 +331,6 @@ pub struct QueryCapabilitiesSchemaInfo {
 pub struct AggregateCapabilitiesSchemaInfo {
     /// The scalar type which should be used for the return type of count
     /// (star_count and column_count) operations.
-    pub count_scalar_type: String,
+    pub count_scalar_type: ScalarTypeName,
 }
 // ANCHOR_END: AggregateCapabilitiesSchemaInfo
