@@ -49,7 +49,7 @@ pub struct Grouping {
     /// Dimensions along which to partition the data
     pub dimensions: Vec<Dimension>,
     /// Aggregates to compute in each group
-    pub aggregates: IndexMap<String, Aggregate>,
+    pub aggregates: IndexMap<FieldName, Aggregate>,
     /// Optionally specify a predicate to apply after grouping rows.
     /// Only used if the 'query.aggregates.group_by.filter' capability is supported.
     pub predicate: Option<GroupExpression>,
