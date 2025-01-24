@@ -1334,7 +1334,7 @@ fn eval_groups(
     for chunk in &sorted {
         let dimensions = chunk.dimensions.clone();
 
-        let mut aggregates: IndexMap<String, serde_json::Value> = IndexMap::new();
+        let mut aggregates: IndexMap<models::FieldName, serde_json::Value> = IndexMap::new();
         for (aggregate_name, aggregate) in &grouping.aggregates {
             aggregates.insert(
                 aggregate_name.clone(),
