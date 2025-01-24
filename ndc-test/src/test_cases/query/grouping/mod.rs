@@ -51,6 +51,7 @@ pub async fn test_grouping<C: Connector, R: Reporter>(
                                 arguments: BTreeMap::new(),
                                 field_path: None,
                                 path: vec![],
+                                extraction: None,
                             }],
                             predicate: None,
                             order_by: None,

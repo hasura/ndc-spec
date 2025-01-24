@@ -391,6 +391,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         },
                     ),
                 ]),
+                extraction_functions: BTreeMap::new(),
             },
         ),
         (
@@ -430,6 +431,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         models::ComparisonOperatorDefinition::LessThanOrEqual,
                     ),
                 ]),
+                extraction_functions: BTreeMap::new(),
             },
         ),
         (
@@ -469,6 +471,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         models::ComparisonOperatorDefinition::LessThanOrEqual,
                     ),
                 ]),
+                extraction_functions: BTreeMap::new(),
             },
         ),
         (
@@ -508,6 +511,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         models::ComparisonOperatorDefinition::LessThanOrEqual,
                     ),
                 ]),
+                extraction_functions: BTreeMap::new(),
             },
         ),
     ]);
@@ -1541,16 +1545,29 @@ fn eval_dimension(
             arguments,
             field_path,
             path,
-        } => eval_column_at_path(
-            collection_relationships,
-            variables,
-            state,
-            row,
-            path,
-            column_name,
-            arguments,
-            field_path.as_deref(),
-        ),
+            extraction,
+        } => {
+            if extraction.is_some() {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(models::ErrorResponse {
+                        message: "unknown extraction function".into(),
+                        details: serde_json::Value::Null,
+                    }),
+                ));
+            }
+
+            eval_column_at_path(
+                collection_relationships,
+                variables,
+                state,
+                row,
+                path,
+                column_name,
+                arguments,
+                field_path.as_deref(),
+            )
+        }
     }
 }
 // ANCHOR_END: eval_dimension

@@ -114,6 +114,18 @@
 {{#include ../../../ndc-models/src/expression.rs:Expression}}
 ```
 
+## `ExtractionFunctionDefinition`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/schema.rs:ExtractionFunctionDefinition}}
+```
+
+## `ExtractionFunctionType`
+
+```rust,no_run,noplayground
+{{#include ../../../ndc-models/src/schema.rs:ExtractionFunctionType}}
+```
+
 ## `Field`
 
 ```rust,no_run,noplayground

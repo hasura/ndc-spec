@@ -43,7 +43,8 @@ expression: response
         "lte": {
           "type": "less_than_or_equal"
         }
-      }
+      },
+      "extractors": {}
     },
     "Int": {
       "representation": {
@@ -84,7 +85,8 @@ expression: response
         "lte": {
           "type": "less_than_or_equal"
         }
-      }
+      },
+      "extractors": {}
     },
     "Int64": {
       "representation": {
@@ -125,7 +127,8 @@ expression: response
         "lte": {
           "type": "less_than_or_equal"
         }
-      }
+      },
+      "extractors": {}
     },
     "String": {
       "representation": {
@@ -183,7 +186,8 @@ expression: response
         "starts_with": {
           "type": "starts_with"
         }
-      }
+      },
+      "extractors": {}
     }
   },
   "object_types": {

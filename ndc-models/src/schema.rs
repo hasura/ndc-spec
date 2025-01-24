@@ -4,8 +4,9 @@ use serde_with::skip_serializing_none;
 use std::collections::BTreeMap;
 
 use crate::{
-    AggregateFunctionName, ArgumentName, CollectionName, ComparisonOperatorName, FieldName,
-    FunctionName, ObjectTypeName, ProcedureName, ScalarTypeName, TypeName,
+    AggregateFunctionName, ArgumentName, CollectionName, ComparisonOperatorName,
+    ExtractionFunctionName, FieldName, FunctionName, ObjectTypeName, ProcedureName, ScalarTypeName,
+    TypeName,
 };
 
 // ANCHOR: SchemaResponse
@@ -40,6 +41,8 @@ pub struct ScalarType {
     pub aggregate_functions: BTreeMap<AggregateFunctionName, AggregateFunctionDefinition>,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub comparison_operators: BTreeMap<ComparisonOperatorName, ComparisonOperatorDefinition>,
+    /// A map from extraction function names to their defginitions.
+    pub extraction_functions: BTreeMap<ExtractionFunctionName, ExtractionFunctionDefinition>,
 }
 // ANCHOR_END: ScalarType
 
@@ -211,6 +214,40 @@ pub enum AggregateFunctionDefinition {
     },
 }
 // ANCHOR_END: AggregateFunctionDefinition
+
+// ANCHOR: ExtractionFunctionDefinition
+/// The definition of an aggregation function on a scalar type
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Extraction Function Definition")]
+pub struct ExtractionFunctionDefinition {
+    /// The result type, which must be a defined scalar types in the schema response.
+    result_type: ScalarTypeName,
+    /// The meaning of this extraction function
+    r#type: ExtractionFunctionType,
+}
+// ANCHOR_END: ExtractionFunctionDefinition
+
+// ANCHOR: ExtractionFunctionType
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Extraction Function Definition")]
+pub enum ExtractionFunctionType {
+    Nanosecond,
+    Microsecond,
+    Second,
+    Minute,
+    Hour,
+    Day,
+    Week,
+    Month,
+    Quarter,
+    Year,
+    DayOfWeek,
+    DayOfYear,
+    Custom,
+}
+// ANCHOR_END: ExtractionFunctionType
 
 // ANCHOR: CollectionInfo
 #[skip_serializing_none]

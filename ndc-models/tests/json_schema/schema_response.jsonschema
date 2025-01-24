@@ -445,6 +445,210 @@
         }
       ]
     },
+    "ExtractionFunctionDefinition": {
+      "title": "Extraction Function Definition",
+      "description": "The definition of an aggregation function on a scalar type",
+      "type": "object",
+      "required": [
+        "result_type",
+        "type"
+      ],
+      "properties": {
+        "result_type": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/ExtractionFunctionType"
+        }
+      }
+    },
+    "ExtractionFunctionType": {
+      "title": "Extraction Function Definition",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nanosecond"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "microsecond"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "second"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "minute"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "hour"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "day"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "week"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "month"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "quarter"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "year"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "day_of_week"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "day_of_year"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "custom"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "ForeignKeyConstraint": {
       "title": "Foreign Key Constraint",
       "type": "object",
@@ -631,6 +835,7 @@
       "required": [
         "aggregate_functions",
         "comparison_operators",
+        "extractors",
         "representation"
       ],
       "properties": {
@@ -654,6 +859,12 @@
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ComparisonOperatorDefinition"
+          }
+        },
+        "extractors": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ExtractionFunctionDefinition"
           }
         }
       }
