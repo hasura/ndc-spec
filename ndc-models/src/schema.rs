@@ -222,9 +222,9 @@ pub enum AggregateFunctionDefinition {
 #[schemars(title = "Extraction Function Definition")]
 pub struct ExtractionFunctionDefinition {
     /// The result type, which must be a defined scalar types in the schema response.
-    result_type: ScalarTypeName,
+    pub result_type: ScalarTypeName,
     /// The meaning of this extraction function
-    r#type: ExtractionFunctionType,
+    pub r#type: ExtractionFunctionType,
 }
 // ANCHOR_END: ExtractionFunctionDefinition
 

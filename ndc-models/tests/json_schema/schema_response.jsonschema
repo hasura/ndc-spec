@@ -455,10 +455,16 @@
       ],
       "properties": {
         "result_type": {
+          "description": "The result type, which must be a defined scalar types in the schema response.",
           "type": "string"
         },
         "type": {
-          "$ref": "#/definitions/ExtractionFunctionType"
+          "description": "The meaning of this extraction function",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ExtractionFunctionType"
+            }
+          ]
         }
       }
     },
@@ -835,7 +841,7 @@
       "required": [
         "aggregate_functions",
         "comparison_operators",
-        "extractors",
+        "extraction_functions",
         "representation"
       ],
       "properties": {
@@ -861,7 +867,8 @@
             "$ref": "#/definitions/ComparisonOperatorDefinition"
           }
         },
-        "extractors": {
+        "extraction_functions": {
+          "description": "A map from extraction function names to their defginitions.",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ExtractionFunctionDefinition"

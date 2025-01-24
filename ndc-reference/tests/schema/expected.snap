@@ -44,7 +44,7 @@ expression: response
           "type": "less_than_or_equal"
         }
       },
-      "extractors": {}
+      "extraction_functions": {}
     },
     "Int": {
       "representation": {
@@ -86,7 +86,7 @@ expression: response
           "type": "less_than_or_equal"
         }
       },
-      "extractors": {}
+      "extraction_functions": {}
     },
     "Int64": {
       "representation": {
@@ -128,7 +128,7 @@ expression: response
           "type": "less_than_or_equal"
         }
       },
-      "extractors": {}
+      "extraction_functions": {}
     },
     "String": {
       "representation": {
@@ -187,7 +187,7 @@ expression: response
           "type": "starts_with"
         }
       },
-      "extractors": {}
+      "extraction_functions": {}
     }
   },
   "object_types": {
