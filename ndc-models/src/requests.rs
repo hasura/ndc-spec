@@ -151,7 +151,7 @@ pub struct Group {
     /// Values of dimensions which identify this group
     pub dimensions: Vec<serde_json::Value>,
     /// Aggregates computed within this group
-    pub aggregates: IndexMap<String, serde_json::Value>,
+    pub aggregates: IndexMap<FieldName, serde_json::Value>,
 }
 // ANCHOR_END: Group
 
