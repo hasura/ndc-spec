@@ -841,7 +841,6 @@
       "required": [
         "aggregate_functions",
         "comparison_operators",
-        "extraction_functions",
         "representation"
       ],
       "properties": {
@@ -869,6 +868,7 @@
         },
         "extraction_functions": {
           "description": "A map from extraction function names to their defginitions.",
+          "default": {},
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ExtractionFunctionDefinition"
