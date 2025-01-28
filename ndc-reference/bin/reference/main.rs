@@ -514,6 +514,40 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 extraction_functions: BTreeMap::new(),
             },
         ),
+        (
+            "Date".into(),
+            models::ScalarType {
+                representation: models::TypeRepresentation::Date,
+                aggregate_functions: BTreeMap::new(),
+                comparison_operators: BTreeMap::from_iter([
+                    ("eq".into(), models::ComparisonOperatorDefinition::Equal),
+                    ("in".into(), models::ComparisonOperatorDefinition::In),
+                ]),
+                extraction_functions: BTreeMap::from_iter([
+                    (
+                        "year".into(),
+                        models::ExtractionFunctionDefinition {
+                            result_type: models::ScalarTypeName::from("Int"),
+                            r#type: ndc_models::ExtractionFunctionType::Year,
+                        },
+                    ),
+                    (
+                        "month".into(),
+                        models::ExtractionFunctionDefinition {
+                            result_type: models::ScalarTypeName::from("Int"),
+                            r#type: ndc_models::ExtractionFunctionType::Month,
+                        },
+                    ),
+                    (
+                        "day".into(),
+                        models::ExtractionFunctionDefinition {
+                            result_type: models::ScalarTypeName::from("Int"),
+                            r#type: ndc_models::ExtractionFunctionType::Day,
+                        },
+                    ),
+                ]),
+            },
+        ),
     ]);
     // ANCHOR_END: schema_scalar_types
     // ANCHOR: schema_object_type_article
@@ -543,6 +577,16 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
+                },
+            ),
+            (
+                "published_date".into(),
+                models::ObjectField {
+                    description: Some("The article's date of publication".into()),
+                    r#type: models::Type::Named {
+                        name: "Date".into(),
+                    },
                     arguments: BTreeMap::new(),
                 },
             ),
@@ -1547,17 +1591,7 @@ fn eval_dimension(
             path,
             extraction,
         } => {
-            if extraction.is_some() {
-                return Err((
-                    StatusCode::BAD_REQUEST,
-                    Json(models::ErrorResponse {
-                        message: "unknown extraction function".into(),
-                        details: serde_json::Value::Null,
-                    }),
-                ));
-            }
-
-            eval_column_at_path(
+            let value = eval_column_at_path(
                 collection_relationships,
                 variables,
                 state,
@@ -1566,11 +1600,89 @@ fn eval_dimension(
                 column_name,
                 arguments,
                 field_path.as_deref(),
-            )
+            )?;
+
+            eval_extraction(extraction, value)
         }
     }
 }
 // ANCHOR_END: eval_dimension
+// ANCHOR: eval_extraction
+fn eval_extraction(
+    extraction: &Option<ndc_models::ExtractionFunctionName>,
+    value: serde_json::Value,
+) -> Result<serde_json::Value> {
+    match extraction {
+        None => Ok(value),
+        Some(extraction) => {
+            let iso8601::Date::YMD { year, month, day } = iso8601::date(value.as_str().ok_or({
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ndc_models::ErrorResponse {
+                        details: serde_json::Value::Null,
+                        message: "Expected date".into(),
+                    }),
+                )
+            })?)
+            .map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ndc_models::ErrorResponse {
+                        details: serde_json::Value::Null,
+                        message: "Unable to parse date".into(),
+                    }),
+                )
+            })?
+            else {
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ndc_models::ErrorResponse {
+                        details: serde_json::Value::Null,
+                        message: "Invalid date format".into(),
+                    }),
+                ));
+            };
+
+            match extraction.as_str() {
+                "year" => serde_json::to_value(year).map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ndc_models::ErrorResponse {
+                            details: serde_json::Value::Null,
+                            message: "Cannot encode date part".into(),
+                        }),
+                    )
+                }),
+                "month" => serde_json::to_value(month).map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ndc_models::ErrorResponse {
+                            details: serde_json::Value::Null,
+                            message: "Cannot encode date part".into(),
+                        }),
+                    )
+                }),
+                "day" => serde_json::to_value(day).map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ndc_models::ErrorResponse {
+                            details: serde_json::Value::Null,
+                            message: "Cannot encode date part".into(),
+                        }),
+                    )
+                }),
+                _ => Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(ndc_models::ErrorResponse {
+                        details: serde_json::Value::Null,
+                        message: "Unknown extraction function".into(),
+                    }),
+                )),
+            }
+        }
+    }
+}
+// ANCHOR_END: eval_extraction
 // ANCHOR: eval_row
 fn eval_row(
     fields: &IndexMap<models::FieldName, models::Field>,

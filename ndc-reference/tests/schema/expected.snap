@@ -4,6 +4,40 @@ expression: response
 ---
 {
   "scalar_types": {
+    "Date": {
+      "representation": {
+        "type": "date"
+      },
+      "aggregate_functions": {},
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "in": {
+          "type": "in"
+        }
+      },
+      "extraction_functions": {
+        "day": {
+          "result_type": "Int",
+          "type": {
+            "type": "day"
+          }
+        },
+        "month": {
+          "result_type": "Int",
+          "type": {
+            "type": "month"
+          }
+        },
+        "year": {
+          "result_type": "Int",
+          "type": {
+            "type": "year"
+          }
+        }
+      }
+    },
     "Float": {
       "representation": {
         "type": "float64"
@@ -206,6 +240,13 @@ expression: response
           "type": {
             "type": "named",
             "name": "Int"
+          }
+        },
+        "published_date": {
+          "description": "The article's date of publication",
+          "type": {
+            "type": "named",
+            "name": "Date"
           }
         },
         "title": {

@@ -33,6 +33,7 @@ colorful = "0.2"
 goldenfile = "1"
 indexmap = "2"
 insta = { version = "1", features = ["glob", "json"] }
+iso8601 = "0.6.1"
 itertools = "0.13.0"
 prometheus = "0.13"
 rand = "0.8"

@@ -1,0 +1,35 @@
+---
+source: ndc-reference/bin/reference/main.rs
+expression: response.0
+input_file: ndc-reference/tests/query/group_by_with_extraction/request.json
+---
+[
+  {
+    "groups": [
+      {
+        "dimensions": [
+          1966
+        ],
+        "aggregates": {
+          "count": 1
+        }
+      },
+      {
+        "dimensions": [
+          1989
+        ],
+        "aggregates": {
+          "count": 1
+        }
+      },
+      {
+        "dimensions": [
+          1983
+        ],
+        "aggregates": {
+          "count": 1
+        }
+      }
+    ]
+  }
+]
