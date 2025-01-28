@@ -22,7 +22,7 @@ The `eval_dimensions` function computes a vector of dimensions for each row:
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_dimensions}}
 ```
 
-The only type of dimension we need to handle is a column, which is easily handled by delegating to `eval_column_field_path`:
+The only type of dimension we need to handle is a column. First the value of the column is computed by delegating to `eval_column_field_path`, and then any [extraction function](../../../specification/schema/scalar-types.md#extraction-functions) is evaluated using the `eval_extraction` function:
 
 ```rust,no_run,noplayground
 {{#include ../../../../../ndc-reference/bin/reference/main.rs:eval_dimension}}

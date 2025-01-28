@@ -21,6 +21,19 @@ Dimension columns can be:
 
 A key property is that nested arrays or nested relationships cannot be traversed from the rows being grouped over when selecting a dimension column. Only nested objects or object relationships can be traversed.
 
+### Extraction Functions and Complex Dimensions
+
+We can also group by _components_ of scalar functions using [extraction functions](../schema/scalar-types.md#extraction-functions).
+
+In order to apply an extraction function to the value of a dimension, the `Dimension` should specify an `extraction` property, which is the name of the extraction function to apply.
+
+For example, this query groups articles by the _year_ component of their published date:
+
+```json
+{{#include ../../../../ndc-reference/tests/query/group_by_with_extraction/request.json:1 }}
+{{#include ../../../../ndc-reference/tests/query/group_by_with_extraction/request.json:3: }}
+```
+
 ## Filtering
 
 Grouping operations have two types of filtering:
