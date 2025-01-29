@@ -219,35 +219,63 @@ pub enum AggregateFunctionDefinition {
 // ANCHOR: ExtractionFunctionDefinition
 /// The definition of an aggregation function on a scalar type
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = "Extraction Function Definition")]
-pub struct ExtractionFunctionDefinition {
-    /// The result type, which must be a defined scalar types in the schema response.
-    pub result_type: ScalarTypeName,
-    /// The meaning of this extraction function
-    pub r#type: ExtractionFunctionType,
-}
-// ANCHOR_END: ExtractionFunctionDefinition
-
-// ANCHOR: ExtractionFunctionType
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Extraction Function Definition")]
-pub enum ExtractionFunctionType {
-    Nanosecond,
-    Microsecond,
-    Second,
-    Minute,
-    Hour,
-    Day,
-    Week,
-    Month,
-    Quarter,
-    Year,
-    DayOfWeek,
-    DayOfYear,
-    Custom,
+pub enum ExtractionFunctionDefinition {
+    Nanosecond {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Microsecond {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Second {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Minute {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Hour {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Day {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Week {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Month {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Quarter {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Year {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    DayOfWeek {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    DayOfYear {
+        /// The result type, which must be a defined scalar types in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Custom {
+        /// The scalar or object type of the result of this function
+        result_type: Type,
+    },
 }
-// ANCHOR_END: ExtractionFunctionType
+// ANCHOR_END: ExtractionFunctionDefinition
 
 // ANCHOR: CollectionInfo
 #[skip_serializing_none]

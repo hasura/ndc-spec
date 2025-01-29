@@ -120,12 +120,6 @@
 {{#include ../../../ndc-models/src/schema.rs:ExtractionFunctionDefinition}}
 ```
 
-## `ExtractionFunctionType`
-
-```rust,no_run,noplayground
-{{#include ../../../ndc-models/src/schema.rs:ExtractionFunctionType}}
-```
-
 ## `Field`
 
 ```rust,no_run,noplayground

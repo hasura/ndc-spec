@@ -19,22 +19,16 @@ expression: response
       },
       "extraction_functions": {
         "day": {
-          "result_type": "Int",
-          "type": {
-            "type": "day"
-          }
+          "type": "day",
+          "result_type": "Int"
         },
         "month": {
-          "result_type": "Int",
-          "type": {
-            "type": "month"
-          }
+          "type": "month",
+          "result_type": "Int"
         },
         "year": {
-          "result_type": "Int",
-          "type": {
-            "type": "year"
-          }
+          "type": "year",
+          "result_type": "Int"
         }
       }
     },

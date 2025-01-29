@@ -448,32 +448,11 @@
     "ExtractionFunctionDefinition": {
       "title": "Extraction Function Definition",
       "description": "The definition of an aggregation function on a scalar type",
-      "type": "object",
-      "required": [
-        "result_type",
-        "type"
-      ],
-      "properties": {
-        "result_type": {
-          "description": "The result type, which must be a defined scalar types in the schema response.",
-          "type": "string"
-        },
-        "type": {
-          "description": "The meaning of this extraction function",
-          "allOf": [
-            {
-              "$ref": "#/definitions/ExtractionFunctionType"
-            }
-          ]
-        }
-      }
-    },
-    "ExtractionFunctionType": {
-      "title": "Extraction Function Definition",
       "oneOf": [
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -482,12 +461,17 @@
               "enum": [
                 "nanosecond"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -496,12 +480,17 @@
               "enum": [
                 "microsecond"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -510,12 +499,17 @@
               "enum": [
                 "second"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -524,12 +518,17 @@
               "enum": [
                 "minute"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -538,12 +537,17 @@
               "enum": [
                 "hour"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -552,12 +556,17 @@
               "enum": [
                 "day"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -566,12 +575,17 @@
               "enum": [
                 "week"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -580,12 +594,17 @@
               "enum": [
                 "month"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -594,12 +613,17 @@
               "enum": [
                 "quarter"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -608,12 +632,17 @@
               "enum": [
                 "year"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -622,12 +651,17 @@
               "enum": [
                 "day_of_week"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -636,12 +670,17 @@
               "enum": [
                 "day_of_year"
               ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar types in the schema response.",
+              "type": "string"
             }
           }
         },
         {
           "type": "object",
           "required": [
+            "result_type",
             "type"
           ],
           "properties": {
@@ -649,6 +688,14 @@
               "type": "string",
               "enum": [
                 "custom"
+              ]
+            },
+            "result_type": {
+              "description": "The scalar or object type of the result of this function",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Type"
+                }
               ]
             }
           }
@@ -867,7 +914,7 @@
           }
         },
         "extraction_functions": {
-          "description": "A map from extraction function names to their defginitions.",
+          "description": "A map from extraction function names to their definitions.",
           "default": {},
           "type": "object",
           "additionalProperties": {

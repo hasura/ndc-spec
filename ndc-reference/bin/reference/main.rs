@@ -526,23 +526,20 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 extraction_functions: BTreeMap::from_iter([
                     (
                         "year".into(),
-                        models::ExtractionFunctionDefinition {
+                        models::ExtractionFunctionDefinition::Year {
                             result_type: models::ScalarTypeName::from("Int"),
-                            r#type: ndc_models::ExtractionFunctionType::Year,
                         },
                     ),
                     (
                         "month".into(),
-                        models::ExtractionFunctionDefinition {
+                        models::ExtractionFunctionDefinition::Month {
                             result_type: models::ScalarTypeName::from("Int"),
-                            r#type: ndc_models::ExtractionFunctionType::Month,
                         },
                     ),
                     (
                         "day".into(),
-                        models::ExtractionFunctionDefinition {
+                        models::ExtractionFunctionDefinition::Day {
                             result_type: models::ScalarTypeName::from("Int"),
-                            r#type: ndc_models::ExtractionFunctionType::Day,
                         },
                     ),
                 ]),
