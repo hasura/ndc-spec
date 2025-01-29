@@ -41,7 +41,7 @@ pub struct ScalarType {
     pub aggregate_functions: BTreeMap<AggregateFunctionName, AggregateFunctionDefinition>,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub comparison_operators: BTreeMap<ComparisonOperatorName, ComparisonOperatorDefinition>,
-    /// A map from extraction function names to their defginitions.
+    /// A map from extraction function names to their definitions.
     #[serde(default)]
     pub extraction_functions: BTreeMap<ExtractionFunctionName, ExtractionFunctionDefinition>,
 }

@@ -1615,7 +1615,7 @@ fn eval_extraction(
     match extraction {
         None => Ok(value),
         Some(extraction) => {
-            let iso8601::Date::YMD { year, month, day } = iso8601::date(value.as_str().ok_or({
+            let iso8601::Date::YMD { year, month, day } = iso8601::date(value.as_str().ok_or_else(|| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(ndc_models::ErrorResponse {
@@ -1649,7 +1649,7 @@ fn eval_extraction(
                         StatusCode::INTERNAL_SERVER_ERROR,
                         Json(ndc_models::ErrorResponse {
                             details: serde_json::Value::Null,
-                            message: "Cannot encode date part".into(),
+                            message: "Cannot encode date year part".into(),
                         }),
                     )
                 }),
@@ -1658,7 +1658,7 @@ fn eval_extraction(
                         StatusCode::INTERNAL_SERVER_ERROR,
                         Json(ndc_models::ErrorResponse {
                             details: serde_json::Value::Null,
-                            message: "Cannot encode date part".into(),
+                            message: "Cannot encode date month part".into(),
                         }),
                     )
                 }),
@@ -1667,7 +1667,7 @@ fn eval_extraction(
                         StatusCode::INTERNAL_SERVER_ERROR,
                         Json(ndc_models::ErrorResponse {
                             details: serde_json::Value::Null,
-                            message: "Cannot encode date part".into(),
+                            message: "Cannot encode date day part".into(),
                         }),
                     )
                 }),

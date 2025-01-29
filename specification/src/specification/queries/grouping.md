@@ -23,7 +23,7 @@ A key property is that nested arrays or nested relationships cannot be traversed
 
 ### Extraction Functions and Complex Dimensions
 
-We can also group by _components_ of scalar functions using [extraction functions](../schema/scalar-types.md#extraction-functions).
+We can also group by _components_ of scalar types using [extraction functions](../schema/scalar-types.md#extraction-functions).
 
 In order to apply an extraction function to the value of a dimension, the `Dimension` should specify an `extraction` property, which is the name of the extraction function to apply.
 
