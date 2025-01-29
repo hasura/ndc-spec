@@ -1615,24 +1615,25 @@ fn eval_extraction(
     match extraction {
         None => Ok(value),
         Some(extraction) => {
-            let iso8601::Date::YMD { year, month, day } = iso8601::date(value.as_str().ok_or_else(|| {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(ndc_models::ErrorResponse {
-                        details: serde_json::Value::Null,
-                        message: "Expected date".into(),
-                    }),
-                )
-            })?)
-            .map_err(|_| {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(ndc_models::ErrorResponse {
-                        details: serde_json::Value::Null,
-                        message: "Unable to parse date".into(),
-                    }),
-                )
-            })?
+            let iso8601::Date::YMD { year, month, day } =
+                iso8601::date(value.as_str().ok_or_else(|| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ndc_models::ErrorResponse {
+                            details: serde_json::Value::Null,
+                            message: "Expected date".into(),
+                        }),
+                    )
+                })?)
+                .map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ndc_models::ErrorResponse {
+                            details: serde_json::Value::Null,
+                            message: "Unable to parse date".into(),
+                        }),
+                    )
+                })?
             else {
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,

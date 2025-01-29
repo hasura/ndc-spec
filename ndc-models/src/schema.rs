@@ -218,7 +218,6 @@ pub enum AggregateFunctionDefinition {
 
 // ANCHOR: ExtractionFunctionDefinition
 /// The definition of an aggregation function on a scalar type
-#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Extraction Function Definition")]
 pub struct ExtractionFunctionDefinition {
