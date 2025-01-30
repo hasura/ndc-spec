@@ -223,51 +223,51 @@ pub enum AggregateFunctionDefinition {
 #[schemars(title = "Extraction Function Definition")]
 pub enum ExtractionFunctionDefinition {
     Nanosecond {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     Microsecond {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     Second {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     Minute {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     Hour {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     Day {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     Week {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     Month {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     Quarter {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     Year {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     DayOfWeek {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     DayOfYear {
-        /// The result type, which must be a defined scalar types in the schema response.
+        /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
     Custom {
