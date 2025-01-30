@@ -21,6 +21,7 @@ semver = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["macros", "parking_lot", "rt-multi-thread", "signal"] }
 itertools = { workspace = true }
+iso8601 = { workspace = true }
 
 [dev-dependencies]
 ndc-test = { path = "../ndc-test" }

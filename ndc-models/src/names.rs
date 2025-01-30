@@ -121,6 +121,7 @@ newtype! {AggregateFunctionName}
 newtype! {ArgumentName}
 newtype! {CollectionName}
 newtype! {ComparisonOperatorName}
+newtype! {ExtractionFunctionName}
 newtype! {FieldName}
 newtype! {FunctionName over CollectionName}
 newtype! {ObjectTypeName over TypeName}

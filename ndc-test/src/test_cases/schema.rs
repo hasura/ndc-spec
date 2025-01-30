@@ -26,7 +26,8 @@ pub async fn validate_schema<R: Reporter>(
         for (type_name, scalar_type) in &schema.scalar_types {
             for aggregate_function in scalar_type.aggregate_functions.values() {
                 match aggregate_function {
-                    models::AggregateFunctionDefinition::Sum { result_type } => {
+                    models::AggregateFunctionDefinition::Sum { result_type }
+                    | ndc_models::AggregateFunctionDefinition::Average { result_type } => {
                         let Some(scalar_type) = schema.scalar_types.get(result_type) else {
                             return Err(Error::NamedTypeIsNotDefined(result_type.inner().clone()));
                         };
@@ -41,6 +42,38 @@ pub async fn validate_schema<R: Reporter>(
                         validate_type(schema, result_type)
                     }
                     _ => Ok(()),
+                }?;
+            }
+
+            for extraction_function in scalar_type.extraction_functions.values() {
+                match extraction_function {
+                    models::ExtractionFunctionDefinition::Custom { result_type } => {
+                        validate_type(schema, result_type)
+                    }
+                    ndc_models::ExtractionFunctionDefinition::Nanosecond { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::Microsecond { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::Second { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::Minute { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::Hour { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::Day { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::Week { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::Month { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::Quarter { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::Year { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::DayOfWeek { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::DayOfYear { result_type } => {
+                        let Some(scalar_type) = schema.scalar_types.get(result_type) else {
+                            return Err(Error::NamedTypeIsNotDefined(result_type.inner().clone()));
+                        };
+                        let (models::TypeRepresentation::Int8
+                        | models::TypeRepresentation::Int16
+                        | models::TypeRepresentation::Int32
+                        | models::TypeRepresentation::Int64) = scalar_type.representation
+                        else {
+                            return Err(Error::InvalidTypeRepresentation(result_type.clone()));
+                        };
+                        Ok(())
+                    }
                 }?;
             }
 

@@ -5,8 +5,8 @@ use serde_with::skip_serializing_none;
 use std::collections::BTreeMap;
 
 use crate::{
-    AggregateFunctionName, Argument, ArgumentName, ComparisonOperatorName, FieldName,
-    OrderDirection, PathElement, UnaryComparisonOperator, VariableName,
+    AggregateFunctionName, Argument, ArgumentName, ComparisonOperatorName, ExtractionFunctionName,
+    FieldName, OrderDirection, PathElement, UnaryComparisonOperator, VariableName,
 };
 
 // ANCHOR: Aggregate
@@ -130,6 +130,8 @@ pub enum Dimension {
         arguments: BTreeMap<ArgumentName, Argument>,
         /// Path to a nested field within an object column
         field_path: Option<Vec<FieldName>>,
+        /// The name of the extraction function to apply to the selected value, if any
+        extraction: Option<ExtractionFunctionName>,
     },
 }
 // ANCHOR_END: Dimension

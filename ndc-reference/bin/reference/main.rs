@@ -391,6 +391,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         },
                     ),
                 ]),
+                extraction_functions: BTreeMap::new(),
             },
         ),
         (
@@ -430,6 +431,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         models::ComparisonOperatorDefinition::LessThanOrEqual,
                     ),
                 ]),
+                extraction_functions: BTreeMap::new(),
             },
         ),
         (
@@ -469,6 +471,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         models::ComparisonOperatorDefinition::LessThanOrEqual,
                     ),
                 ]),
+                extraction_functions: BTreeMap::new(),
             },
         ),
         (
@@ -508,6 +511,38 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                         models::ComparisonOperatorDefinition::LessThanOrEqual,
                     ),
                 ]),
+                extraction_functions: BTreeMap::new(),
+            },
+        ),
+        (
+            "Date".into(),
+            models::ScalarType {
+                representation: models::TypeRepresentation::Date,
+                aggregate_functions: BTreeMap::new(),
+                comparison_operators: BTreeMap::from_iter([
+                    ("eq".into(), models::ComparisonOperatorDefinition::Equal),
+                    ("in".into(), models::ComparisonOperatorDefinition::In),
+                ]),
+                extraction_functions: BTreeMap::from_iter([
+                    (
+                        "year".into(),
+                        models::ExtractionFunctionDefinition::Year {
+                            result_type: models::ScalarTypeName::from("Int"),
+                        },
+                    ),
+                    (
+                        "month".into(),
+                        models::ExtractionFunctionDefinition::Month {
+                            result_type: models::ScalarTypeName::from("Int"),
+                        },
+                    ),
+                    (
+                        "day".into(),
+                        models::ExtractionFunctionDefinition::Day {
+                            result_type: models::ScalarTypeName::from("Int"),
+                        },
+                    ),
+                ]),
             },
         ),
     ]);
@@ -539,6 +574,16 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
                     r#type: models::Type::Named { name: "Int".into() },
+                    arguments: BTreeMap::new(),
+                },
+            ),
+            (
+                "published_date".into(),
+                models::ObjectField {
+                    description: Some("The article's date of publication".into()),
+                    r#type: models::Type::Named {
+                        name: "Date".into(),
+                    },
                     arguments: BTreeMap::new(),
                 },
             ),
@@ -1541,19 +1586,101 @@ fn eval_dimension(
             arguments,
             field_path,
             path,
-        } => eval_column_at_path(
-            collection_relationships,
-            variables,
-            state,
-            row,
-            path,
-            column_name,
-            arguments,
-            field_path.as_deref(),
-        ),
+            extraction,
+        } => {
+            let value = eval_column_at_path(
+                collection_relationships,
+                variables,
+                state,
+                row,
+                path,
+                column_name,
+                arguments,
+                field_path.as_deref(),
+            )?;
+
+            eval_extraction(extraction, value)
+        }
     }
 }
 // ANCHOR_END: eval_dimension
+// ANCHOR: eval_extraction
+fn eval_extraction(
+    extraction: &Option<ndc_models::ExtractionFunctionName>,
+    value: serde_json::Value,
+) -> Result<serde_json::Value> {
+    match extraction {
+        None => Ok(value),
+        Some(extraction) => {
+            let iso8601::Date::YMD { year, month, day } =
+                iso8601::date(value.as_str().ok_or_else(|| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ndc_models::ErrorResponse {
+                            details: serde_json::Value::Null,
+                            message: "Expected date".into(),
+                        }),
+                    )
+                })?)
+                .map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ndc_models::ErrorResponse {
+                            details: serde_json::Value::Null,
+                            message: "Unable to parse date".into(),
+                        }),
+                    )
+                })?
+            else {
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ndc_models::ErrorResponse {
+                        details: serde_json::Value::Null,
+                        message: "Invalid date format".into(),
+                    }),
+                ));
+            };
+
+            match extraction.as_str() {
+                "year" => serde_json::to_value(year).map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ndc_models::ErrorResponse {
+                            details: serde_json::Value::Null,
+                            message: "Cannot encode date year part".into(),
+                        }),
+                    )
+                }),
+                "month" => serde_json::to_value(month).map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ndc_models::ErrorResponse {
+                            details: serde_json::Value::Null,
+                            message: "Cannot encode date month part".into(),
+                        }),
+                    )
+                }),
+                "day" => serde_json::to_value(day).map_err(|_| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ndc_models::ErrorResponse {
+                            details: serde_json::Value::Null,
+                            message: "Cannot encode date day part".into(),
+                        }),
+                    )
+                }),
+                _ => Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(ndc_models::ErrorResponse {
+                        details: serde_json::Value::Null,
+                        message: "Unknown extraction function".into(),
+                    }),
+                )),
+            }
+        }
+    }
+}
+// ANCHOR_END: eval_extraction
 // ANCHOR: eval_row
 fn eval_row(
     fields: &IndexMap<models::FieldName, models::Field>,

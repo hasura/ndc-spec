@@ -445,6 +445,263 @@
         }
       ]
     },
+    "ExtractionFunctionDefinition": {
+      "title": "Extraction Function Definition",
+      "description": "The definition of an aggregation function on a scalar type",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nanosecond"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "microsecond"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "second"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "minute"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "hour"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "day"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "week"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "month"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "quarter"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "year"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "day_of_week"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "day_of_year"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "custom"
+              ]
+            },
+            "result_type": {
+              "description": "The scalar or object type of the result of this function",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Type"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
     "ForeignKeyConstraint": {
       "title": "Foreign Key Constraint",
       "type": "object",
@@ -654,6 +911,14 @@
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ComparisonOperatorDefinition"
+          }
+        },
+        "extraction_functions": {
+          "description": "A map from extraction function names to their definitions.",
+          "default": {},
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ExtractionFunctionDefinition"
           }
         }
       }

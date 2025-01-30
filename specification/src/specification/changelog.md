@@ -21,6 +21,10 @@
 
 A [new section was added to the specification](./queries/grouping.md) which allows callers to group rows and aggregate within groups, generalizing SQL's `GROUP BY` functionality.
 
+#### Extraction Functions
+
+[Extraction functions](./schema/scalar-types.md#extraction-functions) were added to the schema response to facilitate [grouping by components of complex dimensions](./queries/grouping.md#extraction-functions-and-complex-dimensions).
+
 #### Named scopes
 
 Root column references were generalized to _named scopes_. Scopes are introduced by `EXISTS` expressions, and named scopes allow [references to columns outside of the current scope](./queries/filtering.md#referencing-a-column-from-a-collection-in-scope); that is, outside the `EXISTS` expression. Unlike root column references, named scopes allow the caller to refer to columns in any collection in scope, and not just the root collection.

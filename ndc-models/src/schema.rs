@@ -4,8 +4,9 @@ use serde_with::skip_serializing_none;
 use std::collections::BTreeMap;
 
 use crate::{
-    AggregateFunctionName, ArgumentName, CollectionName, ComparisonOperatorName, FieldName,
-    FunctionName, ObjectTypeName, ProcedureName, ScalarTypeName, TypeName,
+    AggregateFunctionName, ArgumentName, CollectionName, ComparisonOperatorName,
+    ExtractionFunctionName, FieldName, FunctionName, ObjectTypeName, ProcedureName, ScalarTypeName,
+    TypeName,
 };
 
 // ANCHOR: SchemaResponse
@@ -40,6 +41,9 @@ pub struct ScalarType {
     pub aggregate_functions: BTreeMap<AggregateFunctionName, AggregateFunctionDefinition>,
     /// A map from comparison operator names to their definitions. Argument type names must be defined scalar types declared in ScalarTypesCapabilities.
     pub comparison_operators: BTreeMap<ComparisonOperatorName, ComparisonOperatorDefinition>,
+    /// A map from extraction function names to their definitions.
+    #[serde(default)]
+    pub extraction_functions: BTreeMap<ExtractionFunctionName, ExtractionFunctionDefinition>,
 }
 // ANCHOR_END: ScalarType
 
@@ -211,6 +215,67 @@ pub enum AggregateFunctionDefinition {
     },
 }
 // ANCHOR_END: AggregateFunctionDefinition
+
+// ANCHOR: ExtractionFunctionDefinition
+/// The definition of an aggregation function on a scalar type
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "Extraction Function Definition")]
+pub enum ExtractionFunctionDefinition {
+    Nanosecond {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Microsecond {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Second {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Minute {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Hour {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Day {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Week {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Month {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Quarter {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Year {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    DayOfWeek {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    DayOfYear {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
+    Custom {
+        /// The scalar or object type of the result of this function
+        result_type: Type,
+    },
+}
+// ANCHOR_END: ExtractionFunctionDefinition
 
 // ANCHOR: CollectionInfo
 #[skip_serializing_none]

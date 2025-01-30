@@ -197,9 +197,63 @@ A `min`/`max` function should ignore the order of its input values, and should b
 
 A custom aggregate function has type `custom` and is defined by its _result type_ - that is, the type of the aggregated data. The result type can be any type, not just a scalar type.
 
+## Extraction Functions
+
+Extraction functions extend the query AST with the ability to _extract_ components from a value with a scalar type. Extraction functions can be used to [group by components of a scalar type](../queries/grouping.md#extraction-functions-and-complex-dimensions).
+
+For example, a `Date` scalar type might expose extraction functions which extract the individual year, month and day components as integers.
+
+Just like for comparison operators and aggregate functions, an extraction function is either a _standard_ function, or a custom function.
+
+To define an extraction function, add a [`ExtractionFunctionDefinition`](../../reference/types.md#extractionfunctiondefinition) to the `extraction_functions` field of the schema response.
+
+For example:
+
+```json
+{
+  "scalar_types": {
+    "Date": {
+      "extraction_functions": {
+        "year": {
+          "type": "year",
+          "result_type": "Int"
+        },
+      }
+      "aggregate_functions": {},
+      "comparison_operators": {}
+    }
+  },
+  ...
+}
+```
+
+### Standard Extraction Functions
+
+The following standard extraction functions are supported:
+
+- `Day`
+- `DayOfWeek`
+- `DayOfYear`
+- `Hour`
+- `Microsecond`
+- `Minute`
+- `Month`
+- `Nanosecond`
+- `Quarter`
+- `Second`
+- `Week`
+- `Year`
+
+For each of these, the return type should be a scalar type whose representation is one of `int8`, `int16`, `int32`, or `int64`.
+
+### Custom Extraction Functions
+
+A custom extraction function has type `custom` and is defined by its _result type_ - that is, the type of the extracted data. The result type can be any type, not just a scalar type.
+
 ## See also
 
 - Type [`ScalarType`](../../reference/types.md#scalartype)
 - [`Filtering`](../queries/filtering.md)
 - [`Sorting`](../queries/sorting.md)
 - [`Aggregates`](../queries/aggregates.md)
+- [`Grouping`](../queries/grouping.md)

@@ -4,6 +4,34 @@ expression: response
 ---
 {
   "scalar_types": {
+    "Date": {
+      "representation": {
+        "type": "date"
+      },
+      "aggregate_functions": {},
+      "comparison_operators": {
+        "eq": {
+          "type": "equal"
+        },
+        "in": {
+          "type": "in"
+        }
+      },
+      "extraction_functions": {
+        "day": {
+          "type": "day",
+          "result_type": "Int"
+        },
+        "month": {
+          "type": "month",
+          "result_type": "Int"
+        },
+        "year": {
+          "type": "year",
+          "result_type": "Int"
+        }
+      }
+    },
     "Float": {
       "representation": {
         "type": "float64"
@@ -43,7 +71,8 @@ expression: response
         "lte": {
           "type": "less_than_or_equal"
         }
-      }
+      },
+      "extraction_functions": {}
     },
     "Int": {
       "representation": {
@@ -84,7 +113,8 @@ expression: response
         "lte": {
           "type": "less_than_or_equal"
         }
-      }
+      },
+      "extraction_functions": {}
     },
     "Int64": {
       "representation": {
@@ -125,7 +155,8 @@ expression: response
         "lte": {
           "type": "less_than_or_equal"
         }
-      }
+      },
+      "extraction_functions": {}
     },
     "String": {
       "representation": {
@@ -183,7 +214,8 @@ expression: response
         "starts_with": {
           "type": "starts_with"
         }
-      }
+      },
+      "extraction_functions": {}
     }
   },
   "object_types": {
@@ -202,6 +234,13 @@ expression: response
           "type": {
             "type": "named",
             "name": "Int"
+          }
+        },
+        "published_date": {
+          "description": "The article's date of publication",
+          "type": {
+            "type": "named",
+            "name": "Date"
           }
         },
         "title": {

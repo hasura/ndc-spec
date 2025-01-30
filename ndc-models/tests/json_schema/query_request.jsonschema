@@ -443,6 +443,13 @@
               "items": {
                 "type": "string"
               }
+            },
+            "extraction": {
+              "description": "The name of the extraction function to apply to the selected value, if any",
+              "type": [
+                "string",
+                "null"
+              ]
             }
           }
         }
