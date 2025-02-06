@@ -1,6 +1,6 @@
 # Filtering
 
-A [`Query`](../../reference/types.md#query) can specify a predicate expression which should be used to filter rows in the response.
+A [`Query`](../../reference/types.md#query) can specify a predicate expression which should be used to filter rows considered during [field selection](../field-selection.md) for returning rows. The predicate expression also filters the rows that are [aggregated across](../aggregates.md) and [grouped over](../grouping.md) (ie. it filters the input rows to the aggregation/grouping operation).
 
 A predicate expression can be one of
 
