@@ -66,19 +66,16 @@ where
     if snapshot_path.exists() {
         let snapshot_file = File::open(snapshot_path).map_err(Error::CannotOpenSnapshotFile)?;
         let snapshot: R = serde_json::from_reader(snapshot_file)?;
-        let compare: pretty_assertions::Comparison<R, R> = pretty_assertions::Comparison::new(&snapshot, expected);
-
-
-
+        let compare: pretty_assertions::Comparison<R, R> =
+            pretty_assertions::Comparison::new(&snapshot, expected);
 
         if snapshot != *expected {
-            println!("Expected: {:?}", expected);
             let actual = serde_json::to_string_pretty(&expected)?;
 
             return Err(Error::ResponseDidNotMatchSnapshot(
                 snapshot_path.to_path_buf(),
                 actual,
-                format!("{}", compare),
+                format!("{compare}"),
             ));
         }
     } else {

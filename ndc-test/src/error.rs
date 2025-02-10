@@ -5,9 +5,9 @@ pub type OtherError = Box<dyn std::error::Error + Send + Sync>;
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("error communicating with the connector: {0}")]
-    CommunicationError(#[from] super::client::Error),
+    CommunicationError(#[from] Box<super::client::Error>),
     #[error("error communicating with the connector: {0} ")]
-    CommunicationErrorWithContent(super::client::Error),
+    CommunicationErrorWithContent(Box<super::client::Error>),
     #[error("error generating test data: {0}")]
     StrategyError(#[from] rand::Error),
     #[error("error parsing semver range: {0}")]

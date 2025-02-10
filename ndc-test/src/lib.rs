@@ -36,19 +36,23 @@ use crate::test_cases::query::validate::ValidatingConnector;
 #[async_trait(?Send)]
 impl Connector for client::Configuration {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
-        Ok(client::capabilities_get(self).await?)
+        Ok(client::capabilities_get(self).await.map_err(Box::new)?)
     }
 
     async fn get_schema(&self) -> Result<models::SchemaResponse> {
-        Ok(client::schema_get(self).await?)
+        Ok(client::schema_get(self).await.map_err(Box::new)?)
     }
 
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse> {
-        Ok(client::query_post(self, request).await.map_err(Error::CommunicationErrorWithContent)?)
+        Ok(client::query_post(self, request)
+            .await
+            .map_err(|e| Error::CommunicationErrorWithContent(Box::new(e)))?)
     }
 
     async fn mutation(&self, request: models::MutationRequest) -> Result<models::MutationResponse> {
-        Ok(client::mutation_post(self, request).await?)
+        Ok(client::mutation_post(self, request)
+            .await
+            .map_err(Box::new)?)
     }
 }
 
@@ -164,12 +168,8 @@ pub async fn test_snapshots_in_directory_with<
 
                             match response {
                                 Ok(response) => snapshot_test(snapshot_path, &response),
-                                Err(e) => {
-                                    Err(e)
-                                }
+                                Err(e) => Err(e),
                             }
-
-
 
                             // snapshot_test(snapshot_path, &response)
                         }

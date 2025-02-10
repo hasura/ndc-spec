@@ -52,9 +52,12 @@ impl fmt::Display for Error {
         let (module, e) = match self {
             Error::Reqwest(e) => ("reqwest", e.to_string()),
             Error::Serde(e) => ("serde", e.to_string()),
-            Error::SerdeWithMessage(e, message) => ("serde", format!("{}: {}", message, e)),
+            Error::SerdeWithMessage(e, message) => ("serde", format!("{message}: {e}")),
             Error::Io(e) => ("IO", e.to_string()),
-            Error::ConnectorError(e) => ("response", format!("status code {} error {}", e.status, e.raw_response.to_string())),
+            Error::ConnectorError(e) => (
+                "response",
+                format!("status code {} error {}", e.status, e.raw_response),
+            ),
             Error::InvalidConnectorError(e) => ("response", format!("status code {}", e.status)),
             Error::InvalidBaseURL => ("url", "invalid base URL".into()),
         };
@@ -66,8 +69,7 @@ impl error::Error for Error {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self {
             Error::Reqwest(e) => Some(e),
-            Error::Serde(e) => Some(e),
-            Error::SerdeWithMessage(e, _) => Some(e),
+            Error::Serde(e) | Error::SerdeWithMessage(e, _) => Some(e),
             Error::Io(e) => Some(e),
             Error::ConnectorError(_) | Error::InvalidConnectorError(_) | Error::InvalidBaseURL => {
                 None
@@ -220,7 +222,7 @@ fn construct_error(
             Error::ConnectorError(connector_error)
         }
         Err(e) => {
-            let message = format!("failed to deserialize error response: {}", e);
+            let message = format!("failed to deserialize error response: {e}");
             Error::SerdeWithMessage(e, message)
         }
     }
