@@ -6,6 +6,8 @@ pub type OtherError = Box<dyn std::error::Error + Send + Sync>;
 pub enum Error {
     #[error("error communicating with the connector: {0}")]
     CommunicationError(#[from] super::client::Error),
+    #[error("error communicating with the connector: {0} ")]
+    CommunicationErrorWithContent(super::client::Error),
     #[error("error generating test data: {0}")]
     StrategyError(#[from] rand::Error),
     #[error("error parsing semver range: {0}")]
@@ -60,8 +62,8 @@ pub enum Error {
     CannotOpenSnapshotFile(std::io::Error),
     #[error("error (de)serializing data structure: {0:?}")]
     SerdeError(#[from] serde_json::Error),
-    #[error("snapshot did not match file {0}: {1}")]
-    ResponseDidNotMatchSnapshot(std::path::PathBuf, String),
+    #[error("snapshot did not match file {0}: {2}")]
+    ResponseDidNotMatchSnapshot(std::path::PathBuf, String, String),
     #[error("cannot open benchmark directory: {0:?}")]
     CannotOpenBenchmarkDirectory(std::io::Error),
     #[error("cannot open benchmark report: {0:?}")]

@@ -44,7 +44,7 @@ impl Connector for client::Configuration {
     }
 
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse> {
-        Ok(client::query_post(self, request).await?)
+        Ok(client::query_post(self, request).await.map_err(Error::CommunicationErrorWithContent)?)
     }
 
     async fn mutation(&self, request: models::MutationRequest) -> Result<models::MutationResponse> {
@@ -134,7 +134,7 @@ pub async fn test_snapshots_in_directory_with<
     C: Connector,
     R: Reporter,
     Req: DeserializeOwned,
-    Res: DeserializeOwned + serde::Serialize + PartialEq,
+    Res: DeserializeOwned + serde::Serialize + PartialEq + std::fmt::Debug,
     F: Future<Output = Result<Res>>,
 >(
     reporter: &mut R,
@@ -160,9 +160,18 @@ pub async fn test_snapshots_in_directory_with<
                                 .map_err(Error::CannotOpenSnapshotFile)?;
                             let request = serde_json::from_reader(request_file)?;
 
-                            let response = f(request).await?;
+                            let response = f(request).await;
 
-                            snapshot_test(snapshot_path, &response)
+                            match response {
+                                Ok(response) => snapshot_test(snapshot_path, &response),
+                                Err(e) => {
+                                    Err(e)
+                                }
+                            }
+
+
+
+                            // snapshot_test(snapshot_path, &response)
                         }
                     }
                 );

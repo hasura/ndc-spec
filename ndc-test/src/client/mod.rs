@@ -7,14 +7,15 @@ use serde::Deserialize;
 pub struct ConnectorError {
     pub status: reqwest::StatusCode,
     pub error_response: ndc_models::ErrorResponse,
+    pub raw_response: serde_json::Value,
 }
 
 impl fmt::Display for ConnectorError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "ConnectorError {{ status: {0}, error_response.message: {1} }}",
-            self.status, self.error_response.message
+            "ConnectorError {{ status: {0}, error_response.message: {1}, raw_response: {2} }}",
+            self.status, self.error_response.message, self.raw_response
         )
     }
 }
@@ -39,6 +40,7 @@ impl fmt::Display for InvalidConnectorError {
 pub enum Error {
     Reqwest(reqwest::Error),
     Serde(serde_json::Error),
+    SerdeWithMessage(serde_json::Error, String),
     Io(std::io::Error),
     ConnectorError(ConnectorError),
     InvalidConnectorError(InvalidConnectorError),
@@ -50,8 +52,9 @@ impl fmt::Display for Error {
         let (module, e) = match self {
             Error::Reqwest(e) => ("reqwest", e.to_string()),
             Error::Serde(e) => ("serde", e.to_string()),
+            Error::SerdeWithMessage(e, message) => ("serde", format!("{}: {}", message, e)),
             Error::Io(e) => ("IO", e.to_string()),
-            Error::ConnectorError(e) => ("response", format!("status code {}", e.status)),
+            Error::ConnectorError(e) => ("response", format!("status code {} error {}", e.status, e.raw_response.to_string())),
             Error::InvalidConnectorError(e) => ("response", format!("status code {}", e.status)),
             Error::InvalidBaseURL => ("url", "invalid base URL".into()),
         };
@@ -64,6 +67,7 @@ impl error::Error for Error {
         match self {
             Error::Reqwest(e) => Some(e),
             Error::Serde(e) => Some(e),
+            Error::SerdeWithMessage(e, _) => Some(e),
             Error::Io(e) => Some(e),
             Error::ConnectorError(_) | Error::InvalidConnectorError(_) | Error::InvalidBaseURL => {
                 None
@@ -211,14 +215,14 @@ fn construct_error(
             let connector_error = ConnectorError {
                 status: response_status,
                 error_response,
+                raw_response: response_content,
             };
             Error::ConnectorError(connector_error)
         }
-        // If we can't read the error response, respond as-is.
-        Err(_) => Error::InvalidConnectorError(InvalidConnectorError {
-            status: response_status,
-            content: response_content,
-        }),
+        Err(e) => {
+            let message = format!("failed to deserialize error response: {}", e);
+            Error::SerdeWithMessage(e, message)
+        }
     }
 }
 
