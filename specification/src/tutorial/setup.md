@@ -15,7 +15,7 @@ Alternatively, you can run the reference implementation entirely inside a Docker
 git clone git@github.com:hasura/ndc-spec.git
 cd ndc-spec
 docker build -t reference_connector .
-docker run -it reference_connector
+docker run -it -p 8100:8080 reference_connector
 ```
 
 Either way, you should have a working data connector running on <http://localhost:8100/>, which you can test as follows:
