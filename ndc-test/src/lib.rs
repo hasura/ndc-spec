@@ -46,7 +46,7 @@ impl Connector for client::Configuration {
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse> {
         Ok(client::query_post(self, request)
             .await
-            .map_err(|e| Error::CommunicationErrorWithContent(Box::new(e)))?)
+            .map_err(|e| Error::CommunicationError(Box::new(e)))?)
     }
 
     async fn mutation(&self, request: models::MutationRequest) -> Result<models::MutationResponse> {
@@ -170,8 +170,6 @@ pub async fn test_snapshots_in_directory_with<
                                 Ok(response) => snapshot_test(snapshot_path, &response),
                                 Err(e) => Err(e),
                             }
-
-                            // snapshot_test(snapshot_path, &response)
                         }
                     }
                 );
