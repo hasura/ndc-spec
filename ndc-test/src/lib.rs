@@ -36,19 +36,23 @@ use crate::test_cases::query::validate::ValidatingConnector;
 #[async_trait(?Send)]
 impl Connector for client::Configuration {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
-        Ok(client::capabilities_get(self).await?)
+        Ok(client::capabilities_get(self).await.map_err(Box::new)?)
     }
 
     async fn get_schema(&self) -> Result<models::SchemaResponse> {
-        Ok(client::schema_get(self).await?)
+        Ok(client::schema_get(self).await.map_err(Box::new)?)
     }
 
     async fn query(&self, request: models::QueryRequest) -> Result<models::QueryResponse> {
-        Ok(client::query_post(self, request).await?)
+        Ok(client::query_post(self, request)
+            .await
+            .map_err(|e| Error::CommunicationError(Box::new(e)))?)
     }
 
     async fn mutation(&self, request: models::MutationRequest) -> Result<models::MutationResponse> {
-        Ok(client::mutation_post(self, request).await?)
+        Ok(client::mutation_post(self, request)
+            .await
+            .map_err(Box::new)?)
     }
 }
 
@@ -134,7 +138,7 @@ pub async fn test_snapshots_in_directory_with<
     C: Connector,
     R: Reporter,
     Req: DeserializeOwned,
-    Res: DeserializeOwned + serde::Serialize + PartialEq,
+    Res: DeserializeOwned + serde::Serialize + PartialEq + std::fmt::Debug,
     F: Future<Output = Result<Res>>,
 >(
     reporter: &mut R,
@@ -160,9 +164,12 @@ pub async fn test_snapshots_in_directory_with<
                                 .map_err(Error::CannotOpenSnapshotFile)?;
                             let request = serde_json::from_reader(request_file)?;
 
-                            let response = f(request).await?;
+                            let response = f(request).await;
 
-                            snapshot_test(snapshot_path, &response)
+                            match response {
+                                Ok(response) => snapshot_test(snapshot_path, &response),
+                                Err(e) => Err(e),
+                            }
                         }
                     }
                 );
