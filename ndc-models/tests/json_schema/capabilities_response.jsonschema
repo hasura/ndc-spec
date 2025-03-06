@@ -300,6 +300,28 @@
               "type": "null"
             }
           ]
+        },
+        "filtering": {
+          "description": "Does the connector support filtering over a relationship that starts from inside a nested object",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ordering": {
+          "description": "Does the connector support ordering over a relationship that starts from inside a nested object",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
