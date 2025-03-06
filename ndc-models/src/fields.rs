@@ -83,7 +83,8 @@ pub struct PathElement {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     /// Path to a nested field within an object column that must be navigated
     /// before the relationship is navigated.
-    /// Only non-empty if the 'relationships.nested' capability is supported.
+    /// Only non-empty if the 'relationships.nested' capability is supported
+    /// (plus perhaps one of the sub-capabilities, depending on the feature using the PathElement).
     pub field_path: Option<Vec<FieldName>>,
     /// The name of the relationship to follow
     pub relationship: RelationshipName,

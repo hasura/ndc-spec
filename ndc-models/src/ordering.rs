@@ -33,6 +33,7 @@ pub enum OrderByTarget {
     Column {
         /// Any (object) relationships to traverse to reach this column.
         /// Only non-empty if the 'relationships' capability is supported.
+        /// 'PathElement.field_path' will only be non-empty if the 'relationships.nested.ordering' capability is supported.
         path: Vec<PathElement>,
         /// The name of the column
         name: FieldName,
@@ -47,6 +48,8 @@ pub enum OrderByTarget {
     /// Only used if the 'relationships.order_by_aggregate' capability is supported.
     Aggregate {
         /// Non-empty collection of relationships to traverse
+        /// Only non-empty if the 'relationships' capability is supported.
+        /// 'PathElement.field_path' will only be non-empty if the 'relationships.nested.ordering' capability is supported.
         path: Vec<PathElement>,
         /// The aggregation method to use
         aggregate: Aggregate,

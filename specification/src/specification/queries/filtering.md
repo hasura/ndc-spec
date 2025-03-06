@@ -171,7 +171,7 @@ For example, this query fetches authors who have written articles whose titles c
 
 If the related collection is related from a field inside a nested object, then the field path to the nested object can be first descended through using `field_path` before the relationship is navigated.
 
-Only connectors that enable the `relationships.nested` capability will receive these sorts of queries.
+Only connectors that enable the `relationships.nested.filtering` capability will receive these sorts of queries.
 
 In this example, the relationship joins from the nested `location.country_id` across to the `id` column on the `countries` collection.
 
