@@ -47,7 +47,7 @@ pub enum OrderByTarget {
     /// The ordering is performed over the result of an aggregation.
     /// Only used if the 'relationships.order_by_aggregate' capability is supported.
     Aggregate {
-        /// Non-empty collection of relationships to traverse
+        /// Non-empty collection of relationships to traverse.
         /// Only non-empty if the 'relationships' capability is supported.
         /// 'PathElement.field_path' will only be non-empty if the 'relationships.nested.ordering' capability is supported.
         path: Vec<PathElement>,

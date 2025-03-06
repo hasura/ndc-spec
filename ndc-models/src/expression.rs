@@ -143,7 +143,7 @@ pub enum ExistsInCollection {
     Related {
         #[serde(skip_serializing_if = "Option::is_none", default)]
         /// Path to a nested field within an object column that must be navigated
-        /// before the relationship is navigated
+        /// before the relationship is navigated.
         /// Only non-empty if the 'relationships.nested.filtering' capability is supported.
         field_path: Option<Vec<FieldName>>,
         /// The name of the relationship to follow
