@@ -59,6 +59,8 @@ Nested relationships are relationships where the columns being joined upon exist
 
 Column mappings used in relationships were also modified to allow the target column to be referenced via a field path, to allow targeting of object-nested columns across a relationship. Foreign keys are also now defined on the object type rather than the collection, which allows the declaration of foreign keys on object types that are used in nested fields inside a collection.
 
+Nested relationships are now gated behind the [`relationships.nested`](./capabilities.md#capabilities-fields) capabilities, and so connectors that do not declare these capabilities can expect to not have to deal with nested relationships.
+
 #### Wider field arguments support
 
 Object type fields can declare arguments that must be submitted when the field is evaluated. However, support for using these fields is not universal; there are some features which do not allow the use of fields with arguments, for example in nested field paths, or in relationship column mappings.

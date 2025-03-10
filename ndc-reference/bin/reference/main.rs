@@ -312,6 +312,8 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 relation_comparisons: Some(models::LeafCapability {}),
                 nested: Some(models::NestedRelationshipCapabilities {
                     array: Some(models::LeafCapability {}),
+                    filtering: Some(models::LeafCapability {}),
+                    ordering: Some(models::LeafCapability {}),
                 }),
             }),
         },

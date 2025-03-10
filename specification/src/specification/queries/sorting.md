@@ -46,7 +46,7 @@ For example, this query sorts articles by their author's last names, and then by
 
 #### Nested relationships
 
-If the connector enables the `relationships.nested` capability, it may receive `path` relationships where the relationship starts from inside a nested object. The path to descend through the nested objects before navigating the relationship is specified by the `field_path` property.
+If the connector enables the `relationships.nested.ordering` capability, it may receive `path` relationships where the relationship starts from inside a nested object. The path to descend through the nested objects before navigating the relationship is specified by the `field_path` property.
 
 For example, this query sorts `institutions` by their location's country's area. The relationship starts from within the `location` nested object and joins its `country_id` column to the `countries` collection's `id` column.
 
@@ -61,7 +61,7 @@ An ordering of type `aggregate` orders rows by aggregating rows in some [related
 
 If the respective aggregates are incomparable, the ordering should continue to the next [`OrderByElement`](../../reference/types.md#orderbyelement).
 
-If the connector enables the `relationships.nested` capability, it may receive `path` relationships where the relationship starts from inside a nested object. The path to descend through the nested objects before navigating the relationship is specified by the `field_path` property.
+If the connector enables the `relationships.nested.ordering` capability, it may receive `path` relationships where the relationship starts from inside a nested object. The path to descend through the nested objects before navigating the relationship is specified by the `field_path` property.
 
 #### Examples
 

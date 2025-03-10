@@ -170,5 +170,9 @@ pub struct RelationshipCapabilities {
 pub struct NestedRelationshipCapabilities {
     /// Does the connector support navigating a relationship from inside a nested object inside a nested array
     pub array: Option<LeafCapability>,
+    /// Does the connector support filtering over a relationship that starts from inside a nested object
+    pub filtering: Option<LeafCapability>,
+    /// Does the connector support ordering over a relationship that starts from inside a nested object
+    pub ordering: Option<LeafCapability>,
 }
 // ANCHOR_END: NestedRelationshipCapabilities

@@ -125,7 +125,7 @@ Binary (including array-valued) operators compare columns to _values_, but there
 
 - Scalar values, as seen in the examples above, compare the column to a specific value,
 - Variable values compare the column to the current value of a [variable](./variables.md),
-- Column values compare the column to _another_ column. The column may be on the same row, or it may be on a related row. Comparing against columns on related rows requires the connector to indicate support via the `relationships.relation_comparison` capability.
+- Column values compare the column to _another_ column. The column may be on the same row, or it may be on a related row. Comparing against columns on related rows requires the connector to indicate support via the `relationships.relation_comparisons` capability.
 
 #### Referencing a column from a collection in scope
 
@@ -171,7 +171,7 @@ For example, this query fetches authors who have written articles whose titles c
 
 If the related collection is related from a field inside a nested object, then the field path to the nested object can be first descended through using `field_path` before the relationship is navigated.
 
-Only connectors that enable the `relationships.nested` capability will receive these sorts of queries.
+Only connectors that enable the `relationships.nested.filtering` capability will receive these sorts of queries.
 
 In this example, the relationship joins from the nested `location.country_id` across to the `id` column on the `countries` collection.
 

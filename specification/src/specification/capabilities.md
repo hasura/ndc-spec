@@ -55,8 +55,10 @@ These fields are set underneath the `capabilities` property on the `Capabilities
 | `relationships`                                        | Whether the data connector supports [relationships](queries/relationships.md)                                                                                                               |
 | `relationships.nested`                                 | Whether the data connector supports relationships that can [start from or end with columns in nested objects](queries/relationships.md#column-mappings)                                     |
 | `relationships.nested.array`                           | Whether the data connector supports relationships that can [start from columns inside nested objects inside nested arrays](queries/relationships.md#column-mappings)                        |
+| `relationships.nested.filtering`                       | Whether the data connector supports using relationships that can [start from columns inside nested objects](queries/relationships.md#column-mappings) while filtering                       |
+| `relationships.nested.ordering`                        | Whether the data connector supports using relationships that can [start from columns inside nested objects](queries/relationships.md#column-mappings) while ordering                        |
 | `relationships.order_by_aggregate`                     | Whether order by clauses can [include aggregates](queries/sorting.md#type-aggregate)                                                                                                        |
-| `relationships.relation_comparisons`                   | Whether comparisons can include columns reachable via [relationships](queries/relationships.md)                                                                                             |
+| `relationships.relation_comparisons`                   | Whether comparisons between two columns can include a [value column](queries/filtering.md#values-in-binary-operators) that is across a [relationship](queries/relationships.md)             |
 
 ## See also
 
