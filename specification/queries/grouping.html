@@ -1,0 +1,499 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Grouping - Hasura Data Connectors Developer&#x27;s Guide</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/pagetoc.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../overview.html">Overview</a></li><li class="chapter-item expanded affix "><li class="part-title">API Specification</li><li class="chapter-item expanded "><a href="../../specification/index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../../specification/changelog.html"><strong aria-hidden="true">2.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="../../specification/basics.html"><strong aria-hidden="true">3.</strong> Basics</a></li><li class="chapter-item expanded "><a href="../../specification/versioning.html"><strong aria-hidden="true">4.</strong> Versioning</a></li><li class="chapter-item expanded "><a href="../../specification/error-handling.html"><strong aria-hidden="true">5.</strong> Error Handling</a></li><li class="chapter-item expanded "><a href="../../specification/health.html"><strong aria-hidden="true">6.</strong> Service Health</a></li><li class="chapter-item expanded "><a href="../../specification/metrics.html"><strong aria-hidden="true">7.</strong> Metrics</a></li><li class="chapter-item expanded "><a href="../../specification/telemetry.html"><strong aria-hidden="true">8.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../../specification/capabilities.html"><strong aria-hidden="true">9.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../../specification/types.html"><strong aria-hidden="true">10.</strong> Types</a></li><li class="chapter-item expanded "><a href="../../specification/schema/index.html"><strong aria-hidden="true">11.</strong> Schema</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../specification/schema/scalar-types.html"><strong aria-hidden="true">11.1.</strong> Scalar Types</a></li><li class="chapter-item expanded "><a href="../../specification/schema/object-types.html"><strong aria-hidden="true">11.2.</strong> Object Types</a></li><li class="chapter-item expanded "><a href="../../specification/schema/collections.html"><strong aria-hidden="true">11.3.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../../specification/schema/functions.html"><strong aria-hidden="true">11.4.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../../specification/schema/procedures.html"><strong aria-hidden="true">11.5.</strong> Procedures</a></li><li class="chapter-item expanded "><a href="../../specification/schema/capabilities.html"><strong aria-hidden="true">11.6.</strong> Capabilities</a></li></ol></li><li class="chapter-item expanded "><a href="../../specification/queries/index.html"><strong aria-hidden="true">12.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../specification/queries/field-selection.html"><strong aria-hidden="true">12.1.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../../specification/queries/filtering.html"><strong aria-hidden="true">12.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../../specification/queries/sorting.html"><strong aria-hidden="true">12.3.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../../specification/queries/pagination.html"><strong aria-hidden="true">12.4.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../../specification/queries/aggregates.html"><strong aria-hidden="true">12.5.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../../specification/queries/grouping.html" class="active"><strong aria-hidden="true">12.6.</strong> Grouping</a></li><li class="chapter-item expanded "><a href="../../specification/queries/arguments.html"><strong aria-hidden="true">12.7.</strong> Arguments</a></li><li class="chapter-item expanded "><a href="../../specification/queries/relationships.html"><strong aria-hidden="true">12.8.</strong> Relationships</a></li><li class="chapter-item expanded "><a href="../../specification/queries/variables.html"><strong aria-hidden="true">12.9.</strong> Variables</a></li><li class="chapter-item expanded "><a href="../../specification/queries/functions.html"><strong aria-hidden="true">12.10.</strong> Functions</a></li></ol></li><li class="chapter-item expanded "><a href="../../specification/mutations/index.html"><strong aria-hidden="true">13.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../specification/mutations/procedures.html"><strong aria-hidden="true">13.1.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../../specification/explain.html"><strong aria-hidden="true">14.</strong> Explain</a></li><li class="chapter-item expanded affix "><li class="part-title">Tutorial</li><li class="chapter-item expanded "><a href="../../tutorial/index.html"><strong aria-hidden="true">15.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../../tutorial/setup.html"><strong aria-hidden="true">16.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../../tutorial/testing.html"><strong aria-hidden="true">17.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../../tutorial/getting-started.html"><strong aria-hidden="true">18.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../../tutorial/capabilities.html"><strong aria-hidden="true">19.</strong> Capabilities</a></li><li class="chapter-item expanded "><a href="../../tutorial/schema.html"><strong aria-hidden="true">20.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/index.html"><strong aria-hidden="true">21.</strong> Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tutorial/queries/variables.html"><strong aria-hidden="true">21.1.</strong> Query Variables</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/arguments.html"><strong aria-hidden="true">21.2.</strong> Evaluating Arguments</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/index.html"><strong aria-hidden="true">21.3.</strong> Executing Queries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/sorting.html"><strong aria-hidden="true">21.3.1.</strong> Sorting</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/filtering.html"><strong aria-hidden="true">21.3.2.</strong> Filtering</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/pagination.html"><strong aria-hidden="true">21.3.3.</strong> Pagination</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/aggregates.html"><strong aria-hidden="true">21.3.4.</strong> Aggregates</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/field-selection.html"><strong aria-hidden="true">21.3.5.</strong> Field Selection</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/grouping.html"><strong aria-hidden="true">21.3.6.</strong> Grouping</a></li><li class="chapter-item expanded "><a href="../../tutorial/queries/execute/relationships.html"><strong aria-hidden="true">21.3.7.</strong> Relationships</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../tutorial/mutations/index.html"><strong aria-hidden="true">22.</strong> Mutations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tutorial/mutations/operations.html"><strong aria-hidden="true">22.1.</strong> Handling Operations</a></li><li class="chapter-item expanded "><a href="../../tutorial/mutations/procedures.html"><strong aria-hidden="true">22.2.</strong> Procedures</a></li></ol></li><li class="chapter-item expanded "><a href="../../tutorial/explain.html"><strong aria-hidden="true">23.</strong> Explain</a></li><li class="chapter-item expanded "><a href="../../tutorial/health.html"><strong aria-hidden="true">24.</strong> Health and Metrics</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../../reference/types.html"><strong aria-hidden="true">25.</strong> Types</a></li><li class="chapter-item expanded "><a href="../../reference/json-schema.html"><strong aria-hidden="true">26.</strong> JSON Schema</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Hasura Data Connectors Developer&#x27;s Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="grouping"><a class="header" href="#grouping">Grouping</a></h1>
+<p>If a connector supports <a href="./aggregates.html">aggregates</a>, it may also support <em>grouping</em> data and then aggregating data in those groups. This ability is tracked by the <code>query.aggregates.group_by</code> capability.</p>
+<p>Grouping is requested in the query API alongside fields and aggregates, in the <code>groups</code> field of the <a href="../../reference/types.html#query"><code>Query</code></a> object.</p>
+<p>A grouping operation specifies one or more <em>dimensions</em> along which to partition the row set. Each dimension selects a column from which to draw values (see <a href="../../reference/types.html#dimension"><code>Dimension::Column</code></a>). For each group, every row should have equal values in each of those dimension columns.</p>
+<p>If the dimension's column's schema defines <a href="./arguments.html#field-arguments">arguments</a>, then the <code>arguments</code> property is used to provide values for those arguments.</p>
+<p>In addition, a grouping operation specifies <em>aggregates</em> which should be computed and returned for each group separately.</p>
+<h2 id="dimensions"><a class="header" href="#dimensions">Dimensions</a></h2>
+<p>Dimension columns can be:</p>
+<ul>
+<li>A column</li>
+<li>A object-nested column</li>
+<li>A column across an object relationship</li>
+<li>A column across an object-nested object relationship</li>
+</ul>
+<p>A key property is that nested arrays or nested relationships cannot be traversed from the rows being grouped over when selecting a dimension column. Only nested objects or object relationships can be traversed.</p>
+<h3 id="extraction-functions-and-complex-dimensions"><a class="header" href="#extraction-functions-and-complex-dimensions">Extraction Functions and Complex Dimensions</a></h3>
+<p>We can also group by <em>components</em> of scalar types using <a href="../schema/scalar-types.html#extraction-functions">extraction functions</a>.</p>
+<p>In order to apply an extraction function to the value of a dimension, the <code>Dimension</code> should specify an <code>extraction</code> property, which is the name of the extraction function to apply.</p>
+<p>For example, this query groups articles by the <em>year</em> component of their published date:</p>
+<pre><code class="language-json">{
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "groups": {
+      "aggregates": {
+        "count": {
+          "type": "star_count"
+        }
+      },
+      "dimensions": [
+        {
+          "type": "column",
+          "column_name": "published_date",
+          "path": [],
+          "extraction": "year"
+        }
+      ]
+    }
+  },
+  "collection_relationships": {}
+}
+</code></pre>
+<h2 id="filtering"><a class="header" href="#filtering">Filtering</a></h2>
+<p>Grouping operations have two types of filtering:</p>
+<ul>
+<li>The initial row set can be filtered <em>before the grouping operation</em>, using the <code>predicate</code> field of the <a href="../../reference/types.html#query"><code>Query</code></a> object as usual, and</li>
+<li>The <em>groups themselves</em> can be filtered <em>after the grouping operation</em>, using the <code>predicate</code> field of the <a href="../../reference/types.html#grouping"><code>Grouping</code></a> object. This is controlled by the <code>query.aggregates.group_by.filter</code> capability.</li>
+</ul>
+<p>Unlike regular predicates on rows, group predicates are not allowed to compare <em>columns</em>, but must instead compare values of <em>aggregates</em> over the group. For example, we can filter groups by comparing a <em>count</em> of rows in the group, but not by comparing values in individual rows.</p>
+<h2 id="ordering"><a class="header" href="#ordering">Ordering</a></h2>
+<p>As with filtering, group operations support two types of ordering:</p>
+<ul>
+<li>The initial row set can be ordered <em>before the grouping operation</em>, using the <code>order_by</code> field of the <a href="../../reference/types.html#query"><code>Query</code></a> object as usual, and</li>
+<li>The <em>groups themselves</em> can be ordered <em>after the grouping operation</em>, using the <code>order_by</code> field of the <a href="../../reference/types.html#grouping"><code>Grouping</code></a> object. This is controlled by the <code>query.aggregates.group_by.order</code> capability.</li>
+</ul>
+<p>Group sort orders are restricted to comparing aggregate values, similar to filtering. For example, we can order groups by a <em>count</em>, but not by the value of individual rows. However, we can also choose to sort by the selected grouping dimensions.</p>
+<h2 id="pagination"><a class="header" href="#pagination">Pagination</a></h2>
+<p>Pagination can also be applied both before and after grouping:</p>
+<ul>
+<li>The initial row set can be paginated <em>before the grouping operation</em>, using the <code>limit</code> and <code>offset</code> fields of the <a href="../../reference/types.html#query"><code>Query</code></a> object as usual, and</li>
+<li>The <em>groups themselves</em> can be paginated <em>after the grouping operation</em>, using the <code>limit</code> and <code>offset</code> fields of the <a href="../../reference/types.html#grouping"><code>Grouping</code></a> object. This is controlled by the <code>query.aggregates.group_by.paginate</code> capability.</li>
+</ul>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<p>This example partitions the <code>articles</code> collection by <code>author_id</code>, and then returns the row count for each group. That is, it computes the number of articles written by each author:</p>
+<pre><code class="language-json">{
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "groups": {
+      "aggregates": {
+        "article_count": {
+          "type": "star_count"
+        }
+      },
+      "dimensions": [
+        {
+          "type": "column",
+          "column_name": "author_id",
+          "path": []
+        }
+      ]
+    }
+  },
+  "collection_relationships": {}
+}
+</code></pre>
+<h3 id="filtering-examples"><a class="header" href="#filtering-examples">Filtering examples</a></h3>
+<p>This example applies a predicate to the rows <em>before grouping</em>:</p>
+<pre><code class="language-json">{
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "groups": {
+      "aggregates": {
+        "min_id": {
+          "type": "single_column",
+          "column": "id",
+          "function": "min"
+        },
+        "max_id": {
+          "type": "single_column",
+          "column": "id",
+          "function": "max"
+        }
+      },
+      "dimensions": [
+        {
+          "type": "column",
+          "column_name": "author_id",
+          "path": []
+        }
+      ]
+    },
+    "predicate": {
+      "type": "binary_comparison_operator",
+      "column": {
+        "type": "column",
+        "name": "author_id",
+        "path": []
+      },
+      "operator": "eq",
+      "value": {
+        "type": "scalar",
+        "value": 1
+      }
+    }
+  },
+  "collection_relationships": {}
+}
+</code></pre>
+<p>This example applies a predicate to the groups themselves, <em>after grouping</em>. It computes some aggregates for author groups which have exactly two articles:</p>
+<pre><code class="language-json">{
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "groups": {
+      "aggregates": {
+        "min_id": {
+          "type": "single_column",
+          "column": "id",
+          "function": "min"
+        },
+        "max_id": {
+          "type": "single_column",
+          "column": "id",
+          "function": "max"
+        }
+      },
+      "dimensions": [
+        {
+          "type": "column",
+          "column_name": "author_id",
+          "path": []
+        }
+      ],
+      "predicate": {
+        "type": "binary_comparison_operator",
+        "target": {
+          "type": "aggregate",
+          "aggregate": {
+            "type": "star_count"
+          }
+        },
+        "operator": "eq",
+        "value": {
+          "type": "scalar",
+          "value": 2
+        }
+      }
+    }
+  },
+  "collection_relationships": {}
+}
+</code></pre>
+<h3 id="ordering-and-pagination"><a class="header" href="#ordering-and-pagination">Ordering and pagination</a></h3>
+<p>This example computes the article count for the author with the most articles, by ordering the groups by article count, and then using pagination to select the first group:</p>
+<pre><code class="language-json">{
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "groups": {
+      "aggregates": {
+        "article_count": {
+          "type": "star_count"
+        }
+      },
+      "dimensions": [
+        {
+          "type": "column",
+          "column_name": "author_id",
+          "path": []
+        }
+      ],
+      "limit": 1,
+      "offset": 0,
+      "order_by": {
+        "elements": [
+          {
+            "order_direction": "desc",
+            "target": {
+              "type": "aggregate",
+              "aggregate": {
+                "type": "star_count"
+              },
+              "path": []
+            }
+          }
+        ]
+      }
+    }
+  },
+  "collection_relationships": {}
+}
+</code></pre>
+<p>This example sorts the groups by the values of their dimensions. It groups articles by their <code>author_id</code>, and then sorts the groups by that <code>author_id</code> dimension, descending:</p>
+<pre><code class="language-json">{
+  "collection": "articles",
+  "arguments": {},
+  "query": {
+    "groups": {
+      "aggregates": {
+        "article_count": {
+          "type": "star_count"
+        }
+      },
+      "dimensions": [
+        {
+          "type": "column",
+          "column_name": "author_id",
+          "path": []
+        }
+      ],
+      "order_by": {
+        "elements": [
+          {
+            "order_direction": "desc",
+            "target": {
+              "type": "dimension",
+              "index": 0,
+              "path": []
+            }
+          }
+        ]
+      }
+    }
+  },
+  "collection_relationships": {}
+}
+</code></pre>
+<h2 id="requirements"><a class="header" href="#requirements">Requirements</a></h2>
+<ul>
+<li>If the <a href="../../reference/types.html#query"><code>Query</code></a> object specifies the <code>groups</code> field, then each correponding <a href="../../reference/types.html#rowset"><code>RowSet</code></a> object must contain a non-null <code>groups</code> field.</li>
+<li>Each returned <a href="../../reference/types.html#group"><code>Group</code></a> object must contain values for each requested dimension, in the order in which they were requested:
+<ul>
+<li>The connector should effectively partition the <a href="../../reference/types.html#rowset"><code>RowSet</code></a> described by the <a href="../../reference/types.html#query"><code>Query</code></a> object into groups, such that the dimension tuples are unique within each group.</li>
+</ul>
+</li>
+<li>Each returned <a href="../../reference/types.html#group"><code>Group</code></a> object must contain values for each requested aggregate, using the same key as used to request it:
+<ul>
+<li>Aggregates should be computed over the rows in each group in turn.</li>
+</ul>
+</li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See also</a></h2>
+<ul>
+<li>Type <a href="../../reference/types.html#aggregate"><code>Aggregate</code></a></li>
+<li>Type <a href="../../reference/types.html#dimension"><code>Dimension</code></a></li>
+<li>Type <a href="../../reference/types.html#group"><code>Group</code></a></li>
+<li>Type <a href="../../reference/types.html#grouping"><code>Grouping</code></a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../specification/queries/aggregates.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../specification/queries/arguments.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../specification/queries/aggregates.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../specification/queries/arguments.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../theme/pagetoc.js"></script>
+
+
+    </div>
+    </body>
+</html>
