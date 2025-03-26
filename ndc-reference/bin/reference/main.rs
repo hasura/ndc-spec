@@ -274,7 +274,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
     Json(models::CapabilitiesResponse {
         version: models::VERSION.into(),
         capabilities: models::Capabilities {
-            query: models::QueryCapabilities {
+            query: Some(models::QueryCapabilities {
                 aggregates: Some(models::AggregateCapabilities {
                     filter_by: Some(models::LeafCapability {}),
                     group_by: Some(models::GroupByCapabilities {
@@ -302,11 +302,11 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                     aggregates: Some(models::LeafCapability {}),
                     nested_collections: Some(models::LeafCapability {}),
                 },
-            },
-            mutation: models::MutationCapabilities {
+            }),
+            mutation: Some(models::MutationCapabilities {
                 transactional: None,
                 explain: None,
-            },
+            }),
             relationships: Some(models::RelationshipCapabilities {
                 order_by_aggregate: Some(models::LeafCapability {}),
                 relation_comparisons: Some(models::LeafCapability {}),
@@ -316,6 +316,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                     ordering: Some(models::LeafCapability {}),
                 }),
             }),
+            relational_query: None,
         },
     })
 }

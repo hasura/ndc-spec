@@ -10,6 +10,8 @@ mod names;
 pub use names::*;
 mod ordering;
 pub use ordering::*;
+mod relational_query;
+pub use relational_query::*;
 mod requests;
 pub use requests::*;
 mod schema;
