@@ -57,6 +57,16 @@ fn test_json_schemas() {
         schema_for!(MutationResponse),
         "mutation_response.jsonschema",
     );
+    test_json_schema(
+        &mut mint,
+        schema_for!(RelationalQuery),
+        "relational_query.jsonschema",
+    );
+    test_json_schema(
+        &mut mint,
+        schema_for!(RelationalQueryResponse),
+        "relational_query_response.jsonschema",
+    );
 }
 
 fn test_json_schema(mint: &mut Mint, mut schema: schemars::schema::RootSchema, filename: &str) {
