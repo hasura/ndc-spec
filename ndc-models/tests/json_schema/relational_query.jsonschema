@@ -236,6 +236,32 @@
           }
         },
         {
+          "description": "256-bit decimal",
+          "type": "object",
+          "required": [
+            "prec",
+            "scale",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Decimal256"
+              ]
+            },
+            "scale": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            },
+            "prec": {
+              "type": "integer",
+              "format": "int8"
+            }
+          }
+        },
+        {
           "description": "Date stored as a signed 32bit int days since UNIX epoch 1970-01-01",
           "type": "object",
           "required": [
@@ -3228,6 +3254,36 @@
             "value": {
               "type": "integer",
               "format": "int128"
+            },
+            "scale": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            },
+            "prec": {
+              "type": "integer",
+              "format": "int8"
+            }
+          }
+        },
+        {
+          "description": "256-bit decimal",
+          "type": "object",
+          "required": [
+            "prec",
+            "scale",
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Decimal256"
+              ]
+            },
+            "value": {
+              "type": "string"
             },
             "scale": {
               "type": "integer",

@@ -33,6 +33,11 @@ pub enum CastType {
         scale: u8,
         prec: i8,
     },
+    /// 256-bit decimal
+    Decimal256 {
+        scale: u8,
+        prec: i8,
+    },
     /// Date stored as a signed 32bit int days since UNIX epoch 1970-01-01
     Date32,
     /// Date stored as a signed 64bit int milliseconds since UNIX epoch 1970-01-01
@@ -118,6 +123,13 @@ pub enum RelationalLiteral {
     /// 128-bit decimal
     Decimal128 {
         value: i128,
+        scale: u8,
+        prec: i8,
+    },
+    /// 256-bit decimal
+    Decimal256 {
+        // These are strings to avoid more work for connector authors decoding separate high and low bits.
+        value: String,
         scale: u8,
         prec: i8,
     },
