@@ -109,6 +109,9 @@ pub struct RelationalComparisonExpressionCapabilities {
     pub like: Option<LeafCapability>,
     pub ilike: Option<LeafCapability>,
     pub between: Option<LeafCapability>,
+    pub contains: Option<LeafCapability>,
+    pub is_nan: Option<LeafCapability>,
+    pub is_zero: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalFilterExpressionCapabilities
 
@@ -122,7 +125,6 @@ pub struct RelationalScalarExpressionCapabilities {
     pub ceil: Option<LeafCapability>,
     pub character_length: Option<LeafCapability>,
     pub concat: Option<LeafCapability>,
-    pub contains: Option<LeafCapability>,
     pub cos: Option<LeafCapability>,
     pub current_date: Option<LeafCapability>,
     pub current_time: Option<LeafCapability>,
@@ -132,8 +134,6 @@ pub struct RelationalScalarExpressionCapabilities {
     pub exp: Option<LeafCapability>,
     pub floor: Option<LeafCapability>,
     pub greatest: Option<LeafCapability>,
-    pub is_nan: Option<LeafCapability>,
-    pub is_zero: Option<LeafCapability>,
     pub least: Option<LeafCapability>,
     pub left: Option<LeafCapability>,
     pub ln: Option<LeafCapability>,
