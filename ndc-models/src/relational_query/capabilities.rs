@@ -169,14 +169,14 @@ pub struct RelationalScalarExpressionCapabilities {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Relational Aggregate Expression Capabilities")]
 pub struct RelationalAggregateExpressionCapabilities {
-    bool_and: Option<LeafCapability>,
-    bool_or: Option<LeafCapability>,
-    first_value: Option<LeafCapability>,
-    last_value: Option<LeafCapability>,
-    mean: Option<LeafCapability>,
-    median: Option<LeafCapability>,
-    string_agg: Option<LeafCapability>,
-    var: Option<LeafCapability>,
+    pub bool_and: Option<LeafCapability>,
+    pub bool_or: Option<LeafCapability>,
+    pub first_value: Option<LeafCapability>,
+    pub last_value: Option<LeafCapability>,
+    pub mean: Option<LeafCapability>,
+    pub median: Option<LeafCapability>,
+    pub string_agg: Option<LeafCapability>,
+    pub var: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalAggregateExpressionCapabilities
 
