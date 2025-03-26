@@ -544,6 +544,36 @@
               "type": "null"
             }
           ]
+        },
+        "contains": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "is_nan": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "is_zero": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -782,16 +812,6 @@
             }
           ]
         },
-        "contains": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "cos": {
           "anyOf": [
             {
@@ -873,26 +893,6 @@
           ]
         },
         "greatest": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "is_nan": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "is_zero": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
