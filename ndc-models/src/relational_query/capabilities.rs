@@ -84,7 +84,7 @@ pub struct RelationalWindowCapabilities {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Relational Expression Capabilities")]
 pub struct RelationalExpressionCapabilities {
-    pub case: RelationalConditionalExpressionCapabilities,
+    pub conditional: RelationalConditionalExpressionCapabilities,
     pub comparison: RelationalComparisonExpressionCapabilities,
     pub scalar: RelationalScalarExpressionCapabilities,
     pub aggregate: RelationalAggregateExpressionCapabilities,

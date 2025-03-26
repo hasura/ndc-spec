@@ -568,13 +568,13 @@
       "type": "object",
       "required": [
         "aggregate",
-        "case",
         "comparison",
+        "conditional",
         "scalar",
         "window"
       ],
       "properties": {
-        "case": {
+        "conditional": {
           "$ref": "#/definitions/RelationalConditionalExpressionCapabilities"
         },
         "comparison": {
