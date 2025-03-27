@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Specification
+
+- A millisecond standard [extraction function](./schema/scalar-types.md#extraction-functions) was added.
+
 ## `0.2.0`
 
 ### Breaking Changes
