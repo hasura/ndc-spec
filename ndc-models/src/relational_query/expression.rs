@@ -900,7 +900,7 @@ pub struct CaseWhen {
     pub then: RelationalExpression,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "DatePartUnit")]
 pub enum DatePartUnit {
     Year,
