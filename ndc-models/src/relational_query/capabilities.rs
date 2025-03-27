@@ -129,7 +129,7 @@ pub struct RelationalScalarExpressionCapabilities {
     pub current_date: Option<LeafCapability>,
     pub current_time: Option<LeafCapability>,
     pub current_timestamp: Option<LeafCapability>,
-    pub date_part: Option<LeafCapability>,
+    pub date_part: Option<DatePartScalarExpressionCapability>,
     pub date_trunc: Option<LeafCapability>,
     pub exp: Option<LeafCapability>,
     pub floor: Option<LeafCapability>,
@@ -164,6 +164,27 @@ pub struct RelationalScalarExpressionCapabilities {
 }
 // ANCHOR_END: RelationalScalarExpressionCapabilities
 
+// ANCHOR: DatePartScalarExpressionCapability
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Date Part Scalar Expression Capability")]
+pub struct DatePartScalarExpressionCapability {
+    pub year: Option<LeafCapability>,
+    pub quarter: Option<LeafCapability>,
+    pub month: Option<LeafCapability>,
+    pub week: Option<LeafCapability>,
+    pub day_of_week: Option<LeafCapability>,
+    pub day_of_year: Option<LeafCapability>,
+    pub day: Option<LeafCapability>,
+    pub hour: Option<LeafCapability>,
+    pub minute: Option<LeafCapability>,
+    pub second: Option<LeafCapability>,
+    pub microsecond: Option<LeafCapability>,
+    pub millisecond: Option<LeafCapability>,
+    pub nanosecond: Option<LeafCapability>,
+}
+// ANCHOR_END: DatePartScalarExpressionCapability
+
 // ANCHOR: RelationalAggregateExpressionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -173,7 +194,6 @@ pub struct RelationalAggregateExpressionCapabilities {
     pub bool_or: Option<LeafCapability>,
     pub first_value: Option<LeafCapability>,
     pub last_value: Option<LeafCapability>,
-    pub mean: Option<LeafCapability>,
     pub median: Option<LeafCapability>,
     pub string_agg: Option<LeafCapability>,
     pub var: Option<LeafCapability>,
