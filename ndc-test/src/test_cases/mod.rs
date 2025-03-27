@@ -25,24 +25,36 @@ pub async fn run_all_tests<C: Connector, R: Reporter>(
         schema::test_schema(connector, reporter)
     })?;
 
-    nest!("Query", reporter, async {
-        if options.validate_responses {
-            query::test_query(
-                gen_config,
-                &ValidatingConnector {
+    if let Some(query_capabilities) = &capabilities.capabilities.query {
+        nest!("Query", reporter, async {
+            if options.validate_responses {
+                query::test_query(
+                    gen_config,
+                    &ValidatingConnector {
+                        connector,
+                        schema: &schema,
+                    },
+                    reporter,
+                    &capabilities,
+                    query_capabilities,
+                    &schema,
+                    rng,
+                )
+                .await;
+            } else {
+                query::test_query(
+                    gen_config,
                     connector,
-                    schema: &schema,
-                },
-                reporter,
-                &capabilities,
-                &schema,
-                rng,
-            )
-            .await;
-        } else {
-            query::test_query(gen_config, connector, reporter, &capabilities, &schema, rng).await;
-        }
-    });
+                    reporter,
+                    &capabilities,
+                    query_capabilities,
+                    &schema,
+                    rng,
+                )
+                .await;
+            }
+        });
+    };
 
     Some(())
 }

@@ -20,6 +20,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
     connector: &C,
     reporter: &mut R,
     capabilities: &models::CapabilitiesResponse,
+    query_capabilities: &models::QueryCapabilities,
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
 ) {
@@ -52,7 +53,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                         });
                     }
 
-                    if let Some(aggregates) = &capabilities.capabilities.query.aggregates {
+                    if let Some(aggregates) = &query_capabilities.aggregates {
                         nest!("Aggregate queries", reporter, {
                             aggregates::test_aggregate_queries(
                                 gen_config,
