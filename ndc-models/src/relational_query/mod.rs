@@ -98,7 +98,9 @@ pub struct JoinOn {
     pub right: RelationalExpression,
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[derive(
+    Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Hash, Serialize, Deserialize, JsonSchema,
+)]
 #[schemars(title = "JoinType")]
 pub enum JoinType {
     /// Only used when the capability `relational_query.join.join_types.left` is supported.
