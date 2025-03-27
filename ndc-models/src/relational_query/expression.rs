@@ -327,7 +327,7 @@ pub enum RelationalExpression {
     /// * During windowing: `relational_query.window.expression.scalar.date_part`
     DatePart {
         expr: Box<RelationalExpression>,
-        part: Box<RelationalExpression>,
+        part: DatePartUnit,
     },
     /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.scalar.date_trunc`
@@ -775,16 +775,6 @@ pub enum RelationalExpression {
         expr: Box<RelationalExpression>,
     },
     /// Only used when in specific contexts where the appropriate capability is supported:
-    /// * During projection: `relational_query.project.expression.aggregate.mean`
-    /// * During filtering: `relational_query.filter.aggregate.mean`
-    /// * During sorting:`relational_query.sort.expression.aggregate.mean`
-    /// * During joining: `relational_query.join.expression.aggregate.mean`
-    /// * During aggregation: `relational_query.aggregate.expression.aggregate.mean`
-    /// * During windowing: `relational_query.window.expression.aggregate.mean`
-    Mean {
-        expr: Box<RelationalExpression>,
-    },
-    /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.aggregate.median`
     /// * During filtering: `relational_query.filter.aggregate.median`
     /// * During sorting:`relational_query.sort.expression.aggregate.median`
@@ -908,4 +898,22 @@ pub enum RelationalExpression {
 pub struct CaseWhen {
     pub when: RelationalExpression,
     pub then: RelationalExpression,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "DatePartUnit")]
+pub enum DatePartUnit {
+    Year,
+    Quarter,
+    Month,
+    Week,
+    DayOfWeek,
+    DayOfYear,
+    Day,
+    Hour,
+    Minute,
+    Second,
+    Microsecond,
+    Millisecond,
+    Nanosecond,
 }

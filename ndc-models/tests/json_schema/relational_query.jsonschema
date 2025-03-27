@@ -473,6 +473,25 @@
         }
       ]
     },
+    "DatePartUnit": {
+      "title": "DatePartUnit",
+      "type": "string",
+      "enum": [
+        "Year",
+        "Quarter",
+        "Month",
+        "Week",
+        "DayOfWeek",
+        "DayOfYear",
+        "Day",
+        "Hour",
+        "Minute",
+        "Second",
+        "Microsecond",
+        "Millisecond",
+        "Nanosecond"
+      ]
+    },
     "JoinOn": {
       "title": "JoinOn",
       "type": "object",
@@ -1805,7 +1824,7 @@
               "$ref": "#/definitions/RelationalExpression"
             },
             "part": {
-              "$ref": "#/definitions/RelationalExpression"
+              "$ref": "#/definitions/DatePartUnit"
             }
           }
         },
@@ -2677,25 +2696,6 @@
               "type": "string",
               "enum": [
                 "Max"
-              ]
-            },
-            "expr": {
-              "$ref": "#/definitions/RelationalExpression"
-            }
-          }
-        },
-        {
-          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.mean` * During filtering: `relational_query.filter.aggregate.mean` * During sorting:`relational_query.sort.expression.aggregate.mean` * During joining: `relational_query.join.expression.aggregate.mean` * During aggregation: `relational_query.aggregate.expression.aggregate.mean` * During windowing: `relational_query.window.expression.aggregate.mean`",
-          "type": "object",
-          "required": [
-            "expr",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Mean"
               ]
             },
             "expr": {
