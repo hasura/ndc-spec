@@ -236,6 +236,7 @@ The following standard extraction functions are supported:
 - `DayOfYear`
 - `Hour`
 - `Microsecond`
+- `Millisecond`
 - `Minute`
 - `Month`
 - `Nanosecond`

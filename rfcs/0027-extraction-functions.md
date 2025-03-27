@@ -39,6 +39,7 @@ pub struct ExtractionFunctionDefinition {
 pub enum ExtractionFunctionType {
     Nanosecond,
     Microsecond,
+    Millisecond,
     Second,
     Minute,
     Hour,

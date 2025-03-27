@@ -230,6 +230,10 @@ pub enum ExtractionFunctionDefinition {
         /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,
     },
+    Millisecond {
+        /// The result type, which must be a defined scalar type in the schema response.
+        result_type: ScalarTypeName,
+    },
     Second {
         /// The result type, which must be a defined scalar type in the schema response.
         result_type: ScalarTypeName,

@@ -497,6 +497,25 @@
             "type": {
               "type": "string",
               "enum": [
+                "millisecond"
+              ]
+            },
+            "result_type": {
+              "description": "The result type, which must be a defined scalar type in the schema response.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "result_type",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
                 "second"
               ]
             },
