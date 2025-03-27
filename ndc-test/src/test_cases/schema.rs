@@ -52,6 +52,7 @@ pub async fn validate_schema<R: Reporter>(
                     }
                     ndc_models::ExtractionFunctionDefinition::Nanosecond { result_type }
                     | ndc_models::ExtractionFunctionDefinition::Microsecond { result_type }
+                    | ndc_models::ExtractionFunctionDefinition::Millisecond { result_type }
                     | ndc_models::ExtractionFunctionDefinition::Second { result_type }
                     | ndc_models::ExtractionFunctionDefinition::Minute { result_type }
                     | ndc_models::ExtractionFunctionDefinition::Hour { result_type }
