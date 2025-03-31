@@ -561,6 +561,7 @@
       "title": "Relation",
       "oneOf": [
         {
+          "description": "Translates to SQL approximately: ```sql SELECT <scope_name>.<column0> [, <scope_name>.<columnN> ...] FROM <collection> AS <scope_name> ``` Introduces a new scope named `scope_name` that `columns` will be available on.",
           "type": "object",
           "required": [
             "collection",
@@ -590,6 +591,7 @@
           }
         },
         {
+          "description": "Translates to SQL approximately: ```sql <input> [LIMIT <fetch>] OFFSET <skip> ``` Does not introduce a new scope.",
           "type": "object",
           "required": [
             "input",
@@ -622,6 +624,7 @@
           }
         },
         {
+          "description": "Translates to SQL approximately: ```sql SELECT * FROM ( SELECT <expr0> AS <expr0_field_name> [, <exprN> AS <exprN_field_name> ...] <input> ) AS <scope_name>\n\n``` `exprs` will refer to scopes defined inside input. This introduces a new scope named `scope_name` that hides the scopes defined inside input. The projected `exprs` will be available on this new scope for relations that wrap this one.",
           "type": "object",
           "required": [
             "exprs",
@@ -651,6 +654,7 @@
           }
         },
         {
+          "description": "Translates to SQL approximately: ```sql <input> WHERE <predicate> ``` This does not introduce a new scope, so `predicate` exprs will refer to the scopes defined inside input",
           "type": "object",
           "required": [
             "input",
@@ -673,6 +677,7 @@
           }
         },
         {
+          "description": "Translates to SQL approximately: ```sql <input> ORDER BY <exprs0.expr> <exprs0.direction> <exprs0.nulls_sort: NULLS FIRST|LAST> [, <exprsN.expr> <exprsN.direction> <exprsN.nulls_sort: NULLS FIRST|LAST> ...] ``` This does not introduce a new scope, so `sort` exprs will refer to the scopes defined inside input",
           "type": "object",
           "required": [
             "exprs",
@@ -698,11 +703,11 @@
           }
         },
         {
+          "description": "Translates to SQL approximately: ```sql <left> <join_type> JOIN <right> AS <right_scope_name> ON <on0.left> = <on0.right> [, <onN.left> = <onN.right> ...> ``` Introduces a new scope for the right relation (right_scope_name) without hiding the left relation's scope. `on` exprs will refer to both the scope defined inside left and the right_scope_name.",
           "type": "object",
           "required": [
             "join_type",
             "left",
-            "left_scope_name",
             "on",
             "right",
             "right_scope_name",
@@ -717,9 +722,6 @@
             },
             "left": {
               "$ref": "#/definitions/Relation"
-            },
-            "left_scope_name": {
-              "type": "string"
             },
             "right": {
               "$ref": "#/definitions/Relation"
@@ -739,6 +741,7 @@
           }
         },
         {
+          "description": "Translates to SQL approximately: ```sql SELECT * FROM ( SELECT <aggregates0.expr> AS <aggregates0.field_name> [, <aggregatesN.expr> AS <aggregatesN.field_name> ...] <input> [GROUP BY <group_by0> [, <group_byN> ...]] ) AS <scope_name> ``` `aggregates` and `group_by` expressions will refer to scopes defined inside input. This introduces a new scope named `scope_name` that hides the scopes defined inside input. The calculated `aggregates` will be available on this new scope for relations that wrap this one.",
           "type": "object",
           "required": [
             "aggregates",
@@ -776,6 +779,7 @@
           }
         },
         {
+          "description": "Translates to SQL approximately: ```sql SELECT * FROM ( SELECT <exprs0> AS <exprs0_field_name> [, <exprsN> AS <exprsN_field_name> ...] <input> ) AS <scope_name> ``` `exprs` will refer to scopes defined inside input. This introduces a new scope named `scope_name` that hides the scopes defined inside input. The projected `exprs` will be available on this new scope for relations that wrap this one.",
           "type": "object",
           "required": [
             "exprs",
