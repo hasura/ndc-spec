@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -76,7 +74,7 @@ pub enum Relation {
         #[cfg(feature = "arc-relation")]
         input: std::sync::Arc<Relation>,
 
-        exprs: BTreeMap<FieldName, RelationalExpression>,
+        exprs: Vec<NamedRelationalExpression>,
         scope_name: ScopeName,
     },
     /// Translates to SQL approximately:
@@ -151,7 +149,7 @@ pub enum Relation {
 
         /// Only non-empty if the 'relational_query.aggregate.group_by' capability is supported.
         group_by: Vec<RelationalExpression>,
-        aggregates: BTreeMap<FieldName, RelationalExpression>,
+        aggregates: Vec<NamedRelationalExpression>,
         scope_name: ScopeName,
     },
     /// Translates to SQL approximately:
@@ -171,7 +169,7 @@ pub enum Relation {
         #[cfg(feature = "arc-relation")]
         input: std::sync::Arc<Relation>,
 
-        exprs: BTreeMap<FieldName, RelationalExpression>,
+        exprs: Vec<NamedRelationalExpression>,
         scope_name: ScopeName,
     },
 }

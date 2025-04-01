@@ -5,6 +5,14 @@ use serde_with::skip_serializing_none;
 use super::{CastType, RelationalLiteral, Sort};
 use crate::{FieldName, ScopeName};
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "NamedRelationalExpression")]
+pub struct NamedRelationalExpression {
+    pub name: FieldName,
+    pub expr: RelationalExpression,
+}
+
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]

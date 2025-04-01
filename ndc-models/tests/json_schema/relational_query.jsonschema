@@ -541,6 +541,22 @@
         }
       ]
     },
+    "NamedRelationalExpression": {
+      "title": "NamedRelationalExpression",
+      "type": "object",
+      "required": [
+        "expr",
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/RelationalExpression"
+        }
+      }
+    },
     "NullsSort": {
       "title": "Nulls Sort",
       "type": "string",
@@ -643,9 +659,9 @@
               "$ref": "#/definitions/Relation"
             },
             "exprs": {
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/RelationalExpression"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/NamedRelationalExpression"
               }
             },
             "scope_name": {
@@ -768,9 +784,9 @@
               }
             },
             "aggregates": {
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/RelationalExpression"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/NamedRelationalExpression"
               }
             },
             "scope_name": {
@@ -798,9 +814,9 @@
               "$ref": "#/definitions/Relation"
             },
             "exprs": {
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/RelationalExpression"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/NamedRelationalExpression"
               }
             },
             "scope_name": {
