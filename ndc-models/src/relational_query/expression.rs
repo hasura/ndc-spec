@@ -6,7 +6,7 @@ use super::{CastType, RelationalLiteral, Sort};
 use crate::{FieldName, ScopeName};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 #[schemars(title = "NamedRelationalExpression")]
 pub struct NamedRelationalExpression {
     pub name: FieldName,

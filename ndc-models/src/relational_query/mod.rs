@@ -12,7 +12,7 @@ pub use types::*;
 use crate::{CollectionName, FieldName, OrderDirection, ScopeName};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 #[schemars(title = "RelationalQuery")]
 pub struct RelationalQuery {
     pub root_relation: Relation,
