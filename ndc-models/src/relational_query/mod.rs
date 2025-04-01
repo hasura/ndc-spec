@@ -21,7 +21,9 @@ pub struct RelationalQuery {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "RelationalQueryResponse")]
-pub struct RelationalQueryResponse(Vec<serde_json::Value>);
+pub struct RelationalQueryResponse {
+    pub rows: Vec<serde_json::Value>,
+}
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
