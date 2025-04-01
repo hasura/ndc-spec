@@ -14,7 +14,7 @@ pub use types::*;
 use crate::{CollectionName, FieldName, OrderDirection, ScopeName};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "RelationalQuery")]
 pub struct RelationalQuery {
     pub root_relation: Relation,
@@ -22,13 +22,14 @@ pub struct RelationalQuery {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "RelationalQueryResponse")]
+#[serde(rename_all = "snake_case")]
 pub struct RelationalQueryResponse {
     pub rows: Vec<serde_json::Value>,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Relation")]
 pub enum Relation {
     /// Translates to SQL approximately:
@@ -176,7 +177,7 @@ pub enum Relation {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = "Sort")]
+#[schemars(title = "Sort", rename_all = "snake_case")]
 pub struct Sort {
     pub expr: RelationalExpression,
     pub direction: OrderDirection,
@@ -194,7 +195,7 @@ pub enum NullsSort {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = "JoinOn")]
+#[schemars(title = "JoinOn", rename_all = "snake_case")]
 pub struct JoinOn {
     pub left: RelationalExpression,
     pub right: RelationalExpression,
@@ -203,6 +204,7 @@ pub struct JoinOn {
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[serde(rename_all = "snake_case")]
 #[schemars(title = "JoinType")]
 pub enum JoinType {
     /// Only used when the capability `relational_query.join.join_types.left` is supported.

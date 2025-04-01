@@ -7,7 +7,7 @@ use crate::{FieldName, ScopeName};
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "RelationalExpression")]
 pub enum RelationalExpression {
     // Data selection
@@ -894,6 +894,7 @@ pub enum RelationalExpression {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
 #[schemars(title = "CaseWhen")]
 pub struct CaseWhen {
     pub when: RelationalExpression,
@@ -903,6 +904,7 @@ pub struct CaseWhen {
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[serde(rename_all = "snake_case")]
 #[schemars(title = "DatePartUnit")]
 pub enum DatePartUnit {
     Year,

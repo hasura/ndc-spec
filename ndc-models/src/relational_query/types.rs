@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
     Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Hash, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(tag = "type")]
-#[schemars(title = "CastType")]
+#[schemars(title = "CastType", rename_all = "snake_case")]
 pub enum CastType {
     Boolean,
     /// utf-8 encoded string.
@@ -19,12 +19,16 @@ pub enum CastType {
     /// signed 64bit int
     Int64,
     /// unsigned 8bit int
+    #[serde(rename = "uint8")]
     UInt8,
     /// unsigned 16bit int
+    #[serde(rename = "uint16")]
     UInt16,
     /// unsigned 32bit int
+    #[serde(rename = "uint32")]
     UInt32,
     /// unsigned 64bit int
+    #[serde(rename = "uint64")]
     UInt64,
     /// 32bit float
     Float32,
@@ -72,7 +76,7 @@ pub enum CastType {
 
 #[derive(Debug, Clone, PartialOrd, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type")]
-#[schemars(title = "RelationalLiteral")]
+#[schemars(title = "RelationalLiteral", rename_all = "snake_case")]
 pub enum RelationalLiteral {
     Null,
     Boolean {
@@ -99,18 +103,22 @@ pub enum RelationalLiteral {
         value: i64,
     },
     /// unsigned 8bit int
+    #[serde(rename = "uint8")]
     UInt8 {
         value: u8,
     },
     /// unsigned 16bit int
+    #[serde(rename = "uint16")]
     UInt16 {
         value: u16,
     },
     /// unsigned 32bit int
+    #[serde(rename = "uint32")]
     UInt32 {
         value: u32,
     },
     /// unsigned 64bit int
+    #[serde(rename = "uint64")]
     UInt64 {
         value: u64,
     },
