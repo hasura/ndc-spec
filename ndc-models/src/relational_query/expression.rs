@@ -6,7 +6,7 @@ use super::{CastType, RelationalLiteral, Sort};
 use crate::{FieldName, ScopeName};
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type")]
 #[schemars(title = "RelationalExpression")]
 pub enum RelationalExpression {
@@ -893,14 +893,16 @@ pub enum RelationalExpression {
     // nth_value
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "CaseWhen")]
 pub struct CaseWhen {
     pub when: RelationalExpression,
     pub then: RelationalExpression,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(
+    Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
+)]
 #[schemars(title = "DatePartUnit")]
 pub enum DatePartUnit {
     Year,

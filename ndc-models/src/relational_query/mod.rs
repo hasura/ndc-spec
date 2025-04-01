@@ -1,4 +1,5 @@
-use indexmap::IndexMap;
+use std::collections::BTreeMap;
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -12,7 +13,7 @@ pub use types::*;
 
 use crate::{CollectionName, FieldName, OrderDirection, ScopeName};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type")]
 #[schemars(title = "RelationalQuery")]
 pub struct RelationalQuery {
@@ -26,7 +27,7 @@ pub struct RelationalQueryResponse {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type")]
 #[schemars(title = "Relation")]
 pub enum Relation {
@@ -74,7 +75,7 @@ pub enum Relation {
         #[cfg(feature = "arc-relation")]
         input: std::sync::Arc<Relation>,
 
-        exprs: IndexMap<FieldName, RelationalExpression>,
+        exprs: BTreeMap<FieldName, RelationalExpression>,
         scope_name: ScopeName,
     },
     /// Translates to SQL approximately:
@@ -149,7 +150,7 @@ pub enum Relation {
 
         /// Only non-empty if the 'relational_query.aggregate.group_by' capability is supported.
         group_by: Vec<RelationalExpression>,
-        aggregates: IndexMap<FieldName, RelationalExpression>,
+        aggregates: BTreeMap<FieldName, RelationalExpression>,
         scope_name: ScopeName,
     },
     /// Translates to SQL approximately:
@@ -169,12 +170,12 @@ pub enum Relation {
         #[cfg(feature = "arc-relation")]
         input: std::sync::Arc<Relation>,
 
-        exprs: IndexMap<FieldName, RelationalExpression>,
+        exprs: BTreeMap<FieldName, RelationalExpression>,
         scope_name: ScopeName,
     },
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Sort")]
 pub struct Sort {
     pub expr: RelationalExpression,
@@ -192,7 +193,7 @@ pub enum NullsSort {
     NullsLast,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "JoinOn")]
 pub struct JoinOn {
     pub left: RelationalExpression,
@@ -200,7 +201,7 @@ pub struct JoinOn {
 }
 
 #[derive(
-    Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Hash, Serialize, Deserialize, JsonSchema,
+    Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]
 #[schemars(title = "JoinType")]
 pub enum JoinType {
