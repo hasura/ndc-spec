@@ -24,7 +24,7 @@ pub struct RelationalQuery {
 #[schemars(title = "RelationalQueryResponse")]
 #[serde(rename_all = "snake_case")]
 pub struct RelationalQueryResponse {
-    pub rows: Vec<serde_json::Value>,
+    pub rows: Vec<Vec<serde_json::Value>>,
 }
 
 #[skip_serializing_none]

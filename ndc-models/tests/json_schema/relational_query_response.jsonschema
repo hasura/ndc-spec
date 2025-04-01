@@ -8,7 +8,10 @@
   "properties": {
     "rows": {
       "type": "array",
-      "items": true
+      "items": {
+        "type": "array",
+        "items": true
+      }
     }
   }
 }
