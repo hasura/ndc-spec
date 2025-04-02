@@ -148,7 +148,7 @@ pub enum Relation {
         input: std::sync::Arc<Relation>,
 
         /// Only non-empty if the 'relational_query.aggregate.group_by' capability is supported.
-        group_by: Vec<RelationalExpression>,
+        group_by: Vec<NamedRelationalExpression>,
         aggregates: Vec<NamedRelationalExpression>,
         scope_name: ScopeName,
     },
@@ -163,6 +163,11 @@ pub enum Relation {
     /// `exprs` will refer to scopes defined inside input.
     /// This introduces a new scope named `scope_name` that hides the scopes defined inside input.
     /// The projected `exprs` will be available on this new scope for relations that wrap this one.
+    //
+    // TODO: This is busted because in DF it doesn't create a new scope and just adds to the existing one.
+    // But we really do need to create a new scope because we don't have "an existing scope" when multiple scopes are in play
+    // How about combining this with Project with another property? Then we could project and window in one step,
+    // which lets us create a new scope.
     Window {
         #[cfg(not(feature = "arc-relation"))]
         input: Box<Relation>,

@@ -780,7 +780,7 @@
               "description": "Only non-empty if the 'relational_query.aggregate.group_by' capability is supported.",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/RelationalExpression"
+                "$ref": "#/definitions/NamedRelationalExpression"
               }
             },
             "aggregates": {
