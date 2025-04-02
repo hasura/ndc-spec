@@ -130,7 +130,6 @@ newtype! {ObjectTypeName over TypeName}
 newtype! {ProcedureName}
 newtype! {RelationshipName}
 newtype! {ScalarTypeName over TypeName}
-newtype! {ScopeName}
 newtype! {TypeName}
 newtype! {VariableName}
 
