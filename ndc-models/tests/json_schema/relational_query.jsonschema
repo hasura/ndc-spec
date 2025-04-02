@@ -352,7 +352,7 @@
           }
         },
         {
-          "description": "Timestamp Second",
+          "description": "ISO 8601 timestamp",
           "type": "object",
           "required": [
             "type"
@@ -361,52 +361,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "timestamp_second"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Timestamp Milliseconds UInt32",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "timestamp_millisecond"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Timestamp Microseconds UInt64",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "timestamp_microsecond"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Timestamp Nanoseconds",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "timestamp_nanosecond"
+                "timestamp"
               ]
             }
           }
