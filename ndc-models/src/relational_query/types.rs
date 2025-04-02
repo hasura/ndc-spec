@@ -56,14 +56,8 @@ pub enum CastType {
     Time64Microsecond,
     /// Time stored as a signed 64bit int as nanoseconds since midnight
     Time64Nanosecond,
-    /// Timestamp Second
-    TimestampSecond,
-    /// Timestamp Milliseconds UInt32
-    TimestampMillisecond,
-    /// Timestamp Microseconds UInt64
-    TimestampMicrosecond,
-    /// Timestamp Nanoseconds
-    TimestampNanosecond,
+    /// ISO 8601 timestamp
+    Timestamp,
     /// Duration in seconds
     DurationSecond,
     /// Duration in milliseconds
