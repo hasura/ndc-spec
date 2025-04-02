@@ -27,8 +27,8 @@ pub struct LeafCapability {}
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Capabilities")]
 pub struct Capabilities {
-    pub query: Option<QueryCapabilities>,
-    pub mutation: Option<MutationCapabilities>,
+    pub query: QueryCapabilities,
+    pub mutation: MutationCapabilities,
     pub relationships: Option<RelationshipCapabilities>,
     /// Does the connector support the relational query API? This feature is experimental and subject
     /// to breaking changes within minor versions.

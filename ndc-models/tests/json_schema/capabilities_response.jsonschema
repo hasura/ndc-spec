@@ -47,26 +47,16 @@
       "title": "Capabilities",
       "description": "Describes the features of the specification which a data connector implements.",
       "type": "object",
+      "required": [
+        "mutation",
+        "query"
+      ],
       "properties": {
         "query": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/QueryCapabilities"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/definitions/QueryCapabilities"
         },
         "mutation": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/MutationCapabilities"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/definitions/MutationCapabilities"
         },
         "relationships": {
           "anyOf": [
