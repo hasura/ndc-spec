@@ -44,28 +44,14 @@ pub enum CastType {
         scale: i8,
         prec: u8,
     },
-    /// Date stored as a signed 32bit int days since UNIX epoch 1970-01-01
-    Date32,
-    /// Date stored as a signed 64bit int milliseconds since UNIX epoch 1970-01-01
-    Date64,
-    /// Time stored as a signed 32bit int as seconds since midnight
-    Time32Second,
-    /// Time stored as a signed 32bit int as milliseconds since midnight
-    Time32Millisecond,
-    /// Time stored as a signed 64bit int as microseconds since midnight
-    Time64Microsecond,
-    /// Time stored as a signed 64bit int as nanoseconds since midnight
-    Time64Nanosecond,
+    /// date
+    Date,
+    /// time
+    Time,
     /// ISO 8601 timestamp
     Timestamp,
-    /// Duration in seconds
-    DurationSecond,
-    /// Duration in milliseconds
-    DurationMillisecond,
-    /// Duration in microseconds
-    DurationMicrosecond,
-    /// Duration in nanoseconds
-    DurationNanosecond,
+    /// duration
+    Duration,
 }
 
 #[derive(Debug, Clone, PartialOrd, Serialize, Deserialize, JsonSchema)]

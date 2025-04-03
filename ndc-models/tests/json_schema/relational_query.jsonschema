@@ -262,7 +262,7 @@
           }
         },
         {
-          "description": "Date stored as a signed 32bit int days since UNIX epoch 1970-01-01",
+          "description": "date",
           "type": "object",
           "required": [
             "type"
@@ -271,13 +271,13 @@
             "type": {
               "type": "string",
               "enum": [
-                "date32"
+                "date"
               ]
             }
           }
         },
         {
-          "description": "Date stored as a signed 64bit int milliseconds since UNIX epoch 1970-01-01",
+          "description": "time",
           "type": "object",
           "required": [
             "type"
@@ -286,67 +286,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "date64"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Time stored as a signed 32bit int as seconds since midnight",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "time32_second"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Time stored as a signed 32bit int as milliseconds since midnight",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "time32_millisecond"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Time stored as a signed 64bit int as microseconds since midnight",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "time64_microsecond"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Time stored as a signed 64bit int as nanoseconds since midnight",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "time64_nanosecond"
+                "time"
               ]
             }
           }
@@ -367,7 +307,7 @@
           }
         },
         {
-          "description": "Duration in seconds",
+          "description": "duration",
           "type": "object",
           "required": [
             "type"
@@ -376,52 +316,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "duration_second"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Duration in milliseconds",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "duration_millisecond"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Duration in microseconds",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "duration_microsecond"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Duration in nanoseconds",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "duration_nanosecond"
+                "duration"
               ]
             }
           }
