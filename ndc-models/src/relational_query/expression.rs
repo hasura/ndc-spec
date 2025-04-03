@@ -748,6 +748,14 @@ pub enum RelationalExpression {
     },
     Count {
         expr: Box<RelationalExpression>,
+        /// Only used when in specific contexts where the appropriate capability is supported:
+        /// * During projection: `relational_query.project.expression.aggregate.count_distinct`
+        /// * During filtering: `relational_query.filter.aggregate.count_distinct`
+        /// * During sorting:`relational_query.sort.expression.aggregate.count_distinct`
+        /// * During joining: `relational_query.join.expression.aggregate.count_distinct`
+        /// * During aggregation: `relational_query.aggregate.expression.aggregate.count_distinct`
+        /// * During windowing: `relational_query.window.expression.aggregate.count_distinct`
+        distinct: bool,
     },
     /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.aggregate.first_value`

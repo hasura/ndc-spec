@@ -192,6 +192,7 @@ pub struct DatePartScalarExpressionCapability {
 pub struct RelationalAggregateExpressionCapabilities {
     pub bool_and: Option<LeafCapability>,
     pub bool_or: Option<LeafCapability>,
+    pub count_distinct: Option<LeafCapability>,
     pub first_value: Option<LeafCapability>,
     pub last_value: Option<LeafCapability>,
     pub median: Option<LeafCapability>,
