@@ -575,6 +575,16 @@
             }
           ]
         },
+        "count_distinct": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "first_value": {
           "anyOf": [
             {
