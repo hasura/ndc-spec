@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RelationalQueryResponse",
+  "type": "object",
+  "required": [
+    "rows"
+  ],
+  "properties": {
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": true
+      }
+    }
+  }
+}

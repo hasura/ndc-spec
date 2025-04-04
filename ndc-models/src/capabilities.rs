@@ -2,6 +2,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
+use crate::RelationalQueryCapabilities;
+
 // ANCHOR: CapabilitiesResponse
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -28,6 +30,9 @@ pub struct Capabilities {
     pub query: QueryCapabilities,
     pub mutation: MutationCapabilities,
     pub relationships: Option<RelationshipCapabilities>,
+    /// Does the connector support the relational query API? This feature is experimental and subject
+    /// to breaking changes within minor versions.
+    pub relational_query: Option<RelationalQueryCapabilities>,
 }
 // ANCHOR_END: Capabilities
 

@@ -4,6 +4,10 @@ description = "Protocol definitions for the Hasura NDC specification"
 version.workspace = true
 edition.workspace = true
 
+[features]
+# Use Arc to nest Relations rather than Box
+arc-relation = []
+
 [lints]
 workspace = true
 

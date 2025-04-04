@@ -316,6 +316,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                     ordering: Some(models::LeafCapability {}),
                 }),
             }),
+            relational_query: None,
         },
     })
 }

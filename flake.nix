@@ -93,6 +93,7 @@
           pkgs.cargo-watch
           rustToolchain
 
+          pkgs.nodejs
           pkgs.just
           pkgs.mdbook
           pkgs.mdbook-pagetoc
