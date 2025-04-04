@@ -575,10 +575,10 @@
             }
           ]
         },
-        "count_distinct": {
+        "count": {
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/RelationalAggregateFunctionCapabilities"
             },
             {
               "type": "null"
@@ -626,6 +626,22 @@
           ]
         },
         "var": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "RelationalAggregateFunctionCapabilities": {
+      "title": "Relational Aggregate Function Capabilities",
+      "type": "object",
+      "properties": {
+        "distinct": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"

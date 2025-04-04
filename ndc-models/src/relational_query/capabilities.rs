@@ -192,7 +192,7 @@ pub struct DatePartScalarExpressionCapability {
 pub struct RelationalAggregateExpressionCapabilities {
     pub bool_and: Option<LeafCapability>,
     pub bool_or: Option<LeafCapability>,
-    pub count_distinct: Option<LeafCapability>,
+    pub count: Option<RelationalAggregateFunctionCapabilities>,
     pub first_value: Option<LeafCapability>,
     pub last_value: Option<LeafCapability>,
     pub median: Option<LeafCapability>,
@@ -200,6 +200,15 @@ pub struct RelationalAggregateExpressionCapabilities {
     pub var: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalAggregateExpressionCapabilities
+
+// ANCHOR: RelationalAggregateFunctionCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Aggregate Function Capabilities")]
+pub struct RelationalAggregateFunctionCapabilities {
+    pub distinct: Option<LeafCapability>,
+}
+// ANCHOR_END: RelationalAggregateFunctionCapabilities
 
 // ANCHOR: RelationalWindowExpressionCapabilities
 #[skip_serializing_none]
