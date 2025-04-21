@@ -555,6 +555,16 @@
       "title": "Relational Aggregate Expression Capabilities",
       "type": "object",
       "properties": {
+        "avg": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "bool_and": {
           "anyOf": [
             {
@@ -605,6 +615,16 @@
             }
           ]
         },
+        "max": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "median": {
           "anyOf": [
             {
@@ -615,7 +635,27 @@
             }
           ]
         },
+        "min": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "string_agg": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sum": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -657,26 +697,6 @@
       "title": "Relational Filter Expression Capabilities",
       "type": "object",
       "properties": {
-        "like": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "ilike": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "between": {
           "anyOf": [
             {
@@ -697,7 +717,77 @@
             }
           ]
         },
+        "greater_than_eq": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "greater_than": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ilike": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "in_list": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "is_false": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "is_nan": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "is_null": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "is_true": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -716,6 +806,36 @@
               "type": "null"
             }
           ]
+        },
+        "less_than_eq": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "less_than": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "like": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -724,6 +844,16 @@
       "type": "object",
       "properties": {
         "case": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nullif": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -914,6 +1044,16 @@
             }
           ]
         },
+        "and": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "btrim": {
           "anyOf": [
             {
@@ -935,6 +1075,16 @@
           ]
         },
         "character_length": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "coalesce": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -1005,6 +1155,16 @@
           ]
         },
         "date_trunc": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "divide": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -1124,7 +1284,77 @@
             }
           ]
         },
+        "minus": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "modulo": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "multiply": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "negate": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "not": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "nvl": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "or": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "plus": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -1234,7 +1464,7 @@
             }
           ]
         },
-        "substr": {
+        "substr_index": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -1244,7 +1474,7 @@
             }
           ]
         },
-        "substr_index": {
+        "substr": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -1274,26 +1504,6 @@
             }
           ]
         },
-        "to_timestamp": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "trunc": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "to_lower": {
           "anyOf": [
             {
@@ -1304,7 +1514,27 @@
             }
           ]
         },
+        "to_timestamp": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "to_upper": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "trunc": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
