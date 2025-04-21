@@ -215,7 +215,6 @@ pub struct RelationalAggregateExpressionCapabilities {
     pub first_value: Option<LeafCapability>,
     pub last_value: Option<LeafCapability>,
     pub max: Option<LeafCapability>,
-    pub mean: Option<LeafCapability>,
     pub median: Option<LeafCapability>,
     pub min: Option<LeafCapability>,
     pub string_agg: Option<LeafCapability>,
