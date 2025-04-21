@@ -98,7 +98,6 @@ pub struct RelationalExpressionCapabilities {
 #[schemars(title = "Relational Conditional Expression Capabilities")]
 pub struct RelationalConditionalExpressionCapabilities {
     pub case: Option<LeafCapability>,
-    pub coalesce: Option<LeafCapability>,
     pub nullif: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalConditionalExpressionCapabilities
@@ -134,6 +133,7 @@ pub struct RelationalScalarExpressionCapabilities {
     pub btrim: Option<LeafCapability>,
     pub ceil: Option<LeafCapability>,
     pub character_length: Option<LeafCapability>,
+    pub coalesce: Option<LeafCapability>,
     pub concat: Option<LeafCapability>,
     pub cos: Option<LeafCapability>,
     pub current_date: Option<LeafCapability>,
