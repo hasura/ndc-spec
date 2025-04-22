@@ -98,6 +98,7 @@ pub struct RelationalExpressionCapabilities {
 #[schemars(title = "Relational Conditional Expression Capabilities")]
 pub struct RelationalConditionalExpressionCapabilities {
     pub case: Option<LeafCapability>,
+    pub nullif: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalConditionalExpressionCapabilities
 
@@ -106,12 +107,20 @@ pub struct RelationalConditionalExpressionCapabilities {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Relational Filter Expression Capabilities")]
 pub struct RelationalComparisonExpressionCapabilities {
-    pub like: Option<LeafCapability>,
-    pub ilike: Option<LeafCapability>,
     pub between: Option<LeafCapability>,
     pub contains: Option<LeafCapability>,
+    pub greater_than_eq: Option<LeafCapability>,
+    pub greater_than: Option<LeafCapability>,
+    pub ilike: Option<LeafCapability>,
+    pub in_list: Option<LeafCapability>,
+    pub is_false: Option<LeafCapability>,
     pub is_nan: Option<LeafCapability>,
+    pub is_null: Option<LeafCapability>,
+    pub is_true: Option<LeafCapability>,
     pub is_zero: Option<LeafCapability>,
+    pub less_than_eq: Option<LeafCapability>,
+    pub less_than: Option<LeafCapability>,
+    pub like: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalFilterExpressionCapabilities
 
@@ -121,9 +130,11 @@ pub struct RelationalComparisonExpressionCapabilities {
 #[schemars(title = "Relational Scalar Expression Capabilities")]
 pub struct RelationalScalarExpressionCapabilities {
     pub abs: Option<LeafCapability>,
+    pub and: Option<LeafCapability>,
     pub btrim: Option<LeafCapability>,
     pub ceil: Option<LeafCapability>,
     pub character_length: Option<LeafCapability>,
+    pub coalesce: Option<LeafCapability>,
     pub concat: Option<LeafCapability>,
     pub cos: Option<LeafCapability>,
     pub current_date: Option<LeafCapability>,
@@ -131,6 +142,7 @@ pub struct RelationalScalarExpressionCapabilities {
     pub current_timestamp: Option<LeafCapability>,
     pub date_part: Option<DatePartScalarExpressionCapability>,
     pub date_trunc: Option<LeafCapability>,
+    pub divide: Option<LeafCapability>,
     pub exp: Option<LeafCapability>,
     pub floor: Option<LeafCapability>,
     pub greatest: Option<LeafCapability>,
@@ -142,7 +154,14 @@ pub struct RelationalScalarExpressionCapabilities {
     pub log2: Option<LeafCapability>,
     pub lpad: Option<LeafCapability>,
     pub ltrim: Option<LeafCapability>,
+    pub minus: Option<LeafCapability>,
+    pub modulo: Option<LeafCapability>,
+    pub multiply: Option<LeafCapability>,
+    pub negate: Option<LeafCapability>,
+    pub not: Option<LeafCapability>,
     pub nvl: Option<LeafCapability>,
+    pub or: Option<LeafCapability>,
+    pub plus: Option<LeafCapability>,
     pub power: Option<LeafCapability>,
     pub random: Option<LeafCapability>,
     pub replace: Option<LeafCapability>,
@@ -153,14 +172,14 @@ pub struct RelationalScalarExpressionCapabilities {
     pub rtrim: Option<LeafCapability>,
     pub sqrt: Option<LeafCapability>,
     pub str_pos: Option<LeafCapability>,
-    pub substr: Option<LeafCapability>,
     pub substr_index: Option<LeafCapability>,
+    pub substr: Option<LeafCapability>,
     pub tan: Option<LeafCapability>,
     pub to_date: Option<LeafCapability>,
-    pub to_timestamp: Option<LeafCapability>,
-    pub trunc: Option<LeafCapability>,
     pub to_lower: Option<LeafCapability>,
+    pub to_timestamp: Option<LeafCapability>,
     pub to_upper: Option<LeafCapability>,
+    pub trunc: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalScalarExpressionCapabilities
 
@@ -190,13 +209,17 @@ pub struct DatePartScalarExpressionCapability {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Relational Aggregate Expression Capabilities")]
 pub struct RelationalAggregateExpressionCapabilities {
+    pub avg: Option<LeafCapability>,
     pub bool_and: Option<LeafCapability>,
     pub bool_or: Option<LeafCapability>,
     pub count: Option<RelationalAggregateFunctionCapabilities>,
     pub first_value: Option<LeafCapability>,
     pub last_value: Option<LeafCapability>,
+    pub max: Option<LeafCapability>,
     pub median: Option<LeafCapability>,
+    pub min: Option<LeafCapability>,
     pub string_agg: Option<LeafCapability>,
+    pub sum: Option<LeafCapability>,
     pub var: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalAggregateExpressionCapabilities
