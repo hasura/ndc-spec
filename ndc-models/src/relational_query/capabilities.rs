@@ -145,6 +145,7 @@ pub struct RelationalScalarExpressionCapabilities {
     pub divide: Option<LeafCapability>,
     pub exp: Option<LeafCapability>,
     pub floor: Option<LeafCapability>,
+    pub get_field: Option<LeafCapability>,
     pub greatest: Option<LeafCapability>,
     pub least: Option<LeafCapability>,
     pub left: Option<LeafCapability>,
