@@ -367,7 +367,7 @@ pub enum RelationalExpression {
     /// * During windowing: `relational_query.window.expression.scalar.get_field`
     GetField {
         column: Box<RelationalExpression>,
-        field: Box<RelationalLiteral>,
+        field: RelationalLiteral,
     },
 
     /// Only used when in specific contexts where the appropriate capability is supported:
