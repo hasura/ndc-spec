@@ -1194,6 +1194,16 @@
             }
           ]
         },
+        "get_field": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "greatest": {
           "anyOf": [
             {
