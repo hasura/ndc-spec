@@ -367,7 +367,7 @@ pub enum RelationalExpression {
     /// * During windowing: `relational_query.window.expression.scalar.get_field`
     GetField {
         column: Box<RelationalExpression>,
-        field: RelationalLiteral,
+        field: FieldIndex,
     },
 
     /// Only used when in specific contexts where the appropriate capability is supported:
@@ -909,6 +909,12 @@ pub enum RelationalExpression {
     // lag
     // lead
     // nth_value
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+pub enum FieldIndex {
+    ByName(String),
+    ByIndex(usize),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]

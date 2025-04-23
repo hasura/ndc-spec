@@ -342,6 +342,36 @@
         "nanosecond"
       ]
     },
+    "FieldIndex": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "ByName"
+          ],
+          "properties": {
+            "ByName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "ByIndex"
+          ],
+          "properties": {
+            "ByIndex": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
     "JoinOn": {
       "title": "JoinOn",
       "type": "object",
@@ -1732,7 +1762,7 @@
               "$ref": "#/definitions/RelationalExpression"
             },
             "field": {
-              "$ref": "#/definitions/RelationalLiteral"
+              "$ref": "#/definitions/FieldIndex"
             }
           }
         },
