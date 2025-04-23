@@ -1,10 +1,15 @@
 # Changelog
 
-## Unreleased
+## `0.2.1`
 
 ### Specification
 
 - A millisecond standard [extraction function](./schema/scalar-types.md#extraction-functions) was added.
+- New capabilities for relational queries were added.
+
+### `ndc-test`
+
+- Failing tests now display deltas between expected and actual results.
 
 ## `0.2.0`
 
