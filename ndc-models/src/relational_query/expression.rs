@@ -247,7 +247,7 @@ pub enum RelationalExpression {
     /// * During windowing: `relational_query.window.expression.scalar.array_element`
     ArrayElement {
         column: Box<RelationalExpression>,
-        field: usize,
+        index: usize,
     },
     /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.scalar.btrim`
