@@ -1054,6 +1054,16 @@
             }
           ]
         },
+        "array_element": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "btrim": {
           "anyOf": [
             {
@@ -1185,6 +1195,16 @@
           ]
         },
         "floor": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "get_field": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"

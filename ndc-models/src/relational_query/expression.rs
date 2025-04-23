@@ -239,6 +239,17 @@ pub enum RelationalExpression {
         expr: Box<RelationalExpression>,
     },
     /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.array_element`
+    /// * During filtering: `relational_query.filter.scalar.array_element`
+    /// * During sorting:`relational_query.sort.expression.scalar.array_element`
+    /// * During joining: `relational_query.join.expression.scalar.array_element`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.array_element`
+    /// * During windowing: `relational_query.window.expression.scalar.array_element`
+    ArrayElement {
+        column: Box<RelationalExpression>,
+        index: usize,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.scalar.btrim`
     /// * During filtering: `relational_query.filter.scalar.btrim`
     /// * During sorting:`relational_query.sort.expression.scalar.btrim`
@@ -358,6 +369,18 @@ pub enum RelationalExpression {
     Floor {
         expr: Box<RelationalExpression>,
     },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.get_field`
+    /// * During filtering: `relational_query.filter.scalar.get_field`
+    /// * During sorting:`relational_query.sort.expression.scalar.get_field`
+    /// * During joining: `relational_query.join.expression.scalar.get_field`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.get_field`
+    /// * During windowing: `relational_query.window.expression.scalar.get_field`
+    GetField {
+        column: Box<RelationalExpression>,
+        field: String,
+    },
+
     /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.scalar.greatest`
     /// * During filtering: `relational_query.filter.scalar.greatest`

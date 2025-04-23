@@ -131,6 +131,7 @@ pub struct RelationalComparisonExpressionCapabilities {
 pub struct RelationalScalarExpressionCapabilities {
     pub abs: Option<LeafCapability>,
     pub and: Option<LeafCapability>,
+    pub array_element: Option<LeafCapability>,
     pub btrim: Option<LeafCapability>,
     pub ceil: Option<LeafCapability>,
     pub character_length: Option<LeafCapability>,
@@ -145,6 +146,7 @@ pub struct RelationalScalarExpressionCapabilities {
     pub divide: Option<LeafCapability>,
     pub exp: Option<LeafCapability>,
     pub floor: Option<LeafCapability>,
+    pub get_field: Option<LeafCapability>,
     pub greatest: Option<LeafCapability>,
     pub least: Option<LeafCapability>,
     pub left: Option<LeafCapability>,
