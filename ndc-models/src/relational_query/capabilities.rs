@@ -57,6 +57,10 @@ pub struct RelationalJoinTypeCapabilities {
     pub right: Option<LeafCapability>,
     pub inner: Option<LeafCapability>,
     pub full: Option<LeafCapability>,
+    pub left_semi: Option<LeafCapability>,
+    pub left_anti: Option<LeafCapability>,
+    pub right_semi: Option<LeafCapability>,
+    pub right_anti: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalJoinTypeCapabilities
 

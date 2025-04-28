@@ -388,6 +388,34 @@
           "enum": [
             "full"
           ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.left_anti` is supported.",
+          "type": "string",
+          "enum": [
+            "left_anti"
+          ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.left_semi` is supported.",
+          "type": "string",
+          "enum": [
+            "left_semi"
+          ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.right_anti` is supported.",
+          "type": "string",
+          "enum": [
+            "right_anti"
+          ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.right_semi` is supported.",
+          "type": "string",
+          "enum": [
+            "right_semi"
+          ]
         }
       ]
     },
