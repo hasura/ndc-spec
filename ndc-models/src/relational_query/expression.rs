@@ -2,7 +2,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use super::{CastType, RelationalLiteral, Sort};
+use super::{CastType, Relation, RelationalLiteral, Sort};
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
@@ -29,6 +29,16 @@ pub enum RelationalExpression {
         when: Vec<CaseWhen>,
         default: Option<Box<RelationalExpression>>,
     },
+
+    // Subqueries
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.conditional.in_subquery`
+    /// * During filtering: `relational_query.filter.conditional.in_subquery`
+    /// * During sorting:`relational_query.sort.expression.conditional.in_subquery`
+    /// * During joining: `relational_query.join.expression.conditional.in_subquery`
+    /// * During aggregation: `relational_query.aggregate.expression.conditional.in_subquery`
+    /// * During windowing: `relational_query.window.expression.conditional.in_subquery`
+    InSubquery(InSubquery),
 
     // Logical operators
     And {
@@ -920,6 +930,25 @@ pub enum RelationalExpression {
     // lag
     // lead
     // nth_value
+}
+
+/// IN subquery
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+pub struct InSubquery {
+    /// The expression to compare
+    pub expr: Box<RelationalExpression>,
+    /// Subquery that will produce a single column of data to compare against
+    pub subquery: Subquery,
+    /// Whether the expression is negated
+    pub negated: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+pub struct Subquery {
+    /// The subquery
+    pub query: Box<Relation>,
+    /// The outer references used in the subquery
+    pub outer_ref_columns: Vec<RelationalExpression>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
