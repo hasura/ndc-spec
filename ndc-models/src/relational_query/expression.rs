@@ -38,7 +38,14 @@ pub enum RelationalExpression {
     /// * During joining: `relational_query.join.expression.conditional.in_subquery`
     /// * During aggregation: `relational_query.aggregate.expression.conditional.in_subquery`
     /// * During windowing: `relational_query.window.expression.conditional.in_subquery`
-    InSubquery(InSubquery),
+    InSubquery {
+        /// The expression to compare
+        expr: Box<RelationalExpression>,
+        /// Subquery that will produce a single column of data to compare against
+        subquery: Subquery,
+        /// Whether the expression is negated
+        negated: bool,
+    },
 
     // Logical operators
     And {
@@ -930,17 +937,6 @@ pub enum RelationalExpression {
     // lag
     // lead
     // nth_value
-}
-
-/// IN subquery
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
-pub struct InSubquery {
-    /// The expression to compare
-    pub expr: Box<RelationalExpression>,
-    /// Subquery that will produce a single column of data to compare against
-    pub subquery: Subquery,
-    /// Whether the expression is negated
-    pub negated: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
