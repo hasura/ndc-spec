@@ -1,5 +1,11 @@
 # Changelog
 
+## `0.2.2`
+
+### Specification
+
+- New subcapabilities for semi-joins and anti-joins were added to the relational queries capability.
+
 ## `0.2.1`
 
 ### Specification

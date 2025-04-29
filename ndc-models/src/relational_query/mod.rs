@@ -140,4 +140,12 @@ pub enum JoinType {
     Inner,
     /// Only used when the capability `relational_query.join.join_types.full` is supported.
     Full,
+    /// Only used when the capability `relational_query.join.join_types.left_anti` is supported.
+    LeftAnti,
+    /// Only used when the capability `relational_query.join.join_types.left_semi` is supported.
+    LeftSemi,
+    /// Only used when the capability `relational_query.join.join_types.right_anti` is supported.
+    RightAnti,
+    /// Only used when the capability `relational_query.join.join_types.right_semi` is supported.
+    RightSemi,
 }
