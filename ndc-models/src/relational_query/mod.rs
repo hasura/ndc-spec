@@ -9,7 +9,7 @@ pub use expression::*;
 mod types;
 pub use types::*;
 
-use crate::{CollectionName, FieldName, OrderDirection};
+use crate::{ArgumentName, CollectionName, FieldName, OrderDirection};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
@@ -33,6 +33,9 @@ pub enum Relation {
     From {
         collection: CollectionName,
         columns: Vec<FieldName>,
+
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        arguments: Vec<(ArgumentName, RelationalExpression)>,
     },
     Paginate {
         #[cfg(not(feature = "arc-relation"))]

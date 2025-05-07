@@ -460,6 +460,22 @@
               "items": {
                 "type": "string"
               }
+            },
+            "arguments": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/definitions/RelationalExpression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
             }
           }
         },
