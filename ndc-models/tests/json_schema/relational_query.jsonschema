@@ -470,7 +470,7 @@
                     "type": "string"
                   },
                   {
-                    "$ref": "#/definitions/RelationalExpression"
+                    "$ref": "#/definitions/RelationalLiteral"
                   }
                 ],
                 "maxItems": 2,

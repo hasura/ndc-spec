@@ -35,7 +35,7 @@ pub enum Relation {
         columns: Vec<FieldName>,
 
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
-        arguments: Vec<(ArgumentName, RelationalExpression)>,
+        arguments: Vec<(ArgumentName, RelationalLiteral)>,
     },
     Paginate {
         #[cfg(not(feature = "arc-relation"))]
