@@ -462,19 +462,9 @@
               }
             },
             "arguments": {
-              "type": "array",
-              "items": {
-                "type": "array",
-                "items": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "$ref": "#/definitions/RelationalLiteral"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/RelationalLiteral"
               }
             }
           }

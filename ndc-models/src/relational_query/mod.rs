@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -34,8 +36,8 @@ pub enum Relation {
         collection: CollectionName,
         columns: Vec<FieldName>,
 
-        #[serde(default, skip_serializing_if = "Vec::is_empty")]
-        arguments: Vec<(ArgumentName, RelationalLiteral)>,
+        #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+        arguments: BTreeMap<ArgumentName, RelationalLiteral>,
     },
     Paginate {
         #[cfg(not(feature = "arc-relation"))]
