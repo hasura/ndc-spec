@@ -893,6 +893,22 @@
         }
       }
     },
+    "RelationalFromCapabilities": {
+      "title": "Relational From Capabilities",
+      "type": "object",
+      "properties": {
+        "arguments": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "RelationalJoinCapabilities": {
       "title": "Relational Join Capabilities",
       "type": "object",
@@ -1022,6 +1038,16 @@
           "anyOf": [
             {
               "$ref": "#/definitions/RelationalExpressionCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "from": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelationalFromCapabilities"
             },
             {
               "type": "null"

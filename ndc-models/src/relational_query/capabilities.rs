@@ -13,12 +13,22 @@ use crate::LeafCapability;
 pub struct RelationalQueryCapabilities {
     pub project: RelationalProjectionCapabilities,
     pub filter: Option<RelationalExpressionCapabilities>,
+    pub from: Option<RelationalFromCapabilities>,
     pub sort: Option<RelationalSortCapabilities>,
     pub join: Option<RelationalJoinCapabilities>,
     pub aggregate: Option<RelationalAggregateCapabilities>,
     pub window: Option<RelationalWindowCapabilities>,
 }
 // ANCHOR_END: RelationalQueryCapabilities
+
+// ANCHOR: RelationalFromCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational From Capabilities")]
+pub struct RelationalFromCapabilities {
+    pub arguments: Option<LeafCapability>,
+}
+// ANCHOR_END: RelationalFromCapabilities
 
 // ANCHOR: RelationalProjectionCapabilities
 #[skip_serializing_none]
