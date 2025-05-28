@@ -39,7 +39,6 @@ pub struct RelationalInsert {
 #[serde(rename_all = "snake_case")]
 pub struct RelationalInsertResponse {
     pub affected_rows: u64,
-    pub returning_rows: Option<Vec<Vec<serde_json::Value>>>,
 }
 
 #[skip_serializing_none]
