@@ -18,8 +18,7 @@ use crate::{ArgumentName, CollectionName, FieldName, OrderDirection};
 #[schemars(title = "RelationalQuery")]
 pub struct RelationalQuery {
     pub root_relation: Relation,
-    /// Values to be provided to request-level arguments. These might be used for
-    /// dynamically providing a connection string, for instance.    
+    /// Values to be provided to request-level arguments.
     pub request_arguments: Option<BTreeMap<ArgumentName, serde_json::Value>>,
 }
 
