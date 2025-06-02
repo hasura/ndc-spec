@@ -73,6 +73,7 @@ pub async fn test_grouping<C: Connector, R: Reporter>(
                         arguments: BTreeMap::new(),
                         collection_relationships: BTreeMap::new(),
                         variables: None,
+                        request_arguments: None,
                     };
 
                     connector.query(query_request.clone()).await?;

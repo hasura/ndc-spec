@@ -46,6 +46,14 @@
         "type": "object",
         "additionalProperties": true
       }
+    },
+    "request_arguments": {
+      "description": "Values to be provided to request-level arguments. These might be used for dynamically providing a connection string, for instance.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true
     }
   },
   "definitions": {

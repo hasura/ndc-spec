@@ -89,6 +89,7 @@ async fn test_select_top_n_rows<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
+        request_arguments: None,
     };
 
     let response = connector.query(query_request.clone()).await?;
