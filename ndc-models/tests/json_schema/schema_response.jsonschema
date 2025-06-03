@@ -245,6 +245,17 @@
           "additionalProperties": {
             "$ref": "#/definitions/UniquenessConstraint"
           }
+        },
+        "relational_mutations": {
+          "description": "Information about relational mutation capabilities for this collection",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelationalMutationInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -897,6 +908,19 @@
               "type": "null"
             }
           ]
+        }
+      }
+    },
+    "RelationalMutationInfo": {
+      "title": "Relational Mutation Info",
+      "type": "object",
+      "required": [
+        "insertable"
+      ],
+      "properties": {
+        "insertable": {
+          "description": "Whether inserts are supported for this collection",
+          "type": "boolean"
         }
       }
     },
