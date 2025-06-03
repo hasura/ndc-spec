@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -9,7 +11,7 @@ pub use expression::*;
 mod types;
 pub use types::*;
 
-use crate::{CollectionName, FieldName, OrderDirection};
+use crate::{ArgumentName, CollectionName, FieldName, OrderDirection};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
@@ -49,6 +51,9 @@ pub enum Relation {
     From {
         collection: CollectionName,
         columns: Vec<FieldName>,
+
+        #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+        arguments: BTreeMap<ArgumentName, RelationalLiteral>,
     },
     Paginate {
         #[cfg(not(feature = "arc-relation"))]

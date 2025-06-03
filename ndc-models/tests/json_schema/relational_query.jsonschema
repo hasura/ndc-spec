@@ -460,6 +460,12 @@
               "items": {
                 "type": "string"
               }
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/RelationalLiteral"
+              }
             }
           }
         },
