@@ -413,5 +413,9 @@ pub struct AggregateCapabilitiesSchemaInfo {
 pub struct RelationalMutationInfo {
     /// Whether inserts are supported for this collection
     pub insertable: bool,
+    /// Whether updates are supported for this collection
+    pub updatable: bool,
+    /// Whether deletes are supported for this collection
+    pub deletable: bool,
 }
 // ANCHOR_END: RelationalMutationInfo

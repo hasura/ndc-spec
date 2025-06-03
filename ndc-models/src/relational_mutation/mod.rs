@@ -12,5 +12,7 @@ use crate::LeafCapability;
 #[schemars(title = "Relational Mutation Capabilities")]
 pub struct RelationalMutationCapabilities {
     pub insert: Option<LeafCapability>,
+    pub update: Option<LeafCapability>,
+    pub delete: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalMutationCapabilities

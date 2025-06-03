@@ -915,11 +915,21 @@
       "title": "Relational Mutation Info",
       "type": "object",
       "required": [
-        "insertable"
+        "deletable",
+        "insertable",
+        "updatable"
       ],
       "properties": {
         "insertable": {
           "description": "Whether inserts are supported for this collection",
+          "type": "boolean"
+        },
+        "updatable": {
+          "description": "Whether updates are supported for this collection",
+          "type": "boolean"
+        },
+        "deletable": {
+          "description": "Whether deletes are supported for this collection",
           "type": "boolean"
         }
       }
