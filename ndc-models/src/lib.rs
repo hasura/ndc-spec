@@ -12,6 +12,8 @@ mod ordering;
 pub use ordering::*;
 mod relational_query;
 pub use relational_query::*;
+mod relational_mutation;
+pub use relational_mutation::*;
 mod requests;
 pub use requests::*;
 mod schema;

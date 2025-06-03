@@ -300,6 +300,8 @@ pub struct CollectionInfo {
     pub collection_type: ObjectTypeName,
     /// Any uniqueness constraints enforced on this collection
     pub uniqueness_constraints: BTreeMap<String, UniquenessConstraint>,
+    /// Information about relational mutation capabilities for this collection
+    pub relational_mutations: Option<RelationalMutationInfo>,
 }
 // ANCHOR_END: CollectionInfo
 
@@ -403,3 +405,13 @@ pub struct AggregateCapabilitiesSchemaInfo {
     pub count_scalar_type: ScalarTypeName,
 }
 // ANCHOR_END: AggregateCapabilitiesSchemaInfo
+
+// ANCHOR: RelationalMutationInfo
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Mutation Info")]
+pub struct RelationalMutationInfo {
+    /// Whether inserts are supported for this collection
+    pub insertable: bool,
+}
+// ANCHOR_END: RelationalMutationInfo

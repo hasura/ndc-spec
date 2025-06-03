@@ -317,6 +317,7 @@ async fn get_capabilities() -> Json<models::CapabilitiesResponse> {
                 }),
             }),
             relational_query: None,
+            relational_mutation: None,
         },
     })
 }
@@ -892,6 +893,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 unique_columns: vec!["id".into()],
             },
         )]),
+        relational_mutations: None,
     };
     // ANCHOR_END: schema_collection_article
     // ANCHOR: schema_collection_author
@@ -906,6 +908,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 unique_columns: vec!["id".into()],
             },
         )]),
+        relational_mutations: None,
     };
     // ANCHOR_END: schema_collection_author
     // ANCHOR: schema_collection_institution
@@ -920,6 +923,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 unique_columns: vec!["id".into()],
             },
         )]),
+        relational_mutations: None,
     };
     // ANCHOR_END: schema_collection_institution
     // ANCHOR: schema_collection_country
@@ -934,6 +938,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
                 unique_columns: vec!["id".into()],
             },
         )]),
+        relational_mutations: None,
     };
     // ANCHOR_END: schema_collection_country
     // ANCHOR: schema_collection_articles_by_author
@@ -949,6 +954,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             },
         )]),
         uniqueness_constraints: BTreeMap::new(),
+        relational_mutations: None,
     };
     // ANCHOR_END: schema_collection_articles_by_author
     // ANCHOR: schema_collections

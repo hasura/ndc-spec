@@ -252,3 +252,13 @@ pub struct RelationalWindowExpressionCapabilities {
     pub percent_rank: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalWindowExpressionCapabilities
+
+// ANCHOR: RelationalInsertCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Insert Capabilities")]
+pub struct RelationalInsertCapabilities {
+    /// Does the connector support returning rows after insert
+    pub returning: Option<LeafCapability>,
+}
+// ANCHOR_END: RelationalInsertCapabilities
