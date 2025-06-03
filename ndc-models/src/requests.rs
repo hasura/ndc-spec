@@ -5,7 +5,8 @@ use serde_with::skip_serializing_none;
 use std::collections::BTreeMap;
 
 use crate::{
-    Aggregate, ArgumentName, CollectionName, Expression, Field, FieldName, Grouping, NestedField, OrderBy, ProcedureName, Relation, RelationshipName, VariableName
+    Aggregate, ArgumentName, CollectionName, Expression, Field, FieldName, Grouping, NestedField,
+    OrderBy, ProcedureName, Relation, RelationshipName, VariableName,
 };
 
 // ANCHOR: QueryRequest
