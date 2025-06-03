@@ -5,8 +5,7 @@ use serde_with::skip_serializing_none;
 use std::collections::BTreeMap;
 
 use crate::{
-    Aggregate, ArgumentName, CollectionName, Expression, Field, FieldName, Grouping, NestedField,
-    OrderBy, ProcedureName, RelationshipName, VariableName,
+    Aggregate, ArgumentName, CollectionName, Expression, Field, FieldName, Grouping, NestedField, OrderBy, ProcedureName, Relation, RelationshipName, VariableName
 };
 
 // ANCHOR: QueryRequest
@@ -211,6 +210,19 @@ pub enum MutationOperation {
         /// The fields to return from the result, or null to return everything
         fields: Option<NestedField>,
     },
+    RelationalInsert {
+        collection: CollectionName,
+        columns: Vec<FieldName>,
+        rows: Vec<Vec<serde_json::Value>>,
+    },
+    RelationalUpdate {
+        collection: CollectionName,
+        relation: Box<Relation>,
+    },
+    RelationalDelete {
+        collection: CollectionName,
+        relation: Box<Relation>,
+    },
 }
 // ANCHOR_END: MutationOperation
 
@@ -229,6 +241,9 @@ pub struct MutationResponse {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MutationOperationResults {
     Procedure { result: serde_json::Value },
+    RelationalInsert { affected_rows: u64 },
+    RelationalUpdate { affected_rows: u64 },
+    RelationalDelete { affected_rows: u64 },
 }
 // ANCHOR_END: MutationOperationResults
 

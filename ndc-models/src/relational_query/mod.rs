@@ -27,22 +27,6 @@ pub struct RelationalQueryResponse {
     pub rows: Vec<Vec<serde_json::Value>>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "snake_case")]
-#[schemars(title = "RelationalInsert")]
-pub struct RelationalInsert {
-    pub collection: CollectionName,
-    pub columns: Vec<FieldName>,
-    pub rows: Vec<Vec<serde_json::Value>>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = "RelationalInsertResponse")]
-#[serde(rename_all = "snake_case")]
-pub struct RelationalInsertResponse {
-    pub affected_rows: u64,
-}
-
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]

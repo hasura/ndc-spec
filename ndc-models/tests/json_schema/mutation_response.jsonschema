@@ -33,6 +33,66 @@
             },
             "result": true
           }
+        },
+        {
+          "type": "object",
+          "required": [
+            "affected_rows",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "relational_insert"
+              ]
+            },
+            "affected_rows": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "affected_rows",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "relational_update"
+              ]
+            },
+            "affected_rows": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "affected_rows",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "relational_delete"
+              ]
+            },
+            "affected_rows": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
         }
       ]
     }

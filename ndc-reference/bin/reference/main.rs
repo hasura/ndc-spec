@@ -3242,6 +3242,27 @@ fn execute_mutation_operation(
             arguments,
             fields,
         } => execute_procedure(state, name, arguments, fields, collection_relationships),
+        models::MutationOperation::RelationalInsert { .. } => Err((
+            StatusCode::NOT_IMPLEMENTED,
+            Json(models::ErrorResponse {
+                message: "relational insert is not supported".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
+        models::MutationOperation::RelationalUpdate { .. } => Err((
+            StatusCode::NOT_IMPLEMENTED,
+            Json(models::ErrorResponse {
+                message: "relational update is not supported".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
+        models::MutationOperation::RelationalDelete { .. } => Err((
+            StatusCode::NOT_IMPLEMENTED,
+            Json(models::ErrorResponse {
+                message: "relational delete is not supported".into(),
+                details: serde_json::Value::Null,
+            }),
+        )),
     }
 }
 // ANCHOR_END: execute_mutation_operation
