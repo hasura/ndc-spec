@@ -1104,6 +1104,16 @@
             }
           ]
         },
+        "binary_concat": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "btrim": {
           "anyOf": [
             {
