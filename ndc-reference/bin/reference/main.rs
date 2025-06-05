@@ -1037,13 +1037,16 @@ async fn get_schema() -> Json<models::SchemaResponse> {
             }),
         }),
     });
+    // ANCHOR_END: schema_capabilities
+
+    // ANCHOR: request_arguments
     let request_arguments: models::RequestLevelArguments = models::RequestLevelArguments {
         query_arguments: BTreeMap::new(),
         mutation_arguments: BTreeMap::new(),
         relational_query_arguments: BTreeMap::new(),
     };
+    // ANCHOR_END: request_arguments
 
-    // ANCHOR_END: schema_capabilities
     // ANCHOR: schema2
     Json(models::SchemaResponse {
         scalar_types,

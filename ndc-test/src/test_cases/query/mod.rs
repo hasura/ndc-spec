@@ -23,6 +23,10 @@ pub async fn test_query<C: Connector, R: Reporter>(
     schema: &models::SchemaResponse,
     rng: &mut SmallRng,
 ) {
+    if !schema.request_arguments.query_arguments.is_empty() {
+        eprintln!("Skipping query tests for schema with query arguments");
+        return;
+    }
     for collection_info in &schema.collections {
         nest!(collection_info.name.as_str(), reporter, {
             async {
