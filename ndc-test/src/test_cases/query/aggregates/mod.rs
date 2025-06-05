@@ -21,6 +21,7 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     reporter: &mut R,
     schema: &models::SchemaResponse,
     collection_info: &models::CollectionInfo,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     rng: &mut SmallRng,
 ) -> Option<()> {
     let collection_type = schema.object_types.get(&collection_info.collection_type)?;
@@ -28,7 +29,12 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
     let total_count = test!(
         "star_count",
         reporter,
-        test_star_count_aggregate(gen_config, connector, collection_info)
+        test_star_count_aggregate(
+            gen_config,
+            connector,
+            collection_info,
+            request_arguments.clone()
+        )
     )?;
 
     let _ = test!(
@@ -39,7 +45,8 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
             connector,
             collection_info,
             collection_type,
-            total_count
+            total_count,
+            request_arguments.clone()
         )
     );
 
@@ -50,6 +57,7 @@ pub async fn test_aggregate_queries<C: Connector, R: Reporter>(
             gen_config,
             connector,
             schema,
+            request_arguments,
             collection_info,
             collection_type,
             rng,
@@ -63,6 +71,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     collection_info: &models::CollectionInfo,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
 ) -> Result<u64> {
     let aggregates = IndexMap::from([("count".into(), models::Aggregate::StarCount {})]);
     let query_request = models::QueryRequest {
@@ -79,7 +88,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
-        request_arguments: None,
+        request_arguments,
     };
     let response = connector.query(query_request.clone()).await?;
 
@@ -101,6 +110,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
     collection_info: &models::CollectionInfo,
     collection_type: &models::ObjectType,
     total_count: u64,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
 ) -> Result<()> {
     let mut aggregates = IndexMap::new();
 
@@ -147,7 +157,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
-        request_arguments: None,
+        request_arguments,
     };
     let response = connector.query(query_request.clone()).await?;
 
@@ -190,8 +200,10 @@ pub async fn test_single_column_aggregates<C: Connector>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     schema: &models::SchemaResponse,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     collection_info: &models::CollectionInfo,
     collection_type: &models::ObjectType,
+
     rng: &mut SmallRng,
 ) -> Result<()> {
     let mut available_aggregates: IndexMap<models::FieldName, ndc_models::Aggregate> =
@@ -244,7 +256,7 @@ pub async fn test_single_column_aggregates<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
-        request_arguments: None,
+        request_arguments,
     };
     let _ = connector.query(query_request.clone()).await?;
     Ok(())

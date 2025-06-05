@@ -9,6 +9,7 @@ pub async fn test_sorting<C: Connector>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     schema: &models::SchemaResponse,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     rng: &mut SmallRng,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
@@ -24,6 +25,7 @@ pub async fn test_sorting<C: Connector>(
                 order_by_elements,
                 collection_type,
                 collection_info,
+                request_arguments.clone(),
                 rng,
             )
             .await?;
@@ -91,6 +93,7 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
     elements: Vec<models::OrderByElement>,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     rng: &mut SmallRng,
 ) -> Result<ndc_models::QueryResponse> {
     let fields = super::super::common::select_columns(collection_type, rng);
@@ -109,7 +112,7 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
-        request_arguments: None,
+        request_arguments,
     };
 
     connector.query(query_request.clone()).await

@@ -14,6 +14,7 @@ pub async fn test_predicates<C: Connector>(
     connector: &C,
     context: &Option<super::super::context::Context<'_>>,
     schema: &models::SchemaResponse,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     rng: &mut SmallRng,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
@@ -27,6 +28,7 @@ pub async fn test_predicates<C: Connector>(
                     &predicate,
                     collection_type,
                     collection_info,
+                    request_arguments.clone(),
                 )
                 .await?;
             }
@@ -186,6 +188,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
     predicate: &GeneratedExpression,
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
 ) -> Result<()> {
     let fields = super::super::common::select_all_columns(collection_type);
 
@@ -203,7 +206,7 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
-        request_arguments: None,
+        request_arguments,
     };
 
     let response = connector.query(query_request.clone()).await?;

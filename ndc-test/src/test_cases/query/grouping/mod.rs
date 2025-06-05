@@ -17,6 +17,7 @@ pub async fn test_grouping<C: Connector, R: Reporter>(
     connector: &C,
     reporter: &mut R,
     schema: &models::SchemaResponse,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     collection_info: &models::CollectionInfo,
     rng: &mut SmallRng,
 ) -> Option<()> {
@@ -73,7 +74,7 @@ pub async fn test_grouping<C: Connector, R: Reporter>(
                         arguments: BTreeMap::new(),
                         collection_relationships: BTreeMap::new(),
                         variables: None,
-                        request_arguments: None,
+                        request_arguments: request_arguments.clone(),
                     };
 
                     connector.query(query_request.clone()).await?;

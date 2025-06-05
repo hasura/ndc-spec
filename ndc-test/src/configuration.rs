@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::{collections::BTreeMap, path::PathBuf};
+
+use ndc_models::ArgumentName;
+use serde::Deserialize;
 
 #[derive(Debug)]
 pub struct TestConfiguration {
@@ -8,15 +11,22 @@ pub struct TestConfiguration {
     pub gen_config: TestGenerationConfiguration,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+pub struct RequestArguments {
+    pub query: Option<BTreeMap<ArgumentName, serde_json::Value>>,
+}
+
 #[derive(Debug)]
 pub struct TestOptions {
     pub validate_responses: bool,
+    pub request_arguments: RequestArguments,
 }
 
 impl Default for TestOptions {
     fn default() -> Self {
         Self {
             validate_responses: true,
+            request_arguments: RequestArguments { query: None },
         }
     }
 }
