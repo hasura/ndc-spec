@@ -91,6 +91,7 @@
           pkgs.cargo-machete
           pkgs.cargo-nextest
           pkgs.cargo-watch
+          pkgs.cargo-insta
           rustToolchain
 
           pkgs.nodejs

@@ -30,3 +30,4 @@ See [`SchemaResponse`](../../reference/types.md#schemaresponse)
 | `functions`    | [Functions](functions.md)                          |
 | `procedures`   | [Procedures](procedures.md)                        |
 | `capabilities` | [Capability-specific information](capabilities.md) |
+| `arguments`    | [Request-level arguments](arguments.md)            |

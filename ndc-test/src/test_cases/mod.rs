@@ -36,11 +36,21 @@ pub async fn run_all_tests<C: Connector, R: Reporter>(
                 reporter,
                 &capabilities,
                 &schema,
+                options.request_arguments.query.clone(),
                 rng,
             )
             .await;
         } else {
-            query::test_query(gen_config, connector, reporter, &capabilities, &schema, rng).await;
+            query::test_query(
+                gen_config,
+                connector,
+                reporter,
+                &capabilities,
+                &schema,
+                options.request_arguments.query.clone(),
+                rng,
+            )
+            .await;
         }
     });
 

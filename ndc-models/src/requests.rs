@@ -28,6 +28,8 @@ pub struct QueryRequest {
     /// should be subtituted in turn, and a fresh set of rows returned.
     /// Only used if the 'query.variables' capability is supported.
     pub variables: Option<Vec<BTreeMap<VariableName, serde_json::Value>>>,
+    /// Values to be provided to request-level arguments.
+    pub request_arguments: Option<BTreeMap<ArgumentName, serde_json::Value>>,
 }
 // ANCHOR_END: QueryRequest
 
@@ -194,6 +196,8 @@ pub struct MutationRequest {
     /// The relationships between collections involved in the entire mutation request.
     /// Only used if the 'relationships' capability is supported.
     pub collection_relationships: BTreeMap<RelationshipName, Relationship>,
+    /// Values to be provided to request-level arguments.
+    pub request_arguments: Option<BTreeMap<ArgumentName, serde_json::Value>>,
 }
 // ANCHOR_END: MutationRequest
 
