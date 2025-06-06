@@ -10,6 +10,7 @@ use crate::{nest, test};
 use ndc_models as models;
 use rand::rngs::SmallRng;
 
+#[allow(clippy::too_many_arguments)]
 pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,

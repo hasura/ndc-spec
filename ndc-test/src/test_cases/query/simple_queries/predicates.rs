@@ -9,6 +9,7 @@ use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
 use rand::Rng;
 
+#[allow(clippy::too_many_arguments)]
 pub async fn test_predicates<C: Connector>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
