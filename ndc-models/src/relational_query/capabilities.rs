@@ -207,6 +207,7 @@ pub struct DatePartScalarExpressionCapability {
     pub microsecond: Option<LeafCapability>,
     pub millisecond: Option<LeafCapability>,
     pub nanosecond: Option<LeafCapability>,
+    pub epoch: Option<LeafCapability>,
 }
 // ANCHOR_END: DatePartScalarExpressionCapability
 
