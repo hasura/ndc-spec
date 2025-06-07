@@ -214,6 +214,16 @@
               "type": "null"
             }
           ]
+        },
+        "epoch": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },

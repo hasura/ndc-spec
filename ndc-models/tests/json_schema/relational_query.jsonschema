@@ -347,7 +347,8 @@
         "second",
         "microsecond",
         "millisecond",
-        "nanosecond"
+        "nanosecond",
+        "epoch"
       ]
     },
     "JoinOn": {

@@ -949,4 +949,5 @@ pub enum DatePartUnit {
     Microsecond,
     Millisecond,
     Nanosecond,
+    Epoch,
 }
