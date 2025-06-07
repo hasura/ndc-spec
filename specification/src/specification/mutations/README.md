@@ -20,10 +20,15 @@ See [`MutationRequest`](../../reference/types.md#mutationrequest)
 | -------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `operations`               | A list of mutation operations to perform                                                              |
 | `collection_relationships` | Any [relationships](../queries/relationships.md) between collections involved in the mutation request |
+| `request_arguments`        | Any arguments to be passed to the mutation request                                                    |
 
 ## Mutation Operations
 
 Each operation is described by a [`MutationOperation`](../../reference/types.md#mutationoperation) structure, which can be one of several types. However, currently [procedures](./procedures.md) are the only supported operation type.
+
+## Request-level Arguments
+
+Request-level arguments are specified in the `request_arguments` section of a `MutationRequest`. The set of provided arguments should be compatible with the list of arguments specified in the `mutation_arguments` section of the [schema response](../schema/arguments.md).
 
 ### Multiple Operations
 

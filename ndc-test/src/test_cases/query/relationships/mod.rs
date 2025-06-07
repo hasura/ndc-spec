@@ -10,11 +10,13 @@ use crate::{nest, test};
 use ndc_models as models;
 use rand::rngs::SmallRng;
 
+#[allow(clippy::too_many_arguments)]
 pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     reporter: &mut R,
     schema: &models::SchemaResponse,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     collection_info: &models::CollectionInfo,
     context: &Option<super::context::Context<'_>>,
     rng: &mut SmallRng,
@@ -39,6 +41,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         collection_type,
                         collection_info,
                         schema,
+                        request_arguments.clone(),
                         foreign_key_name,
                         foreign_key,
                         rng,
@@ -54,6 +57,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                         collection_type,
                         collection_info,
                         schema,
+                        request_arguments.clone(),
                         foreign_key_name,
                         foreign_key,
                         rng,
@@ -69,6 +73,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                             connector,
                             collection_info,
                             schema,
+                            request_arguments.clone(),
                             foreign_key_name,
                             foreign_key,
                             context,
@@ -92,6 +97,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
     schema: &models::SchemaResponse,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     foreign_key_name: &str,
     foreign_key: &models::ForeignKeyConstraint,
     rng: &mut SmallRng,
@@ -155,6 +161,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
                 },
             )]),
             variables: None,
+            request_arguments,
         };
 
         let _ = connector.query(query_request).await?;
@@ -171,6 +178,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
     connector: &C,
     collection_info: &models::CollectionInfo,
     schema: &models::SchemaResponse,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     foreign_key_name: &str,
     foreign_key: &models::ForeignKeyConstraint,
     context: &super::context::Context<'_>,
@@ -248,6 +256,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
                 },
             )]),
             variables: None,
+            request_arguments: request_arguments.clone(),
         };
 
         let _ = connector.query(query_request).await?;
@@ -263,6 +272,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
     schema: &models::SchemaResponse,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     foreign_key_name: &str,
     foreign_key: &models::ForeignKeyConstraint,
     rng: &mut SmallRng,
@@ -346,6 +356,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
             },
         )]),
         variables: None,
+        request_arguments,
     };
 
     let _ = connector.query(query_request).await?;
