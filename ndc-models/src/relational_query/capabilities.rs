@@ -17,6 +17,7 @@ pub struct RelationalQueryCapabilities {
     pub join: Option<RelationalJoinCapabilities>,
     pub aggregate: Option<RelationalAggregateCapabilities>,
     pub window: Option<RelationalWindowCapabilities>,
+    pub union: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalQueryCapabilities
 
