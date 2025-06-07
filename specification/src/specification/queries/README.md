@@ -23,6 +23,8 @@ See [`QueryRequest`](../../reference/types.md#queryrequest)
 | `arguments`                | Values to be provided to any top-level [collection arguments](./arguments.md)                                                                            |
 | `collection_relationships` | Any [relationships](./relationships.md) between collections involved in the query request                                                                |
 | `variables`                | One set of [named variables](./variables.md) for each rowset to fetch. Each variable set should be subtituted in turn, and a fresh set of rows returned. |
+| `request_arguments`        | Values to be provided to any request-level arguments, defined in the `query_arguments` section of the [schema response](../schema/arguments.md).         |
+|                            |
 
 ## Response
 
