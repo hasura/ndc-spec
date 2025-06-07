@@ -13,11 +13,13 @@ pub use types::*;
 
 use crate::{ArgumentName, CollectionName, FieldName, OrderDirection};
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 #[schemars(title = "RelationalQuery")]
 pub struct RelationalQuery {
     pub root_relation: Relation,
+    /// Values to be provided to request-level arguments.
+    pub request_arguments: Option<BTreeMap<ArgumentName, serde_json::Value>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]

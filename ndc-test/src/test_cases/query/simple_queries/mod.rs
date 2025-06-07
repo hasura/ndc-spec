@@ -22,6 +22,7 @@ pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
     reporter: &mut R,
     rng: &mut SmallRng,
     schema: &'a models::SchemaResponse,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     collection_info: &'a models::CollectionInfo,
 ) -> Option<Option<super::context::Context<'a>>> {
     let collection_type = schema.object_types.get(&collection_info.collection_type)?;
@@ -32,6 +33,7 @@ pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
             collection_type,
             collection_info,
             gen_config.sample_size,
+            request_arguments.clone(),
         )
         .await?;
 
@@ -46,6 +48,7 @@ pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
             connector,
             &context,
             schema,
+            request_arguments.clone(),
             rng,
             collection_type,
             collection_info,
@@ -59,6 +62,7 @@ pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
             gen_config,
             connector,
             schema,
+            request_arguments.clone(),
             rng,
             collection_type,
             collection_info
@@ -73,6 +77,7 @@ async fn test_select_top_n_rows<C: Connector>(
     collection_type: &models::ObjectType,
     collection_info: &models::CollectionInfo,
     limit: u32,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
 ) -> Result<Vec<IndexMap<models::FieldName, models::RowFieldValue>>> {
     let fields = super::common::select_all_columns(collection_type);
     let query_request = models::QueryRequest {
@@ -89,6 +94,7 @@ async fn test_select_top_n_rows<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
+        request_arguments,
     };
 
     let response = connector.query(query_request.clone()).await?;

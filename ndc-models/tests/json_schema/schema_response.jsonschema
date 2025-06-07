@@ -7,6 +7,7 @@
     "functions",
     "object_types",
     "procedures",
+    "request_arguments",
     "scalar_types"
   ],
   "properties": {
@@ -53,6 +54,14 @@
         },
         {
           "type": "null"
+        }
+      ]
+    },
+    "request_arguments": {
+      "description": "Request level arguments which are required for queries and mutations",
+      "allOf": [
+        {
+          "$ref": "#/definitions/RequestLevelArguments"
         }
       ]
     }
@@ -897,6 +906,38 @@
               "type": "null"
             }
           ]
+        }
+      }
+    },
+    "RequestLevelArguments": {
+      "title": "Request Level Arguments",
+      "type": "object",
+      "required": [
+        "mutation_arguments",
+        "query_arguments",
+        "relational_query_arguments"
+      ],
+      "properties": {
+        "query_arguments": {
+          "description": "Any arguments that all Query requests require",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        },
+        "mutation_arguments": {
+          "description": "Any arguments that all Mutation requests require",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        },
+        "relational_query_arguments": {
+          "description": "Any arguments that all Relational Query requests require",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
         }
       }
     },

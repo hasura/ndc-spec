@@ -7,6 +7,8 @@ mod common;
 mod context;
 pub mod validate;
 
+use std::collections::BTreeMap;
+
 use crate::configuration::TestGenerationConfiguration;
 use crate::connector::Connector;
 use crate::nest;
@@ -21,6 +23,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
     reporter: &mut R,
     capabilities: &models::CapabilitiesResponse,
     schema: &models::SchemaResponse,
+    request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     rng: &mut SmallRng,
 ) {
     for collection_info in &schema.collections {
@@ -34,6 +37,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                             reporter,
                             rng,
                             schema,
+                            request_arguments.clone(),
                             collection_info,
                         )
                     })?;
@@ -45,6 +49,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                                 connector,
                                 reporter,
                                 schema,
+                                request_arguments.clone(),
                                 collection_info,
                                 &context,
                                 rng,
@@ -60,6 +65,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                                 reporter,
                                 schema,
                                 collection_info,
+                                request_arguments.clone(),
                                 rng,
                             )
                         });
@@ -71,6 +77,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                                     connector,
                                     reporter,
                                     schema,
+                                    request_arguments.clone(),
                                     collection_info,
                                     rng,
                                 )

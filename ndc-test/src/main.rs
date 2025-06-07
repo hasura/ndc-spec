@@ -4,7 +4,9 @@ use clap::{Parser, Subcommand};
 use ndc_test::{
     benchmark_report,
     client::Configuration,
-    configuration::{TestConfiguration, TestGenerationConfiguration, TestOptions},
+    configuration::{
+        RequestArguments, TestConfiguration, TestGenerationConfiguration, TestOptions,
+    },
     reporter::{ConsoleReporter, TestResults},
     ReportConfiguration,
 };
@@ -63,6 +65,12 @@ enum Commands {
         complexity: u8,
         #[arg(long, help = "Turn off validations for query responses")]
         no_validate_responses: bool,
+        #[arg(
+            long,
+            value_name = "REQUEST_ARGUMENTS_PATH",
+            help = "path to a JSON file containing any request arguments to use in the generated tests"
+        )]
+        request_arguments_path: Option<PathBuf>,
     },
     Replay {
         #[arg(long, value_name = "ENDPOINT", help = "The NDC endpoint to test")]
@@ -113,6 +121,7 @@ async fn main() {
             max_limit,
             complexity,
             no_validate_responses,
+            request_arguments_path,
         } => {
             let seed: Option<[u8; 32]> = seed.map(|seed| seed.as_bytes().try_into().unwrap());
 
@@ -123,8 +132,16 @@ async fn main() {
                 complexity,
             };
 
+            let request_arguments = if let Some(request_arguments_path) = request_arguments_path {
+                let request_arguments = std::fs::read_to_string(request_arguments_path).unwrap();
+                serde_json::from_str(&request_arguments).unwrap()
+            } else {
+                RequestArguments { query: None }
+            };
+
             let options = TestOptions {
                 validate_responses: !no_validate_responses,
+                request_arguments,
             };
 
             let test_configuration = TestConfiguration {
@@ -164,6 +181,7 @@ async fn main() {
 
             let options = TestOptions {
                 validate_responses: !no_validate_responses,
+                request_arguments: RequestArguments { query: None }, // any request arguments are specified in the snapshot
             };
 
             ndc_test::test_snapshots_in_directory(
