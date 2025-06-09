@@ -78,6 +78,17 @@
               "type": "null"
             }
           ]
+        },
+        "relational_mutation": {
+          "description": "Does the connector support the relational mutation API? This feature is experimental and subject to breaking changes within minor versions.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelationalMutationCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -994,6 +1005,43 @@
           ]
         },
         "right_anti": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "RelationalMutationCapabilities": {
+      "title": "Relational Mutation Capabilities",
+      "description": "Describes which features of the relational mutation API are supported by the connector. This feature is experimental and subject to breaking changes within minor versions.",
+      "type": "object",
+      "properties": {
+        "insert": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "update": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "delete": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
