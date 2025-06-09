@@ -1077,6 +1077,16 @@
               "type": "null"
             }
           ]
+        },
+        "union": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
