@@ -104,6 +104,9 @@ pub enum Relation {
 
         exprs: Vec<RelationalExpression>,
     },
+    Union {
+        relations: Vec<Relation>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]

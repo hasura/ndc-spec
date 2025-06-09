@@ -664,6 +664,27 @@
               }
             }
           }
+        },
+        {
+          "type": "object",
+          "required": [
+            "relations",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "union"
+              ]
+            },
+            "relations": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Relation"
+              }
+            }
+          }
         }
       ]
     },
