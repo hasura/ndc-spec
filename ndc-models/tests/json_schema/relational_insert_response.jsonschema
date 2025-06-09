@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Relational Insert Response",
+  "type": "object",
+  "required": [
+    "affected_rows"
+  ],
+  "properties": {
+    "affected_rows": {
+      "description": "The number of rows that were inserted",
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0.0
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Relational Insert Request",
+  "type": "object",
+  "required": [
+    "arguments",
+    "collection",
+    "columns",
+    "rows"
+  ],
+  "properties": {
+    "collection": {
+      "description": "The name of the collection to insert into",
+      "type": "string"
+    },
+    "arguments": {
+      "description": "Values to be provided to any collection arguments",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Argument"
+      }
+    },
+    "columns": {
+      "description": "The columns to insert values for",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rows": {
+      "description": "The rows to insert, each row containing values for the specified columns",
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": true
+      }
+    }
+  },
+  "definitions": {
+    "Argument": {
+      "title": "Argument",
+      "oneOf": [
+        {
+          "description": "The argument is provided by reference to a variable. Only used if the 'query.variables' capability is supported.",
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variable"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "The argument is provided as a literal value",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "literal"
+              ]
+            },
+            "value": true
+          }
+        }
+      ]
+    }
+  }
+}
