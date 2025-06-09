@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 
 use crate::{
     Aggregate, ArgumentName, CollectionName, Expression, Field, FieldName, Grouping, NestedField,
-    OrderBy, ProcedureName, RelationshipName, VariableName,
+    OrderBy, ProcedureName, Relation, RelationshipName, VariableName,
 };
 
 // ANCHOR: QueryRequest
@@ -247,3 +247,65 @@ pub struct ErrorResponse {
     pub details: serde_json::Value,
 }
 // ANCHOR_END: ErrorResponse
+
+// ANCHOR: RelationalInsertRequest
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Insert Request")]
+pub struct RelationalInsertRequest {
+    /// The name of the collection to insert into
+    pub collection: CollectionName,
+    /// The columns to insert values for
+    pub columns: Vec<FieldName>,
+    /// The rows to insert, each row containing values for the specified columns
+    pub rows: Vec<Vec<serde_json::Value>>,
+}
+// ANCHOR_END: RelationalInsertRequest
+
+// ANCHOR: RelationalUpdateRequest
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Update Request")]
+pub struct RelationalUpdateRequest {
+    /// The name of the collection to update
+    pub collection: CollectionName,
+    /// The relation that identifies which rows to update
+    pub relation: Relation,
+}
+// ANCHOR_END: RelationalUpdateRequest
+
+// ANCHOR: RelationalDeleteRequest
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Delete Request")]
+pub struct RelationalDeleteRequest {
+    /// The name of the collection to delete from
+    pub collection: CollectionName,
+    /// The relation that identifies which rows to delete
+    pub relation: Relation,
+}
+// ANCHOR_END: RelationalDeleteRequest
+
+// ANCHOR: RelationalInsertResponse
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Insert Response")]
+pub struct RelationalInsertResponse {
+    /// The number of rows that were inserted
+    pub affected_rows: u64,
+}
+// ANCHOR_END: RelationalInsertResponse
+
+// ANCHOR: RelationalUpdateResponse
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Update Response")]
+pub struct RelationalUpdateResponse {
+    /// The number of rows that were updated
+    pub affected_rows: u64,
+}
+// ANCHOR_END: RelationalUpdateResponse
+
+// ANCHOR: RelationalDeleteResponse
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Delete Response")]
+pub struct RelationalDeleteResponse {
+    /// The number of rows that were deleted
+    pub affected_rows: u64,
+}
+// ANCHOR_END: RelationalDeleteResponse
