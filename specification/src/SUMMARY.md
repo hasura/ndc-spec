@@ -15,12 +15,15 @@
 - [Capabilities](specification/capabilities.md)
 - [Types](specification/types.md)
 - [Schema](specification/schema/README.md)
+
   - [Scalar Types](specification/schema/scalar-types.md)
   - [Object Types](specification/schema/object-types.md)
   - [Collections](specification/schema/collections.md)
   - [Functions](specification/schema/functions.md)
   - [Procedures](specification/schema/procedures.md)
   - [Capabilities](specification/schema/capabilities.md)
+  - [Request-level arguments](specification/schema/arguments.md)
+
 - [Queries](specification/queries/README.md)
   - [Field Selection](specification/queries/field-selection.md)
   - [Filtering](specification/queries/filtering.md)

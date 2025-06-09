@@ -1,8 +1,14 @@
 # Arguments
 
+_Request-level arguments_ parameterize a request, and must be provided in every query request.
+
 _Collection arguments_ parameterize an entire collection, and must be provided in queries wherever the collection is referenced, either directly, or via relationships.
 
 _Field_ arguments parameterize a single field, and must be provided wherever that field is referenced.
+
+## Request-level Arguments
+
+Request-level arguments are specified in the `request_arguments` section of a `QueryRequest`. The set of provided arguments should be compatible with the list of arguments specified in the `query_arguments` section of the [schema response](../schema/arguments.md).
 
 ## Collection Arguments
 

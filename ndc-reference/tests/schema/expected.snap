@@ -676,5 +676,10 @@ expression: response
         "count_scalar_type": "Int"
       }
     }
+  },
+  "request_arguments": {
+    "query_arguments": {},
+    "mutation_arguments": {},
+    "relational_query_arguments": {}
   }
 }

@@ -136,6 +136,7 @@ pub struct RelationalScalarExpressionCapabilities {
     pub abs: Option<LeafCapability>,
     pub and: Option<LeafCapability>,
     pub array_element: Option<LeafCapability>,
+    pub binary_concat: Option<LeafCapability>,
     pub btrim: Option<LeafCapability>,
     pub ceil: Option<LeafCapability>,
     pub character_length: Option<LeafCapability>,
@@ -207,6 +208,7 @@ pub struct DatePartScalarExpressionCapability {
     pub microsecond: Option<LeafCapability>,
     pub millisecond: Option<LeafCapability>,
     pub nanosecond: Option<LeafCapability>,
+    pub epoch: Option<LeafCapability>,
 }
 // ANCHOR_END: DatePartScalarExpressionCapability
 

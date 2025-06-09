@@ -225,6 +225,16 @@
               "type": "null"
             }
           ]
+        },
+        "epoch": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -1123,6 +1133,16 @@
           ]
         },
         "array_element": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "binary_concat": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"

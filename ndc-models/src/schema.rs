@@ -26,6 +26,8 @@ pub struct SchemaResponse {
     pub procedures: Vec<ProcedureInfo>,
     /// Schema data which is relevant to features enabled by capabilities
     pub capabilities: Option<CapabilitySchemaInfo>,
+    /// Request level arguments which are required for queries and mutations
+    pub request_arguments: RequestLevelArguments,
 }
 // ANCHOR_END: SchemaResponse
 
@@ -413,5 +415,21 @@ pub struct AggregateCapabilitiesSchemaInfo {
 pub struct RelationalMutationInfo {
     /// Whether inserts are supported for this collection
     pub insertable: bool,
+    /// Whether updates are supported for this collection
+    pub updatable: bool,
+    /// Whether deletes are supported for this collection
+    pub deletable: bool,
 }
 // ANCHOR_END: RelationalMutationInfo
+// ANCHOR: RequestLevelArguments
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Request Level Arguments")]
+pub struct RequestLevelArguments {
+    /// Any arguments that all Query requests require
+    pub query_arguments: BTreeMap<ArgumentName, ArgumentInfo>,
+    /// Any arguments that all Mutation requests require
+    pub mutation_arguments: BTreeMap<ArgumentName, ArgumentInfo>,
+    /// Any arguments that all Relational Query requests require
+    pub relational_query_arguments: BTreeMap<ArgumentName, ArgumentInfo>,
+}
+// ANCHOR_END: RequestLevelArguments
