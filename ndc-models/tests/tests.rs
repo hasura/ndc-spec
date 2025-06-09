@@ -67,6 +67,36 @@ fn test_json_schemas() {
         schema_for!(RelationalQueryResponse),
         "relational_query_response.jsonschema",
     );
+    test_json_schema(
+        &mut mint,
+        schema_for!(RelationalInsertRequest),
+        "relational_insert_request.jsonschema",
+    );
+    test_json_schema(
+        &mut mint,
+        schema_for!(RelationalInsertResponse),
+        "relational_insert_response.jsonschema",
+    );
+    test_json_schema(
+        &mut mint,
+        schema_for!(RelationalUpdateRequest),
+        "relational_update_request.jsonschema",
+    );
+    test_json_schema(
+        &mut mint,
+        schema_for!(RelationalUpdateResponse),
+        "relational_update_response.jsonschema",
+    );
+    test_json_schema(
+        &mut mint,
+        schema_for!(RelationalDeleteRequest),
+        "relational_delete_request.jsonschema",
+    );
+    test_json_schema(
+        &mut mint,
+        schema_for!(RelationalDeleteResponse),
+        "relational_delete_response.jsonschema",
+    );
 }
 
 fn test_json_schema(mint: &mut Mint, mut schema: schemars::schema::RootSchema, filename: &str) {

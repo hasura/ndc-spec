@@ -254,6 +254,8 @@ pub struct ErrorResponse {
 pub struct RelationalInsertRequest {
     /// The name of the collection to insert into
     pub collection: CollectionName,
+    /// Values to be provided to any collection arguments
+    pub arguments: BTreeMap<ArgumentName, Argument>,
     /// The columns to insert values for
     pub columns: Vec<FieldName>,
     /// The rows to insert, each row containing values for the specified columns
@@ -267,6 +269,8 @@ pub struct RelationalInsertRequest {
 pub struct RelationalUpdateRequest {
     /// The name of the collection to update
     pub collection: CollectionName,
+    /// Values to be provided to any collection arguments
+    pub arguments: BTreeMap<ArgumentName, Argument>,
     /// The relation that identifies which rows to update
     pub relation: Relation,
 }
@@ -278,6 +282,8 @@ pub struct RelationalUpdateRequest {
 pub struct RelationalDeleteRequest {
     /// The name of the collection to delete from
     pub collection: CollectionName,
+    /// Values to be provided to any collection arguments
+    pub arguments: BTreeMap<ArgumentName, Argument>,
     /// The relation that identifies which rows to delete
     pub relation: Relation,
 }

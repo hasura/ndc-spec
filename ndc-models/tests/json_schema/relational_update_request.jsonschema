@@ -1,0 +1,3596 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Relational Update Request",
+  "type": "object",
+  "required": [
+    "arguments",
+    "collection",
+    "relation"
+  ],
+  "properties": {
+    "collection": {
+      "description": "The name of the collection to update",
+      "type": "string"
+    },
+    "arguments": {
+      "description": "Values to be provided to any collection arguments",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Argument"
+      }
+    },
+    "relation": {
+      "description": "The relation that identifies which rows to update",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Relation"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "Argument": {
+      "title": "Argument",
+      "oneOf": [
+        {
+          "description": "The argument is provided by reference to a variable. Only used if the 'query.variables' capability is supported.",
+          "type": "object",
+          "required": [
+            "name",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variable"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "The argument is provided as a literal value",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "literal"
+              ]
+            },
+            "value": true
+          }
+        }
+      ]
+    },
+    "CaseWhen": {
+      "title": "CaseWhen",
+      "type": "object",
+      "required": [
+        "then",
+        "when"
+      ],
+      "properties": {
+        "when": {
+          "$ref": "#/definitions/RelationalExpression"
+        },
+        "then": {
+          "$ref": "#/definitions/RelationalExpression"
+        }
+      }
+    },
+    "CastType": {
+      "title": "CastType",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "boolean"
+              ]
+            }
+          }
+        },
+        {
+          "description": "utf-8 encoded string.",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "utf8"
+              ]
+            }
+          }
+        },
+        {
+          "description": "signed 8bit int",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int8"
+              ]
+            }
+          }
+        },
+        {
+          "description": "signed 16bit int",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int16"
+              ]
+            }
+          }
+        },
+        {
+          "description": "signed 32bit int",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int32"
+              ]
+            }
+          }
+        },
+        {
+          "description": "signed 64bit int",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int64"
+              ]
+            }
+          }
+        },
+        {
+          "description": "unsigned 8bit int",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uint8"
+              ]
+            }
+          }
+        },
+        {
+          "description": "unsigned 16bit int",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uint16"
+              ]
+            }
+          }
+        },
+        {
+          "description": "unsigned 32bit int",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uint32"
+              ]
+            }
+          }
+        },
+        {
+          "description": "unsigned 64bit int",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uint64"
+              ]
+            }
+          }
+        },
+        {
+          "description": "32bit float",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float32"
+              ]
+            }
+          }
+        },
+        {
+          "description": "64bit float",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float64"
+              ]
+            }
+          }
+        },
+        {
+          "description": "128-bit decimal",
+          "type": "object",
+          "required": [
+            "prec",
+            "scale",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "decimal128"
+              ]
+            },
+            "scale": {
+              "type": "integer",
+              "format": "int8"
+            },
+            "prec": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "256-bit decimal",
+          "type": "object",
+          "required": [
+            "prec",
+            "scale",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "decimal256"
+              ]
+            },
+            "scale": {
+              "type": "integer",
+              "format": "int8"
+            },
+            "prec": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "date",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "date"
+              ]
+            }
+          }
+        },
+        {
+          "description": "time",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "time"
+              ]
+            }
+          }
+        },
+        {
+          "description": "ISO 8601 timestamp",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "timestamp"
+              ]
+            }
+          }
+        },
+        {
+          "description": "duration",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "duration"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "DatePartUnit": {
+      "title": "DatePartUnit",
+      "type": "string",
+      "enum": [
+        "year",
+        "quarter",
+        "month",
+        "week",
+        "day_of_week",
+        "day_of_year",
+        "day",
+        "hour",
+        "minute",
+        "second",
+        "microsecond",
+        "millisecond",
+        "nanosecond",
+        "epoch"
+      ]
+    },
+    "JoinOn": {
+      "title": "JoinOn",
+      "type": "object",
+      "required": [
+        "left",
+        "right"
+      ],
+      "properties": {
+        "left": {
+          "$ref": "#/definitions/RelationalExpression"
+        },
+        "right": {
+          "$ref": "#/definitions/RelationalExpression"
+        }
+      }
+    },
+    "JoinType": {
+      "title": "JoinType",
+      "oneOf": [
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.left` is supported.",
+          "type": "string",
+          "enum": [
+            "left"
+          ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.right` is supported.",
+          "type": "string",
+          "enum": [
+            "right"
+          ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.inner` is supported.",
+          "type": "string",
+          "enum": [
+            "inner"
+          ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.full` is supported.",
+          "type": "string",
+          "enum": [
+            "full"
+          ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.left_anti` is supported.",
+          "type": "string",
+          "enum": [
+            "left_anti"
+          ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.left_semi` is supported.",
+          "type": "string",
+          "enum": [
+            "left_semi"
+          ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.right_anti` is supported.",
+          "type": "string",
+          "enum": [
+            "right_anti"
+          ]
+        },
+        {
+          "description": "Only used when the capability `relational_query.join.join_types.right_semi` is supported.",
+          "type": "string",
+          "enum": [
+            "right_semi"
+          ]
+        }
+      ]
+    },
+    "NullsSort": {
+      "title": "Nulls Sort",
+      "type": "string",
+      "enum": [
+        "nulls_first",
+        "nulls_last"
+      ]
+    },
+    "OrderDirection": {
+      "title": "Order Direction",
+      "type": "string",
+      "enum": [
+        "asc",
+        "desc"
+      ]
+    },
+    "Relation": {
+      "title": "Relation",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "collection",
+            "columns",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "from"
+              ]
+            },
+            "collection": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/RelationalLiteral"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "input",
+            "skip",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "paginate"
+              ]
+            },
+            "input": {
+              "$ref": "#/definitions/Relation"
+            },
+            "fetch": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "skip": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "exprs",
+            "input",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "project"
+              ]
+            },
+            "input": {
+              "$ref": "#/definitions/Relation"
+            },
+            "exprs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "input",
+            "predicate",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "filter"
+              ]
+            },
+            "input": {
+              "$ref": "#/definitions/Relation"
+            },
+            "predicate": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "exprs",
+            "input",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "sort"
+              ]
+            },
+            "input": {
+              "$ref": "#/definitions/Relation"
+            },
+            "exprs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "join_type",
+            "left",
+            "on",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "join"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/Relation"
+            },
+            "right": {
+              "$ref": "#/definitions/Relation"
+            },
+            "on": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/JoinOn"
+              }
+            },
+            "join_type": {
+              "$ref": "#/definitions/JoinType"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "aggregates",
+            "group_by",
+            "input",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "aggregate"
+              ]
+            },
+            "input": {
+              "$ref": "#/definitions/Relation"
+            },
+            "group_by": {
+              "description": "Only non-empty if the 'relational_query.aggregate.group_by' capability is supported.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            },
+            "aggregates": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "exprs",
+            "input",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "window"
+              ]
+            },
+            "input": {
+              "$ref": "#/definitions/Relation"
+            },
+            "exprs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RelationalExpression": {
+      "title": "RelationalExpression",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "literal",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "literal"
+              ]
+            },
+            "literal": {
+              "$ref": "#/definitions/RelationalLiteral"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "index",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "column"
+              ]
+            },
+            "index": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.conditional.case` * During filtering: `relational_query.filter.conditional.case` * During sorting:`relational_query.sort.expression.conditional.case` * During joining: `relational_query.join.expression.conditional.case` * During aggregation: `relational_query.aggregate.expression.conditional.case` * During windowing: `relational_query.window.expression.conditional.case`",
+          "type": "object",
+          "required": [
+            "type",
+            "when"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "case"
+              ]
+            },
+            "when": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CaseWhen"
+              }
+            },
+            "default": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "and"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "or"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "not"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "eq"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "not_eq"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "lt"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "lt_eq"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "gt"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "gt_eq"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_not_null"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_null"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_true"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_false"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_not_true"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_not_false"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "list",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "in"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "list": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "list",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "not_in"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "list": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.like` * During filtering: `relational_query.filter.comparison.like` * During sorting:`relational_query.sort.expression.comparison.like` * During joining: `relational_query.join.expression.comparison.like` * During aggregation: `relational_query.aggregate.expression.comparison.like` * During windowing: `relational_query.window.expression.comparison.like`",
+          "type": "object",
+          "required": [
+            "expr",
+            "pattern",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "like"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "pattern": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.like` * During filtering: `relational_query.filter.comparison.like` * During sorting:`relational_query.sort.expression.comparison.like` * During joining: `relational_query.join.expression.comparison.like` * During aggregation: `relational_query.aggregate.expression.comparison.like` * During windowing: `relational_query.window.expression.comparison.like`",
+          "type": "object",
+          "required": [
+            "expr",
+            "pattern",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "not_like"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "pattern": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.ilike` * During filtering: `relational_query.filter.comparison.ilike` * During sorting:`relational_query.sort.expression.comparison.ilike` * During joining: `relational_query.join.expression.comparison.ilike` * During aggregation: `relational_query.aggregate.expression.comparison.ilike` * During windowing: `relational_query.window.expression.comparison.ilike`",
+          "type": "object",
+          "required": [
+            "expr",
+            "pattern",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "i_like"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "pattern": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.ilike` * During filtering: `relational_query.filter.comparison.ilike` * During sorting:`relational_query.sort.expression.comparison.ilike` * During joining: `relational_query.join.expression.comparison.ilike` * During aggregation: `relational_query.aggregate.expression.comparison.ilike` * During windowing: `relational_query.window.expression.comparison.ilike`",
+          "type": "object",
+          "required": [
+            "expr",
+            "pattern",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "not_i_like"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "pattern": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.between` * During filtering: `relational_query.filter.comparison.between` * During sorting:`relational_query.sort.expression.comparison.between` * During joining: `relational_query.join.expression.comparison.between` * During aggregation: `relational_query.aggregate.expression.comparison.between` * During windowing: `relational_query.window.expression.comparison.between`",
+          "type": "object",
+          "required": [
+            "expr",
+            "high",
+            "low",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "between"
+              ]
+            },
+            "low": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "high": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.between` * During filtering: `relational_query.filter.comparison.between` * During sorting:`relational_query.sort.expression.comparison.between` * During joining: `relational_query.join.expression.comparison.between` * During aggregation: `relational_query.aggregate.expression.comparison.between` * During windowing: `relational_query.window.expression.comparison.between`",
+          "type": "object",
+          "required": [
+            "expr",
+            "high",
+            "low",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "not_between"
+              ]
+            },
+            "low": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "high": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.contains` * During filtering: `relational_query.filter.comparison.contains` * During sorting:`relational_query.sort.expression.comparison.contains` * During joining: `relational_query.join.expression.comparison.contains` * During aggregation: `relational_query.aggregate.expression.comparison.contains` * During windowing: `relational_query.window.expression.comparison.contains`",
+          "type": "object",
+          "required": [
+            "search_str",
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "contains"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "search_str": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.is_nan` * During filtering: `relational_query.filter.comparison.is_nan` * During sorting:`relational_query.sort.expression.comparison.is_nan` * During joining: `relational_query.join.expression.comparison.is_nan` * During aggregation: `relational_query.aggregate.expression.comparison.is_nan` * During windowing: `relational_query.window.expression.comparison.is_nan`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_na_n"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.is_zero` * During filtering: `relational_query.filter.comparison.is_zero` * During sorting:`relational_query.sort.expression.comparison.is_zero` * During joining: `relational_query.join.expression.comparison.is_zero` * During aggregation: `relational_query.aggregate.expression.comparison.is_zero` * During windowing: `relational_query.window.expression.comparison.is_zero`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_zero"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "plus"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "minus"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "multiply"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "divide"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "modulo"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "negate"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "as_type",
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "cast"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "as_type": {
+              "$ref": "#/definitions/CastType"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "as_type",
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "try_cast"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "as_type": {
+              "$ref": "#/definitions/CastType"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.abs` * During filtering: `relational_query.filter.scalar.abs` * During sorting:`relational_query.sort.expression.scalar.abs` * During joining: `relational_query.join.expression.scalar.abs` * During aggregation: `relational_query.aggregate.expression.scalar.abs` * During windowing: `relational_query.window.expression.scalar.abs`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "abs"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.array_element` * During filtering: `relational_query.filter.scalar.array_element` * During sorting:`relational_query.sort.expression.scalar.array_element` * During joining: `relational_query.join.expression.scalar.array_element` * During aggregation: `relational_query.aggregate.expression.scalar.array_element` * During windowing: `relational_query.window.expression.scalar.array_element`",
+          "type": "object",
+          "required": [
+            "column",
+            "index",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "array_element"
+              ]
+            },
+            "column": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "index": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.btrim` * During filtering: `relational_query.filter.scalar.btrim` * During sorting:`relational_query.sort.expression.scalar.btrim` * During joining: `relational_query.join.expression.scalar.btrim` * During aggregation: `relational_query.aggregate.expression.scalar.btrim` * During windowing: `relational_query.window.expression.scalar.btrim`",
+          "type": "object",
+          "required": [
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "b_trim"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "trim_str": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.ceil` * During filtering: `relational_query.filter.scalar.ceil` * During sorting:`relational_query.sort.expression.scalar.ceil` * During joining: `relational_query.join.expression.scalar.ceil` * During aggregation: `relational_query.aggregate.expression.scalar.ceil` * During windowing: `relational_query.window.expression.scalar.ceil`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ceil"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.character_length` * During filtering: `relational_query.filter.scalar.character_length` * During sorting:`relational_query.sort.expression.scalar.character_length` * During joining: `relational_query.join.expression.scalar.character_length` * During aggregation: `relational_query.aggregate.expression.scalar.character_length` * During windowing: `relational_query.window.expression.scalar.character_length`",
+          "type": "object",
+          "required": [
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "character_length"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "exprs",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "coalesce"
+              ]
+            },
+            "exprs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.concat` * During filtering: `relational_query.filter.scalar.concat` * During sorting:`relational_query.sort.expression.scalar.concat` * During joining: `relational_query.join.expression.scalar.concat` * During aggregation: `relational_query.aggregate.expression.scalar.concat` * During windowing: `relational_query.window.expression.scalar.concat`",
+          "type": "object",
+          "required": [
+            "exprs",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "concat"
+              ]
+            },
+            "exprs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.cos` * During filtering: `relational_query.filter.scalar.cos` * During sorting:`relational_query.sort.expression.scalar.cos` * During joining: `relational_query.join.expression.scalar.cos` * During aggregation: `relational_query.aggregate.expression.scalar.cos` * During windowing: `relational_query.window.expression.scalar.cos`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "cos"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.current_date` * During filtering: `relational_query.filter.scalar.current_date` * During sorting:`relational_query.sort.expression.scalar.current_date` * During joining: `relational_query.join.expression.scalar.current_date` * During aggregation: `relational_query.aggregate.expression.scalar.current_date` * During windowing: `relational_query.window.expression.scalar.current_date`",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "current_date"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.current_time` * During filtering: `relational_query.filter.scalar.current_time` * During sorting:`relational_query.sort.expression.scalar.current_time` * During joining: `relational_query.join.expression.scalar.current_time` * During aggregation: `relational_query.aggregate.expression.scalar.current_time` * During windowing: `relational_query.window.expression.scalar.current_time`",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "current_time"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.current_timestamp` * During filtering: `relational_query.filter.scalar.current_timestamp` * During sorting:`relational_query.sort.expression.scalar.current_timestamp` * During joining: `relational_query.join.expression.scalar.current_timestamp` * During aggregation: `relational_query.aggregate.expression.scalar.current_timestamp` * During windowing: `relational_query.window.expression.scalar.current_timestamp`",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "current_timestamp"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.date_part` * During filtering: `relational_query.filter.scalar.date_part` * During sorting:`relational_query.sort.expression.scalar.date_part` * During joining: `relational_query.join.expression.scalar.date_part` * During aggregation: `relational_query.aggregate.expression.scalar.date_part` * During windowing: `relational_query.window.expression.scalar.date_part`",
+          "type": "object",
+          "required": [
+            "expr",
+            "part",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "date_part"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "part": {
+              "$ref": "#/definitions/DatePartUnit"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.date_trunc` * During filtering: `relational_query.filter.scalar.date_trunc` * During sorting:`relational_query.sort.expression.scalar.date_trunc` * During joining: `relational_query.join.expression.scalar.date_trunc` * During aggregation: `relational_query.aggregate.expression.scalar.date_trunc` * During windowing: `relational_query.window.expression.scalar.date_trunc`",
+          "type": "object",
+          "required": [
+            "expr",
+            "part",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "date_trunc"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "part": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.exp` * During filtering: `relational_query.filter.scalar.exp` * During sorting:`relational_query.sort.expression.scalar.exp` * During joining: `relational_query.join.expression.scalar.exp` * During aggregation: `relational_query.aggregate.expression.scalar.exp` * During windowing: `relational_query.window.expression.scalar.exp`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "exp"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.floor` * During filtering: `relational_query.filter.scalar.floor` * During sorting:`relational_query.sort.expression.scalar.floor` * During joining: `relational_query.join.expression.scalar.floor` * During aggregation: `relational_query.aggregate.expression.scalar.floor` * During windowing: `relational_query.window.expression.scalar.floor`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "floor"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.get_field` * During filtering: `relational_query.filter.scalar.get_field` * During sorting:`relational_query.sort.expression.scalar.get_field` * During joining: `relational_query.join.expression.scalar.get_field` * During aggregation: `relational_query.aggregate.expression.scalar.get_field` * During windowing: `relational_query.window.expression.scalar.get_field`",
+          "type": "object",
+          "required": [
+            "column",
+            "field",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "get_field"
+              ]
+            },
+            "column": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "field": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.greatest` * During filtering: `relational_query.filter.scalar.greatest` * During sorting:`relational_query.sort.expression.scalar.greatest` * During joining: `relational_query.join.expression.scalar.greatest` * During aggregation: `relational_query.aggregate.expression.scalar.greatest` * During windowing: `relational_query.window.expression.scalar.greatest`",
+          "type": "object",
+          "required": [
+            "exprs",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "greatest"
+              ]
+            },
+            "exprs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.least` * During filtering: `relational_query.filter.scalar.least` * During sorting:`relational_query.sort.expression.scalar.least` * During joining: `relational_query.join.expression.scalar.least` * During aggregation: `relational_query.aggregate.expression.scalar.least` * During windowing: `relational_query.window.expression.scalar.least`",
+          "type": "object",
+          "required": [
+            "exprs",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "least"
+              ]
+            },
+            "exprs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.left` * During filtering: `relational_query.filter.scalar.left` * During sorting:`relational_query.sort.expression.scalar.left` * During joining: `relational_query.join.expression.scalar.left` * During aggregation: `relational_query.aggregate.expression.scalar.left` * During windowing: `relational_query.window.expression.scalar.left`",
+          "type": "object",
+          "required": [
+            "n",
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "left"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "n": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.ln` * During filtering: `relational_query.filter.scalar.ln` * During sorting:`relational_query.sort.expression.scalar.ln` * During joining: `relational_query.join.expression.scalar.ln` * During aggregation: `relational_query.aggregate.expression.scalar.ln` * During windowing: `relational_query.window.expression.scalar.ln`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ln"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.log` * During filtering: `relational_query.filter.scalar.log` * During sorting:`relational_query.sort.expression.scalar.log` * During joining: `relational_query.join.expression.scalar.log` * During aggregation: `relational_query.aggregate.expression.scalar.log` * During windowing: `relational_query.window.expression.scalar.log`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "log"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "base": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.log10` * During filtering: `relational_query.filter.scalar.log10` * During sorting:`relational_query.sort.expression.scalar.log10` * During joining: `relational_query.join.expression.scalar.log10` * During aggregation: `relational_query.aggregate.expression.scalar.log10` * During windowing: `relational_query.window.expression.scalar.log10`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "log10"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.log2` * During filtering: `relational_query.filter.scalar.log2` * During sorting:`relational_query.sort.expression.scalar.log2` * During joining: `relational_query.join.expression.scalar.log2` * During aggregation: `relational_query.aggregate.expression.scalar.log2` * During windowing: `relational_query.window.expression.scalar.log2`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "log2"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.lpad` * During filtering: `relational_query.filter.scalar.lpad` * During sorting:`relational_query.sort.expression.scalar.lpad` * During joining: `relational_query.join.expression.scalar.lpad` * During aggregation: `relational_query.aggregate.expression.scalar.lpad` * During windowing: `relational_query.window.expression.scalar.lpad`",
+          "type": "object",
+          "required": [
+            "n",
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "l_pad"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "n": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "padding_str": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.ltrim` * During filtering: `relational_query.filter.scalar.ltrim` * During sorting:`relational_query.sort.expression.scalar.ltrim` * During joining: `relational_query.join.expression.scalar.ltrim` * During aggregation: `relational_query.aggregate.expression.scalar.ltrim` * During windowing: `relational_query.window.expression.scalar.ltrim`",
+          "type": "object",
+          "required": [
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "l_trim"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "trim_str": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr1",
+            "expr2",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "null_if"
+              ]
+            },
+            "expr1": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "expr2": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.nvl` * During filtering: `relational_query.filter.scalar.nvl` * During sorting:`relational_query.sort.expression.scalar.nvl` * During joining: `relational_query.join.expression.scalar.nvl` * During aggregation: `relational_query.aggregate.expression.scalar.nvl` * During windowing: `relational_query.window.expression.scalar.nvl`",
+          "type": "object",
+          "required": [
+            "expr1",
+            "expr2",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "nvl"
+              ]
+            },
+            "expr1": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "expr2": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.power` * During filtering: `relational_query.filter.scalar.power` * During sorting:`relational_query.sort.expression.scalar.power` * During joining: `relational_query.join.expression.scalar.power` * During aggregation: `relational_query.aggregate.expression.scalar.power` * During windowing: `relational_query.window.expression.scalar.power`",
+          "type": "object",
+          "required": [
+            "base",
+            "exp",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "power"
+              ]
+            },
+            "base": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "exp": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.random` * During filtering: `relational_query.filter.scalar.random` * During sorting:`relational_query.sort.expression.scalar.random` * During joining: `relational_query.join.expression.scalar.random` * During aggregation: `relational_query.aggregate.expression.scalar.random` * During windowing: `relational_query.window.expression.scalar.random`",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "random"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.replace` * During filtering: `relational_query.filter.scalar.replace` * During sorting:`relational_query.sort.expression.scalar.replace` * During joining: `relational_query.join.expression.scalar.replace` * During aggregation: `relational_query.aggregate.expression.scalar.replace` * During windowing: `relational_query.window.expression.scalar.replace`",
+          "type": "object",
+          "required": [
+            "replacement",
+            "str",
+            "substr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "replace"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "substr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "replacement": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.reverse` * During filtering: `relational_query.filter.scalar.reverse` * During sorting:`relational_query.sort.expression.scalar.reverse` * During joining: `relational_query.join.expression.scalar.reverse` * During aggregation: `relational_query.aggregate.expression.scalar.reverse` * During windowing: `relational_query.window.expression.scalar.reverse`",
+          "type": "object",
+          "required": [
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "reverse"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.right` * During filtering: `relational_query.filter.scalar.right` * During sorting:`relational_query.sort.expression.scalar.right` * During joining: `relational_query.join.expression.scalar.right` * During aggregation: `relational_query.aggregate.expression.scalar.right` * During windowing: `relational_query.window.expression.scalar.right`",
+          "type": "object",
+          "required": [
+            "n",
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "right"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "n": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.round` * During filtering: `relational_query.filter.scalar.round` * During sorting:`relational_query.sort.expression.scalar.round` * During joining: `relational_query.join.expression.scalar.round` * During aggregation: `relational_query.aggregate.expression.scalar.round` * During windowing: `relational_query.window.expression.scalar.round`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "round"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "prec": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.rpad` * During filtering: `relational_query.filter.scalar.rpad` * During sorting:`relational_query.sort.expression.scalar.rpad` * During joining: `relational_query.join.expression.scalar.rpad` * During aggregation: `relational_query.aggregate.expression.scalar.rpad` * During windowing: `relational_query.window.expression.scalar.rpad`",
+          "type": "object",
+          "required": [
+            "n",
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "r_pad"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "n": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "padding_str": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.rtrim` * During filtering: `relational_query.filter.scalar.rtrim` * During sorting:`relational_query.sort.expression.scalar.rtrim` * During joining: `relational_query.join.expression.scalar.rtrim` * During aggregation: `relational_query.aggregate.expression.scalar.rtrim` * During windowing: `relational_query.window.expression.scalar.rtrim`",
+          "type": "object",
+          "required": [
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "r_trim"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "trim_str": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.sqrt` * During filtering: `relational_query.filter.scalar.sqrt` * During sorting:`relational_query.sort.expression.scalar.sqrt` * During joining: `relational_query.join.expression.scalar.sqrt` * During aggregation: `relational_query.aggregate.expression.scalar.sqrt` * During windowing: `relational_query.window.expression.scalar.sqrt`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "sqrt"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.strpos` * During filtering: `relational_query.filter.scalar.strpos` * During sorting:`relational_query.sort.expression.scalar.strpos` * During joining: `relational_query.join.expression.scalar.strpos` * During aggregation: `relational_query.aggregate.expression.scalar.strpos` * During windowing: `relational_query.window.expression.scalar.strpos`",
+          "type": "object",
+          "required": [
+            "str",
+            "substr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "str_pos"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "substr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.substr` * During filtering: `relational_query.filter.scalar.substr` * During sorting:`relational_query.sort.expression.scalar.substr` * During joining: `relational_query.join.expression.scalar.substr` * During aggregation: `relational_query.aggregate.expression.scalar.substr` * During windowing: `relational_query.window.expression.scalar.substr`",
+          "type": "object",
+          "required": [
+            "start_pos",
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "substr"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "start_pos": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "len": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.substr_index` * During filtering: `relational_query.filter.scalar.substr_index` * During sorting:`relational_query.sort.expression.scalar.substr_index` * During joining: `relational_query.join.expression.scalar.substr_index` * During aggregation: `relational_query.aggregate.expression.scalar.substr_index` * During windowing: `relational_query.window.expression.scalar.substr_index`",
+          "type": "object",
+          "required": [
+            "count",
+            "delim",
+            "str",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "substr_index"
+              ]
+            },
+            "str": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "delim": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "count": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.tan` * During filtering: `relational_query.filter.scalar.tan` * During sorting:`relational_query.sort.expression.scalar.tan` * During joining: `relational_query.join.expression.scalar.tan` * During aggregation: `relational_query.aggregate.expression.scalar.tan` * During windowing: `relational_query.window.expression.scalar.tan`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "tan"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.to_date` * During filtering: `relational_query.filter.scalar.to_date` * During sorting:`relational_query.sort.expression.scalar.to_date` * During joining: `relational_query.join.expression.scalar.to_date` * During aggregation: `relational_query.aggregate.expression.scalar.to_date` * During windowing: `relational_query.window.expression.scalar.to_date`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "to_date"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.to_timestamp` * During filtering: `relational_query.filter.scalar.to_timestamp` * During sorting:`relational_query.sort.expression.scalar.to_timestamp` * During joining: `relational_query.join.expression.scalar.to_timestamp` * During aggregation: `relational_query.aggregate.expression.scalar.to_timestamp` * During windowing: `relational_query.window.expression.scalar.to_timestamp`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "to_timestamp"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.trunc` * During filtering: `relational_query.filter.scalar.trunc` * During sorting:`relational_query.sort.expression.scalar.trunc` * During joining: `relational_query.join.expression.scalar.trunc` * During aggregation: `relational_query.aggregate.expression.scalar.trunc` * During windowing: `relational_query.window.expression.scalar.trunc`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "trunc"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "prec": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.to_lower` * During filtering: `relational_query.filter.scalar.to_lower` * During sorting:`relational_query.sort.expression.scalar.to_lower` * During joining: `relational_query.join.expression.scalar.to_lower` * During aggregation: `relational_query.aggregate.expression.scalar.to_lower` * During windowing: `relational_query.window.expression.scalar.to_lower`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "to_lower"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.to_upper` * During filtering: `relational_query.filter.scalar.to_upper` * During sorting:`relational_query.sort.expression.scalar.to_upper` * During joining: `relational_query.join.expression.scalar.to_upper` * During aggregation: `relational_query.aggregate.expression.scalar.to_upper` * During windowing: `relational_query.window.expression.scalar.to_upper`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "to_upper"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.binary_concat` * During filtering: `relational_query.filter.scalar.binary_concat` * During sorting:`relational_query.sort.expression.scalar.binary_concat` * During joining: `relational_query.join.expression.scalar.binary_concat` * During aggregation: `relational_query.aggregate.expression.scalar.binary_concat` * During windowing: `relational_query.window.expression.scalar.binary_concat`",
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "binary_concat"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "average"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.bool_and` * During filtering: `relational_query.filter.aggregate.bool_and` * During sorting:`relational_query.sort.expression.aggregate.bool_and` * During joining: `relational_query.join.expression.aggregate.bool_and` * During aggregation: `relational_query.aggregate.expression.aggregate.bool_and` * During windowing: `relational_query.window.expression.aggregate.bool_and`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bool_and"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.bool_or` * During filtering: `relational_query.filter.aggregate.bool_or` * During sorting:`relational_query.sort.expression.aggregate.bool_or` * During joining: `relational_query.join.expression.aggregate.bool_or` * During aggregation: `relational_query.aggregate.expression.aggregate.bool_or` * During windowing: `relational_query.window.expression.aggregate.bool_or`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bool_or"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "distinct",
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "count"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "distinct": {
+              "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.count_distinct` * During filtering: `relational_query.filter.aggregate.count_distinct` * During sorting:`relational_query.sort.expression.aggregate.count_distinct` * During joining: `relational_query.join.expression.aggregate.count_distinct` * During aggregation: `relational_query.aggregate.expression.aggregate.count_distinct` * During windowing: `relational_query.window.expression.aggregate.count_distinct`",
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.first_value` * During filtering: `relational_query.filter.aggregate.first_value` * During sorting:`relational_query.sort.expression.aggregate.first_value` * During joining: `relational_query.join.expression.aggregate.first_value` * During aggregation: `relational_query.aggregate.expression.aggregate.first_value` * During windowing: `relational_query.window.expression.aggregate.first_value`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "first_value"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.last_value` * During filtering: `relational_query.filter.aggregate.last_value` * During sorting:`relational_query.sort.expression.aggregate.last_value` * During joining: `relational_query.join.expression.aggregate.last_value` * During aggregation: `relational_query.aggregate.expression.aggregate.last_value` * During windowing: `relational_query.window.expression.aggregate.last_value`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "last_value"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "max"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.median` * During filtering: `relational_query.filter.aggregate.median` * During sorting:`relational_query.sort.expression.aggregate.median` * During joining: `relational_query.join.expression.aggregate.median` * During aggregation: `relational_query.aggregate.expression.aggregate.median` * During windowing: `relational_query.window.expression.aggregate.median`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "median"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "min"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.string_agg` * During filtering: `relational_query.filter.aggregate.string_agg` * During sorting:`relational_query.sort.expression.aggregate.string_agg` * During joining: `relational_query.join.expression.aggregate.string_agg` * During aggregation: `relational_query.aggregate.expression.aggregate.string_agg` * During windowing: `relational_query.window.expression.aggregate.string_agg`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "string_agg"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "sum"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.var` * During filtering: `relational_query.filter.aggregate.var` * During sorting:`relational_query.sort.expression.aggregate.var` * During joining: `relational_query.join.expression.aggregate.var` * During aggregation: `relational_query.aggregate.expression.aggregate.var` * During windowing: `relational_query.window.expression.aggregate.var`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "var"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.window.row_number` * During filtering: `relational_query.filter.window.row_number` * During sorting:`relational_query.sort.expression.window.row_number` * During joining: `relational_query.join.expression.window.row_number` * During aggregation: `relational_query.window.row_number` * During windowing: `relational_query.window.expression.window.row_number`",
+          "type": "object",
+          "required": [
+            "order_by",
+            "partition_by",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "row_number"
+              ]
+            },
+            "order_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
+            },
+            "partition_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.window.dense_rank` * During filtering: `relational_query.filter.window.dense_rank` * During sorting:`relational_query.sort.expression.window.dense_rank` * During joining: `relational_query.join.expression.window.dense_rank` * During aggregation: `relational_query.window.dense_rank` * During windowing: `relational_query.window.expression.window.dense_rank`",
+          "type": "object",
+          "required": [
+            "order_by",
+            "partition_by",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "dense_rank"
+              ]
+            },
+            "order_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
+            },
+            "partition_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.window.ntile` * During filtering: `relational_query.filter.window.ntile` * During sorting:`relational_query.sort.expression.window.ntile` * During joining: `relational_query.join.expression.window.ntile` * During aggregation: `relational_query.window.ntile` * During windowing: `relational_query.window.expression.window.ntile`",
+          "type": "object",
+          "required": [
+            "n",
+            "order_by",
+            "partition_by",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "n_tile"
+              ]
+            },
+            "order_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
+            },
+            "partition_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            },
+            "n": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.window.rank` * During filtering: `relational_query.filter.window.rank` * During sorting:`relational_query.sort.expression.window.rank` * During joining: `relational_query.join.expression.window.rank` * During aggregation: `relational_query.window.rank` * During windowing: `relational_query.window.expression.window.rank`",
+          "type": "object",
+          "required": [
+            "order_by",
+            "partition_by",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "rank"
+              ]
+            },
+            "order_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
+            },
+            "partition_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.window.cume_dist` * During filtering: `relational_query.filter.window.cume_dist` * During sorting:`relational_query.sort.expression.window.cume_dist` * During joining: `relational_query.join.expression.window.cume_dist` * During aggregation: `relational_query.window.cume_dist` * During windowing: `relational_query.window.expression.window.cume_dist`",
+          "type": "object",
+          "required": [
+            "order_by",
+            "partition_by",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "cume_dist"
+              ]
+            },
+            "order_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
+            },
+            "partition_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.window.percent_rank` * During filtering: `relational_query.filter.window.percent_rank` * During sorting:`relational_query.sort.expression.window.percent_rank` * During joining: `relational_query.join.expression.window.percent_rank` * During aggregation: `relational_query.window.percent_rank` * During windowing: `relational_query.window.expression.window.percent_rank`",
+          "type": "object",
+          "required": [
+            "order_by",
+            "partition_by",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "percent_rank"
+              ]
+            },
+            "order_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
+            },
+            "partition_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RelationalLiteral": {
+      "title": "RelationalLiteral",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "null"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "boolean"
+              ]
+            },
+            "value": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "description": "utf-8 encoded string.",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "string"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "signed 8bit int",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int8"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int8"
+            }
+          }
+        },
+        {
+          "description": "signed 16bit int",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int16"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int16"
+            }
+          }
+        },
+        {
+          "description": "signed 32bit int",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int32"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        {
+          "description": "signed 64bit int",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "int64"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "unsigned 8bit int",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uint8"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "unsigned 16bit int",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uint16"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "uint16",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "unsigned 32bit int",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uint32"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "unsigned 64bit int",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uint64"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "32bit float",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float32"
+              ]
+            },
+            "value": {
+              "type": "number",
+              "format": "float"
+            }
+          }
+        },
+        {
+          "description": "64bit float",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float64"
+              ]
+            },
+            "value": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        },
+        {
+          "description": "128-bit decimal",
+          "type": "object",
+          "required": [
+            "prec",
+            "scale",
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "decimal128"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int128"
+            },
+            "scale": {
+              "type": "integer",
+              "format": "int8"
+            },
+            "prec": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "256-bit decimal",
+          "type": "object",
+          "required": [
+            "prec",
+            "scale",
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "decimal256"
+              ]
+            },
+            "value": {
+              "type": "string"
+            },
+            "scale": {
+              "type": "integer",
+              "format": "int8"
+            },
+            "prec": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "Date stored as a signed 32bit int days since UNIX epoch 1970-01-01",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "date32"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        {
+          "description": "Date stored as a signed 64bit int milliseconds since UNIX epoch 1970-01-01",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "date64"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Time stored as a signed 32bit int as seconds since midnight",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "time32_second"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        {
+          "description": "Time stored as a signed 32bit int as milliseconds since midnight",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "time32_millisecond"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        {
+          "description": "Time stored as a signed 64bit int as microseconds since midnight",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "time64_microsecond"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Time stored as a signed 64bit int as nanoseconds since midnight",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "time64_nanosecond"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Timestamp Second",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "timestamp_second"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Timestamp Milliseconds",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "timestamp_millisecond"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Timestamp Microseconds",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "timestamp_microsecond"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Timestamp Nanoseconds",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "timestamp_nanosecond"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Duration in seconds",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "duration_second"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Duration in milliseconds",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "duration_millisecond"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Duration in microseconds",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "duration_microsecond"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Duration in nanoseconds",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "duration_nanosecond"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      ]
+    },
+    "Sort": {
+      "title": "Sort",
+      "type": "object",
+      "required": [
+        "direction",
+        "expr",
+        "nulls_sort"
+      ],
+      "properties": {
+        "expr": {
+          "$ref": "#/definitions/RelationalExpression"
+        },
+        "direction": {
+          "$ref": "#/definitions/OrderDirection"
+        },
+        "nulls_sort": {
+          "$ref": "#/definitions/NullsSort"
+        }
+      }
+    }
+  }
+}
