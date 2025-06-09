@@ -2510,6 +2510,29 @@
           }
         },
         {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.binary_concat` * During filtering: `relational_query.filter.scalar.binary_concat` * During sorting:`relational_query.sort.expression.scalar.binary_concat` * During joining: `relational_query.join.expression.scalar.binary_concat` * During aggregation: `relational_query.aggregate.expression.scalar.binary_concat` * During windowing: `relational_query.window.expression.scalar.binary_concat`",
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "binary_concat"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
           "type": "object",
           "required": [
             "expr",
