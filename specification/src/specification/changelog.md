@@ -1,5 +1,16 @@
 # Changelog
 
+## `0.2.3`
+
+### Specification
+
+- Updates to relational queries
+  - Add arguments to `From`
+  - Support `EXTRACT(EPOCH FROM ...)`
+  - New binary string concatenation operator
+  - `UNION` relations
+- New relational `INSERT`, `UPDATE` and `DELETE` operations
+
 ## `0.2.2`
 
 ### Specification
