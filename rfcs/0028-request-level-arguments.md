@@ -29,7 +29,7 @@ pub struct RequestLevelArguments {
 }
 ```
 
-`ArgumentInfo` is the same type used for other argument definitions \- it includes a type and optional description. As with other arguments, a nullable argument should always be passed with `null` rather than omitted, we prefer to make the user be explicit to ensure a misconfigured plugin (that doesn’t add an argument) doesn’t accidentally change the DB a user accesses.
+`ArgumentInfo` is the same type used for other argument definitions \- it includes a type and optional description. If a nullable argument is not supplied, we shall assume a `null` value has been passed for that argument.
 
 The following fields are added to the `QueryRequest`, `MutationRequest` and `RelationalQuery` types:
 
