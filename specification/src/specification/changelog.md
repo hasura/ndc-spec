@@ -1,5 +1,15 @@
 # Changelog
 
+## `0.2.4`
+
+### Specification
+
+- Add request-level arguments
+
+### `ndc-test`
+
+- Check empty `and`/`or` predicates
+
 ## `0.2.3`
 
 ### Specification
