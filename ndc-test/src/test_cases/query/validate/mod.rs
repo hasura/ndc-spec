@@ -11,13 +11,13 @@ pub fn expect_matching_query_responses(
     response_l: &models::QueryResponse,
     response_r: &models::QueryResponse,
 ) -> Result<()> {
-    if response_l != response_r {
+    if response_l == response_r {
+        Ok(())
+    } else {
         Err(Error::ExpectedMatchingResponses(
             response_l.clone(),
             response_r.clone(),
         ))
-    } else {
-        Ok(())
     }
 }
 
