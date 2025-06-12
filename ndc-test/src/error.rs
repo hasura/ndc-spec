@@ -30,6 +30,8 @@ pub enum Error {
     RowsShouldBeNullInRowSet,
     #[error("expected non-null rows in RowSet")]
     RowsShouldBeNonNullInRowSet,
+    #[error("expected empty rows response")]
+    ExpectedEmptyRows,
     #[error("expected null aggregates in RowSet")]
     AggregatesShouldBeNullInRowSet,
     #[error("expected non-null aggregates in RowSet")]
@@ -72,6 +74,8 @@ pub enum Error {
     ResponseDoesNotSatisfy(String),
     #[error("invalid response at path {}: expected {1}", .0.join("."))]
     InvalidValueInResponse(Vec<String>, String),
+    #[error("expected matching responses, but got:\n{0:#?}\n{1:#?}")]
+    ExpectedMatchingResponses(ndc_models::QueryResponse, ndc_models::QueryResponse),
     #[error("invalid request: {0}")]
     InvalidRequest(String),
     #[error("other error: {0}")]

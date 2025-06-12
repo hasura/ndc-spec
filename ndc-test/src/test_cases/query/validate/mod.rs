@@ -7,6 +7,20 @@ use ndc_models as models;
 use crate::connector::Connector;
 use crate::error::{Error, OtherError, Result};
 
+pub fn expect_matching_query_responses(
+    response_l: &models::QueryResponse,
+    response_r: &models::QueryResponse,
+) -> Result<()> {
+    if response_l != response_r {
+        Err(Error::ExpectedMatchingResponses(
+            response_l.clone(),
+            response_r.clone(),
+        ))
+    } else {
+        Ok(())
+    }
+}
+
 pub fn expect_single_non_empty_rows(
     response: &models::QueryResponse,
 ) -> Result<Vec<IndexMap<models::FieldName, models::RowFieldValue>>> {
@@ -17,6 +31,15 @@ pub fn expect_single_non_empty_rows(
     }
 
     Ok(rows)
+}
+
+pub fn expect_single_empty_rows(response: &models::QueryResponse) -> Result<()> {
+    let rows = expect_single_rows(response)?;
+    if !rows.is_empty() {
+        return Err(Error::ExpectedEmptyRows);
+    }
+
+    Ok(())
 }
 
 pub fn expect_single_rows(
