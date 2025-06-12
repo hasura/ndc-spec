@@ -7,7 +7,6 @@
     "functions",
     "object_types",
     "procedures",
-    "request_arguments",
     "scalar_types"
   ],
   "properties": {
@@ -59,9 +58,12 @@
     },
     "request_arguments": {
       "description": "Request level arguments which are required for queries and mutations",
-      "allOf": [
+      "anyOf": [
         {
           "$ref": "#/definitions/RequestLevelArguments"
+        },
+        {
+          "type": "null"
         }
       ]
     }
