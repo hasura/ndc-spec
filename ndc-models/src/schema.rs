@@ -27,7 +27,7 @@ pub struct SchemaResponse {
     /// Schema data which is relevant to features enabled by capabilities
     pub capabilities: Option<CapabilitySchemaInfo>,
     /// Request level arguments which are required for queries and mutations
-    pub request_arguments: RequestLevelArguments,
+    pub request_arguments: Option<RequestLevelArguments>,
 }
 // ANCHOR_END: SchemaResponse
 
