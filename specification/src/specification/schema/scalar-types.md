@@ -30,6 +30,7 @@ A scalar type definition must include a _type representation_. The representatio
 | `geometry`    | GeoJSON Geometry object, per RFC 7946                                                 | JSON                |
 | `bytes`       | Base64-encoded bytes                                                                  | String              |
 | `json`        | Arbitrary JSON                                                                        | JSON                |
+| `json_string` | Arbitrary JSON, sent as a string                                                      | String              |
 
 ### Enum Representations
 

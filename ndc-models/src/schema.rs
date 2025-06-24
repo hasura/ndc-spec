@@ -98,6 +98,9 @@ pub enum TypeRepresentation {
     /// Arbitrary JSON
     #[serde(rename = "json")]
     JSON,
+    /// Arbitrary JSON, sent as a string
+    #[serde(rename = "json_string")]
+    JSONString,
     /// One of the specified string values
     Enum { one_of: Vec<String> },
 }

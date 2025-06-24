@@ -1388,6 +1388,21 @@
           }
         },
         {
+          "description": "Arbitrary JSON, sent as a string",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "json_string"
+              ]
+            }
+          }
+        },
+        {
           "description": "One of the specified string values",
           "type": "object",
           "required": [

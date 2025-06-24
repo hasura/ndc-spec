@@ -628,6 +628,13 @@ mod representations {
             | models::TypeRepresentation::Timestamp
             | models::TypeRepresentation::TimestampTZ
             | models::TypeRepresentation::Bytes => check!(value.is_string(), "string"),
+            models::TypeRepresentation::JSONString => check!(
+                {
+                    let s = value.as_str();
+                    s.is_some_and(|x| serde_json::from_str::<serde_json::Value>(x).is_ok())
+                },
+                "string"
+            ),
             models::TypeRepresentation::Enum { one_of } => {
                 check!(
                     {
