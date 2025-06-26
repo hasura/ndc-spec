@@ -16,6 +16,7 @@ use crate::{ArgumentName, CollectionName, FieldName, OrderDirection};
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 #[schemars(title = "RelationalQuery")]
+#[skip_serializing_none]
 pub struct RelationalQuery {
     pub root_relation: Relation,
     /// Values to be provided to request-level arguments.
