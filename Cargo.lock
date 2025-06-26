@@ -212,6 +212,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
 
 [[package]]
+name = "borsh"
+version = "1.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2506947f73ad44e344215ccd6403ac2ae18cd8e046e581a441bf8d199f257f03"
+dependencies = [
+ "cfg_aliases",
+]
+
+[[package]]
 name = "bstr"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1477,8 +1486,7 @@ dependencies = [
 [[package]]
 name = "schemars"
 version = "0.8.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09c024468a378b7e36765cd36702b7a90cc3cba11654f6685c8f233408e89e92"
+source = "git+https://github.com/hasura/schemars.git?branch=v0#d656e7a6add57afc8fc335e9f9798d0c866baedd"
 dependencies = [
  "dyn-clone",
  "indexmap 1.9.3",
@@ -1492,8 +1500,7 @@ dependencies = [
 [[package]]
 name = "schemars_derive"
 version = "0.8.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1eee588578aff73f856ab961cd2f79e36bc45d7ded33a7562adba4667aecc0e"
+source = "git+https://github.com/hasura/schemars.git?branch=v0#d656e7a6add57afc8fc335e9f9798d0c866baedd"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1684,10 +1691,11 @@ checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 
 [[package]]
 name = "smol_str"
-version = "0.1.24"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fad6c857cbab2627dcf01ec85a623ca4e7dcb5691cbaa3d7fb7653671f0d09c9"
+checksum = "9676b89cd56310a87b93dec47b11af744f34d5fc9f367b829474eec0a891350d"
 dependencies = [
+ "borsh",
  "serde",
 ]
 
