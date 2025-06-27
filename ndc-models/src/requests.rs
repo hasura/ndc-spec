@@ -188,9 +188,9 @@ pub struct ExplainResponse {
 // ANCHOR_END: ExplainResponse
 
 // ANCHOR: MutationRequest
+#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Mutation Request")]
-#[skip_serializing_none]
 pub struct MutationRequest {
     /// The mutation operations to perform
     pub operations: Vec<MutationOperation>,
