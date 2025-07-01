@@ -105,6 +105,7 @@ However, there are other contexts where we cannot navigate nested relationships.
 - `ExistsInCollection::Related` (used in filter predicates to navigate relationships) has no facility to descend into nested fields before navigating the relationship ([example usage](#existsincollectionrelated)).
 
 - `PathElement` is used to traverse relationships, but it does not have a nested field traversal facility. It is used in:
+
   - `ComparisonTarget::Aggregate` - part of filter predicates; where the left hand side of a comparison operation references an aggregate ([example usage](#comparisontargetaggregate))
 
   - `ComparisonValue::Column` - part of filter predicates; where the right hand side of a comparison operation references a column (this is currently unused in v3-engine, but is intended to be used in model permissions, as it was used for that purpose in v2 permissions)

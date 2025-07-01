@@ -15,6 +15,7 @@
 - [Capabilities](specification/capabilities.md)
 - [Types](specification/types.md)
 - [Schema](specification/schema/README.md)
+
   - [Scalar Types](specification/schema/scalar-types.md)
   - [Object Types](specification/schema/object-types.md)
   - [Collections](specification/schema/collections.md)

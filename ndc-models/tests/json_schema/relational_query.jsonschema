@@ -2761,6 +2761,105 @@
           }
         },
         {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.stddev` * During filtering: `relational_query.filter.aggregate.stddev` * During sorting:`relational_query.sort.expression.aggregate.stddev` * During joining: `relational_query.join.expression.aggregate.stddev` * During aggregation: `relational_query.aggregate.expression.aggregate.stddev` * During windowing: `relational_query.window.expression.aggregate.stddev`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "stddev"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.stddev_pop` * During filtering: `relational_query.filter.aggregate.stddev_pop` * During sorting:`relational_query.sort.expression.aggregate.stddev_pop` * During joining: `relational_query.join.expression.aggregate.stddev_pop` * During aggregation: `relational_query.aggregate.expression.aggregate.stddev_pop` * During windowing: `relational_query.window.expression.aggregate.stddev_pop`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "stddev_pop"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.approx_percentile_cont` * During filtering: `relational_query.filter.aggregate.approx_percentile_cont` * During sorting:`relational_query.sort.expression.aggregate.approx_percentile_cont` * During joining: `relational_query.join.expression.aggregate.approx_percentile_cont` * During aggregation: `relational_query.aggregate.expression.aggregate.approx_percentile_cont` * During windowing: `relational_query.window.expression.aggregate.approx_percentile_cont`",
+          "type": "object",
+          "required": [
+            "expr",
+            "percentile",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "approx_percentile_cont"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "percentile": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.array_agg` * During filtering: `relational_query.filter.aggregate.array_agg` * During sorting:`relational_query.sort.expression.aggregate.array_agg` * During joining: `relational_query.join.expression.aggregate.array_agg` * During aggregation: `relational_query.aggregate.expression.aggregate.array_agg` * During windowing: `relational_query.window.expression.aggregate.array_agg`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "array_agg"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.approx_distinct` * During filtering: `relational_query.filter.aggregate.approx_distinct` * During sorting:`relational_query.sort.expression.aggregate.approx_distinct` * During joining: `relational_query.join.expression.aggregate.approx_distinct` * During aggregation: `relational_query.aggregate.expression.aggregate.approx_distinct` * During windowing: `relational_query.window.expression.aggregate.approx_distinct`",
+          "type": "object",
+          "required": [
+            "expr",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "approx_distinct"
+              ]
+            },
+            "expr": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
           "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.window.row_number` * During filtering: `relational_query.filter.window.row_number` * During sorting:`relational_query.sort.expression.window.row_number` * During joining: `relational_query.join.expression.window.row_number` * During aggregation: `relational_query.window.row_number` * During windowing: `relational_query.window.expression.window.row_number`",
           "type": "object",
           "required": [
