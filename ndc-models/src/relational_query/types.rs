@@ -1,6 +1,69 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+// Add newtypes for f32 and f64, to derive Hash and PartialEq
+#[derive(Debug, Copy, Clone, PartialOrd, Serialize, Deserialize)]
+pub struct Float32(pub f32);
+
+#[derive(Debug, Copy, Clone, PartialOrd, Serialize, Deserialize)]
+pub struct Float64(pub f64);
+
+impl PartialEq for Float32 {
+    fn eq(&self, other: &Self) -> bool {
+        self.0.to_bits() == other.0.to_bits()
+    }
+}
+
+impl Eq for Float32 {}
+
+impl std::hash::Hash for Float32 {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.to_bits().hash(state);
+    }
+}
+
+impl PartialEq for Float64 {
+    fn eq(&self, other: &Self) -> bool {
+        self.0.to_bits() == other.0.to_bits()
+    }
+}
+
+impl Eq for Float64 {}
+
+impl std::hash::Hash for Float64 {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.to_bits().hash(state);
+    }
+}
+
+impl JsonSchema for Float32 {
+    fn is_referenceable() -> bool {
+        false
+    }
+
+    fn schema_name() -> String {
+        f32::schema_name()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+        f32::json_schema(gen)
+    }
+}
+
+impl JsonSchema for Float64 {
+    fn is_referenceable() -> bool {
+        false
+    }
+
+    fn schema_name() -> String {
+        f64::schema_name()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+        f64::json_schema(gen)
+    }
+}
+
 #[derive(
     Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Hash, Serialize, Deserialize, JsonSchema,
 )]
@@ -54,7 +117,7 @@ pub enum CastType {
     Duration,
 }
 
-#[derive(Debug, Clone, PartialOrd, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialOrd, Hash, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type")]
 #[schemars(title = "RelationalLiteral", rename_all = "snake_case")]
 pub enum RelationalLiteral {
@@ -104,11 +167,11 @@ pub enum RelationalLiteral {
     },
     /// 32bit float
     Float32 {
-        value: f32,
+        value: Float32,
     },
     /// 64bit float
     Float64 {
-        value: f64,
+        value: Float64,
     },
     /// 128-bit decimal
     Decimal128 {
@@ -179,272 +242,4 @@ pub enum RelationalLiteral {
     DurationNanosecond {
         value: i64,
     },
-}
-
-// Manually implemented so that float values are compared using their binary representation
-#[allow(clippy::match_same_arms)]
-impl PartialEq for RelationalLiteral {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Null, Self::Null) => true,
-            (Self::Null, _) => false,
-            (Self::Boolean { value: l_value }, Self::Boolean { value: r_value }) => {
-                l_value == r_value
-            }
-            (Self::Boolean { .. }, _) => false,
-            (Self::String { value: l_value }, Self::String { value: r_value }) => {
-                l_value == r_value
-            }
-            (Self::String { .. }, _) => false,
-            (Self::Int8 { value: l_value }, Self::Int8 { value: r_value }) => l_value == r_value,
-            (Self::Int8 { .. }, _) => false,
-            (Self::Int16 { value: l_value }, Self::Int16 { value: r_value }) => l_value == r_value,
-            (Self::Int16 { .. }, _) => false,
-            (Self::Int32 { value: l_value }, Self::Int32 { value: r_value }) => l_value == r_value,
-            (Self::Int32 { .. }, _) => false,
-            (Self::Int64 { value: l_value }, Self::Int64 { value: r_value }) => l_value == r_value,
-            (Self::Int64 { .. }, _) => false,
-            (Self::UInt8 { value: l_value }, Self::UInt8 { value: r_value }) => l_value == r_value,
-            (Self::UInt8 { .. }, _) => false,
-            (Self::UInt16 { value: l_value }, Self::UInt16 { value: r_value }) => {
-                l_value == r_value
-            }
-            (Self::UInt16 { .. }, _) => false,
-            (Self::UInt32 { value: l_value }, Self::UInt32 { value: r_value }) => {
-                l_value == r_value
-            }
-            (Self::UInt32 { .. }, _) => false,
-            (Self::UInt64 { value: l_value }, Self::UInt64 { value: r_value }) => {
-                l_value == r_value
-            }
-            (Self::UInt64 { .. }, _) => false,
-            (Self::Float32 { value: l_value }, Self::Float32 { value: r_value }) => {
-                l_value.to_bits() == r_value.to_bits()
-            }
-            (Self::Float32 { .. }, _) => false,
-            (Self::Float64 { value: l_value }, Self::Float64 { value: r_value }) => {
-                l_value.to_bits() == r_value.to_bits()
-            }
-            (Self::Float64 { .. }, _) => false,
-            (
-                Self::Decimal128 {
-                    value: l_value,
-                    scale: l_scale,
-                    prec: l_prec,
-                },
-                Self::Decimal128 {
-                    value: r_value,
-                    scale: r_scale,
-                    prec: r_prec,
-                },
-            ) => l_value == r_value && l_scale == r_scale && l_prec == r_prec,
-            (Self::Decimal128 { .. }, _) => false,
-            (
-                Self::Decimal256 {
-                    value: l_value,
-                    scale: l_scale,
-                    prec: l_prec,
-                },
-                Self::Decimal256 {
-                    value: r_value,
-                    scale: r_scale,
-                    prec: r_prec,
-                },
-            ) => l_value == r_value && l_scale == r_scale && l_prec == r_prec,
-            (Self::Decimal256 { .. }, _) => false,
-            (Self::Date32 { value: l_value }, Self::Date32 { value: r_value }) => {
-                l_value == r_value
-            }
-            (Self::Date32 { .. }, _) => false,
-            (Self::Date64 { value: l_value }, Self::Date64 { value: r_value }) => {
-                l_value == r_value
-            }
-            (Self::Date64 { .. }, _) => false,
-            (Self::Time32Second { value: l_value }, Self::Time32Second { value: r_value }) => {
-                l_value == r_value
-            }
-            (Self::Time32Second { .. }, _) => false,
-            (
-                Self::Time32Millisecond { value: l_value },
-                Self::Time32Millisecond { value: r_value },
-            ) => l_value == r_value,
-            (Self::Time32Millisecond { .. }, _) => false,
-            (
-                Self::Time64Microsecond { value: l_value },
-                Self::Time64Microsecond { value: r_value },
-            ) => l_value == r_value,
-            (Self::Time64Microsecond { .. }, _) => false,
-            (
-                Self::Time64Nanosecond { value: l_value },
-                Self::Time64Nanosecond { value: r_value },
-            ) => l_value == r_value,
-            (Self::Time64Nanosecond { .. }, _) => false,
-            (
-                Self::TimestampSecond { value: l_value },
-                Self::TimestampSecond { value: r_value },
-            ) => l_value == r_value,
-            (Self::TimestampSecond { .. }, _) => false,
-            (
-                Self::TimestampMillisecond { value: l_value },
-                Self::TimestampMillisecond { value: r_value },
-            ) => l_value == r_value,
-            (Self::TimestampMillisecond { .. }, _) => false,
-            (
-                Self::TimestampMicrosecond { value: l_value },
-                Self::TimestampMicrosecond { value: r_value },
-            ) => l_value == r_value,
-            (Self::TimestampMicrosecond { .. }, _) => false,
-            (
-                Self::TimestampNanosecond { value: l_value },
-                Self::TimestampNanosecond { value: r_value },
-            ) => l_value == r_value,
-            (Self::TimestampNanosecond { .. }, _) => false,
-            (Self::DurationSecond { value: l_value }, Self::DurationSecond { value: r_value }) => {
-                l_value == r_value
-            }
-            (Self::DurationSecond { .. }, _) => false,
-            (
-                Self::DurationMillisecond { value: l_value },
-                Self::DurationMillisecond { value: r_value },
-            ) => l_value == r_value,
-            (Self::DurationMillisecond { .. }, _) => false,
-            (
-                Self::DurationMicrosecond { value: l_value },
-                Self::DurationMicrosecond { value: r_value },
-            ) => l_value == r_value,
-            (Self::DurationMicrosecond { .. }, _) => false,
-            (
-                Self::DurationNanosecond { value: l_value },
-                Self::DurationNanosecond { value: r_value },
-            ) => l_value == r_value,
-            (Self::DurationNanosecond { .. }, _) => false,
-        }
-    }
-}
-
-impl Eq for RelationalLiteral {}
-
-// Manually implemented so that float values are hashed with their binary representation
-impl std::hash::Hash for RelationalLiteral {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        match self {
-            RelationalLiteral::Null => 0.hash(state),
-            RelationalLiteral::Boolean { value } => {
-                1.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Float32 { value } => {
-                2.hash(state);
-                value.to_bits().hash(state);
-            }
-            RelationalLiteral::Float64 { value } => {
-                3.hash(state);
-                value.to_bits().hash(state);
-            }
-            RelationalLiteral::Int8 { value } => {
-                4.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Int16 { value } => {
-                5.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Int32 { value } => {
-                6.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Int64 { value } => {
-                7.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::UInt8 { value } => {
-                8.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::UInt16 { value } => {
-                9.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::UInt32 { value } => {
-                10.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::UInt64 { value } => {
-                11.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Decimal128 { value, scale, prec } => {
-                12.hash(state);
-                value.hash(state);
-                scale.hash(state);
-                prec.hash(state);
-            }
-            RelationalLiteral::Decimal256 { value, scale, prec } => {
-                13.hash(state);
-                value.hash(state);
-                scale.hash(state);
-                prec.hash(state);
-            }
-            RelationalLiteral::String { value } => {
-                14.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Date32 { value } => {
-                15.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Date64 { value } => {
-                16.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Time32Second { value } => {
-                17.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Time32Millisecond { value } => {
-                18.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Time64Microsecond { value } => {
-                19.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::Time64Nanosecond { value } => {
-                20.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::TimestampSecond { value } => {
-                21.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::TimestampMillisecond { value } => {
-                22.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::TimestampMicrosecond { value } => {
-                23.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::TimestampNanosecond { value } => {
-                24.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::DurationSecond { value } => {
-                25.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::DurationMillisecond { value } => {
-                26.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::DurationMicrosecond { value } => {
-                27.hash(state);
-                value.hash(state);
-            }
-            RelationalLiteral::DurationNanosecond { value } => {
-                28.hash(state);
-                value.hash(state);
-            }
-        }
-    }
 }

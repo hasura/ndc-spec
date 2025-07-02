@@ -230,6 +230,11 @@ pub struct RelationalAggregateExpressionCapabilities {
     pub string_agg: Option<LeafCapability>,
     pub sum: Option<LeafCapability>,
     pub var: Option<LeafCapability>,
+    pub stddev: Option<LeafCapability>,
+    pub stddev_pop: Option<LeafCapability>,
+    pub approx_percentile_cont: Option<LeafCapability>,
+    pub array_agg: Option<LeafCapability>,
+    pub approx_distinct: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalAggregateExpressionCapabilities
 

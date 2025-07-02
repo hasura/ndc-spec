@@ -859,6 +859,61 @@ pub enum RelationalExpression {
     // var_population
     // var_samp
     // var_sample
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.aggregate.stddev`
+    /// * During filtering: `relational_query.filter.aggregate.stddev`
+    /// * During sorting:`relational_query.sort.expression.aggregate.stddev`
+    /// * During joining: `relational_query.join.expression.aggregate.stddev`
+    /// * During aggregation: `relational_query.aggregate.expression.aggregate.stddev`
+    /// * During windowing: `relational_query.window.expression.aggregate.stddev`
+    Stddev {
+        expr: Box<RelationalExpression>,
+    },
+
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.aggregate.stddev_pop`
+    /// * During filtering: `relational_query.filter.aggregate.stddev_pop`
+    /// * During sorting:`relational_query.sort.expression.aggregate.stddev_pop`
+    /// * During joining: `relational_query.join.expression.aggregate.stddev_pop`
+    /// * During aggregation: `relational_query.aggregate.expression.aggregate.stddev_pop`
+    /// * During windowing: `relational_query.window.expression.aggregate.stddev_pop`
+    StddevPop {
+        expr: Box<RelationalExpression>,
+    },
+
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.aggregate.approx_percentile_cont`
+    /// * During filtering: `relational_query.filter.aggregate.approx_percentile_cont`
+    /// * During sorting:`relational_query.sort.expression.aggregate.approx_percentile_cont`
+    /// * During joining: `relational_query.join.expression.aggregate.approx_percentile_cont`
+    /// * During aggregation: `relational_query.aggregate.expression.aggregate.approx_percentile_cont`
+    /// * During windowing: `relational_query.window.expression.aggregate.approx_percentile_cont`
+    ApproxPercentileCont {
+        expr: Box<RelationalExpression>,
+        percentile: super::Float64,
+    },
+
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.aggregate.array_agg`
+    /// * During filtering: `relational_query.filter.aggregate.array_agg`
+    /// * During sorting:`relational_query.sort.expression.aggregate.array_agg`
+    /// * During joining: `relational_query.join.expression.aggregate.array_agg`
+    /// * During aggregation: `relational_query.aggregate.expression.aggregate.array_agg`
+    /// * During windowing: `relational_query.window.expression.aggregate.array_agg`
+    ArrayAgg {
+        expr: Box<RelationalExpression>,
+    },
+
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.aggregate.approx_distinct`
+    /// * During filtering: `relational_query.filter.aggregate.approx_distinct`
+    /// * During sorting:`relational_query.sort.expression.aggregate.approx_distinct`
+    /// * During joining: `relational_query.join.expression.aggregate.approx_distinct`
+    /// * During aggregation: `relational_query.aggregate.expression.aggregate.approx_distinct`
+    /// * During windowing: `relational_query.window.expression.aggregate.approx_distinct`
+    ApproxDistinct {
+        expr: Box<RelationalExpression>,
+    },
 
     // Window functions
     /// Only used when in specific contexts where the appropriate capability is supported:
