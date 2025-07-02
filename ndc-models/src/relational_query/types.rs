@@ -40,7 +40,7 @@ impl JsonSchema for Float32 {
     fn is_referenceable() -> bool {
         false
     }
-    
+
     fn schema_name() -> String {
         f32::schema_name()
     }
@@ -54,7 +54,7 @@ impl JsonSchema for Float64 {
     fn is_referenceable() -> bool {
         false
     }
-    
+
     fn schema_name() -> String {
         f64::schema_name()
     }
