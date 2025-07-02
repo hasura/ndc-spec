@@ -735,6 +735,16 @@
               "type": "null"
             }
           ]
+        },
+        "approx_distinct": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
