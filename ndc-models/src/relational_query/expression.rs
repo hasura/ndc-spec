@@ -890,7 +890,7 @@ pub enum RelationalExpression {
     /// * During windowing: `relational_query.window.expression.aggregate.approx_percentile_cont`
     ApproxPercentileCont {
         expr: Box<RelationalExpression>,
-        percentile: Box<RelationalExpression>,
+        percentile: super::Float64,
     },
 
     /// Only used when in specific contexts where the appropriate capability is supported:

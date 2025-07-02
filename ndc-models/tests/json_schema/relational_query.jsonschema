@@ -2817,7 +2817,8 @@
               "$ref": "#/definitions/RelationalExpression"
             },
             "percentile": {
-              "$ref": "#/definitions/RelationalExpression"
+              "type": "number",
+              "format": "double"
             }
           }
         },
