@@ -1,5 +1,15 @@
 # Changelog
 
+## `0.2.5`
+
+### Specification
+
+- Support new aggregate functions `stddev`, `stddev_pop`, `array_agg`, `approx_distinct` and `approx_percentile_cont` in relational queries.
+
+### Bug Fixes
+
+- Make request_arguments argument optional
+
 ## `0.2.4`
 
 ### Specification
