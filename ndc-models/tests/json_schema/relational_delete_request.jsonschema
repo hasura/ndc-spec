@@ -379,6 +379,21 @@
               ]
             }
           }
+        },
+        {
+          "description": "interval",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "interval"
+              ]
+            }
+          }
         }
       ]
     },
@@ -3686,6 +3701,36 @@
               ]
             },
             "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        {
+          "description": "Interval represented as months, days, and nanoseconds",
+          "type": "object",
+          "required": [
+            "days",
+            "months",
+            "nanoseconds",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "interval"
+              ]
+            },
+            "months": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "days": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nanoseconds": {
               "type": "integer",
               "format": "int64"
             }

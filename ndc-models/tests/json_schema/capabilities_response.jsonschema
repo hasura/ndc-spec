@@ -961,6 +961,16 @@
         },
         "window": {
           "$ref": "#/definitions/RelationalWindowExpressionCapabilities"
+        },
+        "scalar_types": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelationalScalarTypeCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -1723,6 +1733,23 @@
           ]
         },
         "trunc": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "RelationalScalarTypeCapabilities": {
+      "title": "Relational Scalar Type Capabilities",
+      "type": "object",
+      "properties": {
+        "interval": {
+          "description": "Does the connector support the INTERVAL scalar type? Both interval literals and casts to the INTERVAL type are implied by this capability.",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"

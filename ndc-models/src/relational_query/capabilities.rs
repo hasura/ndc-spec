@@ -94,6 +94,7 @@ pub struct RelationalExpressionCapabilities {
     pub scalar: RelationalScalarExpressionCapabilities,
     pub aggregate: RelationalAggregateExpressionCapabilities,
     pub window: RelationalWindowExpressionCapabilities,
+    pub scalar_types: Option<RelationalScalarTypeCapabilities>,
 }
 // ANCHOR_END: RelationalExpressionCapabilities
 
@@ -236,7 +237,7 @@ pub struct RelationalAggregateExpressionCapabilities {
     pub array_agg: Option<LeafCapability>,
     pub approx_distinct: Option<LeafCapability>,
 }
-// ANCHOR_END: RelationalAggregateExpressionCapabilities
+// ANCHOR_END: RelationalAggregateExpressionCapabilit\ies
 
 // ANCHOR: RelationalAggregateFunctionCapabilities
 #[skip_serializing_none]
@@ -260,3 +261,14 @@ pub struct RelationalWindowExpressionCapabilities {
     pub percent_rank: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalWindowExpressionCapabilities
+
+// ANCHOR: RelationalScalarTypeCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Scalar Type Capabilities")]
+pub struct RelationalScalarTypeCapabilities {
+    /// Does the connector support the INTERVAL scalar type?
+    /// Both interval literals and casts to the INTERVAL type are implied by this capability.
+    pub interval: Option<LeafCapability>,
+}
+// ANCHOR_END: RelationalScalarTypeCapabilities
