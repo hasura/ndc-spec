@@ -1,5 +1,11 @@
 # Changelog
 
+## `0.2.6`
+
+### Specification
+
+- Add `Interval` scalar type for relational pushdown
+
 ## `0.2.5`
 
 ### Specification
