@@ -237,7 +237,7 @@ pub struct RelationalAggregateExpressionCapabilities {
     pub array_agg: Option<LeafCapability>,
     pub approx_distinct: Option<LeafCapability>,
 }
-// ANCHOR_END: RelationalAggregateExpressionCapabilit\ies
+// ANCHOR_END: RelationalAggregateExpressionCapabilities
 
 // ANCHOR: RelationalAggregateFunctionCapabilities
 #[skip_serializing_none]
