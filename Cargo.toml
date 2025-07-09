@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 
-package.version = "0.2.5"
+package.version = "0.2.6"
 package.edition = "2021"
 
 members = [
