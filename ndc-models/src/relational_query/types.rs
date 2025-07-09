@@ -115,6 +115,8 @@ pub enum CastType {
     Timestamp,
     /// duration
     Duration,
+    /// interval
+    Interval,
 }
 
 #[derive(Debug, Clone, PartialOrd, Hash, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -241,5 +243,11 @@ pub enum RelationalLiteral {
     /// Duration in nanoseconds
     DurationNanosecond {
         value: i64,
+    },
+    /// Interval represented as months, days, and nanoseconds
+    Interval {
+        months: i32,
+        days: i32,
+        nanoseconds: i64,
     },
 }
