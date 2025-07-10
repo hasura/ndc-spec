@@ -26,6 +26,7 @@ pub enum RelationalExpression {
     /// * During aggregation: `relational_query.aggregate.expression.conditional.case`
     /// * During windowing: `relational_query.window.expression.conditional.case`
     Case {
+        scrutinee: Option<Box<RelationalExpression>>,
         when: Vec<CaseWhen>,
         default: Option<Box<RelationalExpression>>,
     },
@@ -49,6 +50,28 @@ pub enum RelationalExpression {
         right: Box<RelationalExpression>,
     },
     NotEq {
+        left: Box<RelationalExpression>,
+        right: Box<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.comparison.is_distinct_from`
+    /// * During filtering: `relational_query.filter.comparison.is_distinct_from`
+    /// * During sorting:`relational_query.sort.expression.comparison.is_distinct_from`
+    /// * During joining: `relational_query.join.expression.comparison.is_distinct_from`
+    /// * During aggregation: `relational_query.aggregate.expression.comparison.is_distinct_from`
+    /// * During windowing: `relational_query.window.expression.comparison.is_distinct_from`
+    IsDistinctFrom {
+        left: Box<RelationalExpression>,
+        right: Box<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.comparison.is_not_distinct_from`
+    /// * During filtering: `relational_query.filter.comparison.is_not_distinct_from`
+    /// * During sorting:`relational_query.sort.expression.comparison.is_not_distinct_from`
+    /// * During joining: `relational_query.join.expression.comparison.is_not_distinct_from`
+    /// * During aggregation: `relational_query.aggregate.expression.comparison.is_not_distinct_from`
+    /// * During windowing: `relational_query.window.expression.comparison.is_not_distinct_from`
+    IsNotDistinctFrom {
         left: Box<RelationalExpression>,
         right: Box<RelationalExpression>,
     },
