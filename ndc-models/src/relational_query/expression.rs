@@ -26,6 +26,7 @@ pub enum RelationalExpression {
     /// * During aggregation: `relational_query.aggregate.expression.conditional.case`
     /// * During windowing: `relational_query.window.expression.conditional.case`
     Case {
+        scrutinee: Option<Box<RelationalExpression>>,
         when: Vec<CaseWhen>,
         default: Option<Box<RelationalExpression>>,
     },

@@ -764,6 +764,23 @@
         }
       }
     },
+    "RelationalCaseCapabilities": {
+      "title": "Relational Case Capabilities",
+      "type": "object",
+      "properties": {
+        "scrutinee": {
+          "description": "Does the connector support CASE expressions with a scrutinee? CASE scrutinee WHEN value1 THEN result1 ... ELSE default END",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "RelationalComparisonExpressionCapabilities": {
       "title": "Relational Filter Expression Capabilities",
       "type": "object",
@@ -937,7 +954,7 @@
         "case": {
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/RelationalCaseCapabilities"
             },
             {
               "type": "null"

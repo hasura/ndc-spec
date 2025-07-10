@@ -766,6 +766,16 @@
                 "case"
               ]
             },
+            "scrutinee": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "when": {
               "type": "array",
               "items": {
