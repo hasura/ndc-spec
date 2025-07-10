@@ -828,6 +828,26 @@
             }
           ]
         },
+        "is_distinct_from": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "is_not_distinct_from": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "is_false": {
           "anyOf": [
             {
