@@ -769,7 +769,6 @@
       "type": "object",
       "properties": {
         "scrutinee": {
-          "description": "Does the connector support CASE expressions with a scrutinee? CASE scrutinee WHEN value1 THEN result1 ... ELSE default END",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -846,16 +845,6 @@
           ]
         },
         "is_distinct_from": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "is_not_distinct_from": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"

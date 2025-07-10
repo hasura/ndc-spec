@@ -129,7 +129,6 @@ pub struct RelationalComparisonExpressionCapabilities {
     pub ilike: Option<LeafCapability>,
     pub in_list: Option<LeafCapability>,
     pub is_distinct_from: Option<LeafCapability>,
-    pub is_not_distinct_from: Option<LeafCapability>,
     pub is_false: Option<LeafCapability>,
     pub is_nan: Option<LeafCapability>,
     pub is_null: Option<LeafCapability>,
