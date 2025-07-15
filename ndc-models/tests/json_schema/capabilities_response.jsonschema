@@ -764,6 +764,22 @@
         }
       }
     },
+    "RelationalCaseCapabilities": {
+      "title": "Relational Case Capabilities",
+      "type": "object",
+      "properties": {
+        "scrutinee": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "RelationalComparisonExpressionCapabilities": {
       "title": "Relational Filter Expression Capabilities",
       "type": "object",
@@ -819,6 +835,16 @@
           ]
         },
         "in_list": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "is_distinct_from": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -917,7 +943,7 @@
         "case": {
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/RelationalCaseCapabilities"
             },
             {
               "type": "null"

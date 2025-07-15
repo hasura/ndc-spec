@@ -766,6 +766,16 @@
                 "case"
               ]
             },
+            "scrutinee": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "when": {
               "type": "array",
               "items": {
@@ -880,6 +890,52 @@
               "type": "string",
               "enum": [
                 "not_eq"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.is_distinct_from` * During filtering: `relational_query.filter.comparison.is_distinct_from` * During sorting:`relational_query.sort.expression.comparison.is_distinct_from` * During joining: `relational_query.join.expression.comparison.is_distinct_from` * During aggregation: `relational_query.aggregate.expression.comparison.is_distinct_from` * During windowing: `relational_query.window.expression.comparison.is_distinct_from`",
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_distinct_from"
+              ]
+            },
+            "left": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "right": {
+              "$ref": "#/definitions/RelationalExpression"
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.comparison.is_not_distinct_from` * During filtering: `relational_query.filter.comparison.is_not_distinct_from` * During sorting:`relational_query.sort.expression.comparison.is_not_distinct_from` * During joining: `relational_query.join.expression.comparison.is_not_distinct_from` * During aggregation: `relational_query.aggregate.expression.comparison.is_not_distinct_from` * During windowing: `relational_query.window.expression.comparison.is_not_distinct_from`",
+          "type": "object",
+          "required": [
+            "left",
+            "right",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "is_not_distinct_from"
               ]
             },
             "left": {

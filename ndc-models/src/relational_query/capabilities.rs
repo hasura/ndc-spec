@@ -103,10 +103,19 @@ pub struct RelationalExpressionCapabilities {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Relational Conditional Expression Capabilities")]
 pub struct RelationalConditionalExpressionCapabilities {
-    pub case: Option<LeafCapability>,
+    pub case: Option<RelationalCaseCapabilities>,
     pub nullif: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalConditionalExpressionCapabilities
+
+// ANCHOR: RelationalCaseCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Case Capabilities")]
+pub struct RelationalCaseCapabilities {
+    pub scrutinee: Option<LeafCapability>,
+}
+// ANCHOR_END: RelationalCaseCapabilities
 
 // ANCHOR: RelationalFilterExpressionCapabilities
 #[skip_serializing_none]
@@ -119,6 +128,7 @@ pub struct RelationalComparisonExpressionCapabilities {
     pub greater_than: Option<LeafCapability>,
     pub ilike: Option<LeafCapability>,
     pub in_list: Option<LeafCapability>,
+    pub is_distinct_from: Option<LeafCapability>,
     pub is_false: Option<LeafCapability>,
     pub is_nan: Option<LeafCapability>,
     pub is_null: Option<LeafCapability>,
