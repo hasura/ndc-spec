@@ -1,5 +1,12 @@
 # Changelog
 
+## `0.2.7`
+
+### Specification
+
+- Relational IR for `CASE` with scrutinee
+- Relational IR for `IS DISTINCT FROM`
+
 ## `0.2.6`
 
 ### Specification
