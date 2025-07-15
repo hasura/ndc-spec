@@ -669,7 +669,7 @@
         "string_agg": {
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/RelationalAggregateFunctionCapabilities"
             },
             {
               "type": "null"
@@ -729,7 +729,7 @@
         "array_agg": {
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/RelationalAggregateFunctionCapabilities"
             },
             {
               "type": "null"

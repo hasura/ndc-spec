@@ -238,13 +238,13 @@ pub struct RelationalAggregateExpressionCapabilities {
     pub max: Option<LeafCapability>,
     pub median: Option<LeafCapability>,
     pub min: Option<LeafCapability>,
-    pub string_agg: Option<LeafCapability>,
+    pub string_agg: Option<RelationalAggregateFunctionCapabilities>,
     pub sum: Option<LeafCapability>,
     pub var: Option<LeafCapability>,
     pub stddev: Option<LeafCapability>,
     pub stddev_pop: Option<LeafCapability>,
     pub approx_percentile_cont: Option<LeafCapability>,
-    pub array_agg: Option<LeafCapability>,
+    pub array_agg: Option<RelationalAggregateFunctionCapabilities>,
     pub approx_distinct: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalAggregateExpressionCapabilities
