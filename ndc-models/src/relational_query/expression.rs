@@ -859,6 +859,7 @@ pub enum RelationalExpression {
     /// * During windowing: `relational_query.window.expression.aggregate.string_agg`
     StringAgg {
         expr: Box<RelationalExpression>,
+        separator: String,
         /// Only used when in specific contexts where the appropriate capability is supported:
         /// * During projection: `relational_query.project.expression.aggregate.string_agg.distinct`
         /// * During filtering: `relational_query.filter.aggregate.string_agg.distinct`

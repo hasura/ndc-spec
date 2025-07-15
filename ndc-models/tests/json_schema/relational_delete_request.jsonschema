@@ -2832,6 +2832,7 @@
           "required": [
             "distinct",
             "expr",
+            "separator",
             "type"
           ],
           "properties": {
@@ -2843,6 +2844,9 @@
             },
             "expr": {
               "$ref": "#/definitions/RelationalExpression"
+            },
+            "separator": {
+              "type": "string"
             },
             "distinct": {
               "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.string_agg.distinct` * During filtering: `relational_query.filter.aggregate.string_agg.distinct` * During sorting:`relational_query.sort.expression.aggregate.string_agg.distinct` * During joining: `relational_query.join.expression.aggregate.string_agg.distinct` * During aggregation: `relational_query.aggregate.expression.aggregate.string_agg.distinct` * During windowing: `relational_query.window.expression.aggregate.string_agg.distinct`",
