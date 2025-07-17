@@ -875,7 +875,7 @@ pub enum RelationalExpression {
         /// * During joining: `relational_query.join.expression.aggregate.string_agg.order_by`
         /// * During aggregation: `relational_query.aggregate.expression.aggregate.string_agg.order_by`
         /// * During windowing: `relational_query.window.expression.aggregate.string_agg.order_by`
-        order_by: Option<Box<RelationalExpression>>,
+        order_by: Option<Vec<Sort>>,
     },
     Sum {
         expr: Box<RelationalExpression>,
@@ -899,7 +899,7 @@ pub enum RelationalExpression {
     // var_population
     // var_samp
     // var_sample
-    
+
     /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.aggregate.stddev`
     /// * During filtering: `relational_query.filter.aggregate.stddev`
@@ -958,7 +958,7 @@ pub enum RelationalExpression {
         /// * During joining: `relational_query.join.expression.aggregate.array_agg.order_by`
         /// * During aggregation: `relational_query.aggregate.expression.aggregate.array_agg.order_by`
         /// * During windowing: `relational_query.window.expression.aggregate.array_agg.order_by`
-        order_by: Option<Box<RelationalExpression>>,
+        order_by: Option<Vec<Sort>>,
     },
 
     /// Only used when in specific contexts where the appropriate capability is supported:

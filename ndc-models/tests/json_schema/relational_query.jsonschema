@@ -2803,14 +2803,13 @@
             },
             "order_by": {
               "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.string_agg.order_by` * During filtering: `relational_query.filter.aggregate.string_agg.order_by` * During sorting:`relational_query.sort.expression.aggregate.string_agg.order_by` * During joining: `relational_query.join.expression.aggregate.string_agg.order_by` * During aggregation: `relational_query.aggregate.expression.aggregate.string_agg.order_by` * During windowing: `relational_query.window.expression.aggregate.string_agg.order_by`",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/RelationalExpression"
-                },
-                {
-                  "type": "null"
-                }
-              ]
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
             }
           }
         },
@@ -2937,14 +2936,13 @@
             },
             "order_by": {
               "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.aggregate.array_agg.order_by` * During filtering: `relational_query.filter.aggregate.array_agg.order_by` * During sorting:`relational_query.sort.expression.aggregate.array_agg.order_by` * During joining: `relational_query.join.expression.aggregate.array_agg.order_by` * During aggregation: `relational_query.aggregate.expression.aggregate.array_agg.order_by` * During windowing: `relational_query.window.expression.aggregate.array_agg.order_by`",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/RelationalExpression"
-                },
-                {
-                  "type": "null"
-                }
-              ]
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
             }
           }
         },
