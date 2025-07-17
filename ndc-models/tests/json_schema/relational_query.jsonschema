@@ -1544,6 +1544,17 @@
             "expr": {
               "$ref": "#/definitions/RelationalExpression"
             },
+            "from_type": {
+              "description": "Optional for now, but will be required in the future",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/CastType"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "as_type": {
               "$ref": "#/definitions/CastType"
             }
@@ -1565,6 +1576,17 @@
             },
             "expr": {
               "$ref": "#/definitions/RelationalExpression"
+            },
+            "from_type": {
+              "description": "Optional for now, but will be required in the future",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/CastType"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "as_type": {
               "$ref": "#/definitions/CastType"
