@@ -810,12 +810,12 @@ pub enum RelationalExpression {
     Count {
         expr: Box<RelationalExpression>,
         /// Only used when in specific contexts where the appropriate capability is supported:
-        /// * During projection: `relational_query.project.expression.aggregate.count_distinct`
-        /// * During filtering: `relational_query.filter.aggregate.count_distinct`
-        /// * During sorting:`relational_query.sort.expression.aggregate.count_distinct`
-        /// * During joining: `relational_query.join.expression.aggregate.count_distinct`
-        /// * During aggregation: `relational_query.aggregate.expression.aggregate.count_distinct`
-        /// * During windowing: `relational_query.window.expression.aggregate.count_distinct`
+        /// * During projection: `relational_query.project.expression.aggregate.count.distinct`
+        /// * During filtering: `relational_query.filter.aggregate.count.distinct`
+        /// * During sorting:`relational_query.sort.expression.aggregate.count.distinct`
+        /// * During joining: `relational_query.join.expression.aggregate.count.distinct`
+        /// * During aggregation: `relational_query.aggregate.expression.aggregate.count.distinct`
+        /// * During windowing: `relational_query.window.expression.aggregate.count.distinct`
         distinct: bool,
     },
     /// Only used when in specific contexts where the appropriate capability is supported:
@@ -863,6 +863,23 @@ pub enum RelationalExpression {
     /// * During windowing: `relational_query.window.expression.aggregate.string_agg`
     StringAgg {
         expr: Box<RelationalExpression>,
+        separator: String,
+        /// Only used when in specific contexts where the appropriate capability is supported:
+        /// * During projection: `relational_query.project.expression.aggregate.string_agg.distinct`
+        /// * During filtering: `relational_query.filter.aggregate.string_agg.distinct`
+        /// * During sorting:`relational_query.sort.expression.aggregate.string_agg.distinct`
+        /// * During joining: `relational_query.join.expression.aggregate.string_agg.distinct`
+        /// * During aggregation: `relational_query.aggregate.expression.aggregate.string_agg.distinct`
+        /// * During windowing: `relational_query.window.expression.aggregate.string_agg.distinct`
+        distinct: bool,
+        /// Only used when in specific contexts where the appropriate capability is supported:
+        /// * During projection: `relational_query.project.expression.aggregate.string_agg.order_by`
+        /// * During filtering: `relational_query.filter.aggregate.string_agg.order_by`
+        /// * During sorting:`relational_query.sort.expression.aggregate.string_agg.order_by`
+        /// * During joining: `relational_query.join.expression.aggregate.string_agg.order_by`
+        /// * During aggregation: `relational_query.aggregate.expression.aggregate.string_agg.order_by`
+        /// * During windowing: `relational_query.window.expression.aggregate.string_agg.order_by`
+        order_by: Option<Vec<Sort>>,
     },
     Sum {
         expr: Box<RelationalExpression>,
@@ -877,7 +894,7 @@ pub enum RelationalExpression {
     Var {
         expr: Box<RelationalExpression>,
     },
-    // array_agg
+
     // bit_and
     // bit_or
     // bit_xor
@@ -929,6 +946,22 @@ pub enum RelationalExpression {
     /// * During windowing: `relational_query.window.expression.aggregate.array_agg`
     ArrayAgg {
         expr: Box<RelationalExpression>,
+        /// Only used when in specific contexts where the appropriate capability is supported:
+        /// * During projection: `relational_query.project.expression.aggregate.array_agg.distinct`
+        /// * During filtering: `relational_query.filter.aggregate.array_agg.distinct`
+        /// * During sorting:`relational_query.sort.expression.aggregate.array_agg.distinct`
+        /// * During joining: `relational_query.join.expression.aggregate.array_agg.distinct`
+        /// * During aggregation: `relational_query.aggregate.expression.aggregate.array_agg.distinct`
+        /// * During windowing: `relational_query.window.expression.aggregate.array_agg.distinct`
+        distinct: bool,
+        /// Only used when in specific contexts where the appropriate capability is supported:
+        /// * During projection: `relational_query.project.expression.aggregate.array_agg.order_by`
+        /// * During filtering: `relational_query.filter.aggregate.array_agg.order_by`
+        /// * During sorting:`relational_query.sort.expression.aggregate.array_agg.order_by`
+        /// * During joining: `relational_query.join.expression.aggregate.array_agg.order_by`
+        /// * During aggregation: `relational_query.aggregate.expression.aggregate.array_agg.order_by`
+        /// * During windowing: `relational_query.window.expression.aggregate.array_agg.order_by`
+        order_by: Option<Vec<Sort>>,
     },
 
     /// Only used when in specific contexts where the appropriate capability is supported:

@@ -669,7 +669,7 @@
         "string_agg": {
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/RelationalOrderedAggregateFunctionCapabilities"
             },
             {
               "type": "null"
@@ -729,7 +729,7 @@
         "array_agg": {
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/RelationalOrderedAggregateFunctionCapabilities"
             },
             {
               "type": "null"
@@ -1128,6 +1128,32 @@
           ]
         },
         "delete": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "RelationalOrderedAggregateFunctionCapabilities": {
+      "title": "Relational Ordered Aggregate Function Capabilities",
+      "type": "object",
+      "properties": {
+        "distinct": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order_by": {
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
