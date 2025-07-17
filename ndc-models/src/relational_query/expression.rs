@@ -245,10 +245,14 @@ pub enum RelationalExpression {
     // Scalar functions
     Cast {
         expr: Box<RelationalExpression>,
+        /// Optional for now, but will be required in the future
+        from_type: Option<CastType>,
         as_type: CastType,
     },
     TryCast {
         expr: Box<RelationalExpression>,
+        /// Optional for now, but will be required in the future
+        from_type: Option<CastType>,
         as_type: CastType,
     },
     /// Only used when in specific contexts where the appropriate capability is supported:
