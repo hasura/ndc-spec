@@ -890,7 +890,7 @@ pub enum RelationalExpression {
     Var {
         expr: Box<RelationalExpression>,
     },
-    
+
     // bit_and
     // bit_or
     // bit_xor
@@ -899,7 +899,6 @@ pub enum RelationalExpression {
     // var_population
     // var_samp
     // var_sample
-
     /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.aggregate.stddev`
     /// * During filtering: `relational_query.filter.aggregate.stddev`
