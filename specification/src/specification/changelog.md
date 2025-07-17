@@ -1,5 +1,12 @@
 # Changelog
 
+## `0.2.8`
+
+### Specification
+
+- Support `DISTINCT` and `ORDER BY` in `string_agg` and `array_agg`
+- Include `from_type` in `Cast` and `TryCast` expressions
+
 ## `0.2.7`
 
 ### Specification
