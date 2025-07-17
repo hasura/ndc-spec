@@ -238,13 +238,13 @@ pub struct RelationalAggregateExpressionCapabilities {
     pub max: Option<LeafCapability>,
     pub median: Option<LeafCapability>,
     pub min: Option<LeafCapability>,
-    pub string_agg: Option<LeafCapability>,
+    pub string_agg: Option<RelationalOrderedAggregateFunctionCapabilities>,
     pub sum: Option<LeafCapability>,
     pub var: Option<LeafCapability>,
     pub stddev: Option<LeafCapability>,
     pub stddev_pop: Option<LeafCapability>,
     pub approx_percentile_cont: Option<LeafCapability>,
-    pub array_agg: Option<LeafCapability>,
+    pub array_agg: Option<RelationalOrderedAggregateFunctionCapabilities>,
     pub approx_distinct: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalAggregateExpressionCapabilities
@@ -257,6 +257,16 @@ pub struct RelationalAggregateFunctionCapabilities {
     pub distinct: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalAggregateFunctionCapabilities
+
+// ANCHOR: RelationalOrderedAggregateFunctionCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Ordered Aggregate Function Capabilities")]
+pub struct RelationalOrderedAggregateFunctionCapabilities {
+    pub distinct: Option<LeafCapability>,
+    pub order_by: Option<LeafCapability>,
+}
+// ANCHOR_END: RelationalOrderedAggregateFunctionCapabilities
 
 // ANCHOR: RelationalWindowExpressionCapabilities
 #[skip_serializing_none]
