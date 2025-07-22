@@ -780,6 +780,22 @@
         }
       }
     },
+    "RelationalCastCapabilities": {
+      "title": "Relational Aggregate Function Capabilities",
+      "type": "object",
+      "properties": {
+        "from_type": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "RelationalComparisonExpressionCapabilities": {
       "title": "Relational Filter Expression Capabilities",
       "type": "object",
@@ -788,6 +804,16 @@
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cast": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelationalCastCapabilities"
             },
             {
               "type": "null"
@@ -1802,17 +1828,6 @@
       "properties": {
         "interval": {
           "description": "Does the connector support the INTERVAL scalar type? Both interval literals and casts to the INTERVAL type are implied by this capability.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LeafCapability"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "from_type": {
-          "description": "Does the connector support `from_type`?",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
