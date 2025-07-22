@@ -89,6 +89,7 @@ pub struct RelationalWindowCapabilities {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Relational Expression Capabilities")]
 pub struct RelationalExpressionCapabilities {
+    pub cast: Option<RelationalCastCapabilities>,
     pub conditional: RelationalConditionalExpressionCapabilities,
     pub comparison: RelationalComparisonExpressionCapabilities,
     pub scalar: RelationalScalarExpressionCapabilities,
@@ -123,7 +124,6 @@ pub struct RelationalCaseCapabilities {
 #[schemars(title = "Relational Filter Expression Capabilities")]
 pub struct RelationalComparisonExpressionCapabilities {
     pub between: Option<LeafCapability>,
-    pub cast: Option<RelationalCastCapabilities>,
     pub contains: Option<LeafCapability>,
     pub greater_than_eq: Option<LeafCapability>,
     pub greater_than: Option<LeafCapability>,

@@ -810,16 +810,6 @@
             }
           ]
         },
-        "cast": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/RelationalCastCapabilities"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "contains": {
           "anyOf": [
             {
@@ -999,6 +989,16 @@
         "window"
       ],
       "properties": {
+        "cast": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelationalCastCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "conditional": {
           "$ref": "#/definitions/RelationalConditionalExpressionCapabilities"
         },
