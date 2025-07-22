@@ -780,6 +780,22 @@
         }
       }
     },
+    "RelationalCastCapabilities": {
+      "title": "Relational Cast Capabilities",
+      "type": "object",
+      "properties": {
+        "from_type": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "RelationalComparisonExpressionCapabilities": {
       "title": "Relational Filter Expression Capabilities",
       "type": "object",
@@ -973,6 +989,16 @@
         "window"
       ],
       "properties": {
+        "cast": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelationalCastCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "conditional": {
           "$ref": "#/definitions/RelationalConditionalExpressionCapabilities"
         },

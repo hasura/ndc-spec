@@ -89,6 +89,7 @@ pub struct RelationalWindowCapabilities {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Relational Expression Capabilities")]
 pub struct RelationalExpressionCapabilities {
+    pub cast: Option<RelationalCastCapabilities>,
     pub conditional: RelationalConditionalExpressionCapabilities,
     pub comparison: RelationalComparisonExpressionCapabilities,
     pub scalar: RelationalScalarExpressionCapabilities,
@@ -257,6 +258,15 @@ pub struct RelationalAggregateFunctionCapabilities {
     pub distinct: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalAggregateFunctionCapabilities
+
+// ANCHOR: RelationalCastCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Relational Cast Capabilities")]
+pub struct RelationalCastCapabilities {
+    pub from_type: Option<LeafCapability>,
+}
+// ANCHOR_END: RelationalCastCapabilities
 
 // ANCHOR: RelationalOrderedAggregateFunctionCapabilities
 #[skip_serializing_none]
