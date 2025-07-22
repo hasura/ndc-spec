@@ -290,5 +290,7 @@ pub struct RelationalScalarTypeCapabilities {
     /// Does the connector support the INTERVAL scalar type?
     /// Both interval literals and casts to the INTERVAL type are implied by this capability.
     pub interval: Option<LeafCapability>,
+    /// Does the connector support `from_type`?
+    pub from_type: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalScalarTypeCapabilities
