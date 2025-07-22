@@ -781,7 +781,7 @@
       }
     },
     "RelationalCastCapabilities": {
-      "title": "Relational Aggregate Function Capabilities",
+      "title": "Relational Cast Capabilities",
       "type": "object",
       "properties": {
         "from_type": {

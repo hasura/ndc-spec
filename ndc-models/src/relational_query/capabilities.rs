@@ -262,7 +262,7 @@ pub struct RelationalAggregateFunctionCapabilities {
 // ANCHOR: RelationalCastCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = "Relational Aggregate Function Capabilities")]
+#[schemars(title = "Relational Cast Capabilities")]
 pub struct RelationalCastCapabilities {
     pub from_type: Option<LeafCapability>,
 }
