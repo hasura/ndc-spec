@@ -89,7 +89,6 @@ pub struct RelationalWindowCapabilities {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[schemars(title = "Relational Expression Capabilities")]
 pub struct RelationalExpressionCapabilities {
-    pub cast: Option<RelationalCastCapabilities>,
     pub conditional: RelationalConditionalExpressionCapabilities,
     pub comparison: RelationalComparisonExpressionCapabilities,
     pub scalar: RelationalScalarExpressionCapabilities,
@@ -259,15 +258,6 @@ pub struct RelationalAggregateFunctionCapabilities {
 }
 // ANCHOR_END: RelationalAggregateFunctionCapabilities
 
-// ANCHOR: RelationalCastCapabilities
-#[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(title = "Relational Cast Capabilities")]
-pub struct RelationalCastCapabilities {
-    pub from_type: Option<LeafCapability>,
-}
-// ANCHOR_END: RelationalCastCapabilities
-
 // ANCHOR: RelationalOrderedAggregateFunctionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -300,5 +290,7 @@ pub struct RelationalScalarTypeCapabilities {
     /// Does the connector support the INTERVAL scalar type?
     /// Both interval literals and casts to the INTERVAL type are implied by this capability.
     pub interval: Option<LeafCapability>,
+    /// Does the connector support `from_type` in cast?
+    pub from_type: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalScalarTypeCapabilities
