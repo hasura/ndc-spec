@@ -1,5 +1,11 @@
 # Changelog
 
+## `0.2.9`
+
+### Specification
+
+- Add missing capability for `from_type` in `Cast` and `TryCast` expressions
+
 ## `0.2.8`
 
 ### Specification
