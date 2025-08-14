@@ -238,7 +238,10 @@ pub struct RelationalAggregateExpressionCapabilities {
     pub max: Option<LeafCapability>,
     pub median: Option<LeafCapability>,
     pub min: Option<LeafCapability>,
+    // Note: this capability is essentially ignored in favour of `string_agg_with_separator`
     pub string_agg: Option<RelationalOrderedAggregateFunctionCapabilities>,
+    // This capability replaces `string_agg`
+    pub string_agg_with_separator: Option<RelationalOrderedAggregateFunctionCapabilities>,
     pub sum: Option<LeafCapability>,
     pub var: Option<LeafCapability>,
     pub stddev: Option<LeafCapability>,
