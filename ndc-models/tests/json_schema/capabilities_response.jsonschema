@@ -676,6 +676,16 @@
             }
           ]
         },
+        "string_agg_with_separator": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelationalOrderedAggregateFunctionCapabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "sum": {
           "anyOf": [
             {
