@@ -3,7 +3,7 @@ source: ndc-reference/bin/reference/main.rs
 expression: response
 ---
 {
-  "version": "0.2.9",
+  "version": "0.2.10",
   "capabilities": {
     "query": {
       "aggregates": {

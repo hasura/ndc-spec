@@ -1,8 +1,8 @@
 # API Specification
 
-| Version |
-| ------- |
-| `0.2.9` |
+| Version  |
+| -------- |
+| `0.2.10` |
 
 A data connector encapsulates a data source by implementing the protocol in this specification.
 
