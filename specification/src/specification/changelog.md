@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.10
+
+- Add `string_agg_with_separator` capability, deprecating `string_agg` capability
+
 ## `0.2.9`
 
 ### Specification
