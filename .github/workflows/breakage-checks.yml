@@ -1,4 +1,4 @@
-name: check for breaking changes 
+name: check for breaking changes
 
 on:
   push:
@@ -18,5 +18,3 @@ jobs:
       - name: check for breaking changes
         run: |
           ./scripts/check-schema-breaking-changes.sh
-
-    
