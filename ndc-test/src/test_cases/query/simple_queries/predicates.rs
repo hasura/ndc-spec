@@ -212,8 +212,6 @@ async fn test_select_top_n_rows_with_predicate<C: Connector>(
     let fields = super::super::common::select_all_columns(collection_type);
 
     let query_request = models::QueryRequest {
-        breakage: "".to_string(),
-
         collection: collection_info.name.clone(),
         query: models::Query {
             aggregates: None,
@@ -249,8 +247,6 @@ async fn test_empty_and_predicate_is_no_op<C: Connector>(
     let fields = super::super::common::select_all_columns(collection_type);
 
     let query_request_no_predicate = models::QueryRequest {
-        breakage: "".to_string(),
-
         collection: collection_info.name.clone(),
         query: models::Query {
             aggregates: None,
@@ -299,8 +295,6 @@ async fn test_empty_or_predicate_returns_no_rows<C: Connector>(
     let fields = super::super::common::select_all_columns(collection_type);
 
     let query_request = models::QueryRequest {
-        breakage: "".to_string(),
-
         collection: collection_info.name.clone(),
         query: models::Query {
             aggregates: None,

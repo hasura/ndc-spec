@@ -140,7 +140,6 @@ async fn select_top_n_using_foreign_key<C: Connector>(
         );
 
         let query_request = models::QueryRequest {
-            breakage: "".to_string(),
             collection: collection_info.name.clone(),
             query: models::Query {
                 aggregates: None,
@@ -229,8 +228,6 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
         let predicate = predicate.map(|e| e.expr);
 
         let query_request = models::QueryRequest {
-            breakage: "".to_string(),
-
             collection: foreign_key.foreign_collection.clone(),
             query: models::Query {
                 aggregates: None,
@@ -338,8 +335,6 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
     }
 
     let query_request = models::QueryRequest {
-        breakage: "".to_string(),
-
         collection: foreign_key.foreign_collection.clone(),
         query: models::Query {
             aggregates: None,

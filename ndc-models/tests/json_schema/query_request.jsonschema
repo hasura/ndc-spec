@@ -5,7 +5,6 @@
   "type": "object",
   "required": [
     "arguments",
-    "breakage",
     "collection",
     "collection_relationships",
     "query"
@@ -55,10 +54,6 @@
         "null"
       ],
       "additionalProperties": true
-    },
-    "breakage": {
-      "description": "oh no",
-      "type": "string"
     }
   },
   "definitions": {

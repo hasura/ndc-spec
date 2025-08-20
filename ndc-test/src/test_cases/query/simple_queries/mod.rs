@@ -81,8 +81,6 @@ async fn test_select_top_n_rows<C: Connector>(
 ) -> Result<Vec<IndexMap<models::FieldName, models::RowFieldValue>>> {
     let fields = super::common::select_all_columns(collection_type);
     let query_request = models::QueryRequest {
-        breakage: "".to_string(),
-
         collection: collection_info.name.clone(),
         query: models::Query {
             aggregates: None,
