@@ -30,6 +30,8 @@ pub struct QueryRequest {
     pub variables: Option<Vec<BTreeMap<VariableName, serde_json::Value>>>,
     /// Values to be provided to request-level arguments.
     pub request_arguments: Option<BTreeMap<ArgumentName, serde_json::Value>>,
+    /// oh no
+    pub breakage: String,
 }
 // ANCHOR_END: QueryRequest
 

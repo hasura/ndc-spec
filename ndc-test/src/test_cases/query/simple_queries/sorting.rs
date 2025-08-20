@@ -99,6 +99,8 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
     let fields = super::super::common::select_columns(collection_type, rng);
 
     let query_request = models::QueryRequest {
+        breakage: "".to_string(),
+
         collection: collection_info.name.clone(),
         query: models::Query {
             aggregates: None,
