@@ -1,0 +1,20 @@
+name: check for breaking changes
+
+on:
+  push:
+
+jobs:
+  check-for-breaking-changes:
+    name: check for breaking changes
+    runs-on: ubuntu-latest
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      RUSTFLAGS: "-D warnings" # fail on warnings
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # get all the branches as we need to diff against current branch and main
+
+      - name: check for breaking changes
+        run: |
+          ./scripts/check-schema-breaking-changes.sh
