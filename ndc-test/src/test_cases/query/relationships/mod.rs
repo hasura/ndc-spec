@@ -153,6 +153,7 @@ async fn select_top_n_using_foreign_key<C: Connector>(
                 },
             )]),
             variables: None,
+            request_arguments: None,
         };
 
         let _ = connector.query(query_request).await?;
@@ -231,6 +232,7 @@ async fn select_top_n_using_foreign_key_exists<C: Connector>(
                     },
                 )]),
                 variables: None,
+                request_arguments: None,
             };
 
             let _ = connector.query(query_request).await?;
@@ -316,6 +318,7 @@ async fn select_top_n_using_foreign_key_as_array_relationship<C: Connector>(
                 },
             )]),
             variables: None,
+            request_arguments: None,
         };
 
         let _ = connector.query(query_request).await?;
