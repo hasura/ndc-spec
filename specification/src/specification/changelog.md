@@ -1,5 +1,11 @@
 # Changelog
 
+## `0.1.7`
+
+### Specification
+
+- `QueryRequest` and `MutationRequest` can now accept request arguments 
+
 ## `0.1.6`
 
 ### Specification
