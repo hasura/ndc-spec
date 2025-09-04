@@ -665,6 +665,12 @@ async fn get_schema() -> Json<models::SchemaResponse> {
     let functions: Vec<models::FunctionInfo> =
         vec![latest_article_id_function, latest_article_function];
     // ANCHOR_END: schema_functions
+    // ANCHOR: schema_request_arguments
+    let request_arguments = Some(models::RequestLevelArguments {
+        query_arguments: BTreeMap::new(),
+        mutation_arguments: BTreeMap::new(),
+    });
+    // ANCHOR_END: schema_request_arguments
     // ANCHOR: schema2
     Json(models::SchemaResponse {
         scalar_types,
@@ -672,6 +678,7 @@ async fn get_schema() -> Json<models::SchemaResponse> {
         collections,
         functions,
         procedures,
+        request_arguments,
     })
 }
 // ANCHOR_END: schema2

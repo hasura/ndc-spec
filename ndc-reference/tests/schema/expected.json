@@ -390,5 +390,9 @@
         }
       }
     }
-  ]
+  ],
+  "request_arguments": {
+    "query_arguments": {},
+    "mutation_arguments": {}
+  }
 }

@@ -44,6 +44,17 @@
       "items": {
         "$ref": "#/definitions/ProcedureInfo"
       }
+    },
+    "request_arguments": {
+      "description": "Request level arguments which are required for queries and mutations",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/RequestLevelArguments"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "definitions": {
@@ -819,6 +830,30 @@
               "$ref": "#/definitions/Type"
             }
           ]
+        }
+      }
+    },
+    "RequestLevelArguments": {
+      "title": "Request Level Arguments",
+      "type": "object",
+      "required": [
+        "mutation_arguments",
+        "query_arguments"
+      ],
+      "properties": {
+        "query_arguments": {
+          "description": "Any arguments that all Query requests require",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
+        },
+        "mutation_arguments": {
+          "description": "Any arguments that all Mutation requests require",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArgumentInfo"
+          }
         }
       }
     }

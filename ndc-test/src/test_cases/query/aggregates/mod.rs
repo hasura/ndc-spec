@@ -78,6 +78,7 @@ pub async fn test_star_count_aggregate<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
+        request_arguments: None,
     };
     let response = connector.query(query_request.clone()).await?;
 
@@ -142,6 +143,7 @@ pub async fn test_column_count_aggregate<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
+        request_arguments: None,
     };
     let response = connector.query(query_request.clone()).await?;
 
@@ -234,6 +236,7 @@ pub async fn test_single_column_aggregates<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
+        request_arguments: None,
     };
     let _ = connector.query(query_request.clone()).await?;
     Ok(())

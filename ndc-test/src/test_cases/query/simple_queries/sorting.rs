@@ -105,6 +105,7 @@ async fn test_select_top_n_rows_with_sort<C: Connector>(
         arguments: BTreeMap::new(),
         collection_relationships: BTreeMap::new(),
         variables: None,
+        request_arguments: None,
     };
 
     connector.query(query_request.clone()).await

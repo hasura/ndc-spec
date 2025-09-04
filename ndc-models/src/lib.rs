@@ -136,6 +136,8 @@ pub struct SchemaResponse {
     pub functions: Vec<FunctionInfo>,
     /// Procedures which are available for execution as part of mutations
     pub procedures: Vec<ProcedureInfo>,
+    /// Request level arguments which are required for queries and mutations
+    pub request_arguments: Option<RequestLevelArguments>,
 }
 // ANCHOR_END: SchemaResponse
 
@@ -407,6 +409,8 @@ pub struct QueryRequest {
     /// One set of named variables for each rowset to fetch. Each variable set
     /// should be subtituted in turn, and a fresh set of rows returned.
     pub variables: Option<Vec<BTreeMap<VariableName, serde_json::Value>>>,
+    /// Values to be provided to request-level arguments.
+    pub request_arguments: Option<BTreeMap<ArgumentName, serde_json::Value>>,
 }
 // ANCHOR_END: QueryRequest
 
@@ -755,6 +759,8 @@ pub struct MutationRequest {
     pub operations: Vec<MutationOperation>,
     /// The relationships between collections involved in the entire mutation request
     pub collection_relationships: BTreeMap<RelationshipName, Relationship>,
+    /// Values to be provided to request-level arguments.
+    pub request_arguments: Option<BTreeMap<ArgumentName, serde_json::Value>>,
 }
 // ANCHOR_END: MutationRequest
 
@@ -839,6 +845,17 @@ pub enum MutationOperationResults {
     Procedure { result: serde_json::Value },
 }
 // ANCHOR_END: MutationOperationResults
+
+// ANCHOR: RequestLevelArguments
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "Request Level Arguments")]
+pub struct RequestLevelArguments {
+    /// Any arguments that all Query requests require
+    pub query_arguments: BTreeMap<ArgumentName, ArgumentInfo>,
+    /// Any arguments that all Mutation requests require
+    pub mutation_arguments: BTreeMap<ArgumentName, ArgumentInfo>,
+}
+// ANCHOR_END: RequestLevelArguments
 
 macro_rules! newtype {
     ($name: ident over $oldtype: ident) => {
