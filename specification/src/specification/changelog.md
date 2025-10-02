@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.11
+
+- Add streaming query responses for relational queries
+
 ## 0.2.10
 
 - Add `string_agg_with_separator` capability, deprecating `string_agg` capability
