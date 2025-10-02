@@ -1257,6 +1257,16 @@
               "type": "null"
             }
           ]
+        },
+        "streaming": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
