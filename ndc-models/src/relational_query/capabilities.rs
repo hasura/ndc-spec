@@ -200,6 +200,15 @@ pub struct RelationalScalarExpressionCapabilities {
     pub to_timestamp: Option<LeafCapability>,
     pub to_upper: Option<LeafCapability>,
     pub trunc: Option<LeafCapability>,
+    pub json_contains: Option<LeafCapability>,
+    pub json_get: Option<LeafCapability>,
+    pub json_get_str: Option<LeafCapability>,
+    pub json_get_int: Option<LeafCapability>,
+    pub json_get_float: Option<LeafCapability>,
+    pub json_get_bool: Option<LeafCapability>,
+    pub json_get_json: Option<LeafCapability>,
+    pub json_as_text: Option<LeafCapability>,
+    pub json_length: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalScalarExpressionCapabilities
 

@@ -722,6 +722,107 @@ pub enum RelationalExpression {
         right: Box<RelationalExpression>,
     },
 
+    // JSON functions
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.json_contains`
+    /// * During filtering: `relational_query.filter.scalar.json_contains`
+    /// * During sorting:`relational_query.sort.expression.scalar.json_contains`
+    /// * During joining: `relational_query.join.expression.scalar.json_contains`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.json_contains`
+    /// * During windowing: `relational_query.window.expression.scalar.json_contains`
+    JsonContains {
+        json: Box<RelationalExpression>,
+        keys: Vec<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.json_get`
+    /// * During filtering: `relational_query.filter.scalar.json_get`
+    /// * During sorting:`relational_query.sort.expression.scalar.json_get`
+    /// * During joining: `relational_query.join.expression.scalar.json_get`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.json_get`
+    /// * During windowing: `relational_query.window.expression.scalar.json_get`
+    JsonGet {
+        json: Box<RelationalExpression>,
+        keys: Vec<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.json_get_str`
+    /// * During filtering: `relational_query.filter.scalar.json_get_str`
+    /// * During sorting:`relational_query.sort.expression.scalar.json_get_str`
+    /// * During joining: `relational_query.join.expression.scalar.json_get_str`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.json_get_str`
+    /// * During windowing: `relational_query.window.expression.scalar.json_get_str`
+    JsonGetStr {
+        json: Box<RelationalExpression>,
+        keys: Vec<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.json_get_int`
+    /// * During filtering: `relational_query.filter.scalar.json_get_int`
+    /// * During sorting:`relational_query.sort.expression.scalar.json_get_int`
+    /// * During joining: `relational_query.join.expression.scalar.json_get_int`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.json_get_int`
+    /// * During windowing: `relational_query.window.expression.scalar.json_get_int`
+    JsonGetInt {
+        json: Box<RelationalExpression>,
+        keys: Vec<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.json_get_float`
+    /// * During filtering: `relational_query.filter.scalar.json_get_float`
+    /// * During sorting:`relational_query.sort.expression.scalar.json_get_float`
+    /// * During joining: `relational_query.join.expression.scalar.json_get_float`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.json_get_float`
+    /// * During windowing: `relational_query.window.expression.scalar.json_get_float`
+    JsonGetFloat {
+        json: Box<RelationalExpression>,
+        keys: Vec<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.json_get_bool`
+    /// * During filtering: `relational_query.filter.scalar.json_get_bool`
+    /// * During sorting:`relational_query.sort.expression.scalar.json_get_bool`
+    /// * During joining: `relational_query.join.expression.scalar.json_get_bool`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.json_get_bool`
+    /// * During windowing: `relational_query.window.expression.scalar.json_get_bool`
+    JsonGetBool {
+        json: Box<RelationalExpression>,
+        keys: Vec<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.json_get_json`
+    /// * During filtering: `relational_query.filter.scalar.json_get_json`
+    /// * During sorting:`relational_query.sort.expression.scalar.json_get_json`
+    /// * During joining: `relational_query.join.expression.scalar.json_get_json`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.json_get_json`
+    /// * During windowing: `relational_query.window.expression.scalar.json_get_json`
+    JsonGetJson {
+        json: Box<RelationalExpression>,
+        keys: Vec<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.json_as_text`
+    /// * During filtering: `relational_query.filter.scalar.json_as_text`
+    /// * During sorting:`relational_query.sort.expression.scalar.json_as_text`
+    /// * During joining: `relational_query.join.expression.scalar.json_as_text`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.json_as_text`
+    /// * During windowing: `relational_query.window.expression.scalar.json_as_text`
+    JsonAsText {
+        json: Box<RelationalExpression>,
+        keys: Vec<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.json_length`
+    /// * During filtering: `relational_query.filter.scalar.json_length`
+    /// * During sorting:`relational_query.sort.expression.scalar.json_length`
+    /// * During joining: `relational_query.join.expression.scalar.json_length`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.json_length`
+    /// * During windowing: `relational_query.window.expression.scalar.json_length`
+    JsonLength {
+        json: Box<RelationalExpression>,
+        keys: Vec<RelationalExpression>,
+    },
+
     // acos
     // acosh
     // ascii
