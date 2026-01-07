@@ -46,7 +46,7 @@ pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
         predicates::test_predicates(
             gen_config,
             connector,
-            &context,
+            context.as_ref(),
             schema,
             request_arguments.clone(),
             rng,

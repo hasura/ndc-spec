@@ -19,7 +19,7 @@ pub struct SnapshottingConnector<'a, C: Connector> {
 }
 
 #[async_trait(?Send)]
-impl<'a, C: Connector> Connector for SnapshottingConnector<'a, C> {
+impl<C: Connector> Connector for SnapshottingConnector<'_, C> {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
         let response: models::CapabilitiesResponse = self.connector.get_capabilities().await?;
         snapshot_test(self.snapshot_path.join("capabilities").as_path(), &response)?;

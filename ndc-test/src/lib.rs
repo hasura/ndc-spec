@@ -176,6 +176,7 @@ pub async fn test_snapshots_in_directory_with<
             }
         }
     } else {
+        #[allow(clippy::unnecessary_debug_formatting)]
         println!("Warning: a snapshot folder could not be found: {snapshots_dir:?}");
     }
 }

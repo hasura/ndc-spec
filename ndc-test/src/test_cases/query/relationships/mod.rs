@@ -18,7 +18,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
     schema: &models::SchemaResponse,
     request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     collection_info: &models::CollectionInfo,
-    context: &Option<super::context::Context<'_>>,
+    context: Option<&super::context::Context<'_>>,
     rng: &mut SmallRng,
 ) -> Option<()> {
     let collection_type = schema
@@ -80,7 +80,7 @@ pub async fn test_relationship_queries<C: Connector, R: Reporter>(
                             rng,
                         )
                     );
-                };
+                }
 
                 Some(())
             }

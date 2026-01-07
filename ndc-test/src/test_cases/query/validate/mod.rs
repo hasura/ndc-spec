@@ -680,7 +680,7 @@ pub struct ValidatingConnector<'a, C: Connector> {
 }
 
 #[async_trait(?Send)]
-impl<'a, C: Connector> Connector for ValidatingConnector<'a, C> {
+impl<C: Connector> Connector for ValidatingConnector<'_, C> {
     async fn get_capabilities(&self) -> Result<models::CapabilitiesResponse> {
         self.connector.get_capabilities().await
     }
