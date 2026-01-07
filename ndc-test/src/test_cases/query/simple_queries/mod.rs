@@ -16,7 +16,7 @@ use rand::rngs::SmallRng;
 
 use super::validate::expect_single_rows;
 
-pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
+pub async fn test_simple_queries<'a, C: Connector, R: Reporter>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
     reporter: &mut R,
@@ -46,7 +46,7 @@ pub async fn test_simple_queries<'a, 'b, C: Connector, R: Reporter>(
         predicates::test_predicates(
             gen_config,
             connector,
-            &context,
+            context.as_ref(),
             schema,
             request_arguments.clone(),
             rng,

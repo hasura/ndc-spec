@@ -13,7 +13,7 @@ use rand::Rng;
 pub async fn test_predicates<C: Connector>(
     gen_config: &TestGenerationConfiguration,
     connector: &C,
-    context: &Option<super::super::context::Context<'_>>,
+    context: Option<&super::super::context::Context<'_>>,
     schema: &models::SchemaResponse,
     request_arguments: Option<BTreeMap<models::ArgumentName, serde_json::Value>>,
     rng: &mut SmallRng,
@@ -86,7 +86,7 @@ pub fn make_predicate(
             .collect::<Vec<_>>();
 
         match *chosen {
-            [] => continue,
+            [] => {}
             [expression] => expressions.push(expression.clone()),
             _ => expressions.push(GeneratedExpression {
                 expr: models::Expression::Or {

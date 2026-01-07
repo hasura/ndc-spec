@@ -5,6 +5,9 @@ default:
 lint:
   cargo clippy --all-targets --no-deps
 
+fix:
+  cargo clippy --all-targets --no-deps --fix --allow-no-vcs
+
 # Runs the tests
 test *ARGS:
   #!/usr/bin/env bash
