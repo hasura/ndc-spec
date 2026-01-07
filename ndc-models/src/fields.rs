@@ -19,7 +19,6 @@ pub enum Field {
         /// the caller can request a subset of the complete column data,
         /// by specifying fields to fetch here.
         /// If omitted, the column data will be fetched in full.
-        #[serde(skip_serializing_if = "Option::is_none", default)]
         fields: Option<Box<NestedField>>,
         #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
         arguments: BTreeMap<ArgumentName, Argument>,
