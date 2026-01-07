@@ -1,14 +1,10 @@
 [workspace]
 resolver = "2"
 
-package.version = "0.2.11"
+package.version = "0.2.12"
 package.edition = "2021"
 
-members = [
-  "ndc-models",
-  "ndc-reference",
-  "ndc-test",
-]
+members = ["ndc-models", "ndc-reference", "ndc-test"]
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
