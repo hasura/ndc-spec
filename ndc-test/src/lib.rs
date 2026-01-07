@@ -176,7 +176,10 @@ pub async fn test_snapshots_in_directory_with<
             }
         }
     } else {
-        println!("Warning: a snapshot folder could not be found: {snapshots_dir:?}");
+        println!(
+            "Warning: a snapshot folder could not be found: {}",
+            snapshots_dir.display()
+        );
     }
 }
 

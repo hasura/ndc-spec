@@ -51,7 +51,7 @@ pub async fn test_query<C: Connector, R: Reporter>(
                                 schema,
                                 request_arguments.clone(),
                                 collection_info,
-                                &context,
+                                context.as_ref(),
                                 rng,
                             )
                         });

@@ -117,8 +117,6 @@ macro_rules! newtype {
     };
 }
 
-pub(crate) use newtype;
-
 newtype! {AggregateFunctionName}
 newtype! {ArgumentName}
 newtype! {CollectionName}

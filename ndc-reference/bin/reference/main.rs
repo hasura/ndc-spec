@@ -1282,7 +1282,7 @@ fn execute_query(
         variables,
         state,
         collection,
-        &query.order_by,
+        query.order_by.as_ref(),
     )?;
     // ANCHOR_END: execute_query_sort
     // ANCHOR: execute_query_filter
@@ -1391,7 +1391,7 @@ fn eval_groups(
         .collect();
     // ANCHOR_END: eval_groups_partition
     // ANCHOR: eval_groups_sort
-    let sorted = group_sort(variables, chunks, &grouping.order_by)?;
+    let sorted = group_sort(variables, chunks, grouping.order_by.as_ref())?;
     // ANCHOR_END: eval_groups_sort
     // ANCHOR: eval_groups_filter
     let mut groups: Vec<models::Group> = vec![];
@@ -1508,7 +1508,7 @@ struct Chunk {
 fn group_sort(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     groups: Vec<Chunk>,
-    order_by: &Option<models::GroupOrderBy>,
+    order_by: Option<&models::GroupOrderBy>,
 ) -> Result<Vec<Chunk>> {
     match order_by {
         None => Ok(groups),
@@ -1619,14 +1619,14 @@ fn eval_dimension(
                 field_path.as_deref(),
             )?;
 
-            eval_extraction(extraction, value)
+            eval_extraction(extraction.as_ref(), value)
         }
     }
 }
 // ANCHOR_END: eval_dimension
 // ANCHOR: eval_extraction
 fn eval_extraction(
-    extraction: &Option<ndc_models::ExtractionFunctionName>,
+    extraction: Option<&ndc_models::ExtractionFunctionName>,
     value: serde_json::Value,
 ) -> Result<serde_json::Value> {
     match extraction {
@@ -1973,7 +1973,7 @@ fn sort(
     variables: &BTreeMap<models::VariableName, serde_json::Value>,
     state: &AppState,
     collection: Vec<Row>,
-    order_by: &Option<models::OrderBy>,
+    order_by: Option<&models::OrderBy>,
 ) -> Result<Vec<Row>> {
     match order_by {
         None => Ok(collection),
@@ -2090,7 +2090,7 @@ fn eval_order_by_element(
                 variables,
                 state,
                 &path,
-                &[item.clone()],
+                std::slice::from_ref(item),
             )?;
             eval_aggregate(variables, &aggregate, &rows)
         }
@@ -2146,7 +2146,7 @@ fn eval_column_at_path(
         variables,
         state,
         path,
-        &[item.clone()],
+        std::slice::from_ref(item),
     )?;
     if rows.len() > 1 {
         return Err((
@@ -2192,7 +2192,7 @@ fn eval_path(
             &path_element.arguments,
             &result,
             path_element.field_path.as_deref(),
-            &path_element.predicate,
+            path_element.predicate.as_deref(),
         )?;
     }
 
@@ -2209,7 +2209,7 @@ fn eval_path_element(
     arguments: &BTreeMap<models::ArgumentName, models::RelationshipArgument>,
     source: &[Row],
     field_path: Option<&[models::FieldName]>,
-    predicate: &Option<Box<models::Expression>>,
+    predicate: Option<&models::Expression>,
 ) -> Result<Vec<Row>> {
     let mut matching_rows: Vec<Row> = vec![];
 
@@ -2806,7 +2806,7 @@ fn eval_in_collection(
                 arguments,
                 &source,
                 field_path.as_deref(),
-                &None,
+                None,
             )
         }
         // ANCHOR_END: eval_in_collection_related
@@ -2888,7 +2888,7 @@ fn eval_comparison_target(
                 variables,
                 state,
                 path,
-                &[item.clone()],
+                std::slice::from_ref(item),
             )?;
             eval_aggregate(variables, aggregate, &rows)
         }
@@ -2982,7 +2982,7 @@ fn eval_comparison_value(
                 variables,
                 state,
                 path,
-                &[scope.clone()],
+                std::slice::from_ref(scope),
             )?;
 
             items
@@ -3076,7 +3076,8 @@ fn eval_nested_field(
                 })?,
             ))
         }
-        ndc_models::NestedField::Collection(models::NestedCollection { query }) => {
+        ndc_models::NestedField::Collection(nested_collection) => {
+            let models::NestedCollection { query } = nested_collection.as_ref();
             let collection = serde_json::from_value::<Vec<Row>>(value).map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
@@ -3158,7 +3159,7 @@ fn eval_field(
                 arguments,
                 &source,
                 None,
-                &None,
+                None,
             )?;
             let row_set = execute_query(
                 collection_relationships,
@@ -3252,7 +3253,13 @@ fn execute_mutation_operation(
             name,
             arguments,
             fields,
-        } => execute_procedure(state, name, arguments, fields, collection_relationships),
+        } => execute_procedure(
+            state,
+            name,
+            arguments,
+            fields.as_ref(),
+            collection_relationships,
+        ),
     }
 }
 // ANCHOR_END: execute_mutation_operation
@@ -3261,7 +3268,7 @@ fn execute_procedure(
     state: &mut AppState,
     name: &models::ProcedureName,
     arguments: &BTreeMap<models::ArgumentName, serde_json::Value>,
-    fields: &Option<models::NestedField>,
+    fields: Option<&models::NestedField>,
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 // ANCHOR_END: execute_procedure_signature
@@ -3288,7 +3295,7 @@ fn execute_procedure(
 fn execute_upsert_article(
     state: &mut AppState,
     arguments: &BTreeMap<models::ArgumentName, serde_json::Value>,
-    fields: &Option<models::NestedField>,
+    fields: Option<&models::NestedField>,
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 {
@@ -3368,7 +3375,7 @@ fn execute_upsert_article(
 fn execute_delete_articles(
     state: &mut AppState,
     arguments: &BTreeMap<models::ArgumentName, serde_json::Value>,
-    fields: &Option<models::NestedField>,
+    fields: Option<&models::NestedField>,
     collection_relationships: &BTreeMap<models::RelationshipName, models::Relationship>,
 ) -> std::result::Result<models::MutationOperationResults, (StatusCode, Json<models::ErrorResponse>)>
 {
