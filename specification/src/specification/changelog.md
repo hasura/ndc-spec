@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.12
+
+- Add json capabilities and functions for relational queries
+
 ## 0.2.11
 
 - Add streaming query responses for relational queries
