@@ -262,7 +262,7 @@ pub fn validate_field(
                 collection_relationships,
                 row_field_value.0,
                 field_type,
-                fields.as_ref(),
+                fields.as_ref().map(AsRef::as_ref),
                 json_path,
             )
         }
@@ -346,7 +346,8 @@ pub fn check_value_matches_request(
             fields,
             json_path,
         ),
-        Some(models::NestedField::Collection(models::NestedCollection { query })) => {
+        Some(models::NestedField::Collection(nested_collection)) => {
+            let models::NestedCollection { query } = nested_collection.as_ref();
             check_nested_collection(
                 schema,
                 collection_relationships,

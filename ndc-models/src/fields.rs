@@ -19,7 +19,8 @@ pub enum Field {
         /// the caller can request a subset of the complete column data,
         /// by specifying fields to fetch here.
         /// If omitted, the column data will be fetched in full.
-        fields: Option<NestedField>,
+        #[serde(skip_serializing_if = "Option::is_none", default)]
+        fields: Option<Box<NestedField>>,
         #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
         arguments: BTreeMap<ArgumentName, Argument>,
     },
@@ -71,7 +72,7 @@ pub enum NestedField {
     Array(NestedArray),
     /// Perform a query over the nested array's rows.
     /// Only used if the 'query.nested_fields.nested_collections' capability is supported.
-    Collection(NestedCollection),
+    Collection(Box<NestedCollection>),
 }
 // ANCHOR_END: NestedField
 
