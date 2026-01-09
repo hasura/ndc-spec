@@ -759,6 +759,37 @@
               }
             }
           }
+        },
+        {
+          "description": "Unnest a JSON array column into rows. Only used when the capability `relational_query.json_unnest` is supported.",
+          "type": "object",
+          "required": [
+            "input",
+            "json_column_index",
+            "path",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "json_unnest"
+              ]
+            },
+            "input": {
+              "$ref": "#/definitions/Relation"
+            },
+            "json_column_index": {
+              "description": "The column index containing the JSON string to unnest.",
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "path": {
+              "description": "JSONPath to the array within the JSON (e.g., \"$.items\" or \"$.orders[*].items\").",
+              "type": "string"
+            }
+          }
         }
       ]
     },

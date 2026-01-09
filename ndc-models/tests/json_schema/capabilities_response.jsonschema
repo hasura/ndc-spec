@@ -327,6 +327,23 @@
         }
       }
     },
+    "JsonUnnestCapabilities": {
+      "title": "JSON Unnest Capabilities",
+      "type": "object",
+      "properties": {
+        "nested_paths": {
+          "description": "Does the connector support nested paths like \"$.a[*].b[*]\"?",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "LeafCapability": {
       "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
       "type": "object"
@@ -1262,6 +1279,16 @@
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "json_unnest": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/JsonUnnestCapabilities"
             },
             {
               "type": "null"
