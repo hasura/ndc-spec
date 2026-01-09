@@ -207,6 +207,7 @@ pub struct RelationalScalarExpressionCapabilities {
     pub json_get_float: Option<LeafCapability>,
     pub json_get_bool: Option<LeafCapability>,
     pub json_get_json: Option<LeafCapability>,
+    pub json_get_array: Option<LeafCapability>,
     pub json_as_text: Option<LeafCapability>,
     pub json_length: Option<LeafCapability>,
 }

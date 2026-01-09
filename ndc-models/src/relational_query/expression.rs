@@ -801,6 +801,17 @@ pub enum RelationalExpression {
         keys: Vec<RelationalExpression>,
     },
     /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.scalar.json_get_array`
+    /// * During filtering: `relational_query.filter.scalar.json_get_array`
+    /// * During sorting:`relational_query.sort.expression.scalar.json_get_array`
+    /// * During joining: `relational_query.join.expression.scalar.json_get_array`
+    /// * During aggregation: `relational_query.aggregate.expression.scalar.json_get_array`
+    /// * During windowing: `relational_query.window.expression.scalar.json_get_array`
+    JsonGetArray {
+        json: Box<RelationalExpression>,
+        keys: Vec<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.scalar.json_as_text`
     /// * During filtering: `relational_query.filter.scalar.json_as_text`
     /// * During sorting:`relational_query.sort.expression.scalar.json_as_text`

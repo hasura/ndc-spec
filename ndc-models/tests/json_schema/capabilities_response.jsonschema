@@ -1884,6 +1884,16 @@
             }
           ]
         },
+        "json_get_array": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "json_as_text": {
           "anyOf": [
             {
