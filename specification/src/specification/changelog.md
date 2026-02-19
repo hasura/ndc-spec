@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.13
+
+- Add `regex_like` relational comparison capability and relational expression
+
 ## 0.2.12
 
 - Add json capabilities and functions for relational queries

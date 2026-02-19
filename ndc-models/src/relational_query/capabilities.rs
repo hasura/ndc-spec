@@ -138,6 +138,7 @@ pub struct RelationalComparisonExpressionCapabilities {
     pub less_than_eq: Option<LeafCapability>,
     pub less_than: Option<LeafCapability>,
     pub like: Option<LeafCapability>,
+    pub regex_like: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalFilterExpressionCapabilities
 

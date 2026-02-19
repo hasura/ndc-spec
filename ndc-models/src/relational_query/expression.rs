@@ -162,6 +162,17 @@ pub enum RelationalExpression {
         pattern: Box<RelationalExpression>,
     },
     /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.comparison.regex_like`
+    /// * During filtering: `relational_query.filter.expression.comparison.regex_like`
+    /// * During sorting:`relational_query.sort.expression.comparison.regex_like`
+    /// * During joining: `relational_query.join.expression.comparison.regex_like`
+    /// * During aggregation: `relational_query.aggregate.expression.comparison.regex_like`
+    /// * During windowing: `relational_query.window.expression.comparison.regex_like`
+    RegexLike {
+        expr: Box<RelationalExpression>,
+        pattern: Box<RelationalExpression>,
+    },
+    /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.comparison.between`
     /// * During filtering: `relational_query.filter.comparison.between`
     /// * During sorting:`relational_query.sort.expression.comparison.between`

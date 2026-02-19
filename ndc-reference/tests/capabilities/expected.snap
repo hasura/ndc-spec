@@ -1,9 +1,11 @@
 ---
 source: ndc-reference/bin/reference/main.rs
+assertion_line: 3520
 expression: response
+snapshot_kind: text
 ---
 {
-  "version": "0.2.12",
+  "version": "0.2.13",
   "capabilities": {
     "query": {
       "aggregates": {

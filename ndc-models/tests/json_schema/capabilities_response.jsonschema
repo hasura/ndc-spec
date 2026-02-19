@@ -943,6 +943,16 @@
               "type": "null"
             }
           ]
+        },
+        "regex_like": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
