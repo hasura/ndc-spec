@@ -928,6 +928,14 @@ pub enum RelationalExpression {
     /// * During windowing: `relational_query.window.expression.aggregate.first_value`
     FirstValue {
         expr: Box<RelationalExpression>,
+        /// Only used when in specific contexts where the appropriate capability is supported:
+        /// * During projection: `relational_query.project.expression.aggregate.first_value.order_by`
+        /// * During filtering: `relational_query.filter.aggregate.first_value.order_by`
+        /// * During sorting:`relational_query.sort.expression.aggregate.first_value.order_by`
+        /// * During joining: `relational_query.join.expression.aggregate.first_value.order_by`
+        /// * During aggregation: `relational_query.aggregate.expression.aggregate.first_value.order_by`
+        /// * During windowing: `relational_query.window.expression.aggregate.first_value.order_by`
+        order_by: Option<Vec<Sort>>,
     },
     /// Only used when in specific contexts where the appropriate capability is supported:
     /// * During projection: `relational_query.project.expression.aggregate.last_value`
@@ -938,6 +946,14 @@ pub enum RelationalExpression {
     /// * During windowing: `relational_query.window.expression.aggregate.last_value`
     LastValue {
         expr: Box<RelationalExpression>,
+        /// Only used when in specific contexts where the appropriate capability is supported:
+        /// * During projection: `relational_query.project.expression.aggregate.last_value.order_by`
+        /// * During filtering: `relational_query.filter.aggregate.last_value.order_by`
+        /// * During sorting:`relational_query.sort.expression.aggregate.last_value.order_by`
+        /// * During joining: `relational_query.join.expression.aggregate.last_value.order_by`
+        /// * During aggregation: `relational_query.aggregate.expression.aggregate.last_value.order_by`
+        /// * During windowing: `relational_query.window.expression.aggregate.last_value.order_by`
+        order_by: Option<Vec<Sort>>,
     },
     Max {
         expr: Box<RelationalExpression>,

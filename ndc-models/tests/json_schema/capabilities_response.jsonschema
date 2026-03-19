@@ -619,7 +619,7 @@
         "first_value": {
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/RelationalOrderedAggregateFunctionCapabilities"
             },
             {
               "type": "null"
@@ -629,7 +629,7 @@
         "last_value": {
           "anyOf": [
             {
-              "$ref": "#/definitions/LeafCapability"
+              "$ref": "#/definitions/RelationalOrderedAggregateFunctionCapabilities"
             },
             {
               "type": "null"
