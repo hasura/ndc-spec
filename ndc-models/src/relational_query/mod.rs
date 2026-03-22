@@ -110,6 +110,19 @@ pub enum Relation {
     Union {
         relations: Vec<Relation>,
     },
+    /// Unnest a JSON array column into rows.
+    /// Only used when the capability `relational_query.json_unnest` is supported.
+    JsonUnnest {
+        #[cfg(not(feature = "arc-relation"))]
+        input: Box<Relation>,
+        #[cfg(feature = "arc-relation")]
+        input: std::sync::Arc<Relation>,
+
+        /// The column index containing the JSON string to unnest.
+        json_column_index: u64,
+        /// JSONPath to the array within the JSON (e.g., "$.items" or "$.orders[*].items").
+        path: String,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
