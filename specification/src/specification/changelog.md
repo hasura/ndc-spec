@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.13
+
+- Add order_by to first and last value aggregates
+
 ## 0.2.12
 
 - Add json capabilities and functions for relational queries
