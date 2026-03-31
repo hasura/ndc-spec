@@ -19,6 +19,7 @@ pub struct RelationalQueryCapabilities {
     pub window: Option<RelationalWindowCapabilities>,
     pub union: Option<LeafCapability>,
     pub streaming: Option<LeafCapability>,
+    pub json_unnest: Option<JsonUnnestCapabilities>,
 }
 // ANCHOR_END: RelationalQueryCapabilities
 
@@ -207,6 +208,7 @@ pub struct RelationalScalarExpressionCapabilities {
     pub json_get_float: Option<LeafCapability>,
     pub json_get_bool: Option<LeafCapability>,
     pub json_get_json: Option<LeafCapability>,
+    pub json_get_array: Option<LeafCapability>,
     pub json_as_text: Option<LeafCapability>,
     pub json_length: Option<LeafCapability>,
 }
@@ -307,3 +309,13 @@ pub struct RelationalScalarTypeCapabilities {
     pub from_type: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalScalarTypeCapabilities
+
+// ANCHOR: JsonUnnestCapabilities
+#[skip_serializing_none]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[schemars(title = "JSON Unnest Capabilities")]
+pub struct JsonUnnestCapabilities {
+    /// Does the connector support nested paths like "$.a[*].b[*]"?
+    pub nested_paths: Option<LeafCapability>,
+}
+// ANCHOR_END: JsonUnnestCapabilities

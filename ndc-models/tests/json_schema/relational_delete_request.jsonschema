@@ -759,6 +759,37 @@
               }
             }
           }
+        },
+        {
+          "description": "Unnest a JSON array column into rows. Only used when the capability `relational_query.json_unnest` is supported.",
+          "type": "object",
+          "required": [
+            "input",
+            "json_column_index",
+            "path",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "json_unnest"
+              ]
+            },
+            "input": {
+              "$ref": "#/definitions/Relation"
+            },
+            "json_column_index": {
+              "description": "The column index containing the JSON string to unnest.",
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "path": {
+              "description": "JSONPath to the array within the JSON (e.g., \"$.items\" or \"$.orders[*].items\").",
+              "type": "string"
+            }
+          }
         }
       ]
     },
@@ -2845,6 +2876,32 @@
               "type": "string",
               "enum": [
                 "json_get_json"
+              ]
+            },
+            "json": {
+              "$ref": "#/definitions/RelationalExpression"
+            },
+            "keys": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Only used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.scalar.json_get_array` * During filtering: `relational_query.filter.scalar.json_get_array` * During sorting:`relational_query.sort.expression.scalar.json_get_array` * During joining: `relational_query.join.expression.scalar.json_get_array` * During aggregation: `relational_query.aggregate.expression.scalar.json_get_array` * During windowing: `relational_query.window.expression.scalar.json_get_array`",
+          "type": "object",
+          "required": [
+            "json",
+            "keys",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "json_get_array"
               ]
             },
             "json": {
