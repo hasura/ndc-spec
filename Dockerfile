@@ -41,6 +41,6 @@ RUN cargo build --release --all-targets
 
 ###
 # Ship the app in an image with very little else
-FROM debian:bookworm-slim as ndc-reference
+FROM us-docker.pkg.dev/hasura-container-images/external-images/docker.io/library/debian:bookworm-slim-stable as ndc-reference
 COPY --from=build /app/target/release/ndc-reference /usr/bin/ndc-reference
 ENTRYPOINT ["ndc-reference"]
