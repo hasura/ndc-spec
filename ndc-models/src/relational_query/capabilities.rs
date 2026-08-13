@@ -19,6 +19,13 @@ pub struct RelationalQueryCapabilities {
     pub window: Option<RelationalWindowCapabilities>,
     pub union: Option<LeafCapability>,
     pub streaming: Option<LeafCapability>,
+    /// Does the connector emit a disjoint, tagged JSON-object error frame on the
+    /// relational streaming response instead of the ambiguous legacy
+    /// `[status, message]` JSON array? When present, consumers can parse the
+    /// stream without the row-first heuristic, so rows such as `[171, "Ben Harper"]`
+    /// are never misinterpreted as errors. This feature is experimental and
+    /// subject to breaking changes within minor versions.
+    pub disjunct_streaming_error: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalQueryCapabilities
 
