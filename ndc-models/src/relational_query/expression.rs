@@ -1160,8 +1160,58 @@ pub enum RelationalExpression {
         order_by: Vec<Sort>,
         partition_by: Vec<RelationalExpression>,
     },
-    // lag
-    // lead
+    /// Returns the value of `expr` evaluated at the row that is `offset` rows
+    /// before the current row within the window partition. When that row falls
+    /// outside the partition, `default` is returned if provided, otherwise SQL
+    /// NULL.
+    ///
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.window.lag`
+    /// * During filtering: `relational_query.filter.window.lag`
+    /// * During sorting:`relational_query.sort.expression.window.lag`
+    /// * During joining: `relational_query.join.expression.window.lag`
+    /// * During aggregation: `relational_query.window.lag`
+    /// * During windowing: `relational_query.window.expression.window.lag`
+    Lag {
+        /// The expression whose value is to be read from the offset row.
+        expr: Box<RelationalExpression>,
+        /// The number of rows before the current row to read from. Producers
+        /// emit `1` when the SQL text omits an explicit offset. Expected to be
+        /// non-negative; a negative offset reverses the direction (reading
+        /// forwards, as `lead` would).
+        offset: i64,
+        /// The value to substitute when the offset row lies outside the
+        /// partition. `None` means SQL NULL.
+        default: Option<Box<RelationalExpression>>,
+        order_by: Vec<Sort>,
+        partition_by: Vec<RelationalExpression>,
+    },
+    /// Returns the value of `expr` evaluated at the row that is `offset` rows
+    /// after the current row within the window partition. When that row falls
+    /// outside the partition, `default` is returned if provided, otherwise SQL
+    /// NULL.
+    ///
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.window.lead`
+    /// * During filtering: `relational_query.filter.window.lead`
+    /// * During sorting:`relational_query.sort.expression.window.lead`
+    /// * During joining: `relational_query.join.expression.window.lead`
+    /// * During aggregation: `relational_query.window.lead`
+    /// * During windowing: `relational_query.window.expression.window.lead`
+    Lead {
+        /// The expression whose value is to be read from the offset row.
+        expr: Box<RelationalExpression>,
+        /// The number of rows after the current row to read from. Producers
+        /// emit `1` when the SQL text omits an explicit offset. Expected to be
+        /// non-negative; a negative offset reverses the direction (reading
+        /// backwards, as `lag` would).
+        offset: i64,
+        /// The value to substitute when the offset row lies outside the
+        /// partition. `None` means SQL NULL.
+        default: Option<Box<RelationalExpression>>,
+        order_by: Vec<Sort>,
+        partition_by: Vec<RelationalExpression>,
+    },
     // nth_value
 }
 
@@ -1193,4 +1243,77 @@ pub enum DatePartUnit {
     Millisecond,
     Nanosecond,
     Epoch,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::relational_query::{NullsSort, RelationalLiteral, Sort};
+    use crate::OrderDirection;
+
+    fn sort_on(index: u64) -> Sort {
+        Sort {
+            expr: RelationalExpression::Column { index },
+            direction: OrderDirection::Asc,
+            nulls_sort: NullsSort::NullsLast,
+        }
+    }
+
+    #[test]
+    fn lag_minimal_round_trips_and_omits_absent_default() {
+        let expr = RelationalExpression::Lag {
+            expr: Box::new(RelationalExpression::Column { index: 0 }),
+            offset: 1,
+            default: None,
+            order_by: vec![sort_on(1)],
+            partition_by: vec![],
+        };
+
+        let json = serde_json::to_value(&expr).unwrap();
+        assert_eq!(json["type"], "lag");
+        assert_eq!(json["offset"], 1);
+        // `#[skip_serializing_none]` must drop an absent default from the wire format
+        // so the shape stays backwards compatible with a null default.
+        assert!(json.get("default").is_none());
+
+        let decoded: RelationalExpression = serde_json::from_value(json).unwrap();
+        assert_eq!(expr, decoded);
+    }
+
+    #[test]
+    fn lead_with_default_and_partition_round_trips() {
+        let expr = RelationalExpression::Lead {
+            expr: Box::new(RelationalExpression::Column { index: 2 }),
+            offset: 3,
+            default: Some(Box::new(RelationalExpression::Literal {
+                literal: RelationalLiteral::Int64 { value: 0 },
+            })),
+            order_by: vec![sort_on(1)],
+            partition_by: vec![RelationalExpression::Column { index: 4 }],
+        };
+
+        let json = serde_json::to_value(&expr).unwrap();
+        assert_eq!(json["type"], "lead");
+        assert_eq!(json["offset"], 3);
+        assert_eq!(json["default"]["type"], "literal");
+
+        let decoded: RelationalExpression = serde_json::from_value(json).unwrap();
+        assert_eq!(expr, decoded);
+    }
+
+    #[test]
+    fn negative_offset_is_representable() {
+        // A negative offset is a legal (if unusual) encoding: it reverses the
+        // read direction. The model must round-trip it without loss.
+        let expr = RelationalExpression::Lag {
+            expr: Box::new(RelationalExpression::Column { index: 0 }),
+            offset: -2,
+            default: None,
+            order_by: vec![],
+            partition_by: vec![],
+        };
+        let decoded: RelationalExpression =
+            serde_json::from_value(serde_json::to_value(&expr).unwrap()).unwrap();
+        assert_eq!(expr, decoded);
+    }
 }

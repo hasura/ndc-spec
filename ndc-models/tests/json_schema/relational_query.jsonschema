@@ -3419,6 +3419,116 @@
               }
             }
           }
+        },
+        {
+          "description": "Returns the value of `expr` evaluated at the row that is `offset` rows before the current row within the window partition. When that row falls outside the partition, `default` is returned if provided, otherwise SQL NULL.\n\nOnly used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.window.lag` * During filtering: `relational_query.filter.window.lag` * During sorting:`relational_query.sort.expression.window.lag` * During joining: `relational_query.join.expression.window.lag` * During aggregation: `relational_query.window.lag` * During windowing: `relational_query.window.expression.window.lag`",
+          "type": "object",
+          "required": [
+            "expr",
+            "offset",
+            "order_by",
+            "partition_by",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "lag"
+              ]
+            },
+            "expr": {
+              "description": "The expression whose value is to be read from the offset row.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                }
+              ]
+            },
+            "offset": {
+              "description": "The number of rows before the current row to read from. Producers emit `1` when the SQL text omits an explicit offset. Expected to be non-negative; a negative offset reverses the direction (reading forwards, as `lead` would).",
+              "type": "integer",
+              "format": "int64"
+            },
+            "default": {
+              "description": "The value to substitute when the offset row lies outside the partition. `None` means SQL NULL.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "order_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
+            },
+            "partition_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
+        },
+        {
+          "description": "Returns the value of `expr` evaluated at the row that is `offset` rows after the current row within the window partition. When that row falls outside the partition, `default` is returned if provided, otherwise SQL NULL.\n\nOnly used when in specific contexts where the appropriate capability is supported: * During projection: `relational_query.project.expression.window.lead` * During filtering: `relational_query.filter.window.lead` * During sorting:`relational_query.sort.expression.window.lead` * During joining: `relational_query.join.expression.window.lead` * During aggregation: `relational_query.window.lead` * During windowing: `relational_query.window.expression.window.lead`",
+          "type": "object",
+          "required": [
+            "expr",
+            "offset",
+            "order_by",
+            "partition_by",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "lead"
+              ]
+            },
+            "expr": {
+              "description": "The expression whose value is to be read from the offset row.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                }
+              ]
+            },
+            "offset": {
+              "description": "The number of rows after the current row to read from. Producers emit `1` when the SQL text omits an explicit offset. Expected to be non-negative; a negative offset reverses the direction (reading backwards, as `lag` would).",
+              "type": "integer",
+              "format": "int64"
+            },
+            "default": {
+              "description": "The value to substitute when the offset row lies outside the partition. `None` means SQL NULL.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelationalExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "order_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sort"
+              }
+            },
+            "partition_by": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RelationalExpression"
+              }
+            }
+          }
         }
       ]
     },
