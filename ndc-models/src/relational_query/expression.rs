@@ -1160,8 +1160,58 @@ pub enum RelationalExpression {
         order_by: Vec<Sort>,
         partition_by: Vec<RelationalExpression>,
     },
-    // lag
-    // lead
+    /// Returns the value of `expr` evaluated at the row that is `offset` rows
+    /// before the current row within the window partition. When that row falls
+    /// outside the partition, `default` is returned if provided, otherwise SQL
+    /// NULL.
+    ///
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.window.lag`
+    /// * During filtering: `relational_query.filter.window.lag`
+    /// * During sorting:`relational_query.sort.expression.window.lag`
+    /// * During joining: `relational_query.join.expression.window.lag`
+    /// * During aggregation: `relational_query.window.lag`
+    /// * During windowing: `relational_query.window.expression.window.lag`
+    Lag {
+        /// The expression whose value is to be read from the offset row.
+        expr: Box<RelationalExpression>,
+        /// The number of rows before the current row to read from. Producers
+        /// emit `1` when the SQL text omits an explicit offset. Expected to be
+        /// non-negative; a negative offset reverses the direction (reading
+        /// forwards, as `lead` would).
+        offset: i64,
+        /// The value to substitute when the offset row lies outside the
+        /// partition. `None` means SQL NULL.
+        default: Option<Box<RelationalExpression>>,
+        order_by: Vec<Sort>,
+        partition_by: Vec<RelationalExpression>,
+    },
+    /// Returns the value of `expr` evaluated at the row that is `offset` rows
+    /// after the current row within the window partition. When that row falls
+    /// outside the partition, `default` is returned if provided, otherwise SQL
+    /// NULL.
+    ///
+    /// Only used when in specific contexts where the appropriate capability is supported:
+    /// * During projection: `relational_query.project.expression.window.lead`
+    /// * During filtering: `relational_query.filter.window.lead`
+    /// * During sorting:`relational_query.sort.expression.window.lead`
+    /// * During joining: `relational_query.join.expression.window.lead`
+    /// * During aggregation: `relational_query.window.lead`
+    /// * During windowing: `relational_query.window.expression.window.lead`
+    Lead {
+        /// The expression whose value is to be read from the offset row.
+        expr: Box<RelationalExpression>,
+        /// The number of rows after the current row to read from. Producers
+        /// emit `1` when the SQL text omits an explicit offset. Expected to be
+        /// non-negative; a negative offset reverses the direction (reading
+        /// backwards, as `lag` would).
+        offset: i64,
+        /// The value to substitute when the offset row lies outside the
+        /// partition. `None` means SQL NULL.
+        default: Option<Box<RelationalExpression>>,
+        order_by: Vec<Sort>,
+        partition_by: Vec<RelationalExpression>,
+    },
     // nth_value
 }
 

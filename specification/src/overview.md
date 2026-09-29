@@ -10,6 +10,7 @@ Users looking to build their own connectors might want to also look at some addi
 
 - [Hasura Connector Hub](https://hasura.io/connectors) contains a list of currently available connectors
 - [Let's Build a Connector](https://hasura.io/learn/graphql/hasura-v3-ts-connector/introduction/) is a step-by-step to creating a connector using TypeScript
+
 </div>
 
 ---

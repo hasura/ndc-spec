@@ -292,6 +292,8 @@ pub struct RelationalWindowExpressionCapabilities {
     pub rank: Option<LeafCapability>,
     pub cume_dist: Option<LeafCapability>,
     pub percent_rank: Option<LeafCapability>,
+    pub lag: Option<LeafCapability>,
+    pub lead: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalWindowExpressionCapabilities
 

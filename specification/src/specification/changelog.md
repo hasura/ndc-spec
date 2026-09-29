@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.14
+
+- Add `lag` and `lead` window functions and capabilities for relational queries
+
 ## 0.2.13
 
 - Add order_by to first and last value aggregates
