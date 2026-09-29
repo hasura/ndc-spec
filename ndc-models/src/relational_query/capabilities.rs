@@ -9,6 +9,7 @@ use crate::LeafCapability;
 /// This feature is experimental and subject to breaking changes within minor versions.
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Query Capabilities")]
 pub struct RelationalQueryCapabilities {
     pub project: RelationalProjectionCapabilities,
@@ -25,6 +26,7 @@ pub struct RelationalQueryCapabilities {
 // ANCHOR: RelationalProjectionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Projection Capabilities")]
 pub struct RelationalProjectionCapabilities {
     pub expression: RelationalExpressionCapabilities,
@@ -34,6 +36,7 @@ pub struct RelationalProjectionCapabilities {
 // ANCHOR: RelationalSortCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Sort Capabilities")]
 pub struct RelationalSortCapabilities {
     pub expression: RelationalExpressionCapabilities,
@@ -43,6 +46,7 @@ pub struct RelationalSortCapabilities {
 // ANCHOR: RelationalJoinCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Join Capabilities")]
 pub struct RelationalJoinCapabilities {
     pub expression: RelationalExpressionCapabilities,
@@ -53,6 +57,7 @@ pub struct RelationalJoinCapabilities {
 // ANCHOR: RelationalJoinTypeCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Join Type Capabilities")]
 pub struct RelationalJoinTypeCapabilities {
     pub left: Option<LeafCapability>,
@@ -69,6 +74,7 @@ pub struct RelationalJoinTypeCapabilities {
 // ANCHOR: RelationalAggregateCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Aggregate Capabilities")]
 pub struct RelationalAggregateCapabilities {
     pub expression: RelationalExpressionCapabilities,
@@ -79,6 +85,7 @@ pub struct RelationalAggregateCapabilities {
 // ANCHOR: RelationalWindowCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Window Capabilities")]
 pub struct RelationalWindowCapabilities {
     pub expression: RelationalExpressionCapabilities,
@@ -88,6 +95,7 @@ pub struct RelationalWindowCapabilities {
 // ANCHOR: RelationalExpressionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Expression Capabilities")]
 pub struct RelationalExpressionCapabilities {
     pub conditional: RelationalConditionalExpressionCapabilities,
@@ -102,6 +110,7 @@ pub struct RelationalExpressionCapabilities {
 // ANCHOR: RelationalConditionalExpressionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Conditional Expression Capabilities")]
 pub struct RelationalConditionalExpressionCapabilities {
     pub case: Option<RelationalCaseCapabilities>,
@@ -112,6 +121,7 @@ pub struct RelationalConditionalExpressionCapabilities {
 // ANCHOR: RelationalCaseCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Case Capabilities")]
 pub struct RelationalCaseCapabilities {
     pub scrutinee: Option<LeafCapability>,
@@ -121,6 +131,7 @@ pub struct RelationalCaseCapabilities {
 // ANCHOR: RelationalFilterExpressionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Filter Expression Capabilities")]
 pub struct RelationalComparisonExpressionCapabilities {
     pub between: Option<LeafCapability>,
@@ -144,6 +155,7 @@ pub struct RelationalComparisonExpressionCapabilities {
 // ANCHOR: RelationalScalarExpressionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Scalar Expression Capabilities")]
 pub struct RelationalScalarExpressionCapabilities {
     pub abs: Option<LeafCapability>,
@@ -215,6 +227,7 @@ pub struct RelationalScalarExpressionCapabilities {
 // ANCHOR: DatePartScalarExpressionCapability
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Date Part Scalar Expression Capability")]
 pub struct DatePartScalarExpressionCapability {
     pub year: Option<LeafCapability>,
@@ -237,6 +250,7 @@ pub struct DatePartScalarExpressionCapability {
 // ANCHOR: RelationalAggregateExpressionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Aggregate Expression Capabilities")]
 pub struct RelationalAggregateExpressionCapabilities {
     pub avg: Option<LeafCapability>,
@@ -265,6 +279,7 @@ pub struct RelationalAggregateExpressionCapabilities {
 // ANCHOR: RelationalAggregateFunctionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Aggregate Function Capabilities")]
 pub struct RelationalAggregateFunctionCapabilities {
     pub distinct: Option<LeafCapability>,
@@ -274,6 +289,7 @@ pub struct RelationalAggregateFunctionCapabilities {
 // ANCHOR: RelationalOrderedAggregateFunctionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Ordered Aggregate Function Capabilities")]
 pub struct RelationalOrderedAggregateFunctionCapabilities {
     pub distinct: Option<LeafCapability>,
@@ -284,6 +300,7 @@ pub struct RelationalOrderedAggregateFunctionCapabilities {
 // ANCHOR: RelationalWindowExpressionCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Window Expression Capabilities")]
 pub struct RelationalWindowExpressionCapabilities {
     pub row_number: Option<LeafCapability>,
@@ -300,6 +317,7 @@ pub struct RelationalWindowExpressionCapabilities {
 // ANCHOR: RelationalScalarTypeCapabilities
 #[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Relational Scalar Type Capabilities")]
 pub struct RelationalScalarTypeCapabilities {
     /// Does the connector support the INTERVAL scalar type?

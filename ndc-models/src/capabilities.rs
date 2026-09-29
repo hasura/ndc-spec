@@ -19,6 +19,7 @@ pub struct CapabilitiesResponse {
 /// A unit value to indicate a particular leaf capability is supported.
 /// This is an empty struct to allow for future sub-capabilities.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 pub struct LeafCapability {}
 // ANCHOR_END: LeafCapability
 

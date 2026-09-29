@@ -67,6 +67,7 @@ impl JsonSchema for Float64 {
 #[derive(
     Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[serde(tag = "type")]
 #[schemars(title = "CastType", rename_all = "snake_case")]
 pub enum CastType {
@@ -119,6 +120,10 @@ pub enum CastType {
     Interval,
 }
 
+// NOTE: `RelationalLiteral` intentionally does NOT derive `arbitrary::Arbitrary`.
+// A hand-written generator lives in `proptests.rs` so it can exclude the
+// `Decimal128` variant, which cannot round-trip through `serde_json` (see the note
+// there and `decimal128_literal_is_a_known_non_round_trip`).
 #[derive(Debug, Clone, PartialOrd, Hash, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type")]
 #[schemars(title = "RelationalLiteral", rename_all = "snake_case")]
