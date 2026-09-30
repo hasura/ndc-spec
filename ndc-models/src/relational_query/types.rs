@@ -120,8 +120,7 @@ pub enum CastType {
     Interval,
 }
 
-// No test-only `arbitrary::Arbitrary` derive (unlike sibling types): `proptests.rs`
-// hand-writes a generator that excludes the un-round-trippable `Decimal128` variant.
+// The test generator in proptests.rs excludes Decimal128; serde cannot deserialize its i128 field.
 #[derive(Debug, Clone, PartialOrd, Hash, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type")]
 #[schemars(title = "RelationalLiteral", rename_all = "snake_case")]

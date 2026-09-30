@@ -1,5 +1,3 @@
-//! Property-based JSON round-trip tests for the relational query model types.
-
 #![allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 
 use std::fmt::Debug;
@@ -10,15 +8,12 @@ use serde::{de::DeserializeOwned, Serialize};
 use super::{Float32, Float64};
 
 const SEEDS: usize = 256;
-// Bounds the nesting depth of generated values: derive consumes ~4 bytes per enum
-// level, so 256 bytes caps depth near 64, which keeps tests fast and under
-// serde_json's default deserialization depth limit.
+// Keep generated trees small enough for serde_json's recursion limit.
 const BUFFER_SIZE: usize = 256;
-// Backstop so a zero-consumption generator can't spin on one buffer forever.
 const MAX_VALUES_PER_SEED: usize = 64;
 
-// serde_json can't round-trip non-finite floats (written as `null`) or some
-// extreme/subnormal values, so restrict to floats that survive; others become 0.0.
+// Test the model's serialization, excluding floats that serde_json itself cannot
+// round-trip.
 fn json_round_trippable_f32(value: f32) -> f32 {
     if !value.is_finite() {
         return 0.0;
@@ -61,9 +56,8 @@ impl<'a> Arbitrary<'a> for Float64 {
     }
 }
 
-// Hand-written (not derived) to exclude `Decimal128`, whose `i128` field can't be
-// deserialized inside an internally-tagged enum (serde's `Content` rejects `i128`);
-// see `decimal128_literal_is_a_known_non_round_trip`. New variants must be added here.
+// Hand-written (not derived) to exclude `Decimal128`: serde cannot deserialize its
+// `i128` field inside an internally-tagged enum. New variants must be added here.
 impl<'a> Arbitrary<'a> for crate::RelationalLiteral {
     fn arbitrary(u: &mut Unstructured<'a>) -> arbitrary::Result<Self> {
         use crate::RelationalLiteral as Lit;
@@ -105,7 +99,6 @@ impl<'a> Arbitrary<'a> for crate::RelationalLiteral {
             12 => Lit::Float64 {
                 value: Float64::arbitrary(u)?,
             },
-            // Decimal128 intentionally omitted (see above).
             13 => Lit::Decimal256 {
                 value: String::arbitrary(u)?,
                 scale: i8::arbitrary(u)?,
@@ -162,8 +155,6 @@ impl<'a> Arbitrary<'a> for crate::RelationalLiteral {
     }
 }
 
-// A fixed pool rather than fuzzing the full string space; the awkward entries
-// (empty, dotted, spaced, unicode) exercise the JSON string-escaping paths.
 const SAMPLE_NAMES: &[&str] = &["", "a", "col_1", "Namespace.Table", "with space", "🦀"];
 
 macro_rules! arbitrary_name_newtype {
@@ -180,8 +171,6 @@ arbitrary_name_newtype!(crate::CollectionName);
 arbitrary_name_newtype!(crate::FieldName);
 arbitrary_name_newtype!(crate::ArgumentName);
 
-/// Asserts every generated `T` survives encode -> decode unchanged, and that
-/// re-encoding the decoded value is byte-identical (a normalized wire format).
 fn assert_round_trips<T>()
 where
     T: for<'a> Arbitrary<'a> + Serialize + DeserializeOwned + PartialEq + Debug,
@@ -195,7 +184,6 @@ where
 
         for _ in 0..MAX_VALUES_PER_SEED {
             let remaining_before = unstructured.len();
-            // `Err` means the buffer is exhausted for this seed.
             let Ok(value) = T::arbitrary(&mut unstructured) else {
                 break;
             };
@@ -218,7 +206,7 @@ where
                 "decode -> encode was not idempotent for {type_name}"
             );
 
-            // Stop if the generator consumed nothing (zero-sized type), to avoid spinning.
+            // Some generators consume no bytes, so the buffer may never drain.
             if unstructured.len() == remaining_before {
                 break;
             }
@@ -231,7 +219,7 @@ where
     );
 }
 
-/// Deterministic per-type seed bytes (an LCG), so runs are reproducible in CI.
+// Deterministic per-type seed bytes (an LCG), so runs are reproducible in CI.
 fn high_entropy_seed(type_name: &str, seed_index: usize) -> Vec<u8> {
     let mut state = type_name
         .bytes()
@@ -252,8 +240,8 @@ fn high_entropy_seed(type_name: &str, seed_index: usize) -> Vec<u8> {
     buffer
 }
 
-/// Runs on a large stack: deeply nested generated values can overflow the default
-/// test-thread stack when (de)serialized or dropped.
+// Runs on a large stack: deeply nested generated values can overflow the default
+// test-thread stack when (de)serialized or dropped.
 fn with_large_stack(test: impl FnOnce() + Send + 'static) {
     std::thread::Builder::new()
         .stack_size(64 * 1024 * 1024)
@@ -263,8 +251,6 @@ fn with_large_stack(test: impl FnOnce() + Send + 'static) {
         .expect("property-test thread panicked");
 }
 
-// The type the review on #259 concerns; this property replaces the per-variant
-// example tests and covers every variant reachable from it.
 #[test]
 fn relational_expression_round_trips() {
     with_large_stack(assert_round_trips::<super::RelationalExpression>);
@@ -310,8 +296,7 @@ fn relational_query_capabilities_round_trips() {
     with_large_stack(assert_round_trips::<crate::RelationalQueryCapabilities>);
 }
 
-// Pins the known limitation (see the `RelationalLiteral` generator above): if this
-// ever round-trips, drop the `Decimal128` exclusion there and delete this test.
+// If this starts round-tripping, include Decimal128 in the generator and remove this test.
 #[test]
 fn decimal128_literal_is_a_known_non_round_trip() {
     let literal = crate::RelationalLiteral::Decimal128 {
