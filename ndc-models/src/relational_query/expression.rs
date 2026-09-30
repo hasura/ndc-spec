@@ -6,6 +6,7 @@ use super::{CastType, RelationalLiteral, Sort};
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "RelationalExpression")]
 pub enum RelationalExpression {
@@ -1216,6 +1217,7 @@ pub enum RelationalExpression {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[serde(rename_all = "snake_case")]
 #[schemars(title = "CaseWhen")]
 pub struct CaseWhen {
@@ -1226,6 +1228,7 @@ pub struct CaseWhen {
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[serde(rename_all = "snake_case")]
 #[schemars(title = "DatePartUnit")]
 pub enum DatePartUnit {

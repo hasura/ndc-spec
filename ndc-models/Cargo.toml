@@ -21,4 +21,5 @@ serde_with = { workspace = true }
 smol_str = { workspace = true, features = ["serde"] }
 
 [dev-dependencies]
+arbitrary = { workspace = true }
 goldenfile = { workspace = true }

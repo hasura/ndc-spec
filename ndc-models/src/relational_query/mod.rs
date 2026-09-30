@@ -11,6 +11,9 @@ pub use expression::*;
 mod types;
 pub use types::*;
 
+#[cfg(test)]
+mod proptests;
+
 use crate::{ArgumentName, CollectionName, FieldName, OrderDirection};
 
 #[skip_serializing_none]
@@ -32,6 +35,7 @@ pub struct RelationalQueryResponse {
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[schemars(title = "Relation")]
 pub enum Relation {
@@ -113,6 +117,7 @@ pub enum Relation {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Sort", rename_all = "snake_case")]
 pub struct Sort {
     pub expr: RelationalExpression,
@@ -123,6 +128,7 @@ pub struct Sort {
 #[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Nulls Sort")]
 #[serde(rename_all = "snake_case")]
 pub enum NullsSort {
@@ -131,6 +137,7 @@ pub enum NullsSort {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Serialize, Deserialize, JsonSchema)]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "JoinOn", rename_all = "snake_case")]
 pub struct JoinOn {
     pub left: RelationalExpression,
@@ -140,6 +147,7 @@ pub struct JoinOn {
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[serde(rename_all = "snake_case")]
 #[schemars(title = "JoinType")]
 pub enum JoinType {

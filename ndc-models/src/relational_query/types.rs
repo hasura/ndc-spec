@@ -67,6 +67,7 @@ impl JsonSchema for Float64 {
 #[derive(
     Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[serde(tag = "type")]
 #[schemars(title = "CastType", rename_all = "snake_case")]
 pub enum CastType {
@@ -119,6 +120,7 @@ pub enum CastType {
     Interval,
 }
 
+// The test generator in proptests.rs excludes Decimal128; serde cannot deserialize its i128 field.
 #[derive(Debug, Clone, PartialOrd, Hash, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type")]
 #[schemars(title = "RelationalLiteral", rename_all = "snake_case")]

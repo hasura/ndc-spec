@@ -61,6 +61,7 @@ pub enum OrderByTarget {
 #[derive(
     Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, JsonSchema,
 )]
+#[cfg_attr(test, derive(arbitrary::Arbitrary))]
 #[schemars(title = "Order Direction")]
 #[serde(rename_all = "snake_case")]
 pub enum OrderDirection {
