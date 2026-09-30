@@ -120,10 +120,8 @@ pub enum CastType {
     Interval,
 }
 
-// NOTE: `RelationalLiteral` intentionally does NOT derive `arbitrary::Arbitrary`.
-// A hand-written generator lives in `proptests.rs` so it can exclude the
-// `Decimal128` variant, which cannot round-trip through `serde_json` (see the note
-// there and `decimal128_literal_is_a_known_non_round_trip`).
+// No test-only `arbitrary::Arbitrary` derive (unlike sibling types): `proptests.rs`
+// hand-writes a generator that excludes the un-round-trippable `Decimal128` variant.
 #[derive(Debug, Clone, PartialOrd, Hash, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type")]
 #[schemars(title = "RelationalLiteral", rename_all = "snake_case")]
