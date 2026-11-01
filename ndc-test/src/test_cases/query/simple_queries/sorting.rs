@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use ndc_models as models;
-use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
+use rand::{rngs::SmallRng, seq::IteratorRandom, RngExt};
 
 use crate::{configuration::TestGenerationConfiguration, connector::Connector, error::Result};
 
@@ -15,7 +15,7 @@ pub async fn test_sorting<C: Connector>(
     collection_info: &models::CollectionInfo,
 ) -> Result<()> {
     for _ in 0..gen_config.test_cases {
-        let amount = rng.gen_range(1..=gen_config.complexity.max(1).into());
+        let amount = rng.random_range(1..=gen_config.complexity.max(1).into());
         if let Some(order_by_elements) =
             make_order_by_elements(collection_type.clone(), schema, rng, amount)
         {
@@ -61,12 +61,12 @@ fn make_order_by_elements(
     if sortable_fields.is_empty() {
         None
     } else {
-        let fields = sortable_fields.iter().choose_multiple(rng, amount);
+        let fields = sortable_fields.iter().sample(rng, amount);
 
         let mut order_by_elements = vec![];
 
         for field_name in fields {
-            let order_direction = if rng.gen_bool(0.5) {
+            let order_direction = if rng.random_bool(0.5) {
                 models::OrderDirection::Asc
             } else {
                 models::OrderDirection::Desc

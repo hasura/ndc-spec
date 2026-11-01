@@ -6,8 +6,8 @@ use crate::error::{Error, Result};
 
 use ndc_models as models;
 use rand::rngs::SmallRng;
-use rand::seq::SliceRandom;
-use rand::Rng;
+use rand::seq::IndexedRandom;
+use rand::RngExt;
 
 #[allow(clippy::too_many_arguments)]
 pub async fn test_predicates<C: Connector>(
@@ -71,7 +71,7 @@ pub fn make_predicate(
     context: &super::super::context::Context,
     rng: &mut SmallRng,
 ) -> Result<Option<GeneratedExpression>> {
-    let amount = rng.gen_range(1..=gen_config.complexity.max(1)).into();
+    let amount = rng.random_range(1..=gen_config.complexity.max(1)).into();
     let fields = context.choose_distinct_fields(rng, amount);
 
     let mut expressions: Vec<GeneratedExpression> = vec![];
@@ -80,9 +80,9 @@ pub fn make_predicate(
         let available_expressions: Vec<GeneratedExpression> =
             make_single_expressions(schema, context, &field_name, &values, rng)?;
 
-        let amount = rng.gen_range(1..=gen_config.complexity.max(1)).into();
+        let amount = rng.random_range(1..=gen_config.complexity.max(1)).into();
         let chosen = available_expressions
-            .choose_multiple(rng, amount)
+            .sample(rng, amount)
             .collect::<Vec<_>>();
 
         match *chosen {
@@ -170,12 +170,8 @@ fn make_single_expressions(
                         });
                     }
                     models::ComparisonOperatorDefinition::In => {
-                        let value_count = rng.gen_range(0..3);
-                        let values: rand::seq::SliceChooseIter<
-                            '_,
-                            [serde_json::Value],
-                            serde_json::Value,
-                        > = values.choose_multiple(rng, value_count);
+                        let value_count = rng.random_range(0..3);
+                        let values = values.sample(rng, value_count);
 
                         expressions.push(GeneratedExpression {
                             expr: models::Expression::BinaryComparisonOperator {

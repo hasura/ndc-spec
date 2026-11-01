@@ -39,7 +39,7 @@
           pkgs.pkg-config
         ];
       runtimeDependencies =
-        pkgs.lib.optionals pkgs.stdenv.isDarwin [
+        pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
           pkgs.libiconv
         ];
 
@@ -95,7 +95,7 @@
           pkgs.just
           pkgs.mdbook
           pkgs.mdbook-pagetoc
-          pkgs.nodePackages.prettier
+          pkgs.prettier
         ] ++ buildDependencies;
 
         buildInputs = runtimeDependencies;

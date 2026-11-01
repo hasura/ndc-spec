@@ -42,7 +42,7 @@ pub enum Error {
     Serde(serde_json::Error),
     SerdeWithMessage(serde_json::Error, String),
     Io(std::io::Error),
-    ConnectorError(ConnectorError),
+    ConnectorError(Box<ConnectorError>),
     InvalidConnectorError(InvalidConnectorError),
     InvalidBaseURL,
 }
@@ -219,7 +219,7 @@ fn construct_error(
                 error_response,
                 raw_response: response_content,
             };
-            Error::ConnectorError(connector_error)
+            Error::ConnectorError(Box::new(connector_error))
         }
         Err(e) => {
             let message = format!("failed to deserialize error response: {e}");

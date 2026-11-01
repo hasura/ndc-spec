@@ -2,10 +2,6 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Capabilities Response",
   "type": "object",
-  "required": [
-    "capabilities",
-    "version"
-  ],
   "properties": {
     "version": {
       "type": "string"
@@ -14,6 +10,10 @@
       "$ref": "#/definitions/Capabilities"
     }
   },
+  "required": [
+    "version",
+    "capabilities"
+  ],
   "definitions": {
     "AggregateCapabilities": {
       "title": "Aggregate Capabilities",
@@ -47,10 +47,6 @@
       "title": "Capabilities",
       "description": "Describes the features of the specification which a data connector implements.",
       "type": "object",
-      "required": [
-        "mutation",
-        "query"
-      ],
       "properties": {
         "query": {
           "$ref": "#/definitions/QueryCapabilities"
@@ -69,7 +65,7 @@
           ]
         },
         "relational_query": {
-          "description": "Does the connector support the relational query API? This feature is experimental and subject to breaking changes within minor versions.",
+          "description": "Does the connector support the relational query API? This feature is experimental and subject\nto breaking changes within minor versions.",
           "anyOf": [
             {
               "$ref": "#/definitions/RelationalQueryCapabilities"
@@ -80,7 +76,7 @@
           ]
         },
         "relational_mutation": {
-          "description": "Does the connector support the relational mutation API? This feature is experimental and subject to breaking changes within minor versions.",
+          "description": "Does the connector support the relational mutation API? This feature is experimental and subject\nto breaking changes within minor versions.",
           "anyOf": [
             {
               "$ref": "#/definitions/RelationalMutationCapabilities"
@@ -90,7 +86,11 @@
             }
           ]
         }
-      }
+      },
+      "required": [
+        "query",
+        "mutation"
+      ]
     },
     "DatePartScalarExpressionCapability": {
       "title": "Date Part Scalar Expression Capability",
@@ -243,7 +243,7 @@
       "type": "object",
       "properties": {
         "named_scopes": {
-          "description": "Does the connector support named scopes in column references inside EXISTS predicates",
+          "description": "Does the connector support named scopes in column references inside\nEXISTS predicates",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -276,7 +276,7 @@
           ]
         },
         "nested_scalar_collections": {
-          "description": "Does the connector support filtering over nested scalar arrays using existential quantification. This means the connector must support ExistsInCollection::NestedScalarCollection.",
+          "description": "Does the connector support filtering over nested scalar arrays using existential quantification.\nThis means the connector must support ExistsInCollection::NestedScalarCollection.",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -328,7 +328,7 @@
       }
     },
     "LeafCapability": {
-      "description": "A unit value to indicate a particular leaf capability is supported. This is an empty struct to allow for future sub-capabilities.",
+      "description": "A unit value to indicate a particular leaf capability is supported.\nThis is an empty struct to allow for future sub-capabilities.",
       "type": "object"
     },
     "MutationCapabilities": {
@@ -364,7 +364,7 @@
       "type": "object",
       "properties": {
         "contains": {
-          "description": "Does the connector support filtering over nested arrays by checking if the array contains a value. This must be supported for all types that can be contained in an array that implement an 'eq' comparison operator.",
+          "description": "Does the connector support filtering over nested arrays by checking if the array contains a value.\nThis must be supported for all types that can be contained in an array that implement an 'eq'\ncomparison operator.",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -375,7 +375,7 @@
           ]
         },
         "is_empty": {
-          "description": "Does the connector support filtering over nested arrays by checking if the array is empty. This must be supported no matter what type is contained in the array.",
+          "description": "Does the connector support filtering over nested arrays by checking if the array is empty.\nThis must be supported no matter what type is contained in the array.",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -425,7 +425,7 @@
           ]
         },
         "nested_collections": {
-          "description": "Does the connector support nested collection queries using `NestedField::NestedCollection`",
+          "description": "Does the connector support nested collection queries using\n`NestedField::NestedCollection`",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -553,9 +553,6 @@
     "RelationalAggregateCapabilities": {
       "title": "Relational Aggregate Capabilities",
       "type": "object",
-      "required": [
-        "expression"
-      ],
       "properties": {
         "expression": {
           "$ref": "#/definitions/RelationalExpressionCapabilities"
@@ -570,7 +567,10 @@
             }
           ]
         }
-      }
+      },
+      "required": [
+        "expression"
+      ]
     },
     "RelationalAggregateExpressionCapabilities": {
       "title": "Relational Aggregate Expression Capabilities",
@@ -975,13 +975,6 @@
     "RelationalExpressionCapabilities": {
       "title": "Relational Expression Capabilities",
       "type": "object",
-      "required": [
-        "aggregate",
-        "comparison",
-        "conditional",
-        "scalar",
-        "window"
-      ],
       "properties": {
         "conditional": {
           "$ref": "#/definitions/RelationalConditionalExpressionCapabilities"
@@ -1008,15 +1001,18 @@
             }
           ]
         }
-      }
+      },
+      "required": [
+        "conditional",
+        "comparison",
+        "scalar",
+        "aggregate",
+        "window"
+      ]
     },
     "RelationalJoinCapabilities": {
       "title": "Relational Join Capabilities",
       "type": "object",
-      "required": [
-        "expression",
-        "join_types"
-      ],
       "properties": {
         "expression": {
           "$ref": "#/definitions/RelationalExpressionCapabilities"
@@ -1024,7 +1020,11 @@
         "join_types": {
           "$ref": "#/definitions/RelationalJoinTypeCapabilities"
         }
-      }
+      },
+      "required": [
+        "expression",
+        "join_types"
+      ]
     },
     "RelationalJoinTypeCapabilities": {
       "title": "Relational Join Type Capabilities",
@@ -1114,7 +1114,7 @@
     },
     "RelationalMutationCapabilities": {
       "title": "Relational Mutation Capabilities",
-      "description": "Describes which features of the relational mutation API are supported by the connector. This feature is experimental and subject to breaking changes within minor versions.",
+      "description": "Describes which features of the relational mutation API are supported by the connector.\nThis feature is experimental and subject to breaking changes within minor versions.",
       "type": "object",
       "properties": {
         "insert": {
@@ -1178,22 +1178,19 @@
     "RelationalProjectionCapabilities": {
       "title": "Relational Projection Capabilities",
       "type": "object",
-      "required": [
-        "expression"
-      ],
       "properties": {
         "expression": {
           "$ref": "#/definitions/RelationalExpressionCapabilities"
         }
-      }
+      },
+      "required": [
+        "expression"
+      ]
     },
     "RelationalQueryCapabilities": {
       "title": "Relational Query Capabilities",
-      "description": "Describes which features of the relational query API are supported by the connector. This feature is experimental and subject to breaking changes within minor versions.",
+      "description": "Describes which features of the relational query API are supported by the connector.\nThis feature is experimental and subject to breaking changes within minor versions.",
       "type": "object",
-      "required": [
-        "project"
-      ],
       "properties": {
         "project": {
           "$ref": "#/definitions/RelationalProjectionCapabilities"
@@ -1268,7 +1265,10 @@
             }
           ]
         }
-      }
+      },
+      "required": [
+        "project"
+      ]
     },
     "RelationalScalarExpressionCapabilities": {
       "title": "Relational Scalar Expression Capabilities",
@@ -1911,7 +1911,7 @@
       "type": "object",
       "properties": {
         "interval": {
-          "description": "Does the connector support the INTERVAL scalar type? Both interval literals and casts to the INTERVAL type are implied by this capability.",
+          "description": "Does the connector support the INTERVAL scalar type?\nBoth interval literals and casts to the INTERVAL type are implied by this capability.",
           "anyOf": [
             {
               "$ref": "#/definitions/LeafCapability"
@@ -1937,26 +1937,26 @@
     "RelationalSortCapabilities": {
       "title": "Relational Sort Capabilities",
       "type": "object",
-      "required": [
-        "expression"
-      ],
       "properties": {
         "expression": {
           "$ref": "#/definitions/RelationalExpressionCapabilities"
         }
-      }
+      },
+      "required": [
+        "expression"
+      ]
     },
     "RelationalWindowCapabilities": {
       "title": "Relational Window Capabilities",
       "type": "object",
-      "required": [
-        "expression"
-      ],
       "properties": {
         "expression": {
           "$ref": "#/definitions/RelationalExpressionCapabilities"
         }
-      }
+      },
+      "required": [
+        "expression"
+      ]
     },
     "RelationalWindowExpressionCapabilities": {
       "title": "Relational Window Expression Capabilities",

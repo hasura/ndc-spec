@@ -6,8 +6,6 @@ pub type OtherError = Box<dyn std::error::Error + Send + Sync>;
 pub enum Error {
     #[error("error communicating with the connector: {0}")]
     CommunicationError(#[from] Box<super::client::Error>),
-    #[error("error generating test data: {0}")]
-    StrategyError(#[from] rand::Error),
     #[error("error parsing semver range: {0}")]
     SemverError(#[from] semver::Error),
     #[error(
@@ -72,7 +70,7 @@ pub enum Error {
     BenchmarkExceededTolerance(f64),
     #[error("response from connector does not satisfy requirement: {0}")]
     ResponseDoesNotSatisfy(String),
-    #[error("invalid response at path {}: expected {1}", .0.join("."))]
+    #[error("invalid response at path {path}: expected {1}", path = .0.join("."))]
     InvalidValueInResponse(Vec<String>, String),
     #[error("expected matching responses, but got:\n{0:#?}\n{1:#?}")]
     ExpectedMatchingResponses(ndc_models::QueryResponse, ndc_models::QueryResponse),

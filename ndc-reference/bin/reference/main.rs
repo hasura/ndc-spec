@@ -160,9 +160,7 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
     // This says it's binding to an IPv6 address, but will actually listen to
     // any IPv4 or IPv6 address.
     let host = net::IpAddr::V6(net::Ipv6Addr::UNSPECIFIED);
-    let port = env::var("PORT")
-        .map(|s| s.parse())
-        .unwrap_or(Ok(DEFAULT_PORT))?;
+    let port = env::var("PORT").map_or(Ok(DEFAULT_PORT), |s| s.parse())?;
     let addr = net::SocketAddr::new(host, port);
 
     let listener = tokio::net::TcpListener::bind(addr).await?;

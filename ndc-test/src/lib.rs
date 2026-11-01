@@ -62,7 +62,7 @@ pub async fn test_connector<C: Connector, R: Reporter>(
     reporter: &mut R,
 ) {
     let mut rng = match configuration.seed {
-        None => rand::rngs::SmallRng::from_entropy(),
+        None => rand::rngs::SmallRng::from_rng(&mut rand::rng()),
         Some(seed) => rand::rngs::SmallRng::from_seed(seed),
     };
 

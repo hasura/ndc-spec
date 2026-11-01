@@ -26,14 +26,12 @@ impl TestResults {
             .red()
             .to_string();
 
-        let mut ix = 1;
-        for failure in &self.failures {
+        for (ix, failure) in (1..).zip(&self.failures) {
             result += format!("\n\n[{0}] {1}", ix, failure.name).as_str();
             for path_element in &failure.path {
                 result += format!("\n  in {path_element}").as_str();
             }
             result += format!("\nDetails: {0}", failure.error).as_str();
-            ix += 1;
         }
 
         result
