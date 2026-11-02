@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.15
+
+- Upgrade Rust 1.99 and dependencies to latest stable releases.
+
 ## 0.2.14
 
 - Add `lag` and `lead` window functions and capabilities for relational queries
