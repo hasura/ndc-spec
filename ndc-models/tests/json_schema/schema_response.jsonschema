@@ -2,13 +2,6 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Schema Response",
   "type": "object",
-  "required": [
-    "collections",
-    "functions",
-    "object_types",
-    "procedures",
-    "scalar_types"
-  ],
   "properties": {
     "scalar_types": {
       "description": "A list of scalar types which will be used as the types of collection columns",
@@ -18,7 +11,7 @@
       }
     },
     "object_types": {
-      "description": "A list of object types which can be used as the types of arguments, or return types of procedures. Names should not overlap with scalar type names.",
+      "description": "A list of object types which can be used as the types of arguments, or return types of procedures.\nNames should not overlap with scalar type names.",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/ObjectType"
@@ -68,19 +61,26 @@
       ]
     }
   },
+  "required": [
+    "scalar_types",
+    "object_types",
+    "collections",
+    "functions",
+    "procedures"
+  ],
   "definitions": {
     "AggregateCapabilitiesSchemaInfo": {
       "title": "Aggregate Capabilities Schema Info",
       "type": "object",
-      "required": [
-        "count_scalar_type"
-      ],
       "properties": {
         "count_scalar_type": {
-          "description": "The scalar type which should be used for the return type of count (star_count and column_count) operations.",
+          "description": "The scalar type which should be used for the return type of count\n(star_count and column_count) operations.",
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "count_scalar_type"
+      ]
     },
     "AggregateFunctionDefinition": {
       "title": "Aggregate Function Definition",
@@ -88,82 +88,68 @@
       "oneOf": [
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "min"
-              ]
+              "const": "min"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "max"
-              ]
+              "const": "max"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "sum"
-              ]
+              "const": "sum"
             },
             "result_type": {
-              "description": "The scalar type of the result of this function, which should have one of the type representations Int64 or Float64, depending on whether this function is defined on a scalar type with an integer or floating-point representation, respectively.",
+              "description": "The scalar type of the result of this function, which should have\none of the type representations Int64 or Float64, depending on\nwhether this function is defined on a scalar type with an integer or\nfloating-point representation, respectively.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "average"
-              ]
+              "const": "average"
             },
             "result_type": {
-              "description": "The scalar type of the result of this function, which should have the type representation Float64",
+              "description": "The scalar type of the result of this function, which should have\nthe type representation Float64",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "custom"
-              ]
+              "const": "custom"
             },
             "result_type": {
               "description": "The scalar or object type of the result of this function",
@@ -173,16 +159,17 @@
                 }
               ]
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         }
       ]
     },
     "ArgumentInfo": {
       "title": "Argument Info",
       "type": "object",
-      "required": [
-        "type"
-      ],
       "properties": {
         "description": {
           "description": "Argument description",
@@ -199,7 +186,10 @@
             }
           ]
         }
-      }
+      },
+      "required": [
+        "type"
+      ]
     },
     "CapabilitySchemaInfo": {
       "title": "Capability Schema Info",
@@ -221,15 +211,9 @@
     "CollectionInfo": {
       "title": "Collection Info",
       "type": "object",
-      "required": [
-        "arguments",
-        "name",
-        "type",
-        "uniqueness_constraints"
-      ],
       "properties": {
         "name": {
-          "description": "The name of the collection\n\nNote: these names are abstract - there is no requirement that this name correspond to the name of an actual collection in the database.",
+          "description": "The name of the collection\n\nNote: these names are abstract - there is no requirement that this name correspond to\nthe name of an actual collection in the database.",
           "type": "string"
         },
         "description": {
@@ -268,7 +252,13 @@
             }
           ]
         }
-      }
+      },
+      "required": [
+        "name",
+        "arguments",
+        "type",
+        "uniqueness_constraints"
+      ]
     },
     "ComparisonOperatorDefinition": {
       "title": "Comparison Operator Definition",
@@ -276,184 +266,154 @@
       "oneOf": [
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "equal"
-              ]
+              "const": "equal"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "in"
-              ]
+              "const": "in"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "less_than"
-              ]
+              "const": "less_than"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "less_than_or_equal"
-              ]
+              "const": "less_than_or_equal"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "greater_than"
-              ]
+              "const": "greater_than"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "greater_than_or_equal"
-              ]
+              "const": "greater_than_or_equal"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "contains"
-              ]
+              "const": "contains"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "contains_insensitive"
-              ]
+              "const": "contains_insensitive"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "starts_with"
-              ]
+              "const": "starts_with"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "starts_with_insensitive"
-              ]
+              "const": "starts_with_insensitive"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "ends_with"
-              ]
+              "const": "ends_with"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "ends_with_insensitive"
-              ]
+              "const": "ends_with_insensitive"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "argument_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "custom"
-              ]
+              "const": "custom"
             },
             "argument_type": {
               "description": "The type of the argument to this operator",
@@ -463,7 +423,11 @@
                 }
               ]
             }
-          }
+          },
+          "required": [
+            "type",
+            "argument_type"
+          ]
         }
       ]
     },
@@ -473,263 +437,231 @@
       "oneOf": [
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "nanosecond"
-              ]
+              "const": "nanosecond"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "microsecond"
-              ]
+              "const": "microsecond"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "millisecond"
-              ]
+              "const": "millisecond"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "second"
-              ]
+              "const": "second"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "minute"
-              ]
+              "const": "minute"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "hour"
-              ]
+              "const": "hour"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "day"
-              ]
+              "const": "day"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "week"
-              ]
+              "const": "week"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "month"
-              ]
+              "const": "month"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "quarter"
-              ]
+              "const": "quarter"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "year"
-              ]
+              "const": "year"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "day_of_week"
-              ]
+              "const": "day_of_week"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "day_of_year"
-              ]
+              "const": "day_of_year"
             },
             "result_type": {
               "description": "The result type, which must be a defined scalar type in the schema response.",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         },
         {
           "type": "object",
-          "required": [
-            "result_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "custom"
-              ]
+              "const": "custom"
             },
             "result_type": {
               "description": "The scalar or object type of the result of this function",
@@ -739,20 +671,20 @@
                 }
               ]
             }
-          }
+          },
+          "required": [
+            "type",
+            "result_type"
+          ]
         }
       ]
     },
     "ForeignKeyConstraint": {
       "title": "Foreign Key Constraint",
       "type": "object",
-      "required": [
-        "column_mapping",
-        "foreign_collection"
-      ],
       "properties": {
         "column_mapping": {
-          "description": "The columns on which you want want to define the foreign key. This is a mapping between fields on object type to columns on the foreign collection. The column on the foreign collection is specified via a field path (ie. an array of field names that descend through nested object fields). The field path must only contain a single item, meaning a column on the foreign collection's type, unless the 'relationships.nested' capability is supported, in which case multiple items can be used to denote a nested object field.",
+          "description": "The columns on which you want want to define the foreign key.\nThis is a mapping between fields on object type to columns on the foreign collection.\nThe column on the foreign collection is specified via a field path (ie. an array of field\nnames that descend through nested object fields). The field path must only contain a single item,\nmeaning a column on the foreign collection's type, unless the 'relationships.nested'\ncapability is supported, in which case multiple items can be used to denote a nested object field.",
           "type": "object",
           "additionalProperties": {
             "type": "array",
@@ -765,16 +697,15 @@
           "description": "The name of a collection",
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "column_mapping",
+        "foreign_collection"
+      ]
     },
     "FunctionInfo": {
       "title": "Function Info",
       "type": "object",
-      "required": [
-        "arguments",
-        "name",
-        "result_type"
-      ],
       "properties": {
         "name": {
           "description": "The name of the function",
@@ -802,15 +733,17 @@
             }
           ]
         }
-      }
+      },
+      "required": [
+        "name",
+        "arguments",
+        "result_type"
+      ]
     },
     "ObjectField": {
       "title": "Object Field",
       "description": "The definition of an object field",
       "type": "object",
-      "required": [
-        "type"
-      ],
       "properties": {
         "description": {
           "description": "Description of this field",
@@ -834,16 +767,15 @@
             "$ref": "#/definitions/ArgumentInfo"
           }
         }
-      }
+      },
+      "required": [
+        "type"
+      ]
     },
     "ObjectType": {
       "title": "Object Type",
       "description": "The definition of an object type",
       "type": "object",
-      "required": [
-        "fields",
-        "foreign_keys"
-      ],
       "properties": {
         "description": {
           "description": "Description of this type",
@@ -866,16 +798,15 @@
             "$ref": "#/definitions/ForeignKeyConstraint"
           }
         }
-      }
+      },
+      "required": [
+        "fields",
+        "foreign_keys"
+      ]
     },
     "ProcedureInfo": {
       "title": "Procedure Info",
       "type": "object",
-      "required": [
-        "arguments",
-        "name",
-        "result_type"
-      ],
       "properties": {
         "name": {
           "description": "The name of the procedure",
@@ -903,7 +834,12 @@
             }
           ]
         }
-      }
+      },
+      "required": [
+        "name",
+        "arguments",
+        "result_type"
+      ]
     },
     "QueryCapabilitiesSchemaInfo": {
       "title": "Query Capabilities Schema Info",
@@ -925,11 +861,6 @@
     "RelationalMutationInfo": {
       "title": "Relational Mutation Info",
       "type": "object",
-      "required": [
-        "deletable",
-        "insertable",
-        "updatable"
-      ],
       "properties": {
         "insertable": {
           "description": "Whether inserts are supported for this collection",
@@ -943,16 +874,16 @@
           "description": "Whether deletes are supported for this collection",
           "type": "boolean"
         }
-      }
+      },
+      "required": [
+        "insertable",
+        "updatable",
+        "deletable"
+      ]
     },
     "RequestLevelArguments": {
       "title": "Request Level Arguments",
       "type": "object",
-      "required": [
-        "mutation_arguments",
-        "query_arguments",
-        "relational_query_arguments"
-      ],
       "properties": {
         "query_arguments": {
           "description": "Any arguments that all Query requests require",
@@ -975,17 +906,17 @@
             "$ref": "#/definitions/ArgumentInfo"
           }
         }
-      }
+      },
+      "required": [
+        "query_arguments",
+        "mutation_arguments",
+        "relational_query_arguments"
+      ]
     },
     "ScalarType": {
       "title": "Scalar Type",
       "description": "The definition of a scalar type, i.e. types that can be used as the types of columns.",
       "type": "object",
-      "required": [
-        "aggregate_functions",
-        "comparison_operators",
-        "representation"
-      ],
       "properties": {
         "representation": {
           "description": "A description of valid values for this scalar type.",
@@ -1011,13 +942,18 @@
         },
         "extraction_functions": {
           "description": "A map from extraction function names to their definitions.",
-          "default": {},
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ExtractionFunctionDefinition"
-          }
+          },
+          "default": {}
         }
-      }
+      },
+      "required": [
+        "representation",
+        "aggregate_functions",
+        "comparison_operators"
+      ]
     },
     "Type": {
       "title": "Type",
@@ -1026,36 +962,28 @@
         {
           "description": "A named type",
           "type": "object",
-          "required": [
-            "name",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "named"
-              ]
+              "const": "named"
             },
             "name": {
               "description": "The name can refer to a scalar or object type",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "name"
+          ]
         },
         {
           "description": "A nullable type",
           "type": "object",
-          "required": [
-            "type",
-            "underlying_type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "nullable"
-              ]
+              "const": "nullable"
             },
             "underlying_type": {
               "description": "The type of the non-null inhabitants of this type",
@@ -1065,21 +993,19 @@
                 }
               ]
             }
-          }
+          },
+          "required": [
+            "type",
+            "underlying_type"
+          ]
         },
         {
           "description": "An array type",
           "type": "object",
-          "required": [
-            "element_type",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "array"
-              ]
+              "const": "array"
             },
             "element_type": {
               "description": "The type of the elements of the array",
@@ -1089,27 +1015,29 @@
                 }
               ]
             }
-          }
+          },
+          "required": [
+            "type",
+            "element_type"
+          ]
         },
         {
           "description": "A predicate type for a given object type",
           "type": "object",
-          "required": [
-            "object_type_name",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "predicate"
-              ]
+              "const": "predicate"
             },
             "object_type_name": {
               "description": "The object type name",
               "type": "string"
             }
-          }
+          },
+          "required": [
+            "type",
+            "object_type_name"
+          ]
         }
       ]
     },
@@ -1120,286 +1048,244 @@
         {
           "description": "JSON booleans",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "boolean"
-              ]
+              "const": "boolean"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "Any JSON string",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "string"
-              ]
+              "const": "string"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "A 8-bit signed integer with a minimum value of -2^7 and a maximum value of 2^7 - 1",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "int8"
-              ]
+              "const": "int8"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "A 16-bit signed integer with a minimum value of -2^15 and a maximum value of 2^15 - 1",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "int16"
-              ]
+              "const": "int16"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "A 32-bit signed integer with a minimum value of -2^31 and a maximum value of 2^31 - 1",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "int32"
-              ]
+              "const": "int32"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "A 64-bit signed integer with a minimum value of -2^63 and a maximum value of 2^63 - 1",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "int64"
-              ]
+              "const": "int64"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "An IEEE-754 single-precision floating-point number",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "float32"
-              ]
+              "const": "float32"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "An IEEE-754 double-precision floating-point number",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "float64"
-              ]
+              "const": "float64"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "Arbitrary-precision integer string",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "biginteger"
-              ]
+              "const": "biginteger"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "Arbitrary-precision decimal string",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "bigdecimal"
-              ]
+              "const": "bigdecimal"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "UUID string (8-4-4-4-12)",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "uuid"
-              ]
+              "const": "uuid"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "ISO 8601 date",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "date"
-              ]
+              "const": "date"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "ISO 8601 timestamp",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "timestamp"
-              ]
+              "const": "timestamp"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "ISO 8601 timestamp-with-timezone",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "timestamptz"
-              ]
+              "const": "timestamptz"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "GeoJSON, per RFC 7946",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "geography"
-              ]
+              "const": "geography"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "GeoJSON Geometry object, per RFC 7946",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "geometry"
-              ]
+              "const": "geometry"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "Base64-encoded bytes",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "bytes"
-              ]
+              "const": "bytes"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "Arbitrary JSON",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "json"
-              ]
+              "const": "json"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         },
         {
           "description": "One of the specified string values",
           "type": "object",
-          "required": [
-            "one_of",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "enum"
-              ]
+              "const": "enum"
             },
             "one_of": {
               "type": "array",
@@ -1407,16 +1293,17 @@
                 "type": "string"
               }
             }
-          }
+          },
+          "required": [
+            "type",
+            "one_of"
+          ]
         }
       ]
     },
     "UniquenessConstraint": {
       "title": "Uniqueness Constraint",
       "type": "object",
-      "required": [
-        "unique_columns"
-      ],
       "properties": {
         "unique_columns": {
           "description": "A list of columns which this constraint requires to be unique",
@@ -1425,7 +1312,10 @@
             "type": "string"
           }
         }
-      }
+      },
+      "required": [
+        "unique_columns"
+      ]
     }
   }
 }

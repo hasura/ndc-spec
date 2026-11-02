@@ -9,7 +9,7 @@ use indexmap::IndexMap;
 use ndc_models as models;
 use rand::rngs::SmallRng;
 use rand::seq::IteratorRandom;
-use rand::Rng;
+use rand::RngExt;
 use std::collections::BTreeMap;
 
 use super::common;
@@ -226,7 +226,7 @@ pub async fn test_single_column_aggregates<C: Connector>(
                             "{}_{}_{:04}",
                             field_name,
                             function_name,
-                            rng.gen_range(0..=9999)
+                            rng.random_range(0..=9999)
                         )),
                         aggregate,
                     );
@@ -235,12 +235,9 @@ pub async fn test_single_column_aggregates<C: Connector>(
         }
     }
 
-    let amount = rng.gen_range(1..=(gen_config.complexity.max(1) * 5));
-    let aggregates = IndexMap::from_iter(
-        available_aggregates
-            .into_iter()
-            .choose_multiple(rng, amount.into()),
-    );
+    let amount = rng.random_range(1..=(gen_config.complexity.max(1) * 5));
+    let aggregates =
+        IndexMap::from_iter(available_aggregates.into_iter().sample(rng, amount.into()));
 
     let query_request = models::QueryRequest {
         collection: collection_info.name.clone(),

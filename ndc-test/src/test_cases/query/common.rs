@@ -1,7 +1,7 @@
 use indexmap::IndexMap;
 use models::Type;
 use ndc_models::{self as models};
-use rand::{rngs::SmallRng, seq::IteratorRandom, Rng};
+use rand::{rngs::SmallRng, seq::IteratorRandom, RngExt};
 
 pub fn select_all_columns_without_arguments(
     collection_type: &models::ObjectType,
@@ -55,11 +55,11 @@ pub fn select_columns(
     collection_type: &models::ObjectType,
     rng: &mut SmallRng,
 ) -> IndexMap<models::FieldName, models::Field> {
-    let amount = rng.gen_range(0..=collection_type.fields.len());
+    let amount = rng.random_range(0..=collection_type.fields.len());
 
     select_all_columns(collection_type)
         .into_iter()
-        .choose_multiple(rng, amount)
+        .sample(rng, amount)
         .into_iter()
         .collect::<IndexMap<models::FieldName, models::Field>>()
 }

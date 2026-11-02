@@ -2,9 +2,6 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Mutation Response",
   "type": "object",
-  "required": [
-    "operation_results"
-  ],
   "properties": {
     "operation_results": {
       "description": "The results of each mutation operation, in the same order as they were received",
@@ -14,25 +11,26 @@
       }
     }
   },
+  "required": [
+    "operation_results"
+  ],
   "definitions": {
     "MutationOperationResults": {
       "title": "Mutation Operation Results",
       "oneOf": [
         {
           "type": "object",
-          "required": [
-            "result",
-            "type"
-          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": [
-                "procedure"
-              ]
+              "const": "procedure"
             },
             "result": true
-          }
+          },
+          "required": [
+            "type",
+            "result"
+          ]
         }
       ]
     }

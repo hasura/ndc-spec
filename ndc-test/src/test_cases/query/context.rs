@@ -6,7 +6,7 @@ use crate::error::Result;
 use indexmap::IndexMap;
 use ndc_models as models;
 use rand::rngs::SmallRng;
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 
 #[derive(Clone, Debug)]
 pub struct Context<'a> {
@@ -56,7 +56,7 @@ impl<'a> Context<'a> {
         self.values
             .iter()
             .collect::<Vec<_>>()
-            .choose_multiple(rng, amount)
+            .sample(rng, amount)
             .map(|&(field_name, values)| (field_name.clone(), values.clone()))
             .collect::<Vec<_>>()
     }

@@ -1,5 +1,5 @@
-# this should match the Rust version in rust-toolchain.yaml and the
-FROM rust:1.82.0 AS chef
+# Keep this in sync with rust-toolchain.toml.
+FROM rust:1.99.1-bookworm AS chef
 
 WORKDIR app
 

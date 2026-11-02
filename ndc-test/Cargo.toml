@@ -11,7 +11,7 @@ workspace = true
 default = ["native-tls"]
 
 native-tls = ["reqwest/native-tls"]
-rustls = ["reqwest/rustls-tls"]
+rustls = ["reqwest/rustls"]
 
 [dependencies]
 ndc-models = { path = "../ndc-models" }
@@ -20,7 +20,7 @@ async-trait = { workspace = true }
 clap = { workspace = true, features = ["derive"] }
 colorful = { workspace = true }
 indexmap = { workspace = true, features = ["serde"] }
-rand = { workspace = true, features = ["small_rng"] }
+rand = { workspace = true }
 reqwest = { workspace = true, features = ["json", "multipart"] }
 semver = { workspace = true }
 serde = { workspace = true }
