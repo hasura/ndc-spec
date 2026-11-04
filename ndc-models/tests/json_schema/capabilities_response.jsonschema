@@ -1264,6 +1264,17 @@
               "type": "null"
             }
           ]
+        },
+        "disjunct_streaming_error": {
+          "description": "Does the connector emit `RelationalQueryStreamError` objects instead of\nlegacy `[status, message]` arrays on the relational NDJSON stream?\nEvery top-level array is a data row when this capability is present.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LeafCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [

@@ -20,6 +20,10 @@ pub struct RelationalQueryCapabilities {
     pub window: Option<RelationalWindowCapabilities>,
     pub union: Option<LeafCapability>,
     pub streaming: Option<LeafCapability>,
+    /// Does the connector emit `RelationalQueryStreamError` objects instead of
+    /// legacy `[status, message]` arrays on the relational NDJSON stream?
+    /// Every top-level array is a data row when this capability is present.
+    pub disjunct_streaming_error: Option<LeafCapability>,
 }
 // ANCHOR_END: RelationalQueryCapabilities
 

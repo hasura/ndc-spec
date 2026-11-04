@@ -64,6 +64,11 @@ fn test_json_schemas() {
     );
     test_json_schema(
         &mut mint,
+        schema_for::<RelationalQueryStreamError>(),
+        "relational_query_stream_error.jsonschema",
+    );
+    test_json_schema(
+        &mut mint,
         schema_for::<RelationalQueryResponse>(),
         "relational_query_response.jsonschema",
     );
