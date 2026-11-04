@@ -253,3 +253,37 @@ pub enum RelationalLiteral {
         nanoseconds: i64,
     },
 }
+
+/// A terminal error on `/query/relational/stream` when
+/// `relational_query.disjunct_streaming_error` is advertised.
+/// Data rows are positional JSON arrays, structurally disjoint from this object.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[schemars(title = "RelationalQueryStreamError")]
+pub enum RelationalQueryStreamError {
+    Error {
+        /// HTTP error status (400 through 599). The stream HTTP status stays 200.
+        #[serde(deserialize_with = "deserialize_stream_error_status")]
+        #[schemars(range(min = 400, max = 599))]
+        status: u16,
+        /// Human-readable error message.
+        message: String,
+        /// Additional JSON error information. Missing details decode as null.
+        #[serde(default)]
+        details: serde_json::Value,
+    },
+}
+
+fn deserialize_stream_error_status<'de, D>(deserializer: D) -> Result<u16, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let status = u16::deserialize(deserializer)?;
+    if (400..=599).contains(&status) {
+        Ok(status)
+    } else {
+        Err(serde::de::Error::custom(
+            "stream error status must be between 400 and 599",
+        ))
+    }
+}

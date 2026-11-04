@@ -67,3 +67,5 @@
 
 - [Types](reference/types.md)
 - [JSON Schema](reference/json-schema.md)
+
+- [Relational streaming errors](relational-stream-errors.md)

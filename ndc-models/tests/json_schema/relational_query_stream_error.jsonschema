@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RelationalQueryStreamError",
+  "description": "A terminal error on `/query/relational/stream` when\n`relational_query.disjunct_streaming_error` is advertised.\nData rows are positional JSON arrays, structurally disjoint from this object.",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "error"
+        },
+        "status": {
+          "description": "HTTP error status (400 through 599). The stream HTTP status stays 200.",
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 400,
+          "maximum": 599
+        },
+        "message": {
+          "description": "Human-readable error message.",
+          "type": "string"
+        },
+        "details": {
+          "description": "Additional JSON error information. Missing details decode as null.",
+          "default": null
+        }
+      },
+      "required": [
+        "type",
+        "status",
+        "message"
+      ]
+    }
+  ]
+}

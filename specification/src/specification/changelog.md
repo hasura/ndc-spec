@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add the `disjunct_streaming_error` relational-query capability and canonical
+  `RelationalQueryStreamError` type/schema. With this capability, terminal stream
+  errors are tagged objects and every positional array remains a data row.
+
 ## 0.2.15
 
 - Upgrade Rust 1.99 and dependencies to latest stable releases.
