@@ -1264,7 +1264,7 @@ dependencies = [
 
 [[package]]
 name = "ndc-models"
-version = "0.2.15"
+version = "0.2.16"
 dependencies = [
  "arbitrary",
  "goldenfile",
@@ -1279,7 +1279,7 @@ dependencies = [
 
 [[package]]
 name = "ndc-reference"
-version = "0.2.15"
+version = "0.2.16"
 dependencies = [
  "async-trait",
  "axum",
@@ -1299,7 +1299,7 @@ dependencies = [
 
 [[package]]
 name = "ndc-test"
-version = "0.2.15"
+version = "0.2.16"
 dependencies = [
  "async-trait",
  "clap",
