@@ -263,7 +263,6 @@ pub enum RelationalLiteral {
 pub enum RelationalQueryStreamError {
     Error {
         /// HTTP error status (400 through 599). The stream HTTP status stays 200.
-        #[serde(deserialize_with = "deserialize_stream_error_status")]
         #[schemars(range(min = 400, max = 599))]
         status: u16,
         /// Human-readable error message.
@@ -272,18 +271,4 @@ pub enum RelationalQueryStreamError {
         #[serde(default)]
         details: serde_json::Value,
     },
-}
-
-fn deserialize_stream_error_status<'de, D>(deserializer: D) -> Result<u16, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    let status = u16::deserialize(deserializer)?;
-    if (400..=599).contains(&status) {
-        Ok(status)
-    } else {
-        Err(serde::de::Error::custom(
-            "stream error status must be between 400 and 599",
-        ))
-    }
 }
