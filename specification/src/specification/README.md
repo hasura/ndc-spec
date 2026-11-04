@@ -2,7 +2,7 @@
 
 | Version  |
 | -------- |
-| `0.2.15` |
+| `0.2.16` |
 
 A data connector encapsulates a data source by implementing the protocol in this specification.
 

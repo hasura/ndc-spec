@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.16
 
 - Add the `disjunct_streaming_error` relational-query capability and canonical
   `RelationalQueryStreamError` type/schema. With this capability, terminal stream

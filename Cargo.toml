@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 
-package.version = "0.2.15"
+package.version = "0.2.16"
 package.edition = "2021"
 
 members = ["ndc-models", "ndc-reference", "ndc-test"]
