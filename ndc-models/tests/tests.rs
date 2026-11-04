@@ -113,3 +113,28 @@ fn test_json_schema(mint: &mut Mint, mut schema: schemars::schema::RootSchema, f
     )
     .unwrap();
 }
+
+#[test]
+fn disjunct_streaming_error_capability_is_optional_and_preserved() {
+    let schema: serde_json::Value =
+        serde_json::from_str(include_str!("json_schema/capabilities_response.jsonschema")).unwrap();
+    assert!(
+        schema["definitions"]["RelationalQueryCapabilities"]["properties"]
+            .get("disjunct_streaming_error")
+            .is_some()
+    );
+    let mut relational = serde_json::json!({"project":{"expression":{"conditional":{},"comparison":{},"scalar":{},"aggregate":{},"window":{}}},"streaming":{}});
+    let old: RelationalQueryCapabilities = serde_json::from_value(relational.clone()).unwrap();
+    assert!(old.disjunct_streaming_error.is_none());
+    assert!(serde_json::to_value(old)
+        .unwrap()
+        .get("disjunct_streaming_error")
+        .is_none());
+    relational["disjunct_streaming_error"] = serde_json::json!({});
+    let new: RelationalQueryCapabilities = serde_json::from_value(relational).unwrap();
+    assert!(new.disjunct_streaming_error.is_some());
+    assert_eq!(
+        serde_json::to_value(new).unwrap()["disjunct_streaming_error"],
+        serde_json::json!({})
+    );
+}
